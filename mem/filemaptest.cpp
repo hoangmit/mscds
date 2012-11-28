@@ -36,7 +36,6 @@ void test_map1() {
 	fi.load(v);
 	assert(10 == v);
 	p.reset();
-	fi.load(v);
 	fi.endclass();
 	fi.close();
 }
@@ -68,7 +67,6 @@ void test_map2() {
 	fi.load(v);
 	assert(10 == v);
 	p.reset();
-	fi.load(v);
 	fi.endclass();
 	fi.close();
 }

@@ -30,7 +30,7 @@ void test_rank(const std::vector<bool>& vec) {
 	bd.build(v, &r);
 	for (int i = 0; i <= vec.size(); ++i) {
 		if (ranks[i] != r.rank(i)) {
-			cout << i << " " << ranks[i] << " " << r.rank(i) << endl;
+			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
 			assert(ranks[i] == r.rank(i));
 		}
 	}
@@ -41,7 +41,7 @@ void test_rank(const std::vector<bool>& vec) {
 	for (unsigned int i = 0; i < onecnt; ++i) {
 		int pos = r.select(i);
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
-			cout << i << "  " << r.select(i) << endl;
+			cout << "select " << i << "  " << r.select(i) << endl;
 			if (i > 0) r.select(i-1);
 			assert(vec[pos] == true);
 		}
@@ -51,7 +51,7 @@ void test_rank(const std::vector<bool>& vec) {
 	last = -1;
 	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
 		int pos = r.selectzero(i);
-		assert(vec[pos] == false);
+		assert(pos < vec.size() && vec[pos] == false);
 		assert(pos > last);
 		last = pos;
 	}

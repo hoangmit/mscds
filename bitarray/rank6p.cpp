@@ -151,7 +151,7 @@ uint64_t Rank6p::select(const uint64_t r) const {
 			len = d;
 		}
 	}
-	if (r < blkrank(lo*2))
+	if (lo >= inv.word_count() / 2 || r < blkrank(lo*2))
 		lo -= 1;
 	uint64_t d = r - blkrank(lo*2);
 	unsigned int j = 0;
@@ -184,7 +184,7 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 			len = d;
 		}
 	}
-	if (r < blkrank0(lo*2))
+	if (lo >= inv.word_count() / 2 || r < blkrank0(lo*2))
 		lo -= 1;
 	uint64_t d = r - blkrank0(lo*2);
 	unsigned int j = 0;

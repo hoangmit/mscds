@@ -1,0 +1,23 @@
+/*!
+\page external_software External related software libraries
+ - <a href="http://www.uni-ulm.de/in/theo/research/sdsl.html">SDSL</a>
+ - <a href="http://code.google.com/p/csalib/">CSALib</a>
+ - <a href="http://libcds.recoded.cl/">libcds</a>
+ - <a href="http://code.google.com/p/wat-array/">wat array</a> wavlet tree
+ - <a href="http://pizzachili.di.unipi.it/indexes.html">Pizza &amp; Chilli</a>
+ - <a href="http://www.cs.helsinki.fi/group/suds/cst/">SuDS</a> Compressed suffix tree
+ - <a href="http://code.google.com/p/tx-trie/">http://code.google.com/p/tx-trie/</a> Trie
+ - <a href="http://code.google.com/p/taiju/">http://code.google.com/p/taiju/</a> Another trie
+
+
+bitvector_rank_select
+ - <a href="http://bmagic.sourceforge.net/index.html">BitMagic</a> bit vector
+ - <a href="http://sux.dsi.unimi.it/">Sux</a>
+
+Suffix sorting
+ - <a href="http://code.google.com/p/libdivsufsort/">DivsufSort</a> Build suffix array, BWT
+ - <a href="http://www.michael-maniscalco.com/msufsort.htm">MSufSort</a>
+ - <a href="http://sites.google.com/site/yuta256/">Sais</a>
+
+
+*/

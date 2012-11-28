@@ -71,7 +71,7 @@ IArchive &IFileMapArchive::endclass(){
 struct FMDeleter {
 	mapped_region * ptr;
 	FMDeleter() {}
-	FMDeleter(FMDeleter& other): ptr(other.ptr) {}
+	FMDeleter(const FMDeleter& other): ptr(other.ptr) {}
 	FMDeleter(mapped_region * p):ptr(p){}
 
 	void operator()(void* p) {

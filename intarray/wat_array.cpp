@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <stdexcept>
 #include "wat_array.h"
 
 

@@ -43,7 +43,7 @@ public:
 	static void build(const BitArray& b, Rank6p * o);
 	static void build(const BitArray& b, OArchive& ar);
 private:
-	static uint64_t Rank6pBuilder::getwordz(const BitArray& v, size_t idx);
+	static uint64_t getwordz(const BitArray& v, size_t idx);
 };
 
 }

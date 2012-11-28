@@ -1,4 +1,4 @@
-#include "Rank6p.h"
+#include "rank6p.h"
 
 #include <stdexcept>
 

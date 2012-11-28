@@ -63,6 +63,7 @@ public:
 class ioerror: public std::exception {
 public:
 	ioerror() {}
+	~ioerror() throw() {}
 	ioerror(const ioerror& other): msg(other.msg) {}
 	ioerror(const std::string& _msg): msg(_msg) {}
 	const char* what() const throw() { return msg.c_str(); }

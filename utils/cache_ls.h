@@ -45,7 +45,7 @@ size_t cache_line_size() {
     return line_size;
 }
 }
-#elif defined(linux)
+#elif defined(__linux__)
 
 #include <stdio.h>
 namespace utils {

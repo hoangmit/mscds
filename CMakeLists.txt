@@ -33,7 +33,7 @@ endif()
 #  .a   = archive
 #  .so  = library
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${CMAKE_MY_TEST_DIR}/runtests.py COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
 	
 include_directories(${PROJECT_SOURCE_DIR})
 

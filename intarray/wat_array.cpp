@@ -87,11 +87,11 @@ void WatBuilder::build(const vector<uint64_t>& list, OArchive & ar) {
 void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector<uint64_t>& runlen) {
 	vector<uint64_t> nextrunlen, r0, r1;
 	uint64_t i = 0;
-	for (unsigned int r = 0; r < runlen.size(); ++r) {
+	for (uint64_t r = 0; r < runlen.size(); ++r) {
 		uint64_t len = runlen[r];
 		if (len > 0) {
 			uint64_t zero_cnt = 0;
-			for (unsigned int j = 0; j < len; j++)
+			for (uint64_t j = 0; j < len; j++)
 				if (GetMSB(pos[i+j], d, bit_num) == 0) {
 					zero_cnt++;
 					r0.push_back(pos[i+j]);
@@ -105,15 +105,15 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 	}
 	i = 0;
 	runlen.clear();
-	unsigned int r0p = 0, r1p = 0;
-	for (unsigned int k = 0; k < nextrunlen.size(); k += 2) {
+	uint64_t r0p = 0, r1p = 0;
+	for (uint64_t k = 0; k < nextrunlen.size(); k += 2) {
 		uint64_t zero_cnt = nextrunlen[k];
 		uint64_t one_cnt = nextrunlen[k+1];
-		for (unsigned int j = 0; j < zero_cnt; j++)
+		for (uint64_t j = 0; j < zero_cnt; j++)
 			pos[i+j] = r0[r0p + j];
 		i += zero_cnt;
 		r0p += zero_cnt;
-		for (unsigned int j = 0; j < one_cnt; j++)
+		for (uint64_t j = 0; j < one_cnt; j++)
 			pos[i+j] = r1[r1p + j];
 		i += one_cnt;
 		r1p += one_cnt;

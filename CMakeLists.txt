@@ -45,12 +45,3 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 
 
-
-#add_subdirectory(stxxlwrap ${PROJECT_BINARY_DIR}/stxxlwrap)
-
-#add_subdirectory(rs_dense1 ${PROJECT_BINARY_DIR}/rs_dense1)
-
-#set(CPACK_SOURCE_PACKAGE_FILE_NAME "extsds-${VERSION}")
-#set(CPACK_SOURCE_GENERATOR "ZIP")
-#set(CPACK_SOURCE_IGNORE_FILES "/CVS/;/.svn/;build;coder;rs_dense1;watarr" )
-#include(CPack)

@@ -1,9 +1,14 @@
 #pragma once
 
+#ifndef __RANK_6P_H_
+#define __RANK_6P_H_
+
 #include "bitarray.h"
 #include "archive.h"
 #include "rankselect.h"
 #include <cstdint>
+
+
 
 namespace mscds {
 
@@ -48,3 +53,6 @@ private:
 };
 
 }
+
+
+#endif //__RANK_6P_H_

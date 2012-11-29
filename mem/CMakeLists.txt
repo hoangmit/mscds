@@ -12,6 +12,6 @@ set(HEADERS filearchive.h fmaparchive.h)
 
 add_library(mem ${SRCS} ${HEADERS})
 
-add_executable(memtest filemaptest.cpp)
-target_link_libraries(memtest mem)
-set_target_properties(memtest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+add_executable(t_mem filemaptest.cpp)
+target_link_libraries(t_mem mem)
+set_target_properties(t_mem PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

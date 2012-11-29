@@ -102,9 +102,9 @@ void test_zerozeroone() {
 }
 
 
-void test_rnd1() {
+void test_rnd1(int len) {
 	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i) {
+	for (int i = 0; i < len; ++i) {
 		if (rand() % 2 == 1)
 			v.push_back(true);
 		else v.push_back(false);
@@ -112,9 +112,9 @@ void test_rnd1() {
 	test_rank(v);
 }
 
-void test_rnd2() {
+void test_rnd2(int len) {
 	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i) {
+	for (int i = 0; i < len; ++i) {
 		if (rand() % 100 == 1)
 			v.push_back(true);
 		else v.push_back(false);
@@ -128,10 +128,12 @@ void test_all_rank() {
 	test_onezero();
 	test_oneonezero();
 	test_zerozeroone();
-	test_rnd1();
-	test_rnd2();
-	test_rnd1();
-	test_rnd2();
+	for (int i = 0; i < 100; i++) {
+		test_rnd1(1000);
+		test_rnd2(1000);
+	}
+	test_rnd1(100000);
+	test_rnd2(100000);
 	cout << endl;
 }
 

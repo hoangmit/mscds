@@ -17,8 +17,8 @@
 *      software without specific prior written permission.
 */
 
-#ifndef __WATARRAY_H_
-#define __WATARRAY_H_
+#ifndef __WAVELET_ARRAY_H_
+#define __WAVELET_ARRAY_H_
 
 #include <vector>
 #include <queue>
@@ -123,4 +123,4 @@ private:
 } //namespace
 
 
-#endif // __WATARRAY_H_
+#endif // __WAVELET_ARRAY_H_

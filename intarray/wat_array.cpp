@@ -69,6 +69,7 @@ void WatBuilder::build(const vector<uint64_t>& list, WatQuery * out) {
 	runlen.push_back(length);
 	for (unsigned int d = 0; d < out->bit_arrays.size(); ++d) {
 		BitArray v = BitArray::create(length);
+		v.fillzero();
 		for (unsigned int i = 0; i < length; ++i) 
 			v.setbit(i, GetMSB(pos[i], d, alphabet_bit_num_) != 0);
 		Rank6pBuilder::build(v, &(out->bit_arrays[d]));
@@ -321,13 +322,13 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 
 		std::vector<NodeInfo> stack;
 		uint64_t tracepos(unsigned int r) {
-			/*for (size_t i = bitwidth; i > 0; --i) {
-				Rank6p& ba = *(ptr->bit_arrays[i - 1]);
+			for (size_t i = bitwidth; i > 0; --i) {
+				const Rank6p& ba = (ptr->bit_arrays[i - 1]);
 				if (!stack[i].bit)
-					r = ba.select(stack[i].bit, stack[i - 1].beg_node_zero + r) - stack[i - 1].beg_node;
+					r = ba.selectzero(stack[i - 1].beg_node_zero + r) - stack[i - 1].beg_node;
 				else
-					r = ba.select(stack[i].bit, stack[i - 1].beg_node_one + r) - stack[i - 1].beg_node;
-			}*/
+					r = ba.select(stack[i - 1].beg_node_one + r) - stack[i - 1].beg_node;
+			}
 			return r;
 		}
 

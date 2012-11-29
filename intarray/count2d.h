@@ -17,14 +17,15 @@ struct Point {
 	unsigned int x, y;
 };
 
+class Count2DQuery;
 
 class Count2DBuilder {
 public:
-	void build(const std::vector<Point>& list, Count2D * out);
+	void build(const std::vector<Point>& list, Count2DQuery * out);
 	void build(const std::vector<Point>& list, OArchive& ar);
 };
 
-class Count2D {
+class Count2DQuery {
 public:
 	uint64_t count(unsigned int x, unsigned int y) const;
 	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const;

@@ -163,7 +163,7 @@ void watarr_select_rank() {
 }
 
 void watarr_minmax_handmade_test() {
-	WatBuilder wb;
+	//WatBuilder wb;
 	uint64_t arr[8] = {2, 7, 1, 7, 3, 0, 4, 4};
 	vector<uint64_t> v;
 	for (int i = 0; i < 8; ++i)

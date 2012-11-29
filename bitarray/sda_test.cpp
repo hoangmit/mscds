@@ -46,7 +46,7 @@ void test_SDA1() {
 		}
 	}
 	psum += A[len-1];
-	assert(SDArrayQuery::NOTFOUND == arr.find(psum));
+	assert(1000 == arr.find(psum));
 	cout << ".";
 }
 
@@ -99,6 +99,7 @@ void test_SDA_all() {
 	test_SDA1();
 	for (int i  = 0; i < 100; i++)
 		test_SDA2();
+	cout << endl;
 }
 
 

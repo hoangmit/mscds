@@ -81,18 +81,20 @@ public:
 	/*
    * @ret vals_[0]+vals_[1]+...+vals_[pos-1] and set vals_[pos] to val
    */
-	uint64_t prefixsumLookup(uint64_t pos, uint64_t& val) const;
+	uint64_t lookup(uint64_t pos) const;
 
 	/*
    * @ret Return ind s.t. prefixSum(ind) <= val < prefixSum(ind+1) or NOTFOUND if not exist
    */
-	uint64_t find(uint64_t val) const;
+	uint64_t find(uint64_t val) const; // upper_bound(val) - 1
 
-	size_t size() const;
+	size_t length() const;
 
 	void load(IArchive& ar);
-	//void save(std::ostream& os) const;
+	void save(OArchive& ar) const;
 	void clear();
+
+	std::string to_str(bool psum = false) const; 
 
 private:
 	uint64_t selectBlock(uint64_t rank, uint64_t header) const;

@@ -21,6 +21,7 @@
 #include "sdarray.h"
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 
 using namespace std;
 
@@ -195,6 +196,15 @@ void SDArrayBuilder::build(SDArrayQuery * out) {
 
 //------------------------------------------------------------------------------
 
+void SDArrayQuery::save(OArchive& ar) const {
+	ar.startclass("sdarray", 1);
+	ar.var("size").save(size_);
+	ar.var("sum").save(sum_);
+	B_.save(ar);
+	Ltable_.save(ar);
+	ar.endclass();
+}
+
 void SDArrayQuery::load(IArchive& ar) {
 	clear();
 	ar.loadclass("sdarray");
@@ -204,6 +214,8 @@ void SDArrayQuery::load(IArchive& ar) {
 	Ltable_.load(ar);
 	ar.endclass();
 }
+
+
 
 
 void SDArrayQuery::clear() {
@@ -224,11 +236,10 @@ uint64_t SDArrayQuery::prefixsum(const uint64_t pos) const {
 	if (offset == 0) {
 		return sum;
 	}
-
 	return sum + selectBlock(offset, Ltable_.word(bpos * 2 + 1));
 }
 
-uint64_t SDArrayQuery::prefixsumLookup(const uint64_t pos, uint64_t& val) const {
+uint64_t SDArrayQuery::lookup(const uint64_t pos) const {
 	uint64_t bpos   = pos / BLOCK_SIZE;
 	uint64_t offset = pos % BLOCK_SIZE;
 	uint64_t sum    = Ltable_.word(bpos * 2);
@@ -239,12 +250,14 @@ uint64_t SDArrayQuery::prefixsumLookup(const uint64_t pos, uint64_t& val) const 
 		prev = selectBlock(offset, Ltable_.word(bpos * 2 + 1));
 	}
 	uint64_t cur = selectBlock(offset+1, Ltable_.word(bpos * 2 + 1));
-	val = cur - prev;
-	return sum + prev;
+	return cur - prev;
+	//val = ;
+	//return sum + prev;
 }
 
+
 uint64_t SDArrayQuery::find(const uint64_t val) const {
-	if (sum_ <= val) {
+	if (sum_ < val) {
 		//cout << "come0" << endl;
 		return NOTFOUND;
 	}
@@ -272,11 +285,9 @@ uint64_t SDArrayQuery::find(const uint64_t val) const {
 	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
 } 
 
-size_t SDArrayQuery::size() const {
+size_t SDArrayQuery::length() const {
 	return size_;
 }
-
-
 
 uint64_t SDArrayQuery::selectBlock(const uint64_t offset, const uint64_t header) const {
 	if (getBits(header, 48, 1)){
@@ -361,7 +372,27 @@ uint64_t SDArrayQuery::getBitsI(const uint64_t pos, const uint64_t num) const {
 	}
 }
 
-
+std::string SDArrayQuery::to_str(bool psum) const {
+	ostringstream ss;
+	if (psum) {
+		ss << '<';
+		if (length() > 0)
+			ss << prefixsum(1);
+		for (unsigned int i = 2; i <= length(); ++i) {
+			ss << ',' << prefixsum(i);
+		}
+		ss << '>';
+	}else {
+		ss << '{';
+		if (length() > 0)
+			ss << lookup(0);
+		for (unsigned int i = 1; i < length(); ++i) {
+			ss << ',' << lookup(i);
+		}
+		ss << '}';
+	}
+	return ss.str();
+}
 
 
 } //namespace

@@ -60,6 +60,7 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
+	std::string to_str() const;
 
 	const BitArray& bit_layer(unsigned int d);
 private:
@@ -78,6 +79,7 @@ private:
 
 class WatBuilder {
 public:
+	//static std::vector<uint64_t> convert(const std::vector<unsigned int>& list);
 	void build(const std::vector<uint64_t>& list, WatQuery * out);
 	void build(const std::vector<uint64_t>& list, OArchive & ar);
 private:
@@ -86,14 +88,15 @@ private:
 
 class GridQuery {
 private:
-	WatQuery * wt;
+	const WatQuery* wt;
 	std::vector<unsigned int> num_lst;
 public:
-	std::vector<std::vector<unsigned int> > results;
 	GridQuery(): wt(NULL) {}
 
-	void process(WatQuery * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num);
+	void process(const WatQuery* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<std::vector<unsigned int> > * result);
+	void clear();
 private:
+	std::vector<std::vector<unsigned int> > * results;
 	struct Query2{
 		unsigned int beg_node, end_node;
 		unsigned int depth;

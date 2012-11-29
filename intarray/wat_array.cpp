@@ -454,7 +454,17 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 	WatQuery::WatQuery():slength(0) {}
 	WatQuery::~WatQuery() { if (slength > 0) { clear(); slength = 0; } }
 
-
+	std::string WatQuery::to_str() const {
+		ostringstream ss;
+		ss << '{';
+		if (length() > 0)
+			ss << access(0);
+		for (unsigned int i = 1; i < length(); ++i) {
+			ss << ',' << access(i);
+		}
+		ss << '}';
+		return ss.str();
+	}
 	void WatQuery::clear() {
 		slength = 0;
 		bitwidth = 0;
@@ -464,7 +474,8 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 
 	//----------------------------------------------------------------------------
 
-	void GridQuery::process(WatQuery * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num) {
+	void GridQuery::process(WatQuery const * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<std::vector<unsigned int> > * result) {
+		this->results = result;
 		this->wt = wt;
 		num_lst.resize(num.size());
 		std::copy(num.begin(), num.end(), num_lst.begin());
@@ -483,8 +494,9 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		for (auto it = pos.begin(); it != pos.end(); it++) 
 			q.qpos.push_back(Query2::PosInfo(*it, 0));
 
-		results.resize(num.size());
-		for (unsigned int i = 0; i < results.size(); i++) results[i].resize(pos.size());
+		results->resize(num.size());
+		for (unsigned int i = 0; i < results->size(); i++)
+			(*results)[i].resize(pos.size());
 
 		std::deque<Query2> cur, next;
 		cur.push_back(q);
@@ -502,14 +514,18 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		this->wt = NULL;
 	}
 
+	void GridQuery::clear() {
+		results->clear();
+	}
+
 	void GridQuery::collect(const Query2& q) {
 		for (unsigned int i = q.beg_plst; i < q.end_plst; ++i) {
 			unsigned int j = 0;
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
-				results[i][j] = it->rank_lt;
+				(*results)[i][j] = it->rank_lt;
 				j++;
 			}
-			assert(num_lst.size() == j);
+			//assert(num_lst.size() == j);
 		}
 	}
 

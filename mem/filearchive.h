@@ -21,7 +21,7 @@ public:
 
 	void open_write(const std::string& fname);
 	void assign_write(std::ostream * o);
-	OFileArchive(): out(NULL), needclose(false) {}
+	OFileArchive(): out(NULL), needclose(false),  openclass(0), closeclass(0) {}
 	~OFileArchive() {close();}
 	void close();
 private:

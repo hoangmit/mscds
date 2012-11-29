@@ -1,0 +1,367 @@
+/* 
+ *  Copyright (c) 2010 Daisuke Okanohara
+ *
+ *   Redistribution and use in source and binary forms, with or without
+ *   modification, are permitted provided that the following conditions
+ *   are met:
+ *
+ *   1. Redistributions of source code must retain the above Copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *   2. Redistributions in binary form must reproduce the above Copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *   3. Neither the name of the authors nor the names of its contributors
+ *      may be used to endorse or promote products derived from this
+ *      software without specific prior written permission.
+ */
+
+#include <cassert>
+#include "sdarray.h"
+#include <cstring>
+#include <stdexcept>
+
+using namespace std;
+
+namespace mscds {
+
+const uint64_t SDArrayBuilder::BLOCK_SIZE = 64;
+const uint64_t SDArrayQuery::BLOCK_SIZE = 64;
+
+uint64_t log2(uint64_t x){
+	uint64_t r = 0;
+	while (x >> r){
+		r++;
+	}
+	return r;
+} 
+
+uint64_t selectword(uint64_t x, uint64_t r){
+	assert(r != 0);
+	uint64_t x1 = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
+	uint64_t x2 = (x1 & 0x3333333333333333ULL) + ((x1 >> 2) & 0x3333333333333333ULL);
+	uint64_t x3 = (x2 + (x2 >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+
+	uint64_t pos = 0;
+	for (;;  pos += 8){
+		uint64_t b = (x3 >> pos) & 0xFFULL;
+		if (r <= b) break;
+		r -= b;
+	}
+
+	uint64_t v2 = (x2 >> pos) & 0xFULL;
+	if (r > v2) {
+		r -= v2;
+		pos += 4;
+	}
+
+	uint64_t v1 = (x1 >> pos) & 0x3ULL;
+	if (r > v1){
+		r -= v1;
+		pos += 2;
+	}
+
+	uint64_t v0  = (x >> pos) & 0x1ULL;
+	if (v0 < r){
+		r -= v0;
+		pos += 1;
+	}
+
+	return pos;
+}
+
+uint64_t popCount(uint64_t x) {
+	x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
+	x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+	x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+	return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
+}
+
+uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num){
+	return (x >> beg) & ((1ULL << num) - 1);
+}
+
+SDArrayBuilder::SDArrayBuilder() : size_(0), sum_(0) {}
+
+SDArrayBuilder::~SDArrayBuilder(){}
+
+
+void SDArrayBuilder::add(uint64_t val){
+	vals_.push_back(val);
+	size_++;
+	if (vals_.size() == BLOCK_SIZE) {
+		build_inc();
+	}
+}
+
+
+void SDArrayBuilder::build_inc(){
+	assert(vals_.size() <= BLOCK_SIZE);
+	if (vals_.size() == 0) return;
+
+	for (size_t i = 1; i < vals_.size(); ++i){
+		vals_[i] += vals_[i-1];
+	}
+
+	uint64_t begPos  = B_.size();
+
+	Ltable_.push_back(sum_);
+	sum_ += vals_.back();
+
+	// header
+	// |-- begPos   (48) --|
+	// |-- allZero  ( 1) --|
+	// |-- width    ( 7) --|
+	// |-- firstSum ( 8) --|
+	assert(begPos < 1ULL << 48);
+	uint64_t header = (uint64_t)begPos; // use first 48 bit only
+
+	if (vals_.back() == 0){
+		header |= (1ULL << 48);
+	} else {
+		uint64_t width = log2(vals_.back() / vals_.size());
+		assert(width < (1ULL << 7));
+
+		// All zero special case
+		B_.resize(begPos + 2 + (vals_.size() * width + 63) / 64);
+		packHighs(begPos, width);
+		packLows(begPos, width);
+
+		header |= (width << 49);
+		uint64_t firstSum_ = popCount(B_[begPos]);
+		assert(firstSum_ < (1ULL << 8));
+
+		header |= firstSum_ << 56;
+	}
+	Ltable_.push_back(header);
+	vals_.clear();
+}
+
+void SDArrayBuilder::packHighs(uint64_t begPos, uint64_t width){
+	for (size_t i = 0; i < vals_.size(); ++i){
+		uint64_t pos    = (vals_[i] >> width) + i;
+		B_[begPos + (pos / BLOCK_SIZE)] |= (1ULL << (pos % BLOCK_SIZE));
+	}
+}
+
+void SDArrayBuilder::packLows(uint64_t begPos, uint64_t width){
+	if (width == 0) return;
+	begPos += 2;
+	uint64_t mask   = (1ULL << width) - 1;
+	for (size_t i = 0; i < vals_.size(); ++i){
+		uint64_t val    = vals_[i] & mask;
+		uint64_t pos    = i * width;
+		uint64_t bpos   = pos / BLOCK_SIZE;
+		uint64_t offset = pos % BLOCK_SIZE;
+		B_[begPos + bpos] |= val << offset;
+		if (offset + width > BLOCK_SIZE){
+			B_[begPos + bpos + 1] |= (val >> (BLOCK_SIZE - offset));
+		}
+	}
+}
+
+void SDArrayBuilder::clear(){
+	Ltable_.clear();
+	B_.clear();
+	vals_.clear();
+	size_ = 0;
+	sum_  = 0;
+}
+
+
+void SDArrayBuilder::build(OArchive& ar){
+	build_inc();
+	ar.startclass("sdarray", 1);
+	ar.var("size").save(size_);
+	ar.var("sum").save(sum_);
+	BitArray b(&(B_[0]), B_.size() * 64);
+	b.save(ar);
+	BitArray l(&(Ltable_[0]), Ltable_.size() * 64);
+	l.save(ar);
+	ar.endclass();
+	clear();
+}
+
+void SDArrayBuilder::build(SDArrayQuery * out) {
+	build_inc();
+	out->clear();
+	out->size_ = this->size_;
+	out->sum_ = this->sum_;
+	out->B_ = BitArray::create(&(B_[0]), B_.size() * 64);
+	out->Ltable_ = BitArray::create(&(Ltable_[0]), Ltable_.size() * 64);
+	clear();
+}
+
+//------------------------------------------------------------------------------
+
+void SDArrayQuery::load(IArchive& ar) {
+	clear();
+	ar.loadclass("sdarray");
+	ar.var("size").load(size_);
+	ar.var("sum").load(sum_);
+	B_.load(ar);
+	Ltable_.load(ar);
+	ar.endclass();
+}
+
+
+void SDArrayQuery::clear() {
+	B_.clear();
+	Ltable_.clear();
+	size_ = 0;
+	sum_ = 0;
+}
+
+SDArrayQuery::SDArrayQuery():size_(0), sum_(0) {}
+SDArrayQuery::~SDArrayQuery() {clear();}
+
+uint64_t SDArrayQuery::prefixsum(const uint64_t pos) const {
+	if (pos >= size_) return sum_;
+	uint64_t bpos   = pos / BLOCK_SIZE;
+	uint64_t offset = pos % BLOCK_SIZE;
+	uint64_t sum    = Ltable_.word(bpos * 2);
+	if (offset == 0) {
+		return sum;
+	}
+
+	return sum + selectBlock(offset, Ltable_.word(bpos * 2 + 1));
+}
+
+uint64_t SDArrayQuery::prefixsumLookup(const uint64_t pos, uint64_t& val) const {
+	uint64_t bpos   = pos / BLOCK_SIZE;
+	uint64_t offset = pos % BLOCK_SIZE;
+	uint64_t sum    = Ltable_.word(bpos * 2);
+	uint64_t prev   = 0;
+	if (offset == 0) {
+		prev = 0;
+	} else {
+		prev = selectBlock(offset, Ltable_.word(bpos * 2 + 1));
+	}
+	uint64_t cur = selectBlock(offset+1, Ltable_.word(bpos * 2 + 1));
+	val = cur - prev;
+	return sum + prev;
+}
+
+uint64_t SDArrayQuery::find(const uint64_t val) const {
+	if (sum_ <= val) {
+		//cout << "come0" << endl;
+		return NOTFOUND;
+	}
+	uint64_t low  = 0;
+	uint64_t high = Ltable_.word_count() / 2;
+	while (low < high){
+		uint64_t mid = low + (high - low)/2;
+		if (val < Ltable_.word(mid*2)){
+			high = mid;
+		} else {
+			low = mid+1;
+		}
+	}
+	if (low*2 > Ltable_.word_count()) {
+		cout << "come1" << endl;
+		return NOTFOUND;
+	}
+	if (low == 0) return 0;
+	uint64_t bpos = low-1;
+	assert(Ltable_.word(bpos*2) <= val);
+	if ((bpos+1)*2 < Ltable_.word_count()){
+		assert(val < Ltable_.word((bpos+1)*2));
+	}
+
+	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
+} 
+
+size_t SDArrayQuery::size() const {
+	return size_;
+}
+
+
+
+uint64_t SDArrayQuery::selectBlock(const uint64_t offset, const uint64_t header) const {
+	if (getBits(header, 48, 1)){
+		// all zero
+		return 0;
+	}
+	uint64_t begPos   = getBits(header,  0, 48);
+	uint64_t width    = getBits(header, 49,  7);
+	uint64_t firstSum = getBits(header, 56,  8);
+
+	uint64_t high = 0;
+	if (offset <= firstSum) {
+		high = (selectword(B_.word(begPos), offset) + 1 - offset) << width;
+	} else {
+		high = (selectword(B_.word(begPos+1), offset - firstSum) + 1 - offset + BLOCK_SIZE) << width;
+	}
+
+	return high + getLow(begPos, offset-1, width);
+}
+
+uint64_t SDArrayQuery::rankBlock(const uint64_t val, uint64_t header) const {
+	if (getBits(header, 48, 1)){
+		// all zero
+		return BLOCK_SIZE-1;
+	}
+	uint64_t begPos      = getBits(header,  0, 48);
+	uint64_t width       = getBits(header, 49,  7);
+	uint64_t firstOneSum = getBits(header, 56,  8);
+
+	uint64_t high = val >> width;
+	uint64_t low  = getBits(val,  0, width);
+
+	uint64_t firstZeroSum = BLOCK_SIZE - firstOneSum;
+	uint64_t valNum = 0;
+	uint64_t highPos = begPos * BLOCK_SIZE;
+	if (high > firstZeroSum){
+		valNum += firstOneSum;
+		high -= firstZeroSum;
+		highPos += BLOCK_SIZE;
+	}
+	if (high > 0){
+		uint64_t skipNum = selectword(~B_.word(highPos / BLOCK_SIZE), high)+ 1;
+		highPos += skipNum;
+		assert(skipNum >= high);
+		valNum += skipNum - high;
+	}
+
+	for ( ; ;  highPos++, valNum++){
+		if (highPos >= (begPos + 2) * BLOCK_SIZE){
+			return valNum;
+		}
+		if (!getBitI(highPos)){
+			return valNum;
+		}
+		uint64_t cur = getLow(begPos, valNum, width);
+
+		if (cur == low) {
+			return valNum + 1;
+		} else if (low < cur){
+			return valNum;
+		}
+	}
+	return valNum;
+}
+
+uint64_t SDArrayQuery::getLow(uint64_t begPos, uint64_t num, uint64_t width) const{
+	return getBitsI((begPos + 2) * BLOCK_SIZE + num * width, width);
+}
+
+uint64_t SDArrayQuery::getBitI(const uint64_t pos) const{
+	return (B_.word(pos / BLOCK_SIZE) >> (pos % BLOCK_SIZE)) & 1ULL;
+}
+
+uint64_t SDArrayQuery::getBitsI(const uint64_t pos, const uint64_t num) const {
+	uint64_t bpos   = pos / BLOCK_SIZE;
+	uint64_t offset = pos % BLOCK_SIZE;
+	uint64_t mask   = (1ULL << num) - 1;
+	if (offset + num <= BLOCK_SIZE){
+		return (B_.word(bpos) >> (pos % 64)) & mask;
+	} else {
+		return ((B_.word(bpos) >> (pos % 64)) + (B_.word(bpos + 1) << (BLOCK_SIZE - offset))) & mask;
+	}
+}
+
+
+
+
+} //namespace

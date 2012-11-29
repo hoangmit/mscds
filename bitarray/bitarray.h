@@ -134,6 +134,13 @@ public:
 		return v;
 	}
 
+	static BitArray create(uint64_t * ptr, size_t bitlen) {
+		BitArray v = create(bitlen);
+		size_t arrlen = (size_t) ceildiv(bitlen, WORDLEN);
+		std::copy(ptr, ptr + arrlen, v.data);
+		return v;
+	}
+
 	BitArray clone_mem() const {
 		BitArray v(this->bitlen);
 		std::copy(data, data + word_count(), v.data);

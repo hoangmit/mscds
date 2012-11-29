@@ -204,6 +204,12 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	return -1ull;
 }
 
+void Rank6p::clear() {
+	inv.clear();
+	bits.clear();
+	onecnt = 0;
+}
+
 unsigned int Rank6p::word_rank(size_t idx, unsigned int i) const {
 	return (i > 0) ? popcnt(bits.word(idx) & ((1ULL << i) - 1)) : 0;
 }

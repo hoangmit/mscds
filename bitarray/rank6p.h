@@ -20,6 +20,7 @@ public:
 	uint64_t selectzero(uint64_t r) const;
 	uint64_t one_count() const { return onecnt; }
 	uint64_t length() const { return bits.length(); }
+	void clear();
 	
 	bool bit(uint64_t p) const;
 

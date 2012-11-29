@@ -242,7 +242,7 @@ uint64_t SDArrayQuery::prefixsum(const uint64_t pos) const {
 uint64_t SDArrayQuery::lookup(const uint64_t pos) const {
 	uint64_t bpos   = pos / BLOCK_SIZE;
 	uint64_t offset = pos % BLOCK_SIZE;
-	uint64_t sum    = Ltable_.word(bpos * 2);
+	//uint64_t sum    = Ltable_.word(bpos * 2);
 	uint64_t prev   = 0;
 	if (offset == 0) {
 		prev = 0;

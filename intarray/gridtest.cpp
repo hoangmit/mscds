@@ -205,7 +205,6 @@ void watarr_list() {
 		unsigned int val = rand() %  maxval;
 		v.push_back(val);
 	}
-	WatBuilder wb;
 	WatQuery wq;
 	WatBuilder bd;
 	bd.build(v, &wq);

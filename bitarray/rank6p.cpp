@@ -90,7 +90,7 @@ void Rank6p::load(IArchive &ar, BitArray &b) {
 	size_t blen;
 	ar.var("bit_len").load(blen);
 	if (b.length() != blen) throw std::runtime_error("length mismatch");
-	uint64_t nc = ((blen + 2047) / 2048) * 2;
+	//uint64_t nc = ((blen + 2047) / 2048) * 2;
 	inv.load(ar);
 	this->bits = b;
 	ar.var("onecnt").load(onecnt);

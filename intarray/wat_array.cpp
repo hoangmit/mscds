@@ -554,7 +554,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		const Rank6p& ba = wt->bit_arrays[q.depth];
 		uint64_t beg_node_zero = ba.rankzero(q.beg_node);
 		uint64_t end_node_zero = ba.rankzero(q.end_node);
-		uint64_t beg_node_one  = q.beg_node - beg_node_zero;
+		//uint64_t beg_node_one  = q.beg_node - beg_node_zero;
 		uint64_t boundary      = q.beg_node + end_node_zero - beg_node_zero;
 		unsigned int list_boundary = list_partition(q.depth, q.beg_plst, q.end_plst);
 		if (list_boundary > q.beg_plst){

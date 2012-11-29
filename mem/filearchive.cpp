@@ -82,7 +82,7 @@ uint32_t FNV_hash24(const std::string& s) {
 
 	unsigned char IFileArchive::loadclass(const std::string& name) {
 		uint32_t hash = FNV_hash24(name);
-		unsigned char version = 0;
+		//unsigned char version = 0;
 		uint32_t v;
 		in->read((char*)&v, sizeof(v));
 		if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");

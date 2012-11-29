@@ -103,6 +103,7 @@ bool Rank6p::bit(uint64_t p) const {
 
 uint64_t Rank6p::rank(const uint64_t p) const {
 	assert(p <= bits.length());
+	if (p == bits.length()) return onecnt;
 	const uint64_t wpos = p >> 6; // div 64
 	const uint64_t blk = (p >> 10) & ~1ull;
 

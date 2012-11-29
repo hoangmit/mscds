@@ -84,8 +84,8 @@ public:
 		else data[bitindex / WORDLEN] &= ~(1ULL << (bitindex % WORDLEN));
 	}
 	
-	uint64_t& word(size_t pos) { return data[pos]; }
-	const uint64_t& word(size_t pos) const { return data[pos]; }
+	uint64_t& word(size_t pos) { assert(pos < word_count()); return data[pos]; }
+	const uint64_t& word(size_t pos) const { assert(pos < word_count()); return data[pos]; }
 	size_t length() const { return bitlen; }
 	size_t word_count() const { return ceildiv(bitlen, WORDLEN); }
 
@@ -150,7 +150,8 @@ public:
 	~BitArray() { clear(); }
 
 	inline static uint64_t ceildiv(uint64_t a, uint64_t b) {
-		return (a != 0 ? ((a - 1) / b) + 1 : 0);
+		//return (a != 0 ? ((a - 1) / b) + 1 : 0);
+		return (a + b - 1) / b;
 	}
 	
 	IArchive& load(IArchive& ar) {

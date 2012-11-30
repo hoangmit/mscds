@@ -93,10 +93,11 @@ private:
 public:
 	GridQuery(): wt(NULL) {}
 
-	void process(const WatQuery* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<std::vector<unsigned int> > * result);
+	void process(const WatQuery* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
 	void clear();
 private:
-	std::vector<std::vector<unsigned int> > * results;
+	unsigned int poslen;
+	std::vector<unsigned int> * results;
 	struct Query2{
 		unsigned int beg_node, end_node;
 		unsigned int depth;

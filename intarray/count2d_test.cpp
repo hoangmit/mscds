@@ -124,12 +124,12 @@ void test_grid_query1(unsigned int n, double p) {
 	qX.erase(unique(qX.begin(), qX.end()), qX.end());
 	sort(qY.begin(), qY.end());
 	qY.erase(unique(qY.begin(), qY.end()), qY.end());
-	vector<vector<unsigned int> > result = cq.count_grid(qX, qY);
+	vector<unsigned int> result = cq.count_grid(qX, qY);
 	for (int j = 0; j < qY.size(); j++) {
 		for (int i = 0; i < qX.size(); i++) {
-			if (count[qX[i]][qY[j]] != result[j][i]) {
-				cout << i << " " << j << "   " << count[qX[i]][qY[j]] << " " << result[j][i] << endl;
-				ASSERT_EQ(count[qX[i]][qY[j]], result[j][i]);
+			if (count[qX[i]][qY[j]] != result[j*qX.size()+i]) {
+				cout << i << " " << j << "   " << count[qX[i]][qY[j]] << " " << result[j*qX.size()+i] << endl;
+				ASSERT_EQ(count[qX[i]][qY[j]], result[j*qX.size()+i]);
 			}
 		}
 	}
@@ -165,7 +165,7 @@ void test_performance() {
 
 	cout << "start query" << endl;
 	clock_t startTime = clock();
-	vector<vector<unsigned int> > result = cq.count_grid(qX, qY);
+	vector<unsigned int>  result = cq.count_grid(qX, qY);
 	clock_t endTime = clock();
 	cout << double(endTime - startTime) / (double)CLOCKS_PER_SEC << " (s)" << endl;
 	cout << '.' << flush;

@@ -474,9 +474,10 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 
 	//----------------------------------------------------------------------------
 
-	void GridQuery::process(WatQuery const * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<std::vector<unsigned int> > * result) {
+	void GridQuery::process(WatQuery const * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int> * result) {
 		this->results = result;
 		this->wt = wt;
+		this->poslen = pos.size();
 		num_lst.resize(num.size());
 		std::copy(num.begin(), num.end(), num_lst.begin());
 		std::sort(num_lst.begin(), num_lst.end());
@@ -494,9 +495,10 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		for (auto it = pos.begin(); it != pos.end(); it++) 
 			q.qpos.push_back(Query2::PosInfo(*it, 0));
 
-		results->resize(num.size());
-		for (unsigned int i = 0; i < results->size(); i++)
-			(*results)[i].resize(pos.size());
+		//results->resize(num.size());
+		//for (unsigned int i = 0; i < results->size(); i++)
+		//	(*results)[i].resize(pos.size());
+		result->resize(num.size() * pos.size());
 
 		std::deque<Query2> cur, next;
 		cur.push_back(q);
@@ -520,12 +522,12 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 
 	void GridQuery::collect(const Query2& q) {
 		for (unsigned int i = q.beg_plst; i < q.end_plst; ++i) {
-			unsigned int j = 0;
+			unsigned int j = 0, st = i*poslen;
+			assert(num_lst.size() == poslen);
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
-				(*results)[i][j] = it->rank_lt;
+				(*results)[st + j] = it->rank_lt;
 				j++;
 			}
-			//assert(num_lst.size() == j);
 		}
 	}
 

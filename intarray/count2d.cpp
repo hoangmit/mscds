@@ -107,7 +107,7 @@ unsigned int Count2DQuery::map_y(unsigned int y) const {
 	return cy;
 }
 
-std::vector<std::vector<unsigned int> > Count2DQuery::count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const {
+std::vector<unsigned int> Count2DQuery::count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const {
 	GridQuery gq;
 	std::vector<unsigned int> Xp(X), Yp(Y);
 	for (unsigned int i = 0; i < Xp.size(); i++) 
@@ -116,7 +116,7 @@ std::vector<std::vector<unsigned int> > Count2DQuery::count_grid(const std::vect
 		Yp[i] = map_y(Yp[i]);
 	sort(Xp.begin(), Xp.end());
 	sort(Yp.begin(), Yp.end());
-	std::vector<std::vector<unsigned int> > result;
+	std::vector<unsigned int> result;
 	gq.process(&wq,  Xp, Yp, &result);
 	return result;
 }

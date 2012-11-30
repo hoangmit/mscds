@@ -5,6 +5,8 @@
 #include "count2d_exp.h"
 %}
 
+%template(VecUI32) std::vector<unsigned int>;
+
 namespace mscds {
 	struct Count2DBuilderEx {
 		void build(const std::string& textinput, const std::string& datafile);

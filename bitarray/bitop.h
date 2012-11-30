@@ -4,15 +4,18 @@
 #define __BIT_OP_H_
 
 #include <stdint.h>
+#include <cassert>
+
+/**
+  * Defines the following functions
+  popcnt, msb_intr, lsb_intr
+  popcnt_comp
+
+  selectword, selectword_v2
+  ceillog2
+  */
 
 namespace mscds {
-
-inline unsigned int popcnt(uint64_t x) {
-	x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
-	x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
-	x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
-	return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
-}
 
 #define ONES_STEP_4 ( 0x1111111111111111ULL )
 #define ONES_STEP_8 ( 0x0101010101010101ULL )
@@ -23,7 +26,7 @@ inline unsigned int popcnt(uint64_t x) {
 
 #define ZCOMPARE_STEP_8(x) ( ( ( x | ( ( x | MSBS_STEP_8 ) - ONES_STEP_8 ) ) & MSBS_STEP_8 ) >> 7 )
 
-inline uint64_t selectwrd(uint64_t x, uint64_t r) {
+inline uint64_t selectword_v2(uint64_t x, uint64_t r) {
 	register uint64_t byte_sums = x - ( ( x & 0xa * ONES_STEP_4 ) >> 1 );
 	byte_sums = ( byte_sums & 3 * ONES_STEP_4 ) + ( ( byte_sums >> 2 ) & 3 * ONES_STEP_4 );
 	byte_sums = ( byte_sums + ( byte_sums >> 4 ) ) & 0x0f * ONES_STEP_8;
@@ -43,8 +46,148 @@ inline uint64_t selectwrd(uint64_t x, uint64_t r) {
 	const uint64_t byte_rank_step_8 = byte_rank * ONES_STEP_8;
 
 	return place + ( LEQ_STEP_8( bit_sums, byte_rank_step_8 ) * ONES_STEP_8 >> 56 );
-
 }
 
+inline uint64_t selectword(uint64_t x, uint64_t r){
+	r += 1;
+	uint64_t x1 = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
+	uint64_t x2 = (x1 & 0x3333333333333333ULL) + ((x1 >> 2) & 0x3333333333333333ULL);
+	uint64_t x3 = (x2 + (x2 >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+
+	uint64_t pos = 0;
+	for (;;  pos += 8){
+		uint64_t b = (x3 >> pos) & 0xFFULL;
+		if (r <= b) break;
+		r -= b;
+	}
+
+	uint64_t v2 = (x2 >> pos) & 0xFULL;
+	if (r > v2) {
+		r -= v2;
+		pos += 4;
+	}
+
+	uint64_t v1 = (x1 >> pos) & 0x3ULL;
+	if (r > v1){
+		r -= v1;
+		pos += 2;
+	}
+
+	uint64_t v0  = (x >> pos) & 0x1ULL;
+	if (v0 < r){
+		r -= v0;
+		pos += 1;
+	}
+
+	return pos;
+}
 }//namespace
+
+
+#if defined (_MSC_VER)
+#include <intrin.h>
+//http://msdn.microsoft.com/en-us/library/fbxyd7zd%28v=VS.80%29.aspx
+
+namespace mscds{
+#if defined (_WIN64)
+	#pragma intrinsic(_BitScanReverse64)
+	inline unsigned int msb_intr(unsigned long long number) {
+		unsigned long index;
+		_BitScanReverse64(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(_BitScanForward64)
+	inline unsigned int lsb_intr(unsigned long long number) {
+		unsigned long index;
+		_BitScanForward64(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(__popcnt64)
+	inline unsigned int popcnt(unsigned long long number) {
+		return (unsigned int) __popcnt64(number);
+	}
+
+#else
+	// use _BitScanReverse64, _BitScanForward64 and __popcnt64 for 64x compiler
+	#pragma intrinsic(_BitScanReverse)
+	inline unsigned int msb_intr(unsigned long long number) {
+		unsigned long index;
+		//unsigned char isNonzero;
+
+		assert(number != 0);
+		unsigned int hi = number >> 32;
+		unsigned int lo = number & 0xFFFFFFFFull;
+		if (hi == 0) {
+			_BitScanReverse(&index, lo);
+		}
+		else {
+			_BitScanReverse(&index, hi);
+			index += 32;
+		}
+		return index;
+	}
+
+	#pragma intrinsic(_BitScanForward)
+	inline unsigned int lsb_intr(unsigned long long number) {
+		unsigned long index;
+		//unsigned char isNonzero;
+		assert(number != 0);
+		unsigned int hi = number >> 32;
+		unsigned int lo = number & 0xFFFFFFFFull;
+		if (lo == 0) {
+			_BitScanForward(&index, hi);
+			index += 32;
+		}else
+			_BitScanForward(&index, lo);
+		return index;
+	}
+
+	#pragma intrinsic(__popcnt)
+	inline unsigned int popcnt(unsigned long long number) {
+		return __popcnt(number >> 32) + __popcnt(number & 0xFFFFFFFFull);
+	}
+#endif
+}
+
+
+#endif // MSVC
+
+#if defined(__GNUC__)
+
+namespace mscds {
+	inline unsigned int msb_intr(unsigned long long number) {
+		return sizeof(number) * 8 -  __builtin_clzll(number) - 1;
+	}
+
+	inline unsigned int lsb_intr(unsigned long long number) {
+		return __builtin_ctzll(number);
+	}
+	inline unsigned int popcnt(unsigned long long number) {
+		return __builtin_popcountll(number);
+	}
+}
+#endif // GNUC
+
+namespace mscds {
+	inline unsigned int popcnt_comp(uint64_t x) {
+		x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
+		x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
+		x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
+		return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
+	}
+}//namespace
+
+
+namespace mscds {
+
+	/** \brief returns the value of ceiling of log_2(n) */
+	inline uint64_t ceillog2(uint64_t n) {
+		if (n == 0) return 0;
+		return msb_intr(n) + 1;
+	}
+}
+
+
 #endif //__BIT_OP_H_

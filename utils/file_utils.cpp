@@ -22,12 +22,21 @@
 namespace utils {
 	using namespace std;
 
-	std::string pathname(const std::string& filepath) {
+	std::string dirname(const std::string& filepath) {
 		size_t found=filepath.find_last_of("/\\");
 		if (found != std::string::npos) {
 			return filepath.substr(0, found);
 		}else {
 			return ".";
+		}
+	}
+
+	std::string basename(const std::string& filepath) {
+		size_t found=filepath.find_last_of("/\\");
+		if (found != std::string::npos) {
+			return filepath.substr(found+1);
+		}else {
+			return filepath;
 		}
 	}
 	
@@ -88,6 +97,18 @@ namespace utils {
 	bool make_dir(const std::string& name) {
 		return _mkdir(name.c_str()) == 0;
 	}
+
+	std::string get_temp_path() {
+		DWORD dwRetVal;
+		const DWORD dwBufSize=MAX_PATH+1;    // length of the buffer
+		char lpPathBuffer[dwBufSize]; // buffer for path
+		// Get the temp path.
+		dwRetVal = GetTempPathA(dwBufSize, lpPathBuffer);
+		if (dwRetVal == 0 || dwRetVal > dwBufSize) {
+			throw std::runtime_error("GetTempPath failed");
+		}
+		return string(lpPathBuffer);
+	}
 	
 #else
 
@@ -128,6 +149,10 @@ namespace utils {
 			close(fd);
 			return path;
 		}else return "";
+	}
+
+	std::string get_temp_path() {
+		return "/tmp/";
 	}
 
 #endif

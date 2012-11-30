@@ -97,6 +97,7 @@ public:
 	std::string to_str(bool psum = false) const; 
 
 private:
+	static uint64_t selectWord(uint64_t x, uint64_t r);
 	uint64_t selectBlock(uint64_t rank, uint64_t header) const;
 	uint64_t rankBlock(uint64_t val, uint64_t header) const;
 	uint64_t getLow(uint64_t begPos, uint64_t num, uint64_t width) const;

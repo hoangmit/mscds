@@ -1,5 +1,7 @@
 #include "rank6p.h"
 
+#include "bitop.h"
+
 #include <stdexcept>
 
 namespace mscds {
@@ -164,7 +166,7 @@ uint64_t Rank6p::select(const uint64_t r) const {
 	for (unsigned int k = 0; k < 4; k++)  {
 		unsigned int wr = word_rank(widx);
 		if (d < wr)
-			return lo * 2048 + 256* j + 64 * k + selectwrd(bits.word(widx), d);
+			return lo * 2048 + 256* j + 64 * k + selectword(bits.word(widx), d);
 		else
 			d -= wr;
 		widx += 1;
@@ -197,7 +199,7 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	for (unsigned int k = 0; k < 4; k++)  {
 		unsigned int wr = word_rank0(widx);
 		if (d < wr)
-			return lo * 2048 + 256* j + 64 * k + selectwrd(~bits.word(widx), d);
+			return lo * 2048 + 256* j + 64 * k + selectword(~bits.word(widx), d);
 		else
 			d -= wr;
 		widx += 1;

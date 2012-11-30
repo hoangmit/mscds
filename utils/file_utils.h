@@ -4,7 +4,10 @@
 
 namespace utils {
 	/*! \brief isolates and returns the path */
-	std::string pathname(const std::string& filepath);
+	std::string dirname(const std::string& filepath);
+
+	/*! \brief returns the file/directory basename */
+	std::string basename(const std::string& filepath);
 	
 	/*! \brief return the filename, and the extension e.g. "path/abc.txt" -> ("path/abc", ".txt") */	
 	std::pair<std::string, std::string> splitext(const std::string& filename);
@@ -25,4 +28,7 @@ namespace utils {
 
 	/** \brief open a temp file using prefix */
 	std::string open_temp(std::ofstream& f, const std::string& prefix = "");
+
+	/** \brief get temporary directory (cross platform) */
+	std::string get_temp_path();
 }

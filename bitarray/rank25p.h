@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bitarray.h"
+#include "bitop.h"
 
 
 namespace mscds {

@@ -24,12 +24,14 @@
 #include <stdexcept>
 #include "wat_array.h"
 
+#include "bitarray/bitop.h"
+
 
 namespace mscds {
 
 using namespace std;
 
-uint64_t Log2(uint64_t x) {
+/*uint64_t Log2(uint64_t x) {
 	if (x == 0) return 0;
 	x--;
 	uint64_t bit_num = 0;
@@ -37,7 +39,8 @@ uint64_t Log2(uint64_t x) {
 		++bit_num;
 	}
 	return bit_num;
-}
+}*/
+
 
 inline uint64_t GetMSB(uint64_t x, uint64_t pos, uint64_t len) {
 	return (x >> (len - (pos + 1))) & 1ULL;
@@ -53,14 +56,15 @@ void WatBuilder::build(const vector<uint64_t>& list, WatQuery * out) {
 	uint64_t alphabet_num = 0;
 	for (size_t i = 0; i < list.size(); ++i){
 		if (list[i] >= alphabet_num)
-			alphabet_num = list[i]+1;
+			alphabet_num = list[i];
 	}
 
-	uint64_t alphabet_bit_num_ = Log2(alphabet_num);
+	uint64_t alphabet_bit_num_ = ceillog2(alphabet_num);
+	//assert(Log2(alphabet_num) == msb_intr(alphabet_num - 1) + 1);
 
 	uint64_t length = static_cast<uint64_t>(list.size());
 	out->clear();
-	out->max_val = alphabet_num - 1;
+	out->max_val = alphabet_num;
 	out->slength = length;
 	out->bitwidth = alphabet_bit_num_;
 	out->bit_arrays.resize(alphabet_bit_num_);

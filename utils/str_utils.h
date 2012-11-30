@@ -9,7 +9,7 @@
 namespace utils {
 
 	/*! \brief adds "/" between prefix and suffix to make it a valid path */
-	std::string pathadd(const std::string& prefix, const std::string& suffix);
+	std::string joinp(const std::string& prefix, const std::string& suffix);
 	/*! \brief returns a new trimed string on both left and right of the input */
 	std::string trim(const std::string& input);
 	

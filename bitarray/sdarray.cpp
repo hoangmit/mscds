@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include "sdarray.h"
+#include "bitop.h"
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
@@ -30,54 +31,19 @@ namespace mscds {
 const uint64_t SDArrayBuilder::BLOCK_SIZE = 64;
 const uint64_t SDArrayQuery::BLOCK_SIZE = 64;
 
-uint64_t log2(uint64_t x){
+/*uint64_t log2(uint64_t x){
 	uint64_t r = 0;
 	while (x >> r){
 		r++;
 	}
 	return r;
-} 
+} */
 
-uint64_t selectword(uint64_t x, uint64_t r){
-	assert(r != 0);
-	uint64_t x1 = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
-	uint64_t x2 = (x1 & 0x3333333333333333ULL) + ((x1 >> 2) & 0x3333333333333333ULL);
-	uint64_t x3 = (x2 + (x2 >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
-
-	uint64_t pos = 0;
-	for (;;  pos += 8){
-		uint64_t b = (x3 >> pos) & 0xFFULL;
-		if (r <= b) break;
-		r -= b;
-	}
-
-	uint64_t v2 = (x2 >> pos) & 0xFULL;
-	if (r > v2) {
-		r -= v2;
-		pos += 4;
-	}
-
-	uint64_t v1 = (x1 >> pos) & 0x3ULL;
-	if (r > v1){
-		r -= v1;
-		pos += 2;
-	}
-
-	uint64_t v0  = (x >> pos) & 0x1ULL;
-	if (v0 < r){
-		r -= v0;
-		pos += 1;
-	}
-
-	return pos;
+uint64_t SDArrayQuery::selectWord(uint64_t x, uint64_t r){
+	assert(r > 0);
+	return selectword(x,r-1);
 }
 
-uint64_t popCount(uint64_t x) {
-	x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
-	x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
-	x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
-	return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
-}
 
 uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num){
 	return (x >> beg) & ((1ULL << num) - 1);
@@ -121,7 +87,7 @@ void SDArrayBuilder::build_inc(){
 	if (vals_.back() == 0){
 		header |= (1ULL << 48);
 	} else {
-		uint64_t width = log2(vals_.back() / vals_.size());
+		uint64_t width = ceillog2(vals_.back() / vals_.size());
 		assert(width < (1ULL << 7));
 
 		// All zero special case
@@ -130,7 +96,7 @@ void SDArrayBuilder::build_inc(){
 		packLows(begPos, width);
 
 		header |= (width << 49);
-		uint64_t firstSum_ = popCount(B_[begPos]);
+		uint64_t firstSum_ = popcnt(B_[begPos]);
 		assert(firstSum_ < (1ULL << 8));
 
 		header |= firstSum_ << 56;
@@ -300,9 +266,9 @@ uint64_t SDArrayQuery::selectBlock(const uint64_t offset, const uint64_t header)
 
 	uint64_t high = 0;
 	if (offset <= firstSum) {
-		high = (selectword(B_.word(begPos), offset) + 1 - offset) << width;
+		high = (selectWord(B_.word(begPos), offset) + 1 - offset) << width;
 	} else {
-		high = (selectword(B_.word(begPos+1), offset - firstSum) + 1 - offset + BLOCK_SIZE) << width;
+		high = (selectWord(B_.word(begPos+1), offset - firstSum) + 1 - offset + BLOCK_SIZE) << width;
 	}
 
 	return high + getLow(begPos, offset-1, width);
@@ -329,7 +295,7 @@ uint64_t SDArrayQuery::rankBlock(const uint64_t val, uint64_t header) const {
 		highPos += BLOCK_SIZE;
 	}
 	if (high > 0){
-		uint64_t skipNum = selectword(~B_.word(highPos / BLOCK_SIZE), high)+ 1;
+		uint64_t skipNum = selectWord(~B_.word(highPos / BLOCK_SIZE), high)+ 1;
 		highPos += skipNum;
 		assert(skipNum >= high);
 		valNum += skipNum - high;

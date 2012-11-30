@@ -8,68 +8,59 @@
 using namespace std;
 #include "str_utils.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#include <ctime>
+#endif
 
 
 
 namespace utils {
-	uint64_t get_bits_arr(const uint64_t * ptr, uint64_t bitindex, unsigned int len)  {
-		const unsigned int WORDLEN = 64;
-		if (!(len <= WORDLEN && len > 0))
-			throw runtime_error("invalid length input");
-		assert(len <= WORDLEN && len > 0);
-		uint64_t i = bitindex / WORDLEN;
-		unsigned int j = bitindex % WORDLEN; 
-		//assert(i < size());
-		uint64_t mask;
-		if (len < WORDLEN) mask = ((1ull << len) - 1); // (~0ull >> (WORDLEN - len));
-		else mask = ~0ull;
-		if (j + len <= WORDLEN) {
-			//assert(i < size());
-			return (ptr[i] >> j) & mask;
-		} else {
-			//assert(i + 1 < size());
-			return (ptr[i] >> j) | ((ptr[i + 1] << (WORDLEN - j)) & mask);
-		}
-	}
 
-	bool get_bit(const uint64_t * ptr, uint64_t bitindex) {
-		const unsigned int WORDLEN = 64;
-		return (ptr[bitindex / WORDLEN] & (1ULL << (bitindex % WORDLEN))) != 0;
-	}
-
-	void set_bit(uint64_t * ptr, uint64_t bitindex, bool value) {
-		const unsigned int WORDLEN = 64;
-		if (value)
-			ptr[bitindex / WORDLEN] |= (1ULL << (bitindex % WORDLEN));
-		else
-			ptr[bitindex / WORDLEN] &= ~(1ULL << (bitindex % WORDLEN));
-	}
-
-	void set_bits_arr(uint64_t * ptr, uint64_t bitindex, uint64_t value, unsigned int len) {
-		const unsigned int WORDLEN = 64;
-		assert(len <= WORDLEN && len > 0);
-		uint64_t i = bitindex / WORDLEN;
-		unsigned int j = bitindex % WORDLEN; 
-		//assert(i < size());
-		uint64_t mask = ((1ull << len) - 1); // & (~0ull >> (WORDLEN - len))
-		value = value & mask;
-		if (j + len <= WORDLEN) {
-			//assert(i < size());
-			ptr[i] = (ptr[i] & ~(mask << j)) | (value << j);
-		} else {
-			//assert(i + 1 < size());
-			ptr[i] = (ptr[i] & ~(mask << j)) | (value << j);
-			ptr[i+1] = ptr[i+1] & ~ (mask >> (WORDLEN - j)) &  value >> (WORDLEN - j);
-		}
-	}
-
+	Stopwatch::Stopwatch(): start_time(0), stop_time(0) {}
 
 	void Stopwatch::start() {
-		st_time = clock();
+		start_time = getTimeMs64();
 	}
 	
-	double Stopwatch::stop() {	
-		return (clock() - st_time)*1.0 / CLOCKS_PER_SEC;
-	}	
+	void Stopwatch::stop() {	
+		stop_time = getTimeMs64();
+	}
+
+	double Stopwatch::seconds() {
+		return (double)(stop_time-start_time)/1000.0;
+	}
+
+	uint64_t getTimeMs64() {
+	#ifdef WIN32
+		/* Windows */
+		FILETIME ft;
+		LARGE_INTEGER li;
+
+		/* Get the amount of 100 nano seconds intervals elapsed since January 1, 1601 (UTC) and copy it
+		* to a LARGE_INTEGER structure. */
+		GetSystemTimeAsFileTime(&ft);
+		li.LowPart = ft.dwLowDateTime;
+		li.HighPart = ft.dwHighDateTime;
+
+		uint64_t ret = li.QuadPart;
+		ret -= 116444736000000000LL; /* Convert from file time to UNIX epoch time. */
+		ret /= 10000; /* From 100 nano seconds (10^-7) to 1 millisecond (10^-3) intervals */
+
+		return ret;
+	#else
+		/* Linux */
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		uint64_t ret = tv.tv_usec;
+		/* Convert from micro seconds (10^-6) to milliseconds (10^-3) */
+		ret /= 1000;
+		/* Adds the seconds (10^0) after converting them to milliseconds (10^-3) */
+		ret += (tv.tv_sec * 1000);
+		return ret;
+	#endif
+	}
 
 }

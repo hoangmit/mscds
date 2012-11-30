@@ -2,5 +2,6 @@ cmake_minimum_required(VERSION 2.6)
 
 project(export_lib)
 
+swig_python_init()
 
-add_python_module(count2d_exp)
+add_python_module(count2d_exp bitarray)

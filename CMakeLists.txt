@@ -18,9 +18,9 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
 
 set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
 	CACHE PATH "Directory for testings executables")
-
 set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 	CACHE PATH "Directory for python modules")
+
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "-std=c++0x -fPIC -g")
@@ -43,5 +43,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
+add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 
 

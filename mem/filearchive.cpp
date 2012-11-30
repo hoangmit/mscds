@@ -105,6 +105,7 @@ uint32_t FNV_hash24(const std::string& s) {
 	SharedPtr IFileArchive::load_mem(int type, size_t size) {
 		void * p = operator new(size);
 		in->read((char*)p, size);
+		pos += size;
 		return SharedPtr(p, Deleter());
 	}
 

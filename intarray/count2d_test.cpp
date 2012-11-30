@@ -5,6 +5,9 @@
 #include <vector>
 #include <iostream>
 
+#include <random>
+#include <ctime>
+
 using namespace mscds;
 using namespace std;
 
@@ -133,7 +136,43 @@ void test_grid_query1(unsigned int n, double p) {
 	cout << '.' << flush;
 }
 
+
+void test_performance() {
+	std::mt19937 e;
+	std::uniform_int_distribution<unsigned int> rng(0, 500000000);
+	std::vector<Point> list;
+	cout << "generate points" << endl;
+	for (unsigned int i = 0; i < 50000000; i++) {
+		unsigned int x, y;
+		x = rng(e);
+		y = rng(e);
+		list.push_back(Point(x, y));
+	}
+	Count2DBuilder bd;
+	Count2DQuery cq;
+	cout << "start building.." << endl;
+	bd.build(list, &cq);
+	cout << "generate queries" << endl;
+	std::vector<unsigned int> qX, qY;
+	for (int i = 0; i < 300; i++)
+		qX.push_back(rng(e));
+	for (int i = 0; i < 300; i++)
+		qY.push_back(rng(e));
+	sort(qX.begin(), qX.end());
+	qX.erase(unique(qX.begin(), qX.end()), qX.end());
+	sort(qY.begin(), qY.end());
+	qY.erase(unique(qY.begin(), qY.end()), qY.end());
+
+	cout << "start query" << endl;
+	clock_t startTime = clock();
+	vector<vector<unsigned int> > result = cq.count_grid(qX, qY);
+	clock_t endTime = clock();
+	cout << double(endTime - startTime) / (double)CLOCKS_PER_SEC << " (s)" << endl;
+	cout << '.' << flush;
+}
+
 void test_all() {
+	test_performance();
 	test1();
 	test2(150, 0.125);
 	for (int i = 0; i < 100; ++i)

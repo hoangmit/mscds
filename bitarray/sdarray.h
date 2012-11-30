@@ -17,6 +17,8 @@
  *      software without specific prior written permission.
  */
 
+#pragma once
+
 #ifndef SDARRAY_HPP__
 #define SDARRAY_HPP__
 

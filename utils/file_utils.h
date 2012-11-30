@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef __FILE_UTILS_H_
+#define __FILE_UTILS_H_
+
 #include <string>
 #include <fstream>
 
@@ -32,3 +36,5 @@ namespace utils {
 	/** \brief get temporary directory (cross platform) */
 	std::string get_temp_path();
 }
+
+#endif //__FILE_UTILS_H_

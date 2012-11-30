@@ -1,3 +1,7 @@
+#pragma once
+
+#ifndef __FILE_MAP_ARCHIVE_H_
+#define __FILE_MAP_ARCHIVE_H_
 #include "filearchive.h"
 
 namespace mscds {
@@ -21,3 +25,5 @@ private:
 	FileMapImpl * impl;
 };
 }//namespace mscds 
+
+#endif //__FILE_MAP_ARCHIVE_H_

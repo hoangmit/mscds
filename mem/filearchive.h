@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __FILE_ARCHIVE_H_
+#define __FILE_ARCHIVE_H_
+
 #include "archive.h"
 
 #include <iostream>
@@ -53,3 +56,6 @@ private:
 };
 
 }//namespace
+
+
+#endif //__FILE_ARCHIVE_H_

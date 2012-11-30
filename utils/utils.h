@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef __COMMON_UTILS_H_
+#define __COMMON_UTILS_H_
 
 #include <stdint.h>
 #include <cassert>
@@ -32,6 +34,7 @@ namespace utils {
 		double seconds();
 		uint64_t start_time, stop_time;
 	};
-
 	
 }
+
+#endif //__COMMON_UTILS_H_

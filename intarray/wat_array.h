@@ -16,6 +16,7 @@
 *      may be used to endorse or promote products derived from this
 *      software without specific prior written permission.
 */
+#pragma once
 
 #ifndef __WAVELET_ARRAY_H_
 #define __WAVELET_ARRAY_H_

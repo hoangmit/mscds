@@ -1,6 +1,7 @@
 
 
 #include "count2d.h"
+#include "mem/fmaparchive.h"
 #include <cassert>
 #include <vector>
 #include <iostream>
@@ -77,6 +78,58 @@ void test2(unsigned int n, double p) {
 		}
 	cout << '.' << flush;
 }
+
+
+void test3() {
+	const unsigned int n = 150;
+	double p = 0.125;
+	vector<vector<bool> > matrix;
+	vector<vector<int> > count;
+	for (int i = 0; i < n + 1; ++i) {
+		matrix.push_back(vector<bool>());
+		matrix[i].resize(n + 1, false);
+		count.push_back(vector<int>());
+		count[i].resize(n + 1, 0);
+	}
+	int rp = p * n * n;
+	for (int i = 0; i < rp; i++)  {
+		int x = rand() % n;
+		int y = rand() % n;
+		matrix[x][y] = true;
+	}
+	for (int i = 1; i < n+1; ++i)
+		for (int j = 1; j < n+1; ++j) {
+			count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
+			if (matrix[i-1][j-1]) count[i][j] += 1;
+		}
+	std::vector<Point> list;
+	Count2DBuilder bd;
+
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < n; ++j)
+			if (matrix[i][j])
+				list.push_back(Point(i, j));
+	OFileArchive fo;
+	string fname = (string("../tmp/") + "temp_sx");;
+	fo.open_write(fname);
+	bd.build(list, fo);
+	fo.close();
+
+	IFileMapArchive fi;
+	fi.open_read(fname);
+	Count2DQuery cq;
+	cq.load(fi);
+	fi.close();
+
+	for (int i = 0; i < n+1; ++i)
+		for (int j = 0; j < n+1; ++j) {
+			int exp = count[i][j];
+			int val = cq.count(i,j);
+			ASSERT_EQ(exp, val);
+		}
+	cout << '.' << flush;
+}
+
 
 void test_grid_query1(unsigned int n, double p) {
 	//const unsigned int n = 150;
@@ -175,6 +228,7 @@ void test_all() {
 	test1();
 	test2(150, 0.125);
 	test_grid_query1(150, 0.125);
+	test3();
 	for (int i = 0; i < 100; ++i)
 		test2(100, (1.0+(rand() % 50))/100.0);
 	for (int i = 0; i < 100; ++i)

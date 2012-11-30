@@ -73,6 +73,10 @@ std::vector<unsigned int> Count2DQueryEx::count_grid(const std::vector<unsigned 
 	return q.count_grid(X, Y);
 }
 
+void Count2DQueryEx::close() {
+	q.clear();
+}
+
 
 }//namespace
 

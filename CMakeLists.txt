@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 2.6)
 project(mscds)
 set(VERSION 0.1.1)
 
+if (NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
+      "Choose the type of build, options are: None Debug Release."
+      FORCE)
+endif (NOT CMAKE_BUILD_TYPE)
+
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/function.cmake)
 fix_compiler_flags() #defined inside function.cmake

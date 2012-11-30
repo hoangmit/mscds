@@ -27,7 +27,9 @@ namespace utils {
 	void set_bit(uint64_t * ptr, uint64_t bitindex, bool value);
 	
 	/** \brief returns the ceiling of "a" over "b" */
-	uint64_t ceildiv(uint64_t a, uint64_t b);
+	inline uint64_t ceildiv(uint64_t a, uint64_t b) {
+		return (a + b - 1) / b;
+	}
 		
 	/** \brief Stopwatch class to measure running time */
 	class Stopwatch {

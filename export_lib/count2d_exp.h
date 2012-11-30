@@ -35,9 +35,28 @@ namespace mscds {
 	};
 
 	struct Count2DQueryEx {
+		/**
+		 * @brief load the data structure into memory
+		 *
+		 * If `fullmemload` is false, only partial of the structure is loaded into memory
+		 */
 		void load(const std::string& datafile, bool fullmemload=false);
+
+
+		/**
+		 * @brief count return the count in the region [x1,x2) \times [y1,y2)
+		 */
 		unsigned int count(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2);
+
+		/**
+		 * @brief count_grid computes the count queries for query points in a grid
+		 * @param X contains the x-coordinates of the grid
+		 * @param Y contains the y-coordinates of the grids
+		 * @return a vector V where V[j * |X| + i] = count(i,j)
+		 * e.g. V = { (x_0,y_0), (x1,y_0), (x_2,y_0) ... (x_|X|, y_0), (x_0, y_1) ... }
+		 */
 		std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y);
+
 		void close();
 	private:
 		Count2DQuery q;

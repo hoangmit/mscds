@@ -63,12 +63,6 @@ namespace utils {
 		}
 	}
 
-	uint64_t ceildiv(uint64_t a, uint64_t b) {
-		if (b == 0) throw std::runtime_error("division by zero");
-		if (a == 0) return 0;
-		return ((a - 1) / b) + 1;
-	}
-
 
 	void Stopwatch::start() {
 		st_time = clock();

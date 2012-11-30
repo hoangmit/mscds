@@ -3,8 +3,11 @@
 #ifndef __COUNT2D_EXP_H_
 #define __COUNT2D_EXP_H_
 
+#include "intarray/count2d.h"
+
 #include <string>
 #include <vector>
+
 
 namespace mscds {
 	struct Count2DBuilderEx {
@@ -26,6 +29,9 @@ namespace mscds {
 		 * \brief convert the data file back to the text file format.
 		 */
 		void extract(const std::string& datafile, const std::string& textfile);
+	private:
+		Count2DBuilder bd;
+		Count2DQuery q;
 	};
 
 	struct Count2DQueryEx {
@@ -33,6 +39,8 @@ namespace mscds {
 		unsigned int count(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2);
 		std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y);
 		void close();
+	private:
+		Count2DQuery q;
 	};
 }
 

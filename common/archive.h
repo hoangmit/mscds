@@ -20,7 +20,7 @@ struct ArchiveProp {
 
 class OArchive {
 public:
-	~OArchive() {}
+	virtual ~OArchive() {}
 	virtual OArchive& var(const std::string& name) { return * this; }
 	virtual OArchive& annotate(const std::string& name) { return * this; }
 	virtual OArchive& startclass(const std::string& name, unsigned char version) = 0;
@@ -41,7 +41,7 @@ typedef std::shared_ptr<void> SharedPtr;
 
 class IArchive {
 public:
-	~IArchive() {}
+	virtual ~IArchive() {}
 	virtual IArchive& var(const std::string& name) { return * this; }
 	virtual unsigned char loadclass(const std::string& name) = 0;
 	virtual IArchive& endclass() = 0;

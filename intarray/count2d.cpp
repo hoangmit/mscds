@@ -121,6 +121,10 @@ std::vector<unsigned int> Count2DQuery::count_grid(const std::vector<unsigned in
 	return result;
 }
 
+size_t Count2DQuery::size() {
+	return wq.length();
+}
+
 
 
 }//namespace

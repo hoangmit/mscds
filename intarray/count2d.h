@@ -36,6 +36,7 @@ public:
 	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const;
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
+	size_t size();
 private:
 	WatQuery wq;
 	SDArrayQuery SX, SY, DPX;

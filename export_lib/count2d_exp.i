@@ -5,7 +5,7 @@
 #include "count2d_exp.h"
 %}
 
-namespace count2d {
+namespace mscds {
 	struct Count2DBuilderEx {
 		void build(const std::string& textinput, const std::string& datafile);
 		void extract(const std::string& datafile, const std::string& textfile);

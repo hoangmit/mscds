@@ -521,9 +521,9 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 	}
 
 	void GridQuery::collect(const Query2& q) {
+		assert(q.qpos.size() == poslen);
 		for (unsigned int i = q.beg_plst; i < q.end_plst; ++i) {
 			unsigned int j = 0, st = i*poslen;
-			assert(num_lst.size() == poslen);
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				(*results)[st + j] = it->rank_lt;
 				j++;
@@ -565,6 +565,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			Query2 & zq = output.back();
 			uint64_t lastp = ~0ull;
 			unsigned int lastnpx = 0;
+			zq.qpos.reserve(q.qpos.size());
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
 					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero;
@@ -580,6 +581,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 				list_boundary, q.end_plst));
 			Query2 & nq = output.back();
 			uint64_t lastp = ~0ull;
+			nq.qpos.reserve(q.qpos.size());
 			unsigned int lastnpx = 0, lastrlt = 0;
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {

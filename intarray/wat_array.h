@@ -116,7 +116,7 @@ private:
 
 			unsigned int pos, rank_lt;
 		};
-		std::list<PosInfo> qpos;
+		std::vector<PosInfo> qpos;
 	};
 
 	unsigned int list_partition(unsigned int depth, unsigned int beg_list, unsigned int end_list) const;

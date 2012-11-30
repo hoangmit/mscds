@@ -172,13 +172,15 @@ void test_performance() {
 }
 
 void test_all() {
-	test_performance();
 	test1();
 	test2(150, 0.125);
+	test_grid_query1(150, 0.125);
 	for (int i = 0; i < 100; ++i)
 		test2(100, (1.0+(rand() % 50))/100.0);
 	for (int i = 0; i < 100; ++i)
 		test_grid_query1(100, (1.0+(rand() % 50))/100.0);
+	cout << endl;
+	test_performance();
 	cout << endl;
 }
 

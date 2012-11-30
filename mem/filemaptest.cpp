@@ -3,6 +3,7 @@
 #include "fmaparchive.h"
 
 #include <cassert>
+#include <stdexcept>
 
 #include <string>
 
@@ -20,9 +21,10 @@ void test_map1() {
 	fa.close();
 
 	IFileArchive fi;
-	uint32_t v;
+	uint32_t v = 0;
 	fi.open_read(fn);
-	assert(2 == fi.loadclass("testclass"));
+	char ver = fi.loadclass("testclass");
+	assert(2 == ver);
 	fi.load(v);
 	assert(1 == v);
 	fi.load_bin(&v, sizeof(v));

@@ -1,6 +1,7 @@
 #include "filearchive.h"
 #include <iostream>
 #include <cstring>
+using namespace std;
 
 namespace mscds {
 

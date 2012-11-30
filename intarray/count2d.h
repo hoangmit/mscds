@@ -34,6 +34,7 @@ class Count2DQuery {
 public:
 	uint64_t count(unsigned int x, unsigned int y) const;
 	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const;
+	void clear();
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	size_t size();

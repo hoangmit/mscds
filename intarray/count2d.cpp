@@ -74,9 +74,33 @@ void Count2DQuery::save(OArchive& ar) const {
 	ar.var("max_y").save(max_y);
 	SX.save(ar);
 	SY.save(ar);
+	DPX.save(ar);
 	wq.save(ar);
 	ar.endclass();
 }
+
+
+void Count2DQuery::load(IArchive& ar) {
+	clear();
+	ar.loadclass("count2d");
+	ar.var("max_x").load(max_x);
+	ar.var("max_y").load(max_y);
+	SX.load(ar);
+	SY.load(ar);
+	DPX.load(ar);
+	wq.load(ar);
+	ar.endclass();
+}
+
+void Count2DQuery::clear() {
+	max_x = 0;
+	max_y = 0;
+	wq.clear();
+	SX.clear();
+	SY.clear();
+	DPX.clear();
+}
+
 
 uint64_t Count2DQuery::count(unsigned int x, unsigned int y) const {
 	return wq.rankLessThan(map_y(y), map_x(x));

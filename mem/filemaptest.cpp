@@ -55,7 +55,8 @@ void test_map2() {
 	IFileMapArchive fi;
 	uint32_t v;
 	fi.open_read(fn);
-	assert(2 == fi.loadclass("testclass"));
+	char ver = fi.loadclass("testclass");
+	assert(2 == ver);
 	fi.load(v);
 	assert(1 == v);
 	fi.load_bin(&v, sizeof(v));

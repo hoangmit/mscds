@@ -49,7 +49,6 @@ public:
 		assert(bitindex + len <= bitlen);
 		uint64_t i = bitindex / WORDLEN;
 		unsigned int j = bitindex % WORDLEN; 
-		//uint64_t mask = ((1ull << (len % WORDLEN)) - 1); // (~0ull >> (WORDLEN - len));
 		uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull;
 		if (j + len <= WORDLEN) 
 			return (data[i] >> j) & mask;
@@ -57,20 +56,16 @@ public:
 			return (data[i] >> j) | ((data[i + 1] << (WORDLEN - j)) & mask);
 	}
 
-	void setbits(uint64_t bitindex, uint64_t value, unsigned int len) {
+	void setbits(size_t bitindex, uint64_t value, unsigned int len) {
 		assert(len <= WORDLEN && len > 0);
 		assert(bitindex + len <= bitlen);
 		uint64_t i = bitindex / WORDLEN;
 		unsigned int j = bitindex % WORDLEN; 
-		//uint64_t mask = ((1ull << (len % WORDLEN)) - 1);
 		uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull; // & (~0ull >> (WORDLEN - len))
 		value = value & mask;
-		if (j + len <= WORDLEN) {
-			data[i] = (data[i] & ~(mask << j)) | (value << j);
-		} else {
-			data[i] = (data[i] & ~(mask << j)) | (value << j);
-			data[i+1] = data[i+1] & ~ (mask >> (WORDLEN - j)) &  value >> (WORDLEN - j);
-		}
+		data[i] = (data[i] & ~(mask << j)) | (value << j);
+		if (j + len > WORDLEN)
+			data[i+1] = (data[i+1] & ~ (mask >> (WORDLEN - j))) | (value >> (WORDLEN - j));
 	}
 
 	bool bit(size_t bitindex) const {

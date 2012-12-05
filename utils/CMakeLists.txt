@@ -11,7 +11,6 @@ utils.cpp
 
 
 set(HEADERS
-bit_test.hpp
 cache_ls.h
 str_utils.h
 file_utils.h

@@ -27,9 +27,7 @@ void test_wat_1() {
 	WatQuery wq;
 	WatBuilder bd;
 	bd.build(v, &wq);
-	assert("01010011" == wq.bit_layer(0).to_str());
-	assert("10101100" == wq.bit_layer(1).to_str());
-	assert("10010011" == wq.bit_layer(2).to_str());
+	assert(("01010011" "10101100" "10010011") == wq.bit_layers().to_str());
 	for (int i = 0; i < 8; ++i)
 		assert(v[i] == wq.access(i));
 	
@@ -63,6 +61,7 @@ void test_wat_2() {
 		int count = 0;
 		for (int j = 0; j < i; ++j)
 			if (v[j] < testv) count++;
+
 		unsigned int rv = wq.rankLessThan(testv, i);
 		assert(count == rv);
 		assert(v[i] == wq.access(i));

@@ -63,12 +63,12 @@ public:
 	void clear();
 	std::string to_str() const;
 
-	const BitArray& bit_layer(unsigned int d);
+	const BitArray& bit_layers();
 private:
-	std::vector<Rank6p> bit_arrays;
 	uint64_t slength;
 	uint64_t bitwidth;
 	uint64_t max_val;
+	Rank6p bit_array;
 
 	uint64_t select_rec(uint64_t c, uint64_t r, size_t level, uint64_t beg_node, uint64_t end_node) const ;
 
@@ -97,25 +97,24 @@ public:
 	void process(const WatQuery* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
 	void clear();
 private:
-	unsigned int poslen;
+	uint64_t poslen;
 	std::vector<unsigned int> * results;
-	struct Query2{
-		unsigned int beg_node, end_node;
+	struct Query2 {
+		uint64_t beg_node, end_node;
 		unsigned int depth;
 		unsigned int beg_plst, end_plst;
 
 		Query2() {}
-		Query2(unsigned int beg, unsigned int end, unsigned int d, 
-			unsigned bl, unsigned el):
+		Query2(uint64_t beg, uint64_t end, unsigned int d, 
+			unsigned int bl, unsigned int el):
 				beg_node(beg), end_node(end), depth(d),
 				beg_plst(bl), end_plst(el) {}
 
 		struct PosInfo {
 			PosInfo() {}
-			PosInfo(unsigned int _pos, unsigned int _rank_lt):
+			PosInfo(uint64_t _pos, uint64_t _rank_lt):
 				pos(_pos), rank_lt(_rank_lt) {}
-
-			unsigned int pos, rank_lt;
+			uint64_t pos, rank_lt;
 		};
 		std::vector<PosInfo> qpos;
 	};

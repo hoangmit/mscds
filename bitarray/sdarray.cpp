@@ -31,14 +31,6 @@ namespace mscds {
 const uint64_t SDArrayBuilder::BLOCK_SIZE = 64;
 const uint64_t SDArrayQuery::BLOCK_SIZE = 64;
 
-/*uint64_t log2(uint64_t x){
-	uint64_t r = 0;
-	while (x >> r){
-		r++;
-	}
-	return r;
-} */
-
 uint64_t SDArrayQuery::selectWord(uint64_t x, uint64_t r){
 	assert(r > 0);
 	return selectword(x,r-1);

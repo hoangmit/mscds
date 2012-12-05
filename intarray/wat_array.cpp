@@ -31,22 +31,11 @@ namespace mscds {
 
 using namespace std;
 
-/*uint64_t Log2(uint64_t x) {
-	if (x == 0) return 0;
-	x--;
-	uint64_t bit_num = 0;
-	while (x >> bit_num){
-		++bit_num;
-	}
-	return bit_num;
-}*/
-
-
-inline uint64_t GetMSB(uint64_t x, uint64_t pos, uint64_t len) {
+static inline uint64_t getMSB(uint64_t x, uint64_t pos, uint64_t len) {
 	return (x >> (len - (pos + 1))) & 1ULL;
 }
 
-inline uint64_t PrefixCode(uint64_t x, unsigned int len, unsigned int bit_num) {
+static inline uint64_t prefixCode(uint64_t x, unsigned int len, unsigned int bit_num) {
 	return x >> (bit_num - len);
 }
 
@@ -67,20 +56,19 @@ void WatBuilder::build(const vector<uint64_t>& list, WatQuery * out) {
 	out->max_val = alphabet_num;
 	out->slength = length;
 	out->bitwidth = alphabet_bit_num_;
-	out->bit_arrays.resize(alphabet_bit_num_);
+	BitArray v = BitArray::create(length * alphabet_bit_num_);
+	v.fillzero();
 	
 	vector<uint64_t> runlen, pos(list);
 	runlen.push_back(length);
-	for (unsigned int d = 0; d < out->bit_arrays.size(); ++d) {
-		BitArray v = BitArray::create(length);
-		v.fillzero();
+	for (unsigned int d = 0; d < alphabet_bit_num_; ++d) {
 		for (unsigned int i = 0; i < length; ++i) 
-			v.setbit(i, GetMSB(pos[i], d, alphabet_bit_num_) != 0);
-		Rank6pBuilder::build(v, &(out->bit_arrays[d]));
-		if (d + 1 <  out->bit_arrays.size()) {
+			v.setbit(d*length + i, getMSB(pos[i], d, alphabet_bit_num_) != 0);
+		if (d + 1 <  alphabet_bit_num_) {
 			sortrun(d, alphabet_bit_num_, pos, runlen);
 		}
 	}
+	Rank6pBuilder::build(v, &(out->bit_array));
 }
 
 void WatBuilder::build(const vector<uint64_t>& list, OArchive & ar) {
@@ -97,7 +85,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		if (len > 0) {
 			uint64_t zero_cnt = 0;
 			for (uint64_t j = 0; j < len; j++)
-				if (GetMSB(pos[i+j], d, bit_num) == 0) {
+				if (getMSB(pos[i+j], d, bit_num) == 0) {
 					zero_cnt++;
 					r0.push_back(pos[i+j]);
 				}else 
@@ -134,43 +122,34 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 
 	void WatQuery::load(IArchive& ar) {
 		clear();
-		ar.loadclass("wavelet_tree");
+		unsigned char ver = ar.loadclass("wavelet_tree");
+		if (ver < 2) throw runtime_error("incompatible with version < 2");
 		ar.var("length").load(slength);
 		ar.var("bitwidth").load(bitwidth);
 		ar.var("max_value").load(max_val);
-		bit_arrays.resize(bitwidth);
-		for (unsigned int i = 0; i < bit_arrays.size(); ++i) {
-			ar.var(SSTR("bits_" << i));
-			BitArray b;
-			b.load(ar);
-			ar.var(SSTR("rank_" << i));
-			Rank6p r;
-			r.load(ar, b);
-			bit_arrays[i] = r;
-		}
+		ar.var("bits");
+		BitArray b;
+		b.load(ar);
+		ar.var("rank");
+		bit_array.load(ar, b);
 		ar.endclass();
 	}
 
 	void WatQuery::save(OArchive& ar) const {
-		assert(bit_arrays.size() == bitwidth);
-		ar.startclass("wavelet_tree", 1);
+		ar.startclass("wavelet_tree", 2);
 		ar.var("length").save(slength);
 		ar.var("bitwidth").save(bitwidth);
 		ar.var("max_value").save(max_val);
-
-		for (unsigned int i = 0; i < bit_arrays.size(); ++i) {
-			ar.var(SSTR("bits_" << i));
-			bit_arrays[i].getBitArray().save(ar);
-			ar.var(SSTR("rank_" << i));
-			bit_arrays[i].save(ar);
-		}
-		
+		ar.var("bits");
+		bit_array.getBitArray().save(ar);
+		ar.var("rank");
+		bit_array.save(ar);
 		ar.endclass();
 	}
 
 
-	const BitArray& WatQuery::bit_layer(unsigned int d) {
-		return bit_arrays[d].getBitArray();
+	const BitArray& WatQuery::bit_layers() {
+		return bit_array.getBitArray();
 	}
 
 	uint64_t WatQuery::access(uint64_t pos) const {
@@ -178,43 +157,38 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		uint64_t st = 0;
 		uint64_t en = slength;
 		uint64_t c = 0;
-		for (size_t i = 0; i < bit_arrays.size(); ++i){
-			const Rank6p & ba = (bit_arrays[i]);
-			uint64_t boundary  = st - ba.rankzero(st) + ba.rankzero(en);
-			uint64_t bit       = ba.bit(st + pos);
+		for (size_t i = 0; i < bitwidth; ++i){
+			const Rank6p & ba = bit_array;
+			const uint64_t boundary = st - ba.rankzero(st) + ba.rankzero(en);
 			c <<= 1;
-			if (bit){
-				pos = ba.rank( st + pos) - ba.rank( st);
-				st = boundary;
+			if (ba.bit(st + pos)){
+				pos = ba.rank(st + pos) - ba.rank(st);
+				st = boundary + slength;
+				en += slength;
 				c |= 1ULL;
 			} else {
-				pos = ba.rankzero(st+ pos) - ba.rankzero(st);
-				en = boundary;
+				pos = ba.rankzero(st + pos) - ba.rankzero(st);
+				st += slength;
+				en = boundary + slength;
 			}
 		}
 		return c;	 
 	}
 
 	uint64_t WatQuery::rank(uint64_t c, uint64_t pos) const{
-		uint64_t rank_less_than = 0;
-		uint64_t rank_more_than = 0;
-		uint64_t rank           = 0;
+		uint64_t rank_less_than = 0, rank_more_than = 0, rank = 0;
 		rankAll(c, pos, rank, rank_less_than, rank_more_than);
 		return rank;
 	}
 
 	uint64_t WatQuery::rankLessThan(uint64_t c, uint64_t pos) const{
-		uint64_t rank_less_than = 0;
-		uint64_t rank_more_than = 0;
-		uint64_t rank           = 0;
+		uint64_t rank_less_than = 0, rank_more_than = 0, rank = 0;
 		rankAll(c, pos, rank, rank_less_than, rank_more_than);
 		return rank_less_than;
 	}
 
 	uint64_t WatQuery::rankMoreThan(uint64_t c, uint64_t pos) const{
-		uint64_t rank_less_than = 0;
-		uint64_t rank_more_than = 0;
-		uint64_t rank           = 0;
+		uint64_t rank_less_than = 0, rank_more_than = 0, rank = 0;
 		rankAll(c, pos, rank, rank_less_than, rank_more_than);
 		return rank_more_than;
 	}
@@ -234,22 +208,20 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			uint64_t end_node = slength;
 			rank_less_than = 0;
 			rank_more_than = 0;
-
-			for (size_t i = 0; i < bit_arrays.size() && beg_node < end_node; ++i){
-				const Rank6p& ba = (bit_arrays[i]);
-				uint64_t beg_node_zero = ba.rankzero(beg_node);
-				uint64_t end_node_zero = ba.rankzero(end_node);
-				uint64_t beg_node_one  = beg_node - beg_node_zero;
-				uint64_t boundary      = beg_node + end_node_zero - beg_node_zero;
-				uint64_t bit           = GetMSB(c, i, bit_arrays.size());
-				if (!bit){
-					rank_more_than += ba.rank(pos) - beg_node_one;
-					pos      = beg_node + ba.rankzero(pos) - beg_node_zero;
-					end_node = boundary;
+			for (size_t i = 0; i < bitwidth && beg_node < end_node; ++i) {
+				const Rank6p& ba = bit_array;
+				const uint64_t beg_node_zero = ba.rankzero(beg_node);
+				const uint64_t boundary = beg_node + ba.rankzero(end_node) - beg_node_zero;
+				if (getMSB(c, i, bitwidth) == 0){
+					rank_more_than += ba.rank(pos) - (beg_node - beg_node_zero);
+					pos      = beg_node + ba.rankzero(pos) - beg_node_zero + slength;
+					beg_node += slength;
+					end_node = boundary + slength;
 				} else {
 					rank_less_than += ba.rankzero(pos) - beg_node_zero;
-					pos      = boundary + ba.rank(pos) - (beg_node - beg_node_zero);
-					beg_node = boundary;
+					pos      = boundary + ba.rank(pos) - (beg_node - beg_node_zero) + slength;
+					beg_node = boundary + slength;
+					end_node += slength;
 				}
 			}
 			rank = pos - beg_node;
@@ -261,24 +233,21 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 	}
 
 	uint64_t WatQuery::select_rec(uint64_t c, uint64_t r, size_t level, uint64_t beg_node, uint64_t end_node) const {
-		if (r >= end_node) return NOTFOUND; 
-		if (level == bit_arrays.size())
+		if (r + beg_node >= end_node) return NOTFOUND; 
+		if (level == bitwidth)
 			return r;
-		const Rank6p& ba = (bit_arrays[level]);
-		uint64_t beg_node_zero = ba.rankzero(beg_node);
-		uint64_t end_node_zero = ba.rankzero(end_node);
-		const uint64_t beg_node_one  = beg_node - beg_node_zero;
-		const uint64_t boundary      = beg_node + end_node_zero - beg_node_zero;
-		bool bit           = GetMSB(c, level, bit_arrays.size()) != 0;
+		const Rank6p& ba = bit_array;
+		const uint64_t beg_node_zero = ba.rankzero(beg_node);
+		const uint64_t boundary = beg_node + ba.rankzero(end_node) - beg_node_zero;
 		uint64_t rs = NOTFOUND;
-		if (!bit) {
-			rs = select_rec(c, r, level + 1, beg_node, boundary);
+		if (getMSB(c, level, bitwidth) == 0) {
+			rs = select_rec(c, r, level + 1, beg_node + slength, boundary + slength);
 			if (rs == NOTFOUND) return NOTFOUND;
 			return ba.selectzero(beg_node_zero + rs) - beg_node;
 		} else {
-			rs = select_rec(c, r, level + 1, boundary, end_node);
+			rs = select_rec(c, r, level + 1, boundary + slength, end_node + slength);
 			if (rs == NOTFOUND) return NOTFOUND;
-			return ba.select(beg_node_one + rs) - beg_node;
+			return ba.select((beg_node - beg_node_zero) + rs) - beg_node;
 		}
 	}
 
@@ -294,7 +263,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 	}
 
 	inline bool CheckPrefix(uint64_t prefix, unsigned int depth, uint64_t min_c, uint64_t max_c, unsigned int bitwidth)  {
-		if (PrefixCode(min_c, depth, bitwidth) <= prefix && PrefixCode(max_c-1, depth, bitwidth) >= prefix) return true;
+		if (prefixCode(min_c, depth, bitwidth) <= prefix && prefixCode(max_c-1, depth, bitwidth) >= prefix) return true;
 		else return false;
 	}
 
@@ -325,17 +294,6 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		};
 
 		std::vector<NodeInfo> stack;
-		uint64_t tracepos(unsigned int r) {
-			for (size_t i = bitwidth; i > 0; --i) {
-				const Rank6p& ba = (ptr->bit_arrays[i - 1]);
-				if (!stack[i].bit)
-					r = ba.selectzero(stack[i - 1].beg_node_zero + r) - stack[i - 1].beg_node;
-				else
-					r = ba.select(stack[i - 1].beg_node_one + r) - stack[i - 1].beg_node;
-			}
-			return r;
-		}
-
 		void query(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, WatQuery::ListCallback cb, void* context) {
 			this->context = context;
 			this->min_c = min_c;
@@ -347,6 +305,17 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			stack.clear();
 		}
 
+		uint64_t tracepos(unsigned int r) {
+			for (size_t i = bitwidth; i > 0; --i) {
+				const Rank6p& ba = (ptr->bit_array);
+				if (!stack[i].bit)
+					r = ba.selectzero(stack[i - 1].beg_node_zero + r) - stack[i - 1].beg_node;
+				else
+					r = ba.select(stack[i - 1].beg_node_one + r) - stack[i - 1].beg_node;
+			}
+			return r;
+		}
+
 		void expand_rec(unsigned int level) {
 			NodeInfo & cur = stack[level];
 			if (cur.beg_node >= cur.end_node) return ;
@@ -356,23 +325,22 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 				}
 				return ;
 			}
-			const Rank6p& ba = (ptr->bit_arrays[level]);
-			
+			const Rank6p& ba = (ptr->bit_array);
+			const uint64_t slength = ptr->slength;
 			cur.beg_node_zero = ba.rankzero(cur.beg_node);
-			uint64_t end_node_zero = ba.rankzero(cur.end_node);
 			cur.beg_node_one  = cur.beg_node - cur.beg_node_zero;
-			uint64_t beg_zero  = ba.rankzero(cur.beg_pos);
-			uint64_t end_zero  = ba.rankzero(cur.end_pos);
+			const uint64_t beg_zero  = ba.rankzero(cur.beg_pos);
+			const uint64_t end_zero  = ba.rankzero(cur.end_pos);
 			const uint64_t beg_one   = cur.beg_pos - beg_zero;
 			const uint64_t end_one   = cur.end_pos - end_zero;
-			const uint64_t boundary  = cur.beg_node + end_node_zero - cur.beg_node_zero;
+			const uint64_t boundary  = cur.beg_node + ba.rankzero(cur.end_node) - cur.beg_node_zero;
 			if (end_zero - beg_zero > 0){
 				uint64_t next_prefix = cur.prefix_char << 1;
 				if (CheckPrefix(next_prefix, cur.depth+1, min_c, max_c, bitwidth)) {
-					stack[level+1] = NodeInfo(cur.beg_node, 
-						boundary, 
-						cur.beg_node + beg_zero - cur.beg_node_zero, 
-						cur.beg_node + end_zero - cur.beg_node_zero, 
+					stack[level+1] = NodeInfo(cur.beg_node + slength, 
+						boundary + slength, 
+						cur.beg_node + beg_zero - cur.beg_node_zero + slength, 
+						cur.beg_node + end_zero - cur.beg_node_zero + slength, 
 						cur.depth+1,
 						next_prefix, false);
 					expand_rec(level + 1);
@@ -381,10 +349,10 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			if (end_one - beg_one > 0){
 				uint64_t next_prefix = (cur.prefix_char << 1) + 1;
 				if (CheckPrefix(next_prefix, cur.depth+1, min_c, max_c, bitwidth)) {
-					stack[level+1] = NodeInfo(boundary, 
-						cur.end_node, 
-						boundary + beg_one - cur.beg_node_one, 
-						boundary + end_one - cur.beg_node_one, 
+					stack[level+1] = NodeInfo(boundary + slength, 
+						cur.end_node + slength, 
+						boundary + beg_one - cur.beg_node_one + slength, 
+						boundary + end_one - cur.beg_node_one + slength, 
 						cur.depth+1,
 						next_prefix, true);
 					expand_rec(level + 1);
@@ -412,26 +380,24 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		val = 0;
 		uint64_t beg_node = 0;
 		uint64_t end_node = slength;
-		for (size_t i = 0; i < bit_arrays.size(); ++i){
-			const Rank6p& ba = (bit_arrays[i]);
-			uint64_t beg_node_zero = ba.rankzero(beg_node);
-			uint64_t end_node_zero = ba.rankzero(end_node);
-			const uint64_t beg_node_one  = beg_node - beg_node_zero;
-			uint64_t beg_zero  = ba.rankzero(begin_pos);
-			uint64_t end_zero  = ba.rankzero(end_pos);
-			const uint64_t beg_one   = begin_pos - beg_zero;
-			const uint64_t end_one   = end_pos - end_zero;
-			const uint64_t boundary  = beg_node + end_node_zero - beg_node_zero;
-
-			if (end_zero - beg_zero > k){ 
-				end_node = boundary;
+		for (size_t i = 0; i < bitwidth; ++i) {
+			const Rank6p& ba = (bit_array);
+			const uint64_t beg_node_zero = ba.rankzero(beg_node);
+			const uint64_t beg_zero  = ba.rankzero(begin_pos);
+			const uint64_t end_zero  = ba.rankzero(end_pos);
+			const uint64_t boundary  = beg_node + ba.rankzero(end_node) - beg_node_zero;
+			if (end_zero - beg_zero > k) {
+				beg_node += slength;
+				end_node = boundary + slength;
 				begin_pos = beg_node + beg_zero - beg_node_zero;
 				end_pos   = beg_node + end_zero - beg_node_zero;
 				val       = val << 1;
 			} else {
-				beg_node  = boundary; 
-				begin_pos = boundary + beg_one - beg_node_one;
-				end_pos   = boundary + end_one - beg_node_one;
+				const uint64_t beg_node_one  = beg_node - beg_node_zero;
+				beg_node  = boundary + slength;
+				end_node += slength;
+				begin_pos = beg_node + (begin_pos - beg_zero) - beg_node_one;
+				end_pos   = beg_node + (end_pos - end_zero) - beg_node_one;
 				val       = (val << 1) + 1;
 				k -= end_zero - beg_zero;
 			}
@@ -473,7 +439,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		slength = 0;
 		bitwidth = 0;
 		max_val = 0;
-		bit_arrays.clear();
+		bit_array.clear();
 	}
 
 	//----------------------------------------------------------------------------
@@ -482,6 +448,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		this->results = result;
 		this->wt = wt;
 		this->poslen = pos.size();
+		assert(wt->length() < (1ULL << 32));
 		num_lst.resize(num.size());
 		std::copy(num.begin(), num.end(), num_lst.begin());
 		std::sort(num_lst.begin(), num_lst.end());
@@ -495,7 +462,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		q.depth = 0;
 		q.beg_plst = 0;
 		q.end_plst = num_lst.size();
-		assert(wt->bit_arrays.size() == wt->bitwidth);
+		//assert(wt->bit_array.size() == wt->bitwidth);
 		for (auto it = pos.begin(); it != pos.end(); it++) 
 			q.qpos.push_back(Query2::PosInfo(*it, 0));
 
@@ -543,7 +510,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			it = first; 
 			step = count / 2; 
 			it += step;
-			if (GetMSB(num_lst[it],depth,wt->bitwidth) == 0) { // !(value < num_lst[it]) // bitzero
+			if (getMSB(num_lst[it],depth,wt->bitwidth) == 0) { // !(value < num_lst[it]) // bitzero
 				first = ++it;
 				count -= step + 1;
 			} else count = step;
@@ -556,15 +523,12 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			collect(q);
 			return ;
 		}
-
-		const Rank6p& ba = wt->bit_arrays[q.depth];
+		const Rank6p& ba = wt->bit_array;
 		uint64_t beg_node_zero = ba.rankzero(q.beg_node);
-		uint64_t end_node_zero = ba.rankzero(q.end_node);
-		//uint64_t beg_node_one  = q.beg_node - beg_node_zero;
-		uint64_t boundary      = q.beg_node + end_node_zero - beg_node_zero;
+		uint64_t boundary = q.beg_node + ba.rankzero(q.end_node) - beg_node_zero;
 		unsigned int list_boundary = list_partition(q.depth, q.beg_plst, q.end_plst);
 		if (list_boundary > q.beg_plst){
-			output.push_back(Query2(q.beg_node, boundary, q.depth + 1, 
+			output.push_back(Query2(q.beg_node + wt->slength, boundary + wt->slength, q.depth + 1, 
 				q.beg_plst, list_boundary));
 			Query2 & zq = output.back();
 			uint64_t lastp = ~0ull;
@@ -572,7 +536,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			zq.qpos.reserve(q.qpos.size());
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
-					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero;
+					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero + wt->slength;
 					zq.qpos.push_back(Query2::PosInfo(npx, it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;
@@ -581,7 +545,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			}
 		}
 		if (list_boundary < q.end_plst) {
-			output.push_back(Query2(boundary, q.end_node, q.depth + 1, 
+			output.push_back(Query2(boundary + wt->slength, q.end_node + wt->slength, q.depth + 1, 
 				list_boundary, q.end_plst));
 			Query2 & nq = output.back();
 			uint64_t lastp = ~0ull;
@@ -590,7 +554,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
 					unsigned int rleq = ba.rankzero(it->pos) - beg_node_zero;
-					unsigned int npx = boundary + ba.rank(it->pos) - (q.beg_node - beg_node_zero);
+					unsigned int npx = boundary + ba.rank(it->pos) - (q.beg_node - beg_node_zero) + wt->slength;
 					nq.qpos.push_back(Query2::PosInfo(npx, rleq + it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;

@@ -45,7 +45,7 @@ void Rank6pBuilder::build(const BitArray &b, OArchive &ar) {
 	assert(b.length() <= (1ULL << 50));
 	ar.var("bit_len").save(b.length());
 
-	uint64_t nc = ((b.length() + 2047) / 2048) * 2;
+	uint64_t nc = ((b.length() + 2047) / 2048) * 2; // every 2048 bits is a block
 	ar.var("inventory");
 	BitArraySeqBuilder bd(nc, ar);
 

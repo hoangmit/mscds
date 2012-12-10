@@ -148,20 +148,30 @@ public:
 		//return (a != 0 ? ((a - 1) / b) + 1 : 0);
 		return (a + b - 1) / b;
 	}
-	
-	IArchive& load(IArchive& ar) {
-		ar.loadclass("Bitvector");
+
+	IArchive& loadraw(IArchive& ar) {
 		ar.var("bit_len").load(bitlen);
 		ptr = ar.var("bits").load_mem(0, sizeof(uint64_t) * word_count());
 		data = (uint64_t*) ptr.get();
+		return ar;
+	}
+	
+	IArchive& load(IArchive& ar) {
+		ar.loadclass("Bitvector");
+		loadraw(ar);
 		ar.endclass();
+		return ar;
+	}
+
+	OArchive& saveraw(OArchive& ar) const {
+		ar.var("bit_len").save(bitlen);
+		ar.var("bits").save_bin(data, sizeof(uint64_t) * word_count());
 		return ar;
 	}
 
 	OArchive& save(OArchive& ar) const {
 		ar.startclass("Bitvector", 1);
-		ar.var("bit_len").save(bitlen);
-		ar.var("bits").save_bin(data, sizeof(uint64_t) * word_count());
+		saveraw(ar);
 		ar.endclass();
 		return ar;
 	}
@@ -179,6 +189,41 @@ private:
 	uint64_t * data;
 private:
 	SharedPtr ptr;
+};
+
+class FixedWArray {
+private:
+	BitArray b;
+	unsigned int width;
+public:
+	FixedWArray(): width(0) {}
+	FixedWArray(const FixedWArray& other): b(other.b) {}
+	FixedWArray(const BitArray& bits, unsigned int width_): b(bits), width(width_) {}
+	static FixedWArray create(size_t len, unsigned int width) {
+		return FixedWArray(BitArray::create(len*width), width);
+	}
+	uint64_t operator[](size_t i) const { return b.bits(i*width, width); }
+	void set(size_t i, uint64_t v) { b.setbits(i*width, v, width); }
+
+	void fillzero() { b.fillzero(); }
+	void clear() { b.clear(); width = 0; }
+	IArchive& load(IArchive& ar) {
+		ar.loadclass("FixedWArray");
+		ar.var("bitwidth").load(width);
+		b.loadraw(ar);
+		ar.endclass();
+		return ar;
+	}
+	OArchive& save(OArchive& ar) const {
+		ar.startclass("FixedWArray", 1);
+		ar.var("bitwidth").save(width);
+		b.saveraw(ar);
+		ar.endclass();
+		return ar;
+	}
+
+	unsigned int getWidth() const { return width; }
+	const BitArray getArray() const { return b; }
 };
 
 } //namespace

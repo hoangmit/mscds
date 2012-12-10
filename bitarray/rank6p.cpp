@@ -3,6 +3,7 @@
 #include "bitop.h"
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace mscds {
 
@@ -111,7 +112,7 @@ uint64_t Rank6p::rank(const uint64_t p) const {
 
 	uint64_t val = (inv.word(blk) & 0x3FFFFFFFFFFFFULL) + subblkrank(blk, ((p >> 8) & 7ULL));
 	for (unsigned int i = 0; i < (unsigned int) (wpos & 3ULL); ++i)
-		val += word_rank(i + (wpos & ~3ULL));
+		val += popcnt(bits.word(i + (wpos & ~3ULL)));
 	return val + word_rank(wpos, p & 63ULL);
 }
 
@@ -119,13 +120,8 @@ uint64_t Rank6p::rankzero(uint64_t p) const {
 	return p - rank(p);
 }
 
-
 uint64_t Rank6p::blkrank(size_t blk) const {
-	return inv.word(blk) & 0x3FFFFFFFFFFFFULL;
-}
-
-uint64_t Rank6p::blkrank0(size_t blk) const {
-	return blk * 1024 - (inv.word(blk) & 0x3FFFFFFFFFFFFULL);
+	return inv.word(2*blk) & 0x3FFFFFFFFFFFFULL;
 }
 
 uint64_t Rank6p::subblkrank(size_t blk, unsigned int off) const {
@@ -137,41 +133,47 @@ uint64_t Rank6p::subblkrank(size_t blk, unsigned int off) const {
 	return subblk_rank;
 }
 
-uint64_t Rank6p::subblkrank0(size_t blk, unsigned int off) const {
-	return off*4*64 - subblkrank(blk, off);
-}
-
 uint64_t Rank6p::select(const uint64_t r) const {
 	assert(r < onecnt);
 	uint64_t lo = 0, len = inv.word_count() / 2;
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;
-		if (blkrank(mid*2) < r) {
+		if (blkrank(mid) < r) {
 			lo = mid + 1;
 			len -= d + 1;
-		}else {
+		}else
 			len = d;
-		}
 	}
-	if (lo >= inv.word_count() / 2 || r < blkrank(lo*2))
+	if (lo >= inv.word_count() / 2 || r < blkrank(lo))
 		lo -= 1;
-	uint64_t d = r - blkrank(lo*2);
+	return selectblock(lo, r - blkrank(lo));
+}
+
+uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < 8; i++)
-		if (subblkrank(lo*2, i) <= d) j = i;
+		if (subblkrank(blk*2, i) <= d) j = i;
 		else break;
-	d = d - subblkrank(lo*2, j);
-	uint64_t widx = lo * 32 + j * 4;
+	d = d - subblkrank(blk*2, j);
+	uint64_t widx = blk * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr = word_rank(widx);
+		unsigned int wr = popcnt(bits.word(widx));
 		if (d < wr)
-			return lo * 2048 + 256* j + 64 * k + selectword(bits.word(widx), d);
+			return blk * 2048 + 256* j + 64 * k + selectword(bits.word(widx), d);
 		else
 			d -= wr;
 		widx += 1;
 	}
 	return -1ull;
+}
+
+uint64_t Rank6p::blkrank0(size_t blk) const {
+	return blk * 2048 - (inv.word(blk*2) & 0x3FFFFFFFFFFFFULL);
+}
+
+uint64_t Rank6p::subblkrank0(size_t blk, unsigned int off) const {
+	return off*4*64 - subblkrank(blk, off);
 }
 
 uint64_t Rank6p::selectzero(const uint64_t r) const {
@@ -180,16 +182,18 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;
-		if (blkrank0(mid*2) < r) {
+		if (blkrank0(mid) < r) {
 			lo = mid + 1;
 			len -= d + 1;
-		}else {
+		}else 
 			len = d;
-		}
 	}
-	if (lo >= inv.word_count() / 2 || r < blkrank0(lo*2))
+	if (lo >= inv.word_count() / 2 || r < blkrank0(lo))
 		lo -= 1;
-	uint64_t d = r - blkrank0(lo*2);
+	return selectblock0(lo, r - blkrank0(lo));
+}
+
+uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < 8; i++)
 		if (subblkrank0(lo*2, i) <= d) j = i;
@@ -197,7 +201,7 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	d = d - subblkrank0(lo*2, j);
 	uint64_t widx = lo * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr = word_rank0(widx);
+		unsigned int wr =  popcnt(~bits.word(widx));
 		if (d < wr)
 			return lo * 2048 + 256* j + 64 * k + selectword(~bits.word(widx), d);
 		else
@@ -217,12 +221,58 @@ unsigned int Rank6p::word_rank(size_t idx, unsigned int i) const {
 	return (i > 0) ? popcnt(bits.word(idx) & ((1ULL << i) - 1)) : 0;
 }
 
-unsigned int Rank6p::word_rank(size_t idx) const {
-	return popcnt(bits.word(idx));
+//------------------------------------------------------------------------
+
+void Rank6pHintSel::init() {
+	hints.clear();
+	hints = BitArray::create((rankst.one_count()/4096 + 2) * 64);
+	uint64_t p = 0;
+	hints.word(0) = 0;
+	uint64_t endp = rankst.inv.word_count()/2;
+	for (uint64_t i = 4096; i < rankst.one_count(); i += 4096) {
+		for (; p < endp; p++)
+			if (rankst.blkrank(p) >= i) break;
+		hints.word(i >> 12) = p-1;
+		//assert(hints.word(p>>12) < i);
+		//assert(hints.word(p>>12 + 1) >= i);
+	}
+	hints.word(hints.word_count() - 1) = std::min(endp - 1, p);
 }
 
-unsigned int Rank6p::word_rank0(size_t idx) const {
-	return popcnt(~bits.word(idx));
+void Rank6pHintSel::init(Rank6p& r) {
+	hints.clear();
+	this->rankst = r;
+	init();
+}
+
+void Rank6pHintSel::init(BitArray& b) {
+	hints.clear();
+	Rank6pBuilder bd;
+	bd.build(b, &rankst);
+	init();
+}
+
+uint64_t Rank6pHintSel::select(uint64_t r) const {
+	assert(r < rankst.one_count());
+	uint64_t lo = hints.word(r >> 12); //  % 4096
+	uint64_t len = hints.word((r >> 12) + 1) + 1 - lo;
+	while (len > 0) {
+		uint64_t d = len / 2;
+		uint64_t mid = lo + d;
+		if (rankst.blkrank(mid) < r) {
+			lo = mid + 1;
+			len -= d + 1;
+		}else
+			len = d;
+	}
+	if (lo >= rankst.inv.word_count() / 2 || r < rankst.blkrank(lo))
+		lo--;
+	return rankst.selectblock(lo, r - rankst.blkrank(lo));
+}
+
+void Rank6pHintSel::clear() {
+	hints.clear();
+	rankst.clear();
 }
 
 }//namespace_

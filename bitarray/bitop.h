@@ -8,7 +8,7 @@
 
 /**
   * Defines the following functions
-  popcnt, msb_intr, lsb_intr
+  popcnt, msb_intr, lsb_intr, lsb_table, msb_table
   popcnt_comp
 
   selectword, selectword_v2
@@ -37,7 +37,7 @@ inline uint64_t selectword_v2(uint64_t x, uint64_t r) {
 	const uint64_t place = (LEQ_STEP_8( byte_sums, k_step_8) * ONES_STEP_8 >> 53) & ~0x7;
 
 	// Phase 3: Locate the relevant byte and make 8 copies with incrental masks
-	const int byte_rank = r - (((byte_sums << 8) >> place) & 0xFF);
+	const unsigned int byte_rank = (unsigned int)(r - (((byte_sums << 8) >> place) & 0xFF));
 
 	const uint64_t spread_bits = ( x >> place & 0xFF ) * ONES_STEP_8 & INCR_STEP_8;
 	const uint64_t bit_sums = ZCOMPARE_STEP_8(spread_bits) * ONES_STEP_8;
@@ -177,6 +177,10 @@ namespace mscds {
 		x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
 		return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
 	}
+	
+	unsigned int lsb_table(uint64_t number);
+	unsigned int msb_table(uint64_t number);
+	
 }//namespace
 
 
@@ -185,7 +189,7 @@ namespace mscds {
 	/** \brief returns the value of ceiling of log_2(n) */
 	inline uint64_t ceillog2(uint64_t n) {
 		if (n == 0) return 0;
-		return msb_intr(n) + 1;
+		return msb_intr(n) + (n&(n-1) ? 1 : 0);
 	}
 }
 

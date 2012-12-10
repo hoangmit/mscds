@@ -5,8 +5,8 @@ set(VERSION 0.1.1)
 
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
-      "Choose the type of build, options are: None Debug Release."
-      FORCE)
+	  "Choose the type of build, options are: None Debug Release."
+	  FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -49,6 +49,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 
 

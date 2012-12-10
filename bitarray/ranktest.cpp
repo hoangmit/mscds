@@ -8,6 +8,88 @@
 using namespace std;
 using namespace mscds;
 
+
+std::vector<bool> bits_one(int len = 50000) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i)
+		v.push_back(true);
+	return v;
+}
+
+std::vector<bool> bits_zero(int len = 50000) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i)
+		v.push_back(false);
+	return v;
+}
+
+std::vector<bool> bits_onezero(int len = 50000) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		v.push_back(true);
+		v.push_back(false);
+	}
+	return v;
+}
+
+std::vector<bool> bits_oneonezero(int len = 50000) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		v.push_back(true);
+		v.push_back(true);
+		v.push_back(false);
+	}
+	return v;
+}
+
+std::vector<bool> bits_zerozeroone(int len = 50000) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		v.push_back(false);
+		v.push_back(false);
+		v.push_back(true);
+	}
+	return v;
+}
+
+
+std::vector<bool> bits_dense(int len) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 2 == 1)
+			v.push_back(true);
+		else v.push_back(false);
+	}
+	return v;
+}
+
+std::vector<bool> bits_sparse(int len) {
+	std::vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 100 == 1)
+			v.push_back(true);
+		else v.push_back(false);
+	}
+	return v;
+}
+
+std::vector<bool> bits_imbal(int len) {
+	std::vector<bool> v;
+	for (int i = 0; i < len/2; ++i) {
+		if (rand() % 100 == 1)
+			v.push_back(true);
+		else v.push_back(false);
+	}
+	for (int i = 0; i < len/2; ++i) {
+		if (rand() % 2 == 1)
+			v.push_back(true);
+		else v.push_back(false);
+	}
+	return v;
+}
+
+//--------------------------------------------------------------------------
+
 void test_rank(const std::vector<bool>& vec) {
 	vector<int> ranks(vec.size() + 1);
 	ranks[0] = 0;
@@ -58,82 +140,55 @@ void test_rank(const std::vector<bool>& vec) {
 	cout << ".";
 }
 
-void test_one() {
-	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i)
-		v.push_back(true);
-	test_rank(v);
-}
-
-void test_zero() {
-	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i)
-		v.push_back(false);
-	test_rank(v); 
-}
-
-void test_onezero() {
-	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i) {
-		v.push_back(true);
-		v.push_back(false);
+void test_temp(int len) {
+	const std::vector<bool>& vec = bits_imbal(len);
+	BitArray v;
+	v = BitArray::create(vec.size());
+	v.fillzero();
+	for (unsigned int i = 0; i < vec.size(); i++) {
+		v.setbit(i, vec[i]);
 	}
-	test_rank(v);
-}
+	Rank6pBuilder bd;
+	Rank6p t;
+	bd.build(v, &t);
+	Rank6pHintSel rhs;
+	rhs.init(v);
 
-void test_oneonezero() {
-	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i) {
-		v.push_back(true);
-		v.push_back(true);
-		v.push_back(false);
+	unsigned int onecnt = 0;
+	for (unsigned int i = 0; i < vec.size(); ++i)
+		if (vec[i]) onecnt++;
+	int last = -1;
+	for (unsigned int i = 0; i < onecnt; ++i) {
+		int pos = rhs.select(i);
+		//int pos2 = t.select(i);
+		if (pos >= vec.size() || !vec[pos] || pos <= last) {
+			cout << "select " << i << "  " << rhs.select(i) << endl;
+			if (i > 0) rhs.select(i-1);
+			assert(vec[pos] == true);
+		}
+		assert(pos > last);
+		last = pos;
 	}
-	test_rank(v);
-}
-
-void test_zerozeroone() {
-	std::vector<bool> v;
-	for (int i = 0; i < 100000; ++i) {
-		v.push_back(false);
-		v.push_back(false);
-		v.push_back(true);
-	}
-	test_rank(v);
-}
-
-
-void test_rnd1(int len) {
-	std::vector<bool> v;
-	for (int i = 0; i < len; ++i) {
-		if (rand() % 2 == 1)
-			v.push_back(true);
-		else v.push_back(false);
-	}
-	test_rank(v);
-}
-
-void test_rnd2(int len) {
-	std::vector<bool> v;
-	for (int i = 0; i < len; ++i) {
-		if (rand() % 100 == 1)
-			v.push_back(true);
-		else v.push_back(false);
-	}
-	test_rank(v);
+	cout << '.';
 }
 
 void test_all_rank() {
-	test_one();
-	test_zero();
-	test_onezero();
-	test_oneonezero();
-	test_zerozeroone();
 	for (int i = 0; i < 100; i++) {
-		test_rnd1(1000);
-		test_rnd2(1000);
+		test_temp(4094 + rand() % 4);
 	}
-	test_rnd1(100000);
-	test_rnd2(100000);
+	return ;
+	test_rank(bits_one());
+	test_rank(bits_zero());
+	test_rank(bits_onezero());
+	test_rank(bits_oneonezero());
+	test_rank(bits_zerozeroone());
+	for (int i = 0; i < 100; i++) {
+		test_rank(bits_dense(2046 + rand() % 4));
+		test_rank(bits_sparse(2046 + rand() % 4));
+		test_rank(bits_sparse(2046 + rand() % 4));
+	}
+	test_rank(bits_dense(100000));
+	test_rank(bits_sparse(100000));
 	cout << endl;
 }
 

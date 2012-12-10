@@ -13,8 +13,10 @@
 namespace mscds {
 
 class Rank6pBuilder;
+class Rank6pHintSel;
 
 class Rank6p : public RankSelect {
+private:
 	BitArray bits;
 	BitArray inv;
 	uint64_t onecnt;
@@ -38,10 +40,12 @@ private:
 	uint64_t blkrank0(size_t blk) const;
 	uint64_t subblkrank0(size_t blk, unsigned int off) const;
 
+	uint64_t selectblock(uint64_t blk, uint64_t d) const;
+	uint64_t selectblock0(uint64_t blk, uint64_t d) const;
+
 	unsigned int word_rank(size_t idx, unsigned int i) const;
-	unsigned int word_rank(size_t idx) const;
-	unsigned int word_rank0(size_t idx) const;
 	friend class Rank6pBuilder;
+	friend class Rank6pHintSel;
 };
 
 class Rank6pBuilder {
@@ -50,6 +54,20 @@ public:
 	static void build(const BitArray& b, OArchive& ar);
 private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);
+};
+
+
+class Rank6pHintSel {
+	Rank6p rankst;
+	BitArray hints;
+public:
+	void init(Rank6p& r);
+	void init(BitArray& b);
+
+	uint64_t select(uint64_t r) const;
+	void clear();
+private:
+	void init();
 };
 
 }

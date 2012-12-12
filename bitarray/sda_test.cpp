@@ -94,8 +94,57 @@ void test_SDA2() {
 }
 
 
+void test_rank(int len) {
+	std::vector<bool> vec;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 50 == 1)
+			vec.push_back(true);
+		else vec.push_back(false);
+	}
+
+	vector<int> ranks(vec.size() + 1);
+	ranks[0] = 0;
+	for (unsigned int i = 1; i <= vec.size(); i++)
+		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
+		else ranks[i] = ranks[i-1];
+	BitArray v;
+	v = BitArray::create(vec.size());
+	v.fillzero();
+	for (unsigned int i = 0; i < vec.size(); i++)
+		v.setbit(i, vec[i]);
+
+	for (unsigned int i = 0; i < vec.size(); i++)
+		assert(vec[i] == v.bit(i));
+
+	SDRankSelect r;
+	r.build(v);
+
+	for (int i = 0; i <= vec.size(); ++i)
+		if (ranks[i] != r.rank(i)) {
+			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
+			assert(ranks[i] == r.rank(i));
+		}
+	unsigned int onecnt = 0;
+	for (unsigned int i = 0; i < vec.size(); ++i)
+		if (vec[i]) onecnt++;
+	int last = -1;
+	for (unsigned int i = 0; i < onecnt; ++i) {
+		int pos = r.select(i);
+		if (pos >= vec.size() || !vec[pos] || pos <= last) {
+			cout << "select " << i << "  " << r.select(i) << endl;
+			if (i > 0) r.select(i-1);
+			assert(vec[pos] == true);
+		}
+		assert(pos > last);
+		last = pos;
+	}
+	cout << ".";
+}
+
+
 
 void test_SDA_all() {
+	test_rank(1000);
 	test_SDA1();
 	for (int i  = 0; i < 100; i++)
 		test_SDA2();

@@ -108,8 +108,8 @@ void test_rank(const std::vector<bool>& vec) {
 	}
 
 	Rank6p r;
-	Rank6pBuilder bd;
-	bd.build(v, &r);
+	//Rank6pBuilder bd;
+	Rank6pBuilder::build(v, &r);
 	for (int i = 0; i <= vec.size(); ++i) {
 		if (ranks[i] != r.rank(i)) {
 			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
@@ -148,9 +148,9 @@ void test_temp(int len) {
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		v.setbit(i, vec[i]);
 	}
-	Rank6pBuilder bd;
 	Rank6p t;
-	bd.build(v, &t);
+	//Rank6pBuilder bd;
+	Rank6pBuilder::build(v, &t);
 	Rank6pHintSel rhs;
 	rhs.init(v);
 

@@ -65,6 +65,9 @@ public:
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;
+	uint64_t rank(uint64_t p) const {
+		return rankst.rank(p);
+	}
 	void clear();
 private:
 	void init();

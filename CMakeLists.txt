@@ -32,6 +32,8 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "-std=c++0x -fPIC -g")
 else()
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	add_definitions(/wd4244)
+	add_definitions(/wd4018)
 endif()
 #  .exe = runtime
 #  .dll = runtime

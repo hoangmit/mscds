@@ -7,6 +7,7 @@ set(SRCS ReadTree.cpp BP_bits.cpp)
 set(HEADERS CartesianTree.h LCA.h ReadTree.h RMQ_table.h RMQ_pm1.h tree.h BP_bits.h)
 
 add_library(tree ${SRCS} ${HEADERS})
+target_link_libraries(tree bitarray)
 
 add_executable(t_rmq rmq_test.cpp)
 target_link_libraries(t_rmq tree)

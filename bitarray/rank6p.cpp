@@ -247,8 +247,8 @@ void Rank6pHintSel::init(Rank6p& r) {
 
 void Rank6pHintSel::init(BitArray& b) {
 	hints.clear();
-	Rank6pBuilder bd;
-	bd.build(b, &rankst);
+	//Rank6pBuilder bd;
+	Rank6pBuilder::build(b, &rankst);
 	init();
 }
 

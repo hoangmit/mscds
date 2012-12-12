@@ -11,6 +11,8 @@
   popcnt, msb_intr, lsb_intr, lsb_table, msb_table
   popcnt_comp
 
+  revbits
+
   selectword, selectword_v2
   ceillog2
   */
@@ -171,6 +173,10 @@ namespace mscds {
 #endif // GNUC
 
 namespace mscds {
+	inline uint8_t revbits(uint8_t c) {
+		return (c * 0x0202020202ULL & 0x010884422010ULL) % 1023;
+	}
+
 	inline unsigned int popcnt_comp(uint64_t x) {
 		x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
 		x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);

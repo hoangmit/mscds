@@ -48,6 +48,7 @@ public:
    */
 	void add(uint64_t val);
 
+	void build_bits(BitArray& ba, SDArrayQuery * out);
 	/*
    * Build an index. This build should be called before prefixSum(), prefixSumLookup(), and find().
    */
@@ -113,6 +114,65 @@ private:
 	friend class SDArrayBuilder;
 };
 
+class SDRankSelect {
+public:
+	SDRankSelect() {}
+	~SDRankSelect() { clear(); }
+
+	void build(const std::vector<uint64_t>& inc_pos) {
+		clear();
+		bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
+		if (!b) throw std::logic_error("required sorted array");
+		for (size_t i = 1; i < inc_pos.size(); i++) 
+			if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
+		if (inc_pos.size() == 0) return;
+		SDArrayBuilder bd;
+		if (inc_pos[0] == 0) bd.add(0);
+		else bd.add(inc_pos[0]);
+		for (size_t i = 1; i < inc_pos.size(); i++) 
+			bd.add(inc_pos[i] - inc_pos[i-1]);
+		bd.build(&qs);
+	}
+
+	void build(BitArray& ba) {
+		clear();
+		SDArrayBuilder bd;
+		uint64_t last = 0;
+		for (size_t i = 0; i < ba.length(); i++)
+			if (ba[i]) {
+				bd.add(i-last);
+				last = i;
+			}
+		bd.build(&qs);
+	}
+
+	uint64_t rank(uint64_t p) const {
+		if (p == 0) return 0;
+		uint64_t k = qs.find(p);
+		if (k == SDArrayQuery::NOTFOUND)
+			return qs.length();
+		if (qs.prefixsum(k) != p) return k;
+		else return k - 1;
+	}
+
+	uint64_t select(uint64_t r) const {
+		return qs.prefixsum(r+1);
+	}
+
+	void load(IArchive& ar) {
+		qs.load(ar);
+	}
+
+	void save(OArchive& ar) const {
+		qs.save(ar);
+	}
+
+	void clear() {
+		qs.clear();
+	}
+private:
+	SDArrayQuery qs;
+};
 
 
 }//namespace

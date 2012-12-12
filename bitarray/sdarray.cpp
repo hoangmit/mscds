@@ -128,7 +128,6 @@ void SDArrayBuilder::clear(){
 	sum_  = 0;
 }
 
-
 void SDArrayBuilder::build(OArchive& ar){
 	build_inc();
 	ar.startclass("sdarray", 1);
@@ -172,9 +171,6 @@ void SDArrayQuery::load(IArchive& ar) {
 	Ltable_.load(ar);
 	ar.endclass();
 }
-
-
-
 
 void SDArrayQuery::clear() {
 	B_.clear();

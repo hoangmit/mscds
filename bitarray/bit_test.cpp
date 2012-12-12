@@ -15,7 +15,10 @@ void test1(int len = 2048) {
 		b.setbit(i, v[i]);
 	}
 	for (int i = 0; i < v.size(); ++i) { 
-		assert(v[i] == b.bit(i));
+		assert(v[i] == b[i]);
+	}
+	for (int i = 0; i < v.size() / 8; i++) {
+		assert(b.bits(i*8,8) == b.byte(i));
 	}
 	cout << "." ;
 }
@@ -29,7 +32,7 @@ void test2(int len = 2048) {
 		b.setbit(i, v[i]);
 	}
 	for (int i = 0; i < v.size(); ++i) { 
-		assert(v[i] == b.bit(i));
+		assert(v[i] == b[i]);
 	}
 	for (int d = 1; d <= 64; ++d) {
 		for (int i = 0; i < v.size() - d; ++i) {
@@ -40,26 +43,26 @@ void test2(int len = 2048) {
 				up >>= 1;
 			}
 			bool bm1, bp1;
-			if (i > 0) bm1 = c.bit(i-1);
-			if (i + d + 1 < v.size()) bp1 = c.bit(i+d+1);
+			if (i > 0) bm1 = c[i-1];
+			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 			c.setbits(i, u, d);
 			if (u != c.bits(i,d)) {
 				cout << u << ' ' << c.bits(i,d);
 				c.setbits(i,u,d);
 				assert(u == c.bits(i,d));
 			}
-			if (i > 0) assert(bm1 == c.bit(i-1));
-			if (i + d + 1 < v.size()) bp1 = c.bit(i+d+1);
+			if (i > 0) assert(bm1 == c[i-1]);
+			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 		}
 	}
 	cout << "." ;
 }
 
 void test_bit_all() {
-	for (int i = 0; i < 100; i++)
-		test2(512 + rand() % 256);
 	for (int i = 0; i < 1000; i++)
 		test1(1024 + rand() % 256);
+	for (int i = 0; i < 100; i++)
+		test2(512 + rand() % 256);
 }
 
 int main() {

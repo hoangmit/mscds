@@ -73,12 +73,31 @@ public:
 		return (data[bitindex / WORDLEN] & (1ULL << (bitindex % WORDLEN))) != 0;
 	}
 
+	bool operator[](size_t i) const { return bit(i); }
+
 	void setbit(size_t bitindex, bool value) {
 		assert(bitindex < bitlen);
 		if (value) data[bitindex / WORDLEN] |= (1ULL << (bitindex % WORDLEN));
 		else data[bitindex / WORDLEN] &= ~(1ULL << (bitindex % WORDLEN));
 	}
-	
+
+	uint8_t byte(size_t pos) const {
+		assert(pos*8 < bitlen);
+		return ((const uint8_t*) data)[pos];
+		//return 0;
+	}
+
+	uint64_t count_one() const {
+		if (bitlen == 0) return 0;
+		uint64_t ret = 0;
+		const uint64_t wc = bitlen / WORDLEN;
+		for (size_t i = 0; i < wc; i++)
+			ret += popcnt(word(i));
+		for (size_t i = (bitlen / WORDLEN)*WORDLEN; i < bitlen; i++)
+			if (bit(i)) ret++;
+		return ret;
+	}
+
 	uint64_t& word(size_t pos) { assert(pos < word_count()); return data[pos]; }
 	const uint64_t& word(size_t pos) const { assert(pos < word_count()); return data[pos]; }
 	size_t length() const { return bitlen; }
@@ -121,11 +140,13 @@ public:
 
 	static BitArray create(size_t bitlen) {
 		BitArray v;
+		if (bitlen == 0) return v;
 		assert(bitlen > 0);
 		size_t arrlen = (size_t) ceildiv(bitlen, WORDLEN);
 		v.data = new uint64_t[arrlen];
 		v.ptr = SharedPtr(v.data);
 		v.bitlen = bitlen;
+		v.data[arrlen-1] = 0;
 		return v;
 	}
 

@@ -3,34 +3,27 @@
 #include <iomanip>
 #include <stack>
 #include <vector>
+#include <functional>
 using namespace std;
 using namespace mscds;
 
-void print_minex() {
+template<typename Func>
+void print_table8b(Func fnc) {
 	cout << "{";
 	for (int i = 0; i < 255; i++) {
 		if (i > 0 && i % 16 == 0) cout << endl;
-		cout << setw(2) << (int)BP_block::min_excess8_c(i) << ',';
+		cout << setw(2) << (int)fnc(i) << ',';
 	}
-	cout << setw(2) << (int)BP_block::min_excess8_c(255) << '}' << endl;
-}
+	cout << setw(2) << (int)fnc(255) << '}' << endl;
 
-void print_maxex() {
-	cout << "{";
-	for (int i = 0; i < 255; i++) {
-		if (i > 0 && i % 16 == 0) cout << endl;
-		cout << setw(2) << (int)BP_block::min_revex8_c(i) << ',';
-	}
-	cout << setw(2) << (int)BP_block::min_revex8_c(255) << '}' << endl;
 }
 
 void print_ex() {
-	cout << "{";
-	for (int i = 0; i < 255; i++) {
-		if (i > 0 && i % 16 == 0) cout << endl;
-		cout << setw(2) << (int)BP_block::excess8_c(i) << ',';
-	}
-	cout << setw(2) << (int)BP_block::excess8_c(255) << '}' << endl;
+	// BP_block::min_revex_8c
+	// BP_block::excess_8c
+	// BP_block::min_excess_8c
+	// BP_block::min_ex_pos_8c
+	print_table8b(BP_block::min_op_ex_pos8_c);
 }
 
 
@@ -57,7 +50,19 @@ void test_find_pioneer1() {
 	BitArray inp = str2bits(bps);
 
 	BitArray out = find_pioneers(inp,8);
-	for (int i = 0; i< 40; ++i) {
+	for (int i = 0; i< bps.length(); ++i) {
+		assert((exp[i] == '1') == out[i]);
+	}
+}
+
+void test_find_pioneer2() {
+	// ()(()())-(())()()
+	string bps = "()(()())(())()()";
+	string exp = "0000000000000000";
+	BitArray inp = str2bits(bps);
+
+	BitArray out = find_pioneers(inp,8);
+	for (int i = 0; i< bps.length(); ++i) {
 		assert((exp[i] == '1') == out[i]);
 	}
 }
@@ -99,7 +104,9 @@ void test_blk2() {
 			assert(block.forward_scan_slow(1, -1) ==  block.forward_scan(1,-1));
 		}
 		assert(block.backward_scan_slow(15, 1) == block.backward_scan(15, 1));
+		assert(block.min_excess_pos(0, 7) == block.min_excess_pos_slow(0, 7));
 	}
+	cout << '.';
 }
 
 void test_blk3() {
@@ -111,7 +118,12 @@ void test_blk3() {
 		int bal = 1 + rand() % 16;
 		assert(block.forward_scan_slow(idx, -bal) == block.forward_scan(idx, -bal));
 		assert(block.backward_scan_slow(idx, bal) == block.backward_scan(idx, bal));
+
+		int l = rand() % 31;
+		int r = rand() % 32 + 32;
+		assert(block.min_excess_pos_slow(l, r) == block.min_excess_pos(l, r));
 	}
+	cout << '.';
 }
 
 BitArray generate_BPS(size_t len) {
@@ -209,24 +221,70 @@ void test_bp1() {
 	test_bp(inp, 8);
 }
 
+void test_rr_enclose() {
+	const int len = 64;
+	const int blksize = 8;
+	BitArray b = generate_BPS(len);
+	BP_aux bps;
+	bps.build(b, blksize);
+	BP_block blkx(b, len);
+	for (int i = 0; i < 20; i++) {
+		int l = rand() % 32;
+		int r = rand() % 32 + 32;
+		uint64_t exp = blkx.min_excess_pos(l,r);
+		if (exp != bps.min_excess_pos(l, r)) {
+			uint64_t unexp = bps.min_excess_pos(l, r);
+			assert(exp == blkx.min_excess_pos_slow(l,r));
+			cout << bps.to_str() << endl;
+			assert(exp == bps.min_excess_pos(l, r));
+		}
+	}
+}
+
+void test_rr_enclose1() {
+	//((()))((-()))((()-())((())-))((()((-))(())()-(())))((-)())()((-)()())()
+	//      1     111     11     111   1   1            11     1  1       1
+	//()(()())-(())()()
+	BitArray b = str2bits("((()))((()))((()())((())))((()(())(())()(())))(()())()(()()())()");
+	BP_aux bps;
+	bps.build(b, 8);
+	int l = 18;
+	int r = 50;
+	assert(46 == bps.min_excess_pos(l,r));
+}
+
 void test_all() {
+	for (int i = 0; i < 5000; i++) {
+		if (i % 1000 == 0) cout << '.';
+		test_rr_enclose();
+	}
+	test_rr_enclose1();
 	test_find_pioneer1();
+	test_find_pioneer2();
 	test_blk1();
 	test_blk2();
 	test_blk3();
-	for (int i = 0; i < 50000; i++)
+	test_bp(str2bits("()(()())(())()()"), 8);
+	
+	for (int i = 0; i < 20000; i++) {
 		test_near_bp();
+		if (i % 1000 == 0) cout << '.';
+	}
 	test_bp1();
-	for (int i = 0; i < 50000; i++)
+	for (int i = 0; i < 10000; i++) {
 		test_bp(generate_BPS(100), 16);
+		if (i % 1000 == 0) cout << '.';
+	}
+	for (int i = 0; i < 5000; i++) {
+		test_bp(generate_BPS(1000), 16);
+		if (i % 1000 == 0) cout << '.';
+	}
+	cout << endl;
 }
 
 int main() {
-	//test1();
-	//print_maxex();
-	//test2();
-	//test1a();
-	//test3();
 	test_all();
+
+	//print_ex();
 	return 0;
 }

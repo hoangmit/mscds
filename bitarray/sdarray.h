@@ -26,6 +26,7 @@
 #include "bitarray.h"
 
 #include <vector>
+#include <sstream>
 #include <stdint.h>
 #include <iostream>
 
@@ -60,6 +61,8 @@ private:
 
 	void packHighs(uint64_t begPos, uint64_t width);
 	void packLows(uint64_t begPos, uint64_t width);
+	static uint64_t log2(uint64_t x);
+
 
 	std::vector<uint64_t> Ltable_;
 	std::vector<uint64_t> B_;
@@ -106,7 +109,6 @@ private:
 	uint64_t getLow(uint64_t begPos, uint64_t num, uint64_t width) const;
 	uint64_t getBitI(uint64_t pos) const;
 	uint64_t getBitsI(uint64_t pos, uint64_t num) const;
-
 	BitArray Ltable_;
 	BitArray B_;
 	size_t size_;
@@ -146,6 +148,10 @@ public:
 		bd.build(&qs);
 	}
 
+	uint64_t one_count() const {
+		return qs.length();
+	}
+
 	uint64_t rank(uint64_t p) const {
 		if (p == 0) return 0;
 		uint64_t k = qs.find(p);
@@ -156,6 +162,7 @@ public:
 	}
 
 	uint64_t select(uint64_t r) const {
+		assert(r < one_count());
 		return qs.prefixsum(r+1);
 	}
 
@@ -170,7 +177,19 @@ public:
 	void clear() {
 		qs.clear();
 	}
-private:
+
+	std::string to_str() const {
+		std::ostringstream ss;
+		ss << '{';
+		if (qs.length() > 0) {
+			ss << qs.prefixsum(1);
+			for (size_t i = 2; i <= qs.length(); i++) 
+				ss << ',' << qs.prefixsum(i);
+		}
+		ss << '}';
+		return ss.str();
+	}
+public:
 	SDArrayQuery qs;
 };
 

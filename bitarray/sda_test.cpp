@@ -141,10 +141,9 @@ void test_rank(int len) {
 	cout << ".";
 }
 
-
-
 void test_SDA_all() {
-	test_rank(1000);
+	for (int i = 0; i < 200; i++)
+		test_rank(1000);
 	test_SDA1();
 	for (int i  = 0; i < 100; i++)
 		test_SDA2();

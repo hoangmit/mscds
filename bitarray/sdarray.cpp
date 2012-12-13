@@ -54,6 +54,13 @@ void SDArrayBuilder::add(uint64_t val){
 	}
 }
 
+uint64_t SDArrayBuilder::log2(uint64_t x) {
+	uint64_t r = 0;
+	while (x >> r){
+		r++;
+	}
+	return r;
+} 
 
 void SDArrayBuilder::build_inc(){
 	assert(vals_.size() <= BLOCK_SIZE);
@@ -79,7 +86,7 @@ void SDArrayBuilder::build_inc(){
 	if (vals_.back() == 0){
 		header |= (1ULL << 48);
 	} else {
-		uint64_t width = ceillog2(vals_.back() / vals_.size());
+		uint64_t width = log2(vals_.back() / vals_.size());
 		assert(width < (1ULL << 7));
 
 		// All zero special case

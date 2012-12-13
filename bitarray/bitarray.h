@@ -198,6 +198,7 @@ public:
 	}
 
 	std::string to_str() const {
+		assert(length() < (1UL << 16));
 		std::string s;
 		for (unsigned int i = 0; i < bitlen; ++i)
 			if (bit(i)) s += '1';

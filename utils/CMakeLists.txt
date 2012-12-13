@@ -7,6 +7,7 @@ cache_ls.cpp
 str_utils.cpp
 file_utils.cpp
 utils.cpp
+debug.cpp
 )
 
 
@@ -15,6 +16,7 @@ cache_ls.h
 str_utils.h
 file_utils.h
 utils.h
+debug.h
 )
 
 

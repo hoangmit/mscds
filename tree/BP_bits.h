@@ -13,11 +13,11 @@
 namespace mscds {
 
 struct BP_block {
-	BP_block():blksize(0), bp(NULL) {}
+	BP_block(): blksize(0) {}
 	BP_block(BitArray _bp, unsigned int _blksize): bp(_bp), blksize(_blksize) {}
 	//BP_block& operator=(const BP_block& other) {bp = other.bp; blksize = other.blksize; return * this;}
 
-	void init(BitArray& _bp, unsigned int _blksize) {
+	void init(const BitArray& _bp, unsigned int _blksize) {
 		this->bp = _bp;
 		blksize = _blksize;
 	}
@@ -51,7 +51,7 @@ struct BP_block {
 
 	void clear() {
 		blksize = 0;
-		bp = NULL;
+		bp.clear();
 	}
 };
 
@@ -90,7 +90,7 @@ class BP_aux {
 public:
 	bool get(uint64_t p) const { return bp_bits[p]; }
 	int64_t excess(uint64_t i) const { return (int64_t)bprank.rank(i) * 2 - i; }
-	void build(BitArray& bp, unsigned int blksize = 128);
+	void build(const BitArray &bp, unsigned int blksize = 128);
 	~BP_aux() {clear();}
 	void clear();
 	size_t length() const { return bp_bits.length(); }

@@ -182,7 +182,7 @@ void test_near_bp(int blksize = 128) {
 	}
 }
 
-void test_bp(BitArray& b, int blksize) {
+void test_bp(const BitArray& b, int blksize) {
 	stack<int> pos;
 	vector<int> match(b.length());
 	vector<int> enclose(b.length());

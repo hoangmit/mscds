@@ -335,7 +335,7 @@ uint64_t BP_block::min_excess_pos_slow(uint64_t l, uint64_t r) const {
 
 //---------------------------------------------------------------------------------------
 
-void BP_aux::build(BitArray& bp, unsigned int blksize) {
+void BP_aux::build(const BitArray& bp, unsigned int blksize) {
 	assert(blksize >= 4);
 	this->blksize = blksize;
 	bp_bits = bp;

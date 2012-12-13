@@ -67,6 +67,16 @@ BitArray find_pioneers(const BitArray& bp, size_t blksize) {
 
 //---------------------------------------------------------------------------------------
 
+void BP_block::init(const BitArray& _bp, unsigned int _blksize) {
+	this->bp = _bp;
+	blksize = _blksize;
+}
+
+void BP_block::clear() {
+	blksize = 0;
+	bp.clear();
+}
+
 int8_t BP_block::min_excess8_c(uint8_t c)  {
 	int8_t e = 0, min = 120;
 	for (int i = 0; i < 8; i++) {
@@ -335,7 +345,7 @@ uint64_t BP_block::min_excess_pos_slow(uint64_t l, uint64_t r) const {
 
 //---------------------------------------------------------------------------------------
 
-void BP_aux::build(const BitArray& bp, unsigned int blksize) {
+unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 	assert(blksize >= 4);
 	this->blksize = blksize;
 	bp_bits = bp;
@@ -350,21 +360,28 @@ void BP_aux::build(const BitArray& bp, unsigned int blksize) {
 		for (size_t i = 0; i < pio.size(); i++)
 			nxtlvl.setbit(i, bp[pio[i]]);
 		lowerlvl = new BP_aux();
-		lowerlvl->build(nxtlvl, blksize);
+		return lowerlvl->build(nxtlvl, blksize) + 1;
 	} else {
 		lowerlvl = NULL;
+		return 1;
 	}
 	//std::cout << this->to_str() << std::endl;
 }
 
 void BP_aux::clear() {
-	blk.clear();
-	bprank.clear();
-	bp_bits.clear();
-	pioneer_map.clear();
-	delete lowerlvl;
-	blksize = 0;
+	if (blksize > 0) {
+		blk.clear();
+		bprank.clear();
+		bp_bits.clear();
+		pioneer_map.clear();
+		blksize = 0;
+		if (lowerlvl != NULL)
+			delete lowerlvl;
+		lowerlvl = NULL;
+		blksize = 0;
+	}
 }
+
 
 uint64_t BP_aux::find_close(uint64_t p) const {
 	assert(p < length());
@@ -422,6 +439,38 @@ uint64_t BP_aux::enclose(uint64_t p) const {
 	return ret;
 }
 
+uint64_t BP_aux::min_excess_pos(uint64_t l, uint64_t r) const {
+	if (l >= r || r >= length()) return BP_block::NOTFOUND;
+	uint64_t k = BP_block::NOTFOUND;
+	if (l/blksize == (r-1)/blksize) return blk.min_excess_pos(l, r);
+	uint64_t min_ex = excess(r+1) + 2*(!bit(r) ? 1 : 0);
+	uint64_t pl = pioneer_map.rank(l);
+	uint64_t pr = pioneer_map.rank(r);
+	uint64_t kp = BP_block::NOTFOUND;
+	
+	kp = lowerlvl->min_excess_pos(pl, pr);
+	if (kp != BP_block::NOTFOUND) {
+		k = pioneer_map.select(kp);
+		min_ex = excess(k+1);
+	}else {
+		kp = blk.min_excess_pos((r/blksize)*blksize, r);
+		if (kp != BP_block::NOTFOUND) {
+			k = kp;
+			min_ex = excess(k+1);
+		}
+	}
+	kp = blk.min_excess_pos(l, (l/blksize+1)*blksize);
+	if (kp != BP_block::NOTFOUND && excess(kp+1) < min_ex)
+		k = kp;
+	return k;
+}
+
+uint64_t BP_aux::rr_enclose(uint64_t i, uint64_t j) const {
+	assert(i < j && j < length());
+	assert(bit(i) && bit(j));
+	return min_excess_pos(find_close(i) + 1, j);
+}
+
 std::string BP_aux::to_str() const {
 	assert(length() < (1UL << 16));
 	std::ostringstream ss;
@@ -448,5 +497,50 @@ std::string BP_aux::to_str() const {
 	}
 	return ss.str();
 }
+
+OArchive &BP_aux::save(OArchive &ar) const {
+	ar.startclass("BP_aux", 1);
+	ar.var("blksize").save(blksize);
+	ar.var("bp");
+	bp_bits.save(ar);
+	ar.var("rank");
+	bprank.save(ar);
+	ar.var("pioneers");
+	pioneer_map.save(ar);
+	blk.save(ar);
+	if (lowerlvl != NULL) {
+		uint32_t nextlvl = 1;
+		ar.var("nextlvl").save(nextlvl);
+		ar.var("lowerlvl");
+		lowerlvl->save(ar);
+	}else {
+		uint32_t nextlvl = 0;
+		ar.var("nextlvl").save(nextlvl);
+	}
+	ar.endclass();
+	return ar;
+}
+
+IArchive &BP_aux::load(IArchive &ar) {
+	ar.loadclass("BP_aux");
+	ar.var("blksize").load(blksize);
+	ar.var("bp");
+	bp_bits.load(ar);
+	ar.var("rank");
+	bprank.load(ar, bp_bits);
+	ar.var("pioneers");
+	pioneer_map.load(ar);
+	blk.load(ar);
+	uint32_t nextlvl;
+	ar.var("nextlvl").load(nextlvl);
+	if (nextlvl != 0) {
+		ar.var("lowerlvl");
+		lowerlvl = new BP_aux();
+		lowerlvl->load(ar);
+	}
+	ar.endclass();
+	return ar;
+}
+
 
 }//namespace

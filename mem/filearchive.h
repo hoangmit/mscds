@@ -55,6 +55,17 @@ private:
 	std::istream * in;
 };
 
+class OSizeEstArchive: public OArchive {
+public:
+	OSizeEstArchive(): pos(0) {}
+	OArchive& startclass(const std::string& name, unsigned char version) {return *this;}
+	OArchive& endclass() {return *this;}
+	OArchive& save_bin(const void* ptr, size_t size) { pos += size; return *this;}
+	size_t opos() const {return pos;}
+private:
+	size_t pos;
+};
+
 }//namespace
 
 

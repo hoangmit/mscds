@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __BALANCE_PARATHESIS_AUXILIARY_H_
+#define __BALANCE_PARATHESIS_AUXILIARY_H_
+
 #include <stdint.h>
 #include "bitarray/bitarray.h"
 #include "bitarray/rank6p.h"
@@ -8,20 +11,19 @@
 #include <algorithm>
 #include <string>
 
-#include "utils/debug.h"
+#include "archive.h"
 
 namespace mscds {
 
-struct BP_block {
+class BP_superblock;
+class BP_block {
+public:
 	BP_block(): blksize(0) {}
 	BP_block(BitArray _bp, unsigned int _blksize): bp(_bp), blksize(_blksize) {}
-	//BP_block& operator=(const BP_block& other) {bp = other.bp; blksize = other.blksize; return * this;}
 
-	void init(const BitArray& _bp, unsigned int _blksize) {
-		this->bp = _bp;
-		blksize = _blksize;
-	}
+	void init(const BitArray& _bp, unsigned int _blksize);
 
+private:
 	BitArray bp;
 	unsigned int blksize;
 	static int8_t min_excess8_t[256], excess8_t[256], min_op_ex_pos8_t[256], min_op_ex8_t[256];
@@ -29,7 +31,9 @@ struct BP_block {
 	static uint8_t revbits(uint8_t c) {
 		return (c * 0x0202020202ULL & 0x010884422010ULL) % 1023;
 	}
+	friend class BP_superblock;
 
+public:
 	static int8_t min_excess8_c(uint8_t c);
 	static int8_t min_revex8_c(uint8_t c);
 	static int8_t excess8_c(uint8_t c);
@@ -49,15 +53,15 @@ struct BP_block {
 
 	uint64_t min_excess_pos_slow(uint64_t l, uint64_t r) const;
 
-	void clear() {
-		blksize = 0;
-		bp.clear();
-	}
+	void clear();
+	OArchive& save(OArchive& ar) const { return ar;}
+	IArchive& load(IArchive& ar) { return ar;}
+
 };
 
 class BP_aux;
 
-struct BP_superblock {
+class BP_superblock {
 	BP_block blk;
 	unsigned int spblksize;
 	int8_t * min;
@@ -86,14 +90,19 @@ struct BP_superblock {
 BitArray find_pioneers(const BitArray& bp, size_t blksize);
 std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize);
 
+/**
+Implementation of balance parathesis operations based on:
+
+  S.Gog and J.Fischer. Advantages of Shared Data Structures for Sequences of Balanced Parentheses. DCC 2010.
+
+  Geary, R.F. and Rahman, N. and Raman, R. and Raman, V. A Simple Optimal Representation for Balanced Parentheses. TCS 2006.
+  */
 class BP_aux {
 public:
-	bool get(uint64_t p) const { return bp_bits[p]; }
-	int64_t excess(uint64_t i) const { return (int64_t)bprank.rank(i) * 2 - i; }
-	void build(const BitArray &bp, unsigned int blksize = 128);
+	BP_aux():blksize(0), lowerlvl(NULL) {}
 	~BP_aux() {clear();}
+	unsigned int build(const BitArray &bp, unsigned int blksize = 64);
 	void clear();
-	size_t length() const { return bp_bits.length(); }
 private:
 	BP_block blk;
 	BitArray bp_bits;
@@ -104,58 +113,30 @@ private:
 	unsigned int rec_lvl;
 	unsigned int blksize;
 public:
-	uint64_t find_match(uint64_t p) const {
-		return (bit(p) ? find_close(p) : find_open(p));
-	}
-
+	uint64_t rank(uint64_t i) const { return bprank.rank(i); }
+	uint64_t select(uint64_t i) const { return bprank.select(i); }
+	int64_t excess(uint64_t i) const
+		{ return (int64_t)bprank.rank(i) * 2 - i; }
+	uint64_t find_match(uint64_t p) const
+		{ return (bit(p)?find_close(p):find_open(p)); }
 	bool bit(uint64_t p) const { return bp_bits[p]; }
-
+	size_t length() const { return bp_bits.length(); }
 	std::string to_str() const;
-	uint64_t pioneer_count() const {
-		if (lowerlvl != NULL) return pioneer_map.one_count();
-		else return 0;
-	}
 
 	uint64_t find_close(uint64_t p) const;
 	uint64_t find_open(uint64_t p) const;
 	uint64_t enclose(uint64_t p) const;
+	uint64_t rr_enclose(uint64_t i, uint64_t j) const;
+	uint64_t min_excess_pos(uint64_t l, uint64_t r) const;
 
-	uint64_t rr_enclose(uint64_t i, uint64_t j) const {
-		assert(i < j && j < length());
-		assert(bit(i) && bit(j));
-		return min_excess_pos(find_close(i) + 1, j);
-	}
-
-	uint64_t min_excess_pos(uint64_t l, uint64_t r) const {
-		if (l >= r || r >= length()) return BP_block::NOTFOUND;
-		uint64_t k = BP_block::NOTFOUND;
-		if (l/blksize == (r-1)/blksize) return blk.min_excess_pos(l, r);
-		uint64_t min_ex = excess(r+1) + 2*(!bit(r) ? 1 : 0);
-		uint64_t pl = pioneer_map.rank(l);
-		uint64_t pr = pioneer_map.rank(r);
-		uint64_t kp = BP_block::NOTFOUND;
-		
-			kp = lowerlvl->min_excess_pos(pl, pr);
-		if (kp != BP_block::NOTFOUND) {
-			k = pioneer_map.select(kp);
-			min_ex = excess(k+1);
-		}else {
-			kp = blk.min_excess_pos((r/blksize)*blksize, r);
-			if (kp != BP_block::NOTFOUND) {
-				k = kp;
-				min_ex = excess(k+1);
-			}
-		}
-		kp = blk.min_excess_pos(l, (l/blksize+1)*blksize);
-		if (kp != BP_block::NOTFOUND && excess(kp+1) < min_ex) {
-			k = kp;
-		}
-		return k;
-	}
-
+	OArchive& save(OArchive& ar) const;
+	IArchive& load(IArchive& ar);
 };
 
 
 
 
 } //namespace
+
+
+#endif //__BALANCE_PARATHESIS_AUXILIARY_H_

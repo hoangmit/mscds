@@ -145,4 +145,5 @@ uint32_t FNV_hash24(const std::string& s) {
 		}
 		in = NULL;
 	}
+
 } //namespace mscds

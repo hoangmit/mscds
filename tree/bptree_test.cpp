@@ -3,8 +3,11 @@
 #include <iomanip>
 #include <stack>
 #include <vector>
+#include "mem/filearchive.h"
 #include <functional>
+#include "utils/str_utils.h"
 using namespace std;
+using namespace utils;
 using namespace mscds;
 
 template<typename Func>
@@ -253,6 +256,27 @@ void test_rr_enclose1() {
 	assert(46 == bps.min_excess_pos(l,r));
 }
 
+void testsize() {
+	unsigned int len = 20000000;
+	BitArray b = generate_BPS(len);
+	BP_aux bps;
+	bps.build(b, 64);
+	OSizeEstArchive ar;
+	bps.save(ar);
+	cout.imbue(std::locale(cout.getloc(), new comma_numpunct()));
+	cout << ar.opos()*8 << endl;
+	cout << ((double)ar.opos()*8 - len)/len << endl;
+	uint64_t rs = 1;
+	clock_t st, ed;
+	st = clock();
+	for (size_t i = 0; i < bps.length(); ++i)
+		rs |= bps.enclose(i);
+	ed = clock();
+	double time = ((double)(ed - st))/CLOCKS_PER_SEC;
+	cout << "  qps = " << bps.length() / time << endl;
+	if (rs) cout << ' ';
+}
+
 void test_all() {
 	for (int i = 0; i < 5000; i++) {
 		if (i % 1000 == 0) cout << '.';
@@ -283,6 +307,7 @@ void test_all() {
 }
 
 int main() {
+	testsize();
 	test_all();
 
 	//print_ex();

@@ -13,7 +13,7 @@ set_target_properties(t_rank PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_D
 
 
 add_executable(t_sda sda_test.cpp)
-target_link_libraries(t_sda bitarray mem)
+target_link_libraries(t_sda bitarray mem utils)
 set_target_properties(t_sda PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(t_bit bit_test.cpp)

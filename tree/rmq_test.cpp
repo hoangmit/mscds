@@ -1,5 +1,6 @@
 #include "RMQ_table.h"
 #include "RMQ_sct.h"
+#include "utils/utest.h"
 #include <iostream>
 using namespace std;
 using namespace mscds;
@@ -13,8 +14,8 @@ void test_rmq(const vector<uint64_t>& vec) {
 		for (int i = 0; i < vec.size() - l + 1; ++i) {
 			int exp = std::min_element(vec.begin() + i, vec.begin() + i + l) - vec.begin();
 			int val = t.m_idx(i, i+l);
-			assert(i <= val && val < i + l);
-			assert(exp == val || vec[exp] == vec[val]);
+			ASSERT(i <= val && val < i + l);
+			ASSERT(exp == val || vec[exp] == vec[val]);
 		}
 	}
 	bd.build(vec, &t, false, false);
@@ -22,8 +23,8 @@ void test_rmq(const vector<uint64_t>& vec) {
 		for (int i = 0; i < vec.size() - l + 1; ++i) {
 			int exp = std::max_element(vec.begin() + i, vec.begin() + i + l) - vec.begin();
 			int val = t.m_idx(i, i+l);
-			assert(i <= val && val < i + l);
-			assert(exp == val || vec[exp] == vec[val]);
+			ASSERT(i <= val && val < i + l);
+			ASSERT(exp == val || vec[exp] == vec[val]);
 		}
 	}
 	bd.build(vec, &t, true, true);
@@ -31,8 +32,8 @@ void test_rmq(const vector<uint64_t>& vec) {
 		for (int i = 0; i < vec.size() - l + 1; ++i) {
 			int exp = std::min_element(vec.begin() + i, vec.begin() + i + l) - vec.begin();
 			int val = t.m_idx(i, i+l);
-			assert(i <= val && val < i + l);
-			assert(exp == val || vec[exp] == vec[val]);
+			ASSERT(i <= val && val < i + l);
+			ASSERT(exp == val || vec[exp] == vec[val]);
 		}
 	}
 	bd.build(vec, &t, false, true);
@@ -40,8 +41,8 @@ void test_rmq(const vector<uint64_t>& vec) {
 		for (int i = 0; i < vec.size() - l + 1; ++i) {
 			int exp = std::max_element(vec.begin() + i, vec.begin() + i + l) - vec.begin();
 			int val = t.m_idx(i, i+l);
-			assert(i <= val && val < i + l);
-			assert(exp == val || vec[exp] == vec[val]);
+			ASSERT(i <= val && val < i + l);
+			ASSERT(exp == val || vec[exp] == vec[val]);
 		}
 	}
 	cout << '.';
@@ -69,8 +70,8 @@ void test_sct(const vector<uint64_t>& vec) {
 		for (int i = 0; i < vec.size() - l + 1; ++i) {
 			int exp = std::min_element(vec.begin() + i, vec.begin() + i + l) - vec.begin();
 			int val = sct.m_idx(i, i+l);
-			assert(i <= val && val < i + l);
-			assert(exp == val || vec[exp] == vec[val]);
+			ASSERT(i <= val && val < i + l);
+			ASSERT(exp == val || vec[exp] == vec[val]);
 		}
 	}
 
@@ -112,13 +113,10 @@ void test_cmp(const vector<uint64_t>& x) {
 		if (l > r) std::swap(l, r);
 		uint64_t i1 = t.m_idx(l, r);
 		uint64_t i2 = t.m_idx(l, r);
-		assert(i1 == i2 || x[i1] == x[i2]);
+		ASSERT(i1 == i2 || x[i1] == x[i2]);
 	}
 }
 
-void testsize() {
-
-}
 
 int main() {
 	for (size_t i = 0; i < 100; i++) {

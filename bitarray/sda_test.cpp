@@ -1,6 +1,8 @@
 
 #include "sdarray.h"
 #include "mem/filearchive.h"
+#include "utils/utest.h"
+#include "utils/file_utils.h"
 #include <vector>
 #include <cassert>
 #include <fstream>
@@ -11,8 +13,8 @@ using namespace std;
 using namespace mscds;
 
 string get_tempdir() {
-	return "../tmp/";
-}; // "/tmp/
+	return utils::get_temp_path();
+};
 
 void test_SDA1() {
 	const int len = 1000;
@@ -32,21 +34,21 @@ void test_SDA1() {
 
 	for (int i = 1; i <= len; i++) {
 		int val = arr.prefixsum(i) - arr.prefixsum(i-1);
-		assert(A[i-1] == val);
+		ASSERT(A[i-1] == val);
 	}
 	int psum = 0;
 	for (int i = 0; i < len-1; i++) {
 		psum += A[i];
 		if (i+1 != arr.find(psum)) {
 			cout << i+1 << " " << arr.find(psum) << endl;
-			assert(i+1 == arr.find(psum));
+			ASSERT(i+1 == arr.find(psum));
 		}
 		if (i != arr.find(psum-1)) {
-			assert(i == arr.find(psum-1));
+			ASSERT(i == arr.find(psum-1));
 		}
 	}
 	psum += A[len-1];
-	assert(1000 == arr.find(psum));
+	ASSERT(1000 == arr.find(psum));
 	cout << ".";
 }
 
@@ -77,17 +79,17 @@ void test_SDA2() {
 
 	for (int i = 1; i <= len; i++) {
 		int val = d2.prefixsum(i) - d2.prefixsum(i-1);
-		assert(A[i-1] == val);
+		ASSERT(A[i-1] == val);
 	}
 	int psum = 0;
 	for (int i = 0; i < len - 1; i++) {
 		psum += A[i];
 		if (i+1 != d2.find(psum)) {
 			cout << i+1 << " " << d2.find(psum) << endl;
-			assert(i+1 == d2.find(psum));
+			ASSERT(i+1 == d2.find(psum));
 		}
 		if (i != d2.find(psum-1)) {
-			assert(i == d2.find(psum-1));
+			ASSERT(i == d2.find(psum-1));
 		}
 	}
 	cout << ".";
@@ -114,7 +116,7 @@ void test_rank(int len) {
 		v.setbit(i, vec[i]);
 
 	for (unsigned int i = 0; i < vec.size(); i++)
-		assert(vec[i] == v.bit(i));
+		ASSERT(vec[i] == v.bit(i));
 
 	SDRankSelect r;
 	r.build(v);
@@ -122,7 +124,7 @@ void test_rank(int len) {
 	for (int i = 0; i <= vec.size(); ++i)
 		if (ranks[i] != r.rank(i)) {
 			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
-			assert(ranks[i] == r.rank(i));
+			ASSERT(ranks[i] == r.rank(i));
 		}
 	unsigned int onecnt = 0;
 	for (unsigned int i = 0; i < vec.size(); ++i)
@@ -133,9 +135,9 @@ void test_rank(int len) {
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
 			cout << "select " << i << "  " << r.select(i) << endl;
 			if (i > 0) r.select(i-1);
-			assert(vec[pos] == true);
+			ASSERT(vec[pos] == true);
 		}
-		assert(pos > last);
+		ASSERT(pos > last);
 		last = pos;
 	}
 	cout << ".";

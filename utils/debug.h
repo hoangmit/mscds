@@ -7,12 +7,11 @@
 
 namespace utils {
 
-struct Debugger {
+struct DbgHelper {
 	static bool flag;
-	Debugger(){ flag = false; }
+	DbgHelper(){ flag = false; }
 	void print(const std::string& s) {
-		if (flag)
-			std::cout << s << std::endl;
+		if (flag) std::cerr << s << std::endl;
 	}
 
 	bool is_on() { return flag; }

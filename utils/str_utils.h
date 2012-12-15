@@ -147,7 +147,7 @@ namespace utils {
 		virtual char do_thousands_sep() const { return ','; }
 		virtual std::string do_grouping() const { return "\03"; }
 	};
-	//locale oldLoc = cout.imbue(std::locale(cout.getloc(), new comma_numpunct()));
+	//locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
 }
 
 #endif //__STR_UTILS_H_

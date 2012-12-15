@@ -2,6 +2,8 @@
 
 #include "count2d.h"
 #include "mem/fmaparchive.h"
+#include "utils/utest.h"
+#include "utils/file_utils.h"
 #include <cassert>
 #include <vector>
 #include <iostream>
@@ -11,8 +13,6 @@
 
 using namespace mscds;
 using namespace std;
-
-#define ASSERT_EQ(x,y) assert((x)==(y))
 
 void test1() {
 	int px[10] = {0, 0, 1, 1, 4, 4, 3, 3, 5, 6};
@@ -110,7 +110,7 @@ void test3() {
 			if (matrix[i][j])
 				list.push_back(Point(i, j));
 	OFileArchive fo;
-	string fname = (string("../tmp/") + "temp_sx");;
+	string fname = (utils::get_temp_path() + "temp_sx");;
 	fo.open_write(fname);
 	bd.build(list, fo);
 	fo.close();

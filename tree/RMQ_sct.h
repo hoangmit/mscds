@@ -5,41 +5,60 @@
 
 #include "BP_bits.h"
 #include <cassert>
+#include <stack>
 
 namespace mscds {
 
-BitArray build_supercartisian_tree(const std::vector<uint64_t>& arr, bool mintree);
+
+
+/**
+Implement supercartisian tree building procedure from
+E. Ohlebusch and S. Gog. A Compressed Enhanced Suffix Array Supporting Fast String Matching. SPIRE 2009.
+ */
+template<typename RandomAccessIterator>
+BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last);
+
 
 class RMQ_sct {
-
 	BP_aux bp;
 public:
-	void build(const std::vector<uint64_t>& arr) {
-		BitArray b = build_supercartisian_tree(arr, true);
-		bp.build(b, 128);
+	void build(const std::vector<uint64_t>& arr, bool minstr = true, unsigned int blksize = 256) {
+		BitArray b = build_supercartisian_tree(minstr, arr.begin(), arr.end());
+		bp.build(b, blksize);
 	}
 
-	size_t m_idx(size_t st, size_t ed) const {
-		ed -= 1;
-		assert(st <= ed && ed < bp.length());
-		if (st == ed) return st;
-		size_t i = bp.select(st);
-		size_t j = bp.select(ed);
-		size_t fc_i = bp.find_close(i);
-		if (j < fc_i) {
-			return st;
-		} else {
-			size_t ec = bp.rr_enclose(i,j);
-			if (ec == BP_block::NOTFOUND)
-				return ed;
-			else 
-				return bp.rank(ec);
-		}
-	}
+	size_t m_idx(size_t st, size_t ed) const;
+	size_t psv(size_t p) const;
+	size_t nsv(size_t p) const;
+
 	OArchive& save(OArchive& ar) const;
 	IArchive& load(IArchive& ar);
 };
 
+template<typename RandomAccessIterator>
+inline BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last){
+	BitArray bp = BitArray(2*std::distance(first, last));
+	bp.fillzero();
+	typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
+	std::stack<value_type> st;
+	size_t p = 0;
+	if (minimum_tree) {
+		for (; first != last; ++first) {
+			value_type val = *first;
+			while ((!st.empty()) && (val < st.top())) { st.pop(); ++p; }
+			st.push(val);
+			bp.setbit(p, true);  p++;
+		}
+	} else {
+		for (; first != last; ++first) {
+			value_type val = *first;
+			while ((!st.empty()) && (st.top() < val)) { st.pop(); ++p; }
+			st.push(val);
+			bp.setbit(p, true);  p++;
+		}
+	}
+	return bp;
+}
 
 }//namespace
 #endif //__RMQ_SUPER_CARTISIAN_TREE_H_

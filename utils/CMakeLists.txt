@@ -17,6 +17,7 @@ str_utils.h
 file_utils.h
 utils.h
 debug.h
+utest.h
 )
 
 

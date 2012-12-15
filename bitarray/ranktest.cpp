@@ -1,6 +1,7 @@
 
 #include "rank25p.h"
 #include "rank6p.h"
+#include "utils/utest.h"
 
 #include <vector>
 #include <iostream>
@@ -51,7 +52,6 @@ std::vector<bool> bits_zerozeroone(int len = 50000) {
 	}
 	return v;
 }
-
 
 std::vector<bool> bits_dense(int len) {
 	std::vector<bool> v;
@@ -104,7 +104,7 @@ void test_rank(const std::vector<bool>& vec) {
 	}
 
 	for (unsigned int i = 0; i < vec.size(); i++) {
-		assert(vec[i] == v.bit(i));
+		ASSERT(vec[i] == v.bit(i));
 	}
 
 	Rank6p r;
@@ -113,7 +113,7 @@ void test_rank(const std::vector<bool>& vec) {
 	for (int i = 0; i <= vec.size(); ++i) {
 		if (ranks[i] != r.rank(i)) {
 			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
-			assert(ranks[i] == r.rank(i));
+			ASSERT(ranks[i] == r.rank(i));
 		}
 	}
 	unsigned int onecnt = 0;
@@ -125,16 +125,16 @@ void test_rank(const std::vector<bool>& vec) {
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
 			cout << "select " << i << "  " << r.select(i) << endl;
 			if (i > 0) r.select(i-1);
-			assert(vec[pos] == true);
+			ASSERT(vec[pos] == true);
 		}
-		assert(pos > last);
+		ASSERT(pos > last);
 		last = pos;
 	}
 	last = -1;
 	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
 		int pos = r.selectzero(i);
-		assert(pos < vec.size() && vec[pos] == false);
-		assert(pos > last);
+		ASSERT(pos < vec.size() && vec[pos] == false);
+		ASSERT(pos > last);
 		last = pos;
 	}
 	cout << ".";
@@ -164,9 +164,9 @@ void test_temp(int len) {
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
 			cout << "select " << i << "  " << rhs.select(i) << endl;
 			if (i > 0) rhs.select(i-1);
-			assert(vec[pos] == true);
+			ASSERT(vec[pos] == true);
 		}
-		assert(pos > last);
+		ASSERT(pos > last);
 		last = pos;
 	}
 	cout << '.';

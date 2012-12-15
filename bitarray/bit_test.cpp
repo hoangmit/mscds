@@ -1,5 +1,6 @@
 #include "bitarray.h"
 #include "utils/str_utils.h"
+#include "utils/utest.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -15,10 +16,10 @@ void test1(int len = 2048) {
 		b.setbit(i, v[i]);
 	}
 	for (int i = 0; i < v.size(); ++i) { 
-		assert(v[i] == b[i]);
+		ASSERT(v[i] == b[i]);
 	}
 	for (int i = 0; i < v.size() / 8; i++) {
-		assert(b.bits(i*8,8) == b.byte(i));
+		ASSERT(b.bits(i*8,8) == b.byte(i));
 	}
 	cout << "." ;
 }
@@ -32,14 +33,14 @@ void test2(int len = 2048) {
 		b.setbit(i, v[i]);
 	}
 	for (int i = 0; i < v.size(); ++i) { 
-		assert(v[i] == b[i]);
+		ASSERT(v[i] == b[i]);
 	}
 	for (int d = 1; d <= 64; ++d) {
 		for (int i = 0; i < v.size() - d; ++i) {
 			uint64_t u = b.bits(i, d);
 			uint64_t up = u;
 			for (int j = i; j < i + d; j++) {
-				assert(v[j] == ((up & 1) > 0));
+				ASSERT(v[j] == ((up & 1) > 0));
 				up >>= 1;
 			}
 			bool bm1, bp1;
@@ -49,9 +50,9 @@ void test2(int len = 2048) {
 			if (u != c.bits(i,d)) {
 				cout << u << ' ' << c.bits(i,d);
 				c.setbits(i,u,d);
-				assert(u == c.bits(i,d));
+				ASSERT(u == c.bits(i,d));
 			}
-			if (i > 0) assert(bm1 == c[i-1]);
+			if (i > 0) ASSERT(bm1 == c[i-1]);
 			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 		}
 	}

@@ -14,5 +14,5 @@ add_library(mem ${SRCS} ${HEADERS})
 
 
 add_executable(t_mem filemaptest.cpp)
-target_link_libraries(t_mem mem)
+target_link_libraries(t_mem mem utils)
 set_target_properties(t_mem PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

@@ -1,5 +1,6 @@
 
 #include "wat_array.h"
+#include "utils/utest.h"
 #include <vector>
 #include <utility>
 using namespace std;
@@ -18,7 +19,7 @@ void test_watarr() {
 	WatQuery arr;
 	WatBuilder bd;
 	bd.build(inp, &arr);
-	assert(5 == arr.rank(1, 8));
+	ASSERT(5 == arr.rank(1, 8));
 }
 
 void test_wat_1() {
@@ -27,18 +28,18 @@ void test_wat_1() {
 	WatQuery wq;
 	WatBuilder bd;
 	bd.build(v, &wq);
-	assert(("01010011" "10101100" "10010011") == wq.bit_layers().to_str());
+	ASSERT_EQ("01010011" "10101100" "10010011", wq.bit_layers().to_str());
 	for (int i = 0; i < 8; ++i)
-		assert(v[i] == wq.access(i));
+		ASSERT_EQ(v[i], wq.access(i));
 	
-	assert(0 == wq.select(2, 0));
-	assert(1 == wq.select(7, 0));
-	assert(2 == wq.select(1, 0));
-	assert(3 == wq.select(7, 1));
-	assert(4 == wq.select(3, 0));
-	assert(5 == wq.select(0, 0));
-	assert(6 == wq.select(4, 0));
-	assert(7 == wq.select(4, 1));
+	ASSERT_EQ(0, wq.select(2, 0));
+	ASSERT_EQ(1, wq.select(7, 0));
+	ASSERT_EQ(2, wq.select(1, 0));
+	ASSERT_EQ(3, wq.select(7, 1));
+	ASSERT_EQ(4, wq.select(3, 0));
+	ASSERT_EQ(5, wq.select(0, 0));
+	ASSERT_EQ(6, wq.select(4, 0));
+	ASSERT_EQ(7, wq.select(4, 1));
 }
 
 void test_wat_2() {
@@ -63,10 +64,10 @@ void test_wat_2() {
 			if (v[j] < testv) count++;
 
 		unsigned int rv = wq.rankLessThan(testv, i);
-		assert(count == rv);
-		assert(v[i] == wq.access(i));
+		ASSERT(count == rv);
+		ASSERT(v[i] == wq.access(i));
 		unsigned int rx = wq.rank(v[i], i);
-		assert(i == wq.select(v[i], rx));
+		ASSERT(i == wq.select(v[i], rx));
 
 	}
 }
@@ -86,14 +87,13 @@ void test_wat_access() {
 		for (int j = 0; j < i; ++j)
 			if (v[j] < testv) count++;
 		unsigned int rv = wq.rankLessThan(testv, i);
-		assert(count == rv);
-		assert(v[i] == wq.access(i));
+		ASSERT(count == rv);
+		ASSERT(v[i] == wq.access(i));
 		unsigned int rx = wq.rank(v[i], i);
-		assert(i == wq.select(v[i], rx));
+		ASSERT(i == wq.select(v[i], rx));
 	}
 }
 
-#define ASSERT_EQ(x,y) assert((x)==(y))
 
 void watarr_rank_access_bigrange() {
 	vector<uint64_t> v;
@@ -113,7 +113,7 @@ void watarr_rank_access_bigrange() {
 		ASSERT_EQ(count, rv);
 		ASSERT_EQ(v[i], wq.access(i));
 		unsigned int rx = wq.rank(v[i], i);
-		assert(i == wq.select(v[i], rx));
+		ASSERT(i == wq.select(v[i], rx));
 	}
 }
 
@@ -135,7 +135,7 @@ void watarr_rank_access_smallrange() {
 		ASSERT_EQ(count, rv);
 		ASSERT_EQ(v[i], wq.access(i));
 		unsigned int rx = wq.rank(v[i], i);
-		assert(i == wq.select(v[i], rx));
+		ASSERT(i == wq.select(v[i], rx));
 
 	}
 }
@@ -289,13 +289,13 @@ void gridquerytest2() {
 
 	uint64_t llt, lmt, r;
 	arr.rankAll(2, 1, r, llt, lmt);
-	assert(1 == llt);
+	ASSERT(1 == llt);
 	arr.rankAll(2, 2, r, llt, lmt);
-	assert(1 == llt);
+	ASSERT(1 == llt);
 	arr.rankAll(2, 1, r, llt, lmt);
-	assert(1 == llt+r);
+	ASSERT(1 == llt+r);
 	arr.rankAll(2, 2, r, llt, lmt);
-	assert(2 == llt+r);
+	ASSERT(2 == llt+r);
 
 	GridQuery gq;
 	vector<unsigned int> X, Y;

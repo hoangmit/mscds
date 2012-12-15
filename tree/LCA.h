@@ -183,14 +183,14 @@ public:
 
 };
 
-class LCA_Builder {
 // From Dan Gusfield's book
+class LCA_Builder {
 public:
 	typedef LCA_Struct::NodeId NodeId;
 
 public:
-	static unsigned int find_MSB(unsigned long v) { return BitOp::find_MSB_intr(v); }
-	static NodeId h(NodeId u) { return BitOp::find_LSB_intr(u); }
+	static unsigned int find_MSB(unsigned long v) { return msb_intr(v); }
+	static NodeId h(NodeId u) { return lsb_intr(u); }
 
 	LCA_Builder() {}
 

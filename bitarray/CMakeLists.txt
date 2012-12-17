@@ -6,6 +6,7 @@ set(SRCS rank6p.cpp sdarray.cpp bitop.cpp)
 set(HEADERS bitarray.h rank6p.h rank25p.h rankselect.h bitop.h sdarray.h)
 
 add_library(bitarray ${SRCS} ${HEADERS})
+#target_link_libraries(bitarray)
 
 add_executable(t_rank ranktest.cpp)
 target_link_libraries(t_rank bitarray)

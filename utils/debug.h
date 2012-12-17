@@ -4,18 +4,21 @@
 
 #include <string>
 #include <iostream>
+#include <stdint.h>
 
 namespace utils {
 
 struct DbgHelper {
 	static bool flag;
+	static uint64_t counter_;
+
 	DbgHelper(){ flag = false; }
-	void print(const std::string& s) {
+	static void print(const std::string& s) {
 		if (flag) std::cerr << s << std::endl;
 	}
-
-	bool is_on() { return flag; }
-	void setflag(bool b) { flag = b; }
+	static uint64_t& counter() { return counter_;}
+	static bool is_on() { return flag; }
+	static void setflag(bool b) { flag = b; }
 };
 
 

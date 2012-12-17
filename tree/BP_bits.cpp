@@ -382,7 +382,6 @@ void BP_aux::clear() {
 	}
 }
 
-
 uint64_t BP_aux::find_close(uint64_t p) const {
 	assert(p < length());
 	if (!bit(p)) return p;
@@ -531,6 +530,7 @@ IArchive &BP_aux::load(IArchive &ar) {
 	ar.var("pioneers");
 	pioneer_map.load(ar);
 	blk.load(ar);
+	blk.init(bp_bits, blksize);
 	uint32_t nextlvl;
 	ar.var("nextlvl").load(nextlvl);
 	if (nextlvl != 0) {

@@ -6,6 +6,7 @@
 #include "mem/filearchive.h"
 #include <functional>
 #include "utils/str_utils.h"
+#include "utils/file_utils.h"
 #include "RMQ_sct.h"
 
 #include "utils/utest.h"
@@ -221,6 +222,50 @@ void test_bp(const BitArray& b, int blksize) {
 	}
 }
 
+void test_bp2(const BitArray& b, int blksize) {
+	stack<int> pos;
+	vector<int> match(b.length());
+	vector<int> enclose(b.length());
+	for (unsigned i = 0; i < b.length(); i++)
+		if (b[i]) {
+			if (!pos.empty()) enclose[i] = pos.top();
+			else enclose[i] = -1;
+			pos.push(i);
+		} else {
+			int t = pos.top();
+			pos.pop();
+			match[i] = t;
+			match[t] = i;
+			enclose[i] = t;
+		}
+	BP_aux bps;
+	bps.build(b, blksize);
+	OFileArchive fo;
+	string fn = utils::get_temp_path() + "temp_bptree";
+	fo.open_write(fn);
+	bps.save(fo);
+	bps.clear();
+	fo.close();
+	IFileArchive fi;
+	fi.open_read(fn);
+	bps.load(fi);
+	fi.close();
+
+	for (int i = 0; i < b.length(); i++) {
+		if (b[i]) {
+			ASSERT(match[i] == bps.find_close(i));
+		}else {
+			ASSERT(match[i] == bps.find_open(i));
+		}
+		if (enclose[i] >= 0) {
+			ASSERT(enclose[i] == bps.enclose(i));
+		}else {
+			ASSERT(BP_block::NOTFOUND == bps.enclose(i));
+		}
+	}
+}
+
+
 void test_bp1() {
 	string bps = "((()(()()(()))(((((())))()())()(())))())";
 	string exp = "1000100000000111000000000000100100110001";
@@ -264,7 +309,7 @@ void testsize() {
 	unsigned int len = 20000000;
 	BitArray b = generate_BPS(len);
 	BP_aux bps;
-	bps.build(b, 64);
+	bps.build(b, 128);
 	OSizeEstArchive ar;
 	bps.save(ar);
 	cout.imbue(std::locale(cout.getloc(), new comma_numpunct()));
@@ -298,6 +343,10 @@ void test_cart() {
 }
 
 void test_all() {
+	for (int i = 0; i < 100; i++) {
+		test_bp2(generate_BPS(1000), 16);
+		if (i % 10 == 0) cout << '.';
+	}
 	
 	for (int i = 0; i < 5000; i++) {
 		if (i % 1000 == 0) cout << '.';
@@ -330,7 +379,7 @@ void test_all() {
 
 int main() {	
 	testsize();
-	test_all();
+	//test_all();
 
 	//print_ex();
 	return 0;

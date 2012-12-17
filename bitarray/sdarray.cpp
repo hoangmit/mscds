@@ -23,6 +23,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
+#include "utils/debug.h"
 
 using namespace std;
 
@@ -258,7 +259,13 @@ uint64_t SDArrayQuery::hint_find(uint64_t val, uint64_t low, uint64_t high) cons
 	uint64_t bpos = low-1;
 	assert(Ltable_.word(bpos*2) <= val);
 	assert(low*2 == Ltable_.word_count() || val < Ltable_.word(low*2));
-	return bpos * BLOCK_SIZE + rankBlock2(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
+	uint64_t vn = rankBlock2(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));;
+	if (vn > 0)
+		return bpos * BLOCK_SIZE + vn;
+	else {
+		if (Ltable_.word(bpos*2) == val) return bpos * BLOCK_SIZE - 1;
+		else return bpos * BLOCK_SIZE;
+	}
 } 
 
 uint64_t SDArrayQuery::rankBlock2(const uint64_t val, uint64_t header) const {
@@ -430,6 +437,7 @@ void SDRankSelect::build(const std::vector<uint64_t>& inc_pos) {
 	for (size_t i = 1; i < inc_pos.size(); i++) 
 		bd.add(inc_pos[i] - inc_pos[i-1]);
 	bd.build(&qs);
+	initrank();
 }
 
 void SDRankSelect::build(const std::vector<unsigned int>& inc_pos) {
@@ -468,24 +476,31 @@ void SDRankSelect::initrank() {
 	rankhints = FixedWArray::create((qs.total() >> ranklrate) + 2, ceillog2(qs.length()+1));
 	uint64_t p = 0;
 	rankhints.set(0, 0);
-	uint64_t endp = qs.length();
+	uint64_t endp = qs.Ltable_.word_count() / 2;
 	for (uint64_t i = (1 << ranklrate); i < qs.total(); i += (1<<ranklrate)) {
 		while (p < endp && qs.Ltable_.word(p*2) < i) p++;
 		rankhints.set(i >> ranklrate, p-1);
 		//assert(rankhints[p>>ranklrate] < i);
 		//assert(rankhints[(p>>ranklrate) + 1] >= i);
 	}
-	rankhints.set(rankhints.length() - 1, std::min(endp - 1, p));
+	rankhints.set(rankhints.length() - 1, endp - 1);
 }
 
 uint64_t SDRankSelect::rank(uint64_t p) const {
 	if (p == 0) return 0;
 	if (p > qs.total()) return qs.length();
 	uint64_t i = rankhints[p>>ranklrate], j = rankhints[(p>>ranklrate)+1]+1;
+
+	//utils::DbgHelper::counter()++;
+	//if (utils::DbgHelper::counter() == 764352) {
+	//	cout << "ohdear" << endl;
+	//}
+	//uint64_t kt = qs.find(p);
+	//kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;
+
 	uint64_t k = qs.hint_find(p, i, j);
-	//assert(qs.find(p) == k);
-	//if (qs.prefixsum(k) != p) return k;
-	//else return k - 1;
+	//assert(k == kt);
+
 	return k;
 }
 

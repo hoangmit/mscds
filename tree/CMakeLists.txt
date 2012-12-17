@@ -14,5 +14,5 @@ target_link_libraries(t_rmq tree)
 set_target_properties(t_rmq PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(t_bptree bptree_test.cpp)
-target_link_libraries(t_bptree tree)
+target_link_libraries(t_bptree tree mem utils)
 set_target_properties(t_bptree PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

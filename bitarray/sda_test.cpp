@@ -3,10 +3,12 @@
 #include "mem/filearchive.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"
+#include "utils/utest.h"
 #include <vector>
 #include <cassert>
 #include <fstream>
 #include <string>
+#include <ctime>
 #include <stdint.h>
 
 using namespace std;
@@ -15,6 +17,130 @@ using namespace mscds;
 string get_tempdir() {
 	return utils::get_temp_path();
 };
+
+
+void test_sdarray_zeros(){
+	SDArrayBuilder bd;
+	int N = 10000;
+	for (int i = 0; i < N; ++i){
+		bd.add(0);
+	}
+	SDArrayQuery sda;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	for (int i = 0; i < N; ++i){
+		ASSERT_EQ(0, sda.prefixsum(i));
+		//uint64_t val = 0;
+		ASSERT_EQ(0, sda.lookup(i));
+		//ASSERT_EQ(0, val);
+	}
+
+	//ASSERT_EQ(SDArrayQuery::NOTFOUND, sda.find(0));
+}
+
+void test_sdarray_ones(){
+	SDArrayBuilder bd;
+	int N = 10000;
+	for (int i = 0; i < N; ++i){
+		bd.add(1);
+	}
+	SDArrayQuery sda;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	for (int i = 0; i < N; ++i){
+		ASSERT_EQ(i, sda.prefixsum(i));
+		//uint64_t val = 0;    
+		ASSERT_EQ(1, sda.lookup(i));
+		//ASSERT_EQ(i, );
+	}
+
+	for (int i = 0; i < N; ++i){
+		ASSERT_EQ(i, sda.find(i));
+	}
+}
+
+void test_sdarray_increasing(){
+	SDArrayBuilder bd;
+	SDArrayQuery sda;
+	uint64_t N = 1000;
+	vector<uint64_t> vals(N);
+	vector<uint64_t> cums(N+1);
+	uint64_t sum = 0;
+	for (uint64_t i = 0; i < N; ++i){
+		cums[i] = sum;
+		bd.add(i);
+		sum += i;
+	}
+	cums[N] = sum;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	for (uint64_t i = 0; i < N; ++i){
+		ASSERT_EQ(cums[i], sda.prefixsum(i));
+		//uint64_t val = 0;
+		//ASSERT_EQ(cums[i], sda.prefixsumLookup(i, val));
+		//ASSERT_EQ(i, val);
+		ASSERT_EQ(i, sda.lookup(i));
+	}
+
+	for (uint64_t i = 0 ;i < sum; i += 17){
+		vector<uint64_t>::iterator it = upper_bound(cums.begin(), cums.end(), i);
+		size_t ind = it - cums.begin() - 1;
+
+		ASSERT(i >= cums[ind]);
+		if (ind+1 < cums.size()){
+			ASSERT(i <= cums[ind+1]);
+		}
+
+		ASSERT_EQ(ind, sda.find(i));
+	}
+}
+
+
+
+void test_sdarray_random(){
+	SDArrayBuilder bd;
+	SDArrayQuery sda;
+	uint64_t N = 1000;
+	vector<uint64_t> vals(N);
+	vector<uint64_t> cums(N+1);
+	uint64_t sum = 0;
+	for (uint64_t i = 0; i < N; ++i){
+		cums[i] = sum;
+		vals[i] = rand();
+		bd.add(vals[i]);
+		sum += vals[i];
+	}
+	cums[N] = sum;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	sum = 0;
+	for (uint64_t i = 0; i < N; ++i){
+		ASSERT_EQ(sum, sda.prefixsum(i));
+		ASSERT_EQ(vals[i], sda.lookup(i));
+		sum += vals[i];
+	}
+
+	uint64_t M = 100;
+	for (uint64_t i = 0; i < M; ++i){
+		uint64_t val = rand() % sum;
+
+		vector<uint64_t>::iterator it = upper_bound(cums.begin(), cums.end(), val);
+		size_t ind = it - cums.begin() - 1;
+
+		ASSERT(val >= cums[ind]);
+		if (ind+1 < cums.size()){
+			ASSERT(val <= cums[ind+1]);
+		}
+
+		ASSERT_EQ(ind, sda.find(val));
+	}
+}
+
+
 
 void test_SDA1() {
 	const int len = 1000;
@@ -144,6 +270,10 @@ void test_rank(int len) {
 }
 
 void test_SDA_all() {
+	test_sdarray_zeros();
+	test_sdarray_ones();
+	test_sdarray_increasing();
+	test_sdarray_random();
 	for (int i = 0; i < 200; i++)
 		test_rank(1000);
 	test_SDA1();
@@ -151,9 +281,44 @@ void test_SDA_all() {
 		test_SDA2();
 	cout << endl;
 }
+BitArray randbit(unsigned int len, unsigned int & cnt) {
+	BitArray b = BitArray::create(len);
+	cnt = 0;
+	for (size_t i = 0; i < len; ++i)
+		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
+		else b.setbit(i, false);
+	return b;
+}
 
+template<typename T>
+size_t get_bit_size(const T& t) {
+	OSizeEstArchive ar;
+	t.save(ar);
+	return ar.opos() * 8;
+}
+
+void testspeed() {
+	srand(0);
+	unsigned int len = 10000000, oc;
+	BitArray b = randbit(len, oc);
+	SDRankSelect rs;
+	rs.build(b);
+	cout << "ones = " << oc << endl;
+	cout << get_bit_size(rs) << endl;
+	clock_t st = std::clock();
+	uint64_t val = 3;
+	unsigned int nqueries = 1000000;
+	for (size_t i = 0; i < nqueries; i++)
+		val |= rs.rank(rand() % (len));
+	clock_t ed = std::clock();
+	if (val) cout << ' ';
+	double t = ((double)(ed - st) / CLOCKS_PER_SEC);
+	cout << nqueries / t << endl;
+
+}
 
 int main() {
-	test_SDA_all();
+	testspeed();
+	//test_SDA_all();
 	return 0;
 }

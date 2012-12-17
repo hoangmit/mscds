@@ -36,6 +36,7 @@
 namespace mscds{
 
 class SDArrayQuery;
+class SDRankSelect;
 
 class SDArrayBuilder {
 	static const uint64_t BEGPOS_WIDTH;
@@ -96,6 +97,7 @@ public:
 	uint64_t find(uint64_t val) const; // upper_bound(val) - 1
 
 	size_t length() const;
+	uint64_t total() const { return sum_; }
 
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
@@ -110,11 +112,17 @@ private:
 	uint64_t getLow(uint64_t begPos, uint64_t num, uint64_t width) const;
 	uint64_t getBitI(uint64_t pos) const;
 	uint64_t getBitsI(uint64_t pos, uint64_t num) const;
+
+	// return i such that A[i] < val <= val[i+1]
+	uint64_t hint_find(uint64_t val, uint64_t low, uint64_t high) const;
+	uint64_t rankBlock2(uint64_t val, uint64_t header) const;
+
 	BitArray Ltable_;
 	BitArray B_;
 	size_t size_;
 	uint64_t sum_;
 	friend class SDArrayBuilder;
+	friend class SDRankSelect;
 };
 
 class SDRankSelect {
@@ -122,76 +130,25 @@ public:
 	SDRankSelect() {}
 	~SDRankSelect() { clear(); }
 
-	void build(const std::vector<uint64_t>& inc_pos) {
-		clear();
-		bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
-		if (!b) throw std::logic_error("required sorted array");
-		for (size_t i = 1; i < inc_pos.size(); i++) 
-			if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
-		if (inc_pos.size() == 0) return;
-		SDArrayBuilder bd;
-		if (inc_pos[0] == 0) bd.add(0);
-		else bd.add(inc_pos[0]);
-		for (size_t i = 1; i < inc_pos.size(); i++) 
-			bd.add(inc_pos[i] - inc_pos[i-1]);
-		bd.build(&qs);
-	}
+	void build(const std::vector<uint64_t>& inc_pos);
+	void build(const std::vector<unsigned int>& inc_pos);
+	void build(BitArray& ba);
 
-	void build(BitArray& ba) {
-		clear();
-		SDArrayBuilder bd;
-		uint64_t last = 0;
-		for (size_t i = 0; i < ba.length(); i++)
-			if (ba[i]) {
-				bd.add(i-last);
-				last = i;
-			}
-		bd.build(&qs);
-	}
+	uint64_t one_count() const { return qs.length(); }
 
-	uint64_t one_count() const {
-		return qs.length();
-	}
+	uint64_t rank(uint64_t p) const;
+	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }
 
-	uint64_t rank(uint64_t p) const {
-		if (p == 0) return 0;
-		uint64_t k = qs.find(p);
-		if (k == SDArrayQuery::NOTFOUND)
-			return qs.length();
-		if (qs.prefixsum(k) != p) return k;
-		else return k - 1;
-	}
+	void load(IArchive& ar);
+	void save(OArchive& ar) const;
 
-	uint64_t select(uint64_t r) const {
-		assert(r < one_count());
-		return qs.prefixsum(r+1);
-	}
-
-	void load(IArchive& ar) {
-		qs.load(ar);
-	}
-
-	void save(OArchive& ar) const {
-		qs.save(ar);
-	}
-
-	void clear() {
-		qs.clear();
-	}
-
-	std::string to_str() const {
-		std::ostringstream ss;
-		ss << '{';
-		if (qs.length() > 0) {
-			ss << qs.prefixsum(1);
-			for (size_t i = 2; i <= qs.length(); i++) 
-				ss << ',' << qs.prefixsum(i);
-		}
-		ss << '}';
-		return ss.str();
-	}
-public:
+	void clear() { qs.clear(); rankhints.clear(); }
+	std::string to_str() const;
+private:
+	void initrank();
+	unsigned int ranklrate;
 	SDArrayQuery qs;
+	FixedWArray rankhints;
 };
 
 

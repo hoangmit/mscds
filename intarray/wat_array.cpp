@@ -48,7 +48,7 @@ void WatBuilder::build(const vector<uint64_t>& list, WatQuery * out) {
 			alphabet_num = list[i];
 	}
 
-	uint64_t alphabet_bit_num_ = ceillog2(alphabet_num);
+	uint64_t alphabet_bit_num_ = ceillog2(alphabet_num+1);
 	//assert(Log2(alphabet_num) == msb_intr(alphabet_num - 1) + 1);
 
 	uint64_t length = static_cast<uint64_t>(list.size());

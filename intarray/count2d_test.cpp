@@ -166,7 +166,12 @@ void test_grid_query1(unsigned int n, double p) {
 		for (int j = 0; j < n+1; ++j) {
 			int exp = count[i][j];
 			int val = cq.count(i,j);
-			ASSERT_EQ(exp, val);
+			if (exp != val) {
+				Count2DQuery cqxx;
+				bd.build(list, &cqxx);
+				cq.count(i,j);
+				ASSERT_EQ(exp, val);
+			}
 		}
 	std::vector<unsigned int> qX, qY;
 	for (int i = 0; i < 4; i++)

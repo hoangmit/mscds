@@ -11,7 +11,9 @@ namespace mscds{
 using namespace std;
 
 void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
+	assert(list.size() < (1ULL<<32));
 	assert(list.size() > 0);
+	out->clear();
 	vector<unsigned int> X(list.size()), Y(list.size());
 	for (unsigned int i = 0; i < list.size(); ++i) {
 		X[i] = list[i].x;
@@ -23,41 +25,26 @@ void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
 	out->max_y = Y.back();
 	//work on Y
 	Y.erase(unique(Y.begin(), Y.end()), Y.end());
-	SDArrayBuilder ybd;
-	unsigned int last = 0;
-	for (unsigned int i = 0; i < Y.size(); ++i) {
-		ybd.add(Y[i] - last);
-		last = Y[i];
-	}
-	ybd.build(&(out->SY));
+	out->SY.build(Y);
 
 	SDArrayBuilder xbd, dp;
 	//work on X
-	unsigned int cnt = 1;
-	last = X[0];
-	xbd.add(X[0] - 0);
-	for (unsigned int i = 1; i < X.size(); ++i) {
-		if (X[i] != last) {
-			xbd.add(X[i] - last);
-			dp.add(cnt);
-			last = X[i];
-			cnt = 1;
-		}else
-			cnt++;
+	if (X.size() > 0) {
+		vector<unsigned int> Cnt;
+		Cnt.push_back(0);
+		for (unsigned int i = 1; i < X.size(); ++i)
+			if (X[i] != X[i-1]) Cnt.push_back(i);
+		Cnt.push_back(X.size());
+		out->DPX.build(Cnt);
 	}
-	dp.add(cnt);
+	X.erase(unique(X.begin(), X.end()), X.end());
+	out->SX.build(X);
+	
 	// work on points
-	xbd.build(&out->SX);
-	dp.build(&out->DPX);
-
 	vector<uint64_t> wlst;
-	last = list[0].x;
-	//unsigned int pos = 0;
 	sort(list.begin(), list.end());
-	for (unsigned int i = 0; i < list.size(); ++i) {
-		//if (list[i].x != last) pos++;
-		wlst.push_back(out->SY.find(list[i].y)-1);
-	}
+	for (unsigned int i = 0; i < list.size(); ++i)
+		wlst.push_back(out->SY.rank(list[i].y));
 	WatBuilder bd;
 	bd.build(wlst, &out->wq);
 }
@@ -101,34 +88,16 @@ void Count2DQuery::clear() {
 	DPX.clear();
 }
 
-
 uint64_t Count2DQuery::count(unsigned int x, unsigned int y) const {
 	return wq.rankLessThan(map_y(y), map_x(x));
 }
 
 unsigned int Count2DQuery::map_x(unsigned int x) const {
-	uint64_t p = 0;
-	if (x <= max_x) {
-		uint64_t cx = SX.find(x);
-		if (cx == 0) return 0;
-		if (SX.prefixsum(cx) == x) cx--;
-		p = DPX.prefixsum(cx);
-	} else {
-		p = DPX.prefixsum(DPX.length());
-	}
-	return p;
+	return DPX.select(SX.rank(x));
 }
 
 unsigned int Count2DQuery::map_y(unsigned int y) const {
-	uint64_t cy;
-	if (y <= max_y) {
-		cy = SY.find(y);
-		if (cy == 0) return 0;
-		if (SY.prefixsum(cy) == y) cy--;
-	} else {
-		cy = SY.length();
-	}
-	return cy;
+	return SY.rank(y);
 }
 
 std::vector<unsigned int> Count2DQuery::count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const {

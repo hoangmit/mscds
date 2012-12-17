@@ -243,7 +243,7 @@ public:
 		ar.endclass();
 		return ar;
 	}
-
+	size_t length() const { return b.length() / width; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
 };

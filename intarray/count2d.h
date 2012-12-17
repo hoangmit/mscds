@@ -40,7 +40,7 @@ public:
 	size_t size();
 private:
 	WatQuery wq;
-	SDArrayQuery SX, SY, DPX;
+	SDRankSelect SX, SY, DPX;
 	unsigned int max_x, max_y;
 	friend class Count2DBuilder;
 

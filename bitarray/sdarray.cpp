@@ -153,8 +153,10 @@ void SDArrayBuilder::build(SDArrayQuery * out) {
 	out->clear();
 	out->size_ = this->size_;
 	out->sum_ = this->sum_;
-	out->B_ = BitArray::create(&(B_[0]), B_.size() * 64);
-	out->Ltable_ = BitArray::create(&(Ltable_[0]), Ltable_.size() * 64);
+	if (B_.size() > 0)
+		out->B_ = BitArray::create(&(B_[0]), B_.size() * 64);
+	if (Ltable_.size() > 0)
+		out->Ltable_ = BitArray::create(&(Ltable_[0]), Ltable_.size() * 64);
 	clear();
 }
 
@@ -232,19 +234,79 @@ uint64_t SDArrayQuery::find(const uint64_t val) const {
 			low = mid+1;
 		}
 	}
-	if (low*2 > Ltable_.word_count()) {
-		cout << "come1" << endl;
-		return NOTFOUND;
-	}
+	assert(low*2 <= Ltable_.word_count());
 	if (low == 0) return 0;
 	uint64_t bpos = low-1;
 	assert(Ltable_.word(bpos*2) <= val);
-	if ((bpos+1)*2 < Ltable_.word_count()){
-		assert(val < Ltable_.word((bpos+1)*2));
-	}
+	assert(low*2 == Ltable_.word_count() || val < Ltable_.word(low*2));
 
 	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
 } 
+
+uint64_t SDArrayQuery::hint_find(uint64_t val, uint64_t low, uint64_t high) const {
+	//uint64_t high = Ltable_.word_count() / 2;
+	while (low < high){
+		uint64_t mid = low + (high - low)/2;
+		if (val < Ltable_.word(mid*2)){
+			high = mid;
+		} else {
+			low = mid+1;
+		}
+	}
+	assert(low*2 <= Ltable_.word_count());
+	if (low == 0) return 0;
+	uint64_t bpos = low-1;
+	assert(Ltable_.word(bpos*2) <= val);
+	assert(low*2 == Ltable_.word_count() || val < Ltable_.word(low*2));
+	return bpos * BLOCK_SIZE + rankBlock2(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
+} 
+
+uint64_t SDArrayQuery::rankBlock2(const uint64_t val, uint64_t header) const {
+	if (getBits(header, 48, 1)){
+		// all zero
+		return BLOCK_SIZE-1; // <
+	}
+	uint64_t begPos      = getBits(header,  0, 48);
+	uint64_t width       = getBits(header, 49,  7);
+	uint64_t firstOneSum = getBits(header, 56,  8);
+
+	uint64_t high = val >> width;
+	uint64_t low  = getBits(val,  0, width);
+
+	uint64_t firstZeroSum = BLOCK_SIZE - firstOneSum;
+	uint64_t valNum = 0;
+	uint64_t highPos = begPos * BLOCK_SIZE;
+	if (high > firstZeroSum){
+		valNum += firstOneSum;
+		high -= firstZeroSum;
+		highPos += BLOCK_SIZE;
+	}
+	if (high > 0){
+		uint64_t skipNum = selectWord(~B_.word(highPos / BLOCK_SIZE), high)+ 1;
+		highPos += skipNum;
+		assert(skipNum >= high);
+		valNum += skipNum - high;
+	}
+
+	for ( ; ;  highPos++, valNum++){
+		if (highPos >= (begPos + 2) * BLOCK_SIZE){
+			return valNum; // <
+		}
+		if (!getBitI(highPos)){
+			return valNum; // <
+		}
+		uint64_t cur = getLow(begPos, valNum, width);
+
+		if (cur == low) {
+			return valNum; // =
+		} else if (low < cur){
+			return valNum; //
+		}
+	}
+	return valNum;
+}
+
+
 
 size_t SDArrayQuery::length() const {
 	return size_;
@@ -354,6 +416,105 @@ std::string SDArrayQuery::to_str(bool psum) const {
 	}
 	return ss.str();
 }
+//----------------------------------------------------------------------------
+void SDRankSelect::build(const std::vector<uint64_t>& inc_pos) {
+	clear();
+	bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
+	if (!b) throw std::logic_error("required sorted array");
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
+	if (inc_pos.size() == 0) return;
+	SDArrayBuilder bd;
+	if (inc_pos[0] == 0) bd.add(0);
+	else bd.add(inc_pos[0]);
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		bd.add(inc_pos[i] - inc_pos[i-1]);
+	bd.build(&qs);
+}
 
+void SDRankSelect::build(const std::vector<unsigned int>& inc_pos) {
+	clear();
+	bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
+	if (!b) throw std::logic_error("required sorted array");
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
+	if (inc_pos.size() == 0) return;
+	SDArrayBuilder bd;
+	if (inc_pos[0] == 0) bd.add(0);
+	else bd.add(inc_pos[0]);
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		bd.add(inc_pos[i] - inc_pos[i-1]);
+	bd.build(&qs);
+	initrank();
+}
+
+void SDRankSelect::build(BitArray& ba) {
+	clear();
+	SDArrayBuilder bd;
+	uint64_t last = 0;
+	for (size_t i = 0; i < ba.length(); i++)
+		if (ba[i]) {
+			bd.add(i-last);
+			last = i;
+		}
+	bd.build(&qs);
+	initrank();
+}
+
+void SDRankSelect::initrank() {
+	if (qs.length() == 0) return;
+	rankhints.clear();
+	ranklrate = ceillog2(qs.total() / qs.length() + 1) + 7;
+	rankhints = FixedWArray::create((qs.total() >> ranklrate) + 2, ceillog2(qs.length()+1));
+	uint64_t p = 0;
+	rankhints.set(0, 0);
+	uint64_t endp = qs.length();
+	for (uint64_t i = (1 << ranklrate); i < qs.total(); i += (1<<ranklrate)) {
+		while (p < endp && qs.Ltable_.word(p*2) < i) p++;
+		rankhints.set(i >> ranklrate, p-1);
+		//assert(rankhints[p>>ranklrate] < i);
+		//assert(rankhints[(p>>ranklrate) + 1] >= i);
+	}
+	rankhints.set(rankhints.length() - 1, std::min(endp - 1, p));
+}
+
+uint64_t SDRankSelect::rank(uint64_t p) const {
+	if (p == 0) return 0;
+	if (p > qs.total()) return qs.length();
+	uint64_t i = rankhints[p>>ranklrate], j = rankhints[(p>>ranklrate)+1]+1;
+	uint64_t k = qs.hint_find(p, i, j);
+	//assert(qs.find(p) == k);
+	//if (qs.prefixsum(k) != p) return k;
+	//else return k - 1;
+	return k;
+}
+
+void SDRankSelect::load(IArchive& ar) {
+	ar.loadclass("sd_rank_select");
+	qs.load(ar);
+	ar.load(ranklrate);
+	rankhints.load(ar);
+	ar.endclass();
+}
+
+void SDRankSelect::save(OArchive& ar) const {
+	ar.startclass("sd_rank_select", 1);
+	qs.save(ar);
+	ar.save(ranklrate);
+	rankhints.save(ar);
+	ar.endclass();
+}
+
+std::string SDRankSelect::to_str() const {
+	std::ostringstream ss;
+	ss << '{';
+	if (qs.length() > 0) {
+		ss << qs.prefixsum(1);
+		for (size_t i = 2; i <= qs.length(); i++) 
+			ss << ',' << qs.prefixsum(i);
+	}
+	ss << '}';
+	return ss.str();
+}
 
 } //namespace

@@ -31,7 +31,7 @@ void test_wat_1() {
 	ASSERT_EQ("01010011" "10101100" "10010011", wq.bit_layers().to_str());
 	for (int i = 0; i < 8; ++i)
 		ASSERT_EQ(v[i], wq.access(i));
-	
+
 	ASSERT_EQ(0, wq.select(2, 0));
 	ASSERT_EQ(1, wq.select(7, 0));
 	ASSERT_EQ(2, wq.select(1, 0));

@@ -101,7 +101,7 @@ class BP_aux {
 public:
 	BP_aux():blksize(0), lowerlvl(NULL) {}
 	~BP_aux() {clear();}
-	unsigned int build(const BitArray &bp, unsigned int blksize = 64);
+	unsigned int build(const BitArray &bp, unsigned int blksize = 256);
 	void clear();
 private:
 	BP_block blk;

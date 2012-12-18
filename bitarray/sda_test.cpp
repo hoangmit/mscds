@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <algorithm>
 #include <stdint.h>
 
 using namespace std;

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(tree)
 
-set(SRCS ReadTree.cpp BP_bits.cpp RMQ_sct.cpp)
+set(SRCS ReadTree.cpp BP_bits.cpp RMQ_sct.cpp RMQ_table.cpp)
 set(HEADERS CartesianTree.h LCA.h ReadTree.h RMQ_table.h tree.h BP_bits.h RMQ_sct.h)
 
 add_library(tree ${SRCS} ${HEADERS})

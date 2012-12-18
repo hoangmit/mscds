@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <cassert>
 #include <memory>
-#include <algorithm>
+
 
 
 namespace mscds {
@@ -87,29 +87,14 @@ public:
 		//return 0;
 	}
 
-	uint64_t count_one() const {
-		if (bitlen == 0) return 0;
-		uint64_t ret = 0;
-		const uint64_t wc = bitlen / WORDLEN;
-		for (size_t i = 0; i < wc; i++)
-			ret += popcnt(word(i));
-		for (size_t i = (bitlen / WORDLEN)*WORDLEN; i < bitlen; i++)
-			if (bit(i)) ret++;
-		return ret;
-	}
+	uint64_t count_one() const;
+	void fillzero();
+	void fillone();
 
 	uint64_t& word(size_t pos) { assert(pos < word_count()); return data[pos]; }
 	const uint64_t& word(size_t pos) const { assert(pos < word_count()); return data[pos]; }
 	size_t length() const { return bitlen; }
 	size_t word_count() const { return ceildiv(bitlen, WORDLEN); }
-
-	void fillzero() {
-		std::fill(data, data + word_count(), 0ull);
-	}
-
-	void fillone() {
-		std::fill(data, data + word_count(), ~0ull);
-	}
 
 //--------------------------------------------------
 	BitArray(): bitlen(0), data(NULL) {}
@@ -170,41 +155,11 @@ public:
 		return (a + b - 1) / b;
 	}
 
-	IArchive& loadraw(IArchive& ar) {
-		ar.var("bit_len").load(bitlen);
-		ptr = ar.var("bits").load_mem(0, sizeof(uint64_t) * word_count());
-		data = (uint64_t*) ptr.get();
-		return ar;
-	}
-	
-	IArchive& load(IArchive& ar) {
-		ar.loadclass("Bitvector");
-		loadraw(ar);
-		ar.endclass();
-		return ar;
-	}
-
-	OArchive& saveraw(OArchive& ar) const {
-		ar.var("bit_len").save(bitlen);
-		ar.var("bits").save_bin(data, sizeof(uint64_t) * word_count());
-		return ar;
-	}
-
-	OArchive& save(OArchive& ar) const {
-		ar.startclass("Bitvector", 1);
-		saveraw(ar);
-		ar.endclass();
-		return ar;
-	}
-
-	std::string to_str() const {
-		assert(length() < (1UL << 16));
-		std::string s;
-		for (unsigned int i = 0; i < bitlen; ++i)
-			if (bit(i)) s += '1';
-			else s += '0';
-		return s;
-	}
+	IArchive& load_nocls(IArchive& ar);
+	IArchive& load(IArchive& ar);
+	OArchive& save_nocls(OArchive& ar) const;
+	OArchive& save(OArchive& ar) const;
+	std::string to_str() const;
 
 private:
 	size_t bitlen;
@@ -229,20 +184,8 @@ public:
 
 	void fillzero() { b.fillzero(); }
 	void clear() { b.clear(); width = 0; }
-	IArchive& load(IArchive& ar) {
-		ar.loadclass("FixedWArray");
-		ar.var("bitwidth").load(width);
-		b.loadraw(ar);
-		ar.endclass();
-		return ar;
-	}
-	OArchive& save(OArchive& ar) const {
-		ar.startclass("FixedWArray", 1);
-		ar.var("bitwidth").save(width);
-		b.saveraw(ar);
-		ar.endclass();
-		return ar;
-	}
+	IArchive& load(IArchive& ar);
+	OArchive& save(OArchive& ar) const;
 	size_t length() const { return b.length() / width; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
@@ -257,7 +200,7 @@ FixedWArray bsearch_hints(Iterator start, size_t arrlen, size_t rangelen, unsign
 		hints.set(i, p);
 		//assert(j == (1 << ranklrate)*i);
 		//assert(A[p] >= j);
-		++i;  j += (1<<lrate);
+		++i;  j += (1ULL<<lrate);
 		while (p < arrlen && *start < j) { ++p; ++start; }
 	} while (j < rangelen);
 	hints.set(hints.length() - 1, arrlen);

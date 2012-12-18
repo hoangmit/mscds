@@ -23,6 +23,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
+#include <algorithm>
 #include "utils/debug.h"
 
 using namespace std;

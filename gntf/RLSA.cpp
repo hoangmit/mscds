@@ -74,7 +74,6 @@ unsigned int RunLenSumArray::range_len(unsigned int i) { return rlen.prefixsum(i
 
 RunLenSumArray::RunLenSumArray(): len(0) {}
 
-
 uint64_t RunLenSumArray::sum(uint32_t pos) {
 	uint64_t p = start.find(pos);
 	if (p == 0) return 0;

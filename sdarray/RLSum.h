@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "archive.h"
 
-#include "bitarray/sdarray.h"
+#include "sdarray/sdarray.h"
 
 namespace mscds {
 

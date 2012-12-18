@@ -23,7 +23,7 @@
 #define SDARRAY_HPP__
 
 #include "archive.h"
-#include "bitarray.h"
+#include "bitarray/bitarray.h"
 
 #include <vector>
 #include <sstream>

@@ -50,9 +50,11 @@ include_directories(${PROJECT_SOURCE_DIR}/common)
 add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
+add_subdirectory(${PROJECT_SOURCE_DIR}/sdarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
-add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
 
 

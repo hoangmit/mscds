@@ -19,7 +19,7 @@
 
 #include <cassert>
 #include "sdarray.h"
-#include "bitop.h"
+#include "bitarray/bitop.h"
 #include <cstring>
 #include <stdexcept>
 #include <sstream>

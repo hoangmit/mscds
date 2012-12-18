@@ -1,5 +1,5 @@
-#include "trivbin.h"
-#include "RLSA.h"
+#include "rlsum_trivbin.h"
+#include "RLSum.h"
 #include "mem/filearchive.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"

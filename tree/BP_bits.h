@@ -6,8 +6,7 @@
 #include <stdint.h>
 #include "bitarray/bitarray.h"
 #include "bitarray/rank6p.h"
-#include "bitarray/sdarray.h"
-#include "bitarray/sdarray.h"
+#include "sdarray/sdarray.h"
 #include <algorithm>
 #include <string>
 

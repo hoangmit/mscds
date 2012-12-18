@@ -6,7 +6,7 @@ set(SRCS wat_array.cpp count2d.cpp)
 set(HEADERS wat_array.h count2d.h)
 
 add_library(intarray ${SRCS} ${HEADERS})
-target_link_libraries(intarray bitarray)
+target_link_libraries(intarray bitarray sdarray)
 
 add_executable(t_wat gridtest.cpp)
 target_link_libraries(t_wat intarray)

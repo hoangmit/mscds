@@ -223,20 +223,19 @@ unsigned int Rank6p::word_rank(size_t idx, unsigned int i) const {
 
 //------------------------------------------------------------------------
 
+struct BlockIntIterator {
+	const Rank6p& r;
+	uint64_t p;
+	BlockIntIterator(const Rank6p& _r): r(_r), p(0) {}
+	void operator++() { ++p; }
+	uint64_t operator*() const { return r.blkrank(p); }
+};
+
 void Rank6pHintSel::init() {
 	hints.clear();
-	hints = BitArray::create((rankst.one_count()/4096 + 2) * 64);
-	uint64_t p = 0;
-	hints.word(0) = 0;
-	uint64_t endp = rankst.inv.word_count()/2;
-	for (uint64_t i = 4096; i < rankst.one_count(); i += 4096) {
-		for (; p < endp; p++)
-			if (rankst.blkrank(p) >= i) break;
-		hints.word(i >> 12) = p-1;
-		//assert(hints.word(p>>12) < i);
-		//assert(hints.word(p>>12 + 1) >= i);
-	}
-	hints.word(hints.word_count() - 1) = std::min(endp - 1, p);
+	BlockIntIterator it(rankst);
+	// every 4096 positions
+	hints = bsearch_hints(it, rankst.inv.word_count()/2, rankst.one_count(), 12); 
 }
 
 void Rank6pHintSel::init(Rank6p& r) {
@@ -254,8 +253,8 @@ void Rank6pHintSel::init(BitArray& b) {
 
 uint64_t Rank6pHintSel::select(uint64_t r) const {
 	assert(r < rankst.one_count());
-	uint64_t lo = hints.word(r >> 12); //  % 4096
-	uint64_t len = hints.word((r >> 12) + 1) + 1 - lo;
+	uint64_t lo = hints[r >> 12]; //  % 4096
+	uint64_t len = hints[(r >> 12) + 1] - lo;
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;

@@ -46,6 +46,7 @@ private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
 	friend class Rank6pBuilder;
 	friend class Rank6pHintSel;
+	friend struct BlockIntIterator;
 };
 
 class Rank6pBuilder {
@@ -59,7 +60,7 @@ private:
 
 class Rank6pHintSel {
 	Rank6p rankst;
-	BitArray hints;
+	FixedWArray hints;
 public:
 	void init(Rank6p& r);
 	void init(BitArray& b);

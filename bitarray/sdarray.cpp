@@ -142,9 +142,9 @@ void SDArrayBuilder::build(OArchive& ar){
 	ar.var("size").save(size_);
 	ar.var("sum").save(sum_);
 	BitArray b(&(B_[0]), B_.size() * 64);
-	b.save(ar);
+	b.save(ar.var("bits"));
 	BitArray l(&(Ltable_[0]), Ltable_.size() * 64);
-	l.save(ar);
+	l.save(ar.var("table"));
 	ar.endclass();
 	clear();
 }
@@ -167,8 +167,8 @@ void SDArrayQuery::save(OArchive& ar) const {
 	ar.startclass("sdarray", 1);
 	ar.var("size").save(size_);
 	ar.var("sum").save(sum_);
-	B_.save(ar);
-	Ltable_.save(ar);
+	B_.save(ar.var("bits"));
+	Ltable_.save(ar.var("table"));
 	ar.endclass();
 }
 
@@ -177,8 +177,8 @@ void SDArrayQuery::load(IArchive& ar) {
 	ar.loadclass("sdarray");
 	ar.var("size").load(size_);
 	ar.var("sum").load(sum_);
-	B_.load(ar);
-	Ltable_.load(ar);
+	B_.load(ar.var("bits"));
+	Ltable_.load(ar.var("table"));
 	ar.endclass();
 }
 
@@ -469,34 +469,28 @@ void SDRankSelect::build(BitArray& ba) {
 	initrank();
 }
 
+struct SDAIIterator {
+	const SDArrayQuery& q;
+	uint64_t p;
+	SDAIIterator(const SDArrayQuery& _q): q(_q), p(0) {}
+	uint64_t operator*() const { return q.Ltable_.word(2*p); }
+	void operator++() { ++p; }
+};
+
 void SDRankSelect::initrank() {
 	if (qs.length() == 0) return;
-	rankhints.clear();
 	ranklrate = ceillog2(qs.total() / qs.length() + 1) + 7;
-	rankhints = FixedWArray::create((qs.total() >> ranklrate) + 2, ceillog2(qs.length()+1));
-	uint64_t p = 0;
-	rankhints.set(0, 0);
-	uint64_t endp = qs.Ltable_.word_count() / 2;
-	for (uint64_t i = (1 << ranklrate); i < qs.total(); i += (1<<ranklrate)) {
-		while (p < endp && qs.Ltable_.word(p*2) < i) p++;
-		rankhints.set(i >> ranklrate, p-1);
-		//assert(rankhints[p>>ranklrate] < i);
-		//assert(rankhints[(p>>ranklrate) + 1] >= i);
-	}
-	rankhints.set(rankhints.length() - 1, endp - 1);
+	SDAIIterator it(qs);
+	rankhints = bsearch_hints(it, qs.Ltable_.word_count() / 2, qs.total(), ranklrate);
 }
 
 uint64_t SDRankSelect::rank(uint64_t p) const {
 	if (p == 0) return 0;
 	if (p > qs.total()) return qs.length();
-	uint64_t i = rankhints[p>>ranklrate], j = rankhints[(p>>ranklrate)+1]+1;
+	uint64_t i = rankhints[p>>ranklrate], j = rankhints[(p>>ranklrate)+1];
 
-	//utils::DbgHelper::counter()++;
-	//if (utils::DbgHelper::counter() == 764352) {
-	//	cout << "ohdear" << endl;
-	//}
-	//uint64_t kt = qs.find(p);
-	//kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;
+	/*uint64_t kt = qs.find(p);
+	kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;*/
 
 	uint64_t k = qs.hint_find(p, i, j);
 	//assert(k == kt);

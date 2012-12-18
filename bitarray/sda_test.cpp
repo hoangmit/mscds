@@ -18,7 +18,6 @@ string get_tempdir() {
 	return utils::get_temp_path();
 };
 
-
 void test_sdarray_zeros(){
 	SDArrayBuilder bd;
 	int N = 10000;
@@ -285,7 +284,7 @@ BitArray randbit(unsigned int len, unsigned int & cnt) {
 	BitArray b = BitArray::create(len);
 	cnt = 0;
 	for (size_t i = 0; i < len; ++i)
-		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
+		if (rand() % 100 < 20) { b.setbit(i, true); cnt++;}
 		else b.setbit(i, false);
 	return b;
 }

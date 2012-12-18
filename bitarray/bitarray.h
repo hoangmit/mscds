@@ -219,7 +219,7 @@ private:
 	unsigned int width;
 public:
 	FixedWArray(): width(0) {}
-	FixedWArray(const FixedWArray& other): b(other.b) {}
+	FixedWArray(const FixedWArray& other): b(other.b), width(other.width) {}
 	FixedWArray(const BitArray& bits, unsigned int width_): b(bits), width(width_) {}
 	static FixedWArray create(size_t len, unsigned int width) {
 		return FixedWArray(BitArray::create(len*width), width);
@@ -247,6 +247,22 @@ public:
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
 };
+
+
+template<typename Iterator>
+FixedWArray bsearch_hints(Iterator start, size_t arrlen, size_t rangelen, unsigned int lrate) {
+	FixedWArray hints = FixedWArray::create((rangelen >> lrate) + 2, ceillog2(arrlen + 1));
+	uint64_t i = 0, j = 0, p = 0;
+	do {
+		hints.set(i, p);
+		//assert(j == (1 << ranklrate)*i);
+		//assert(A[p] >= j);
+		++i;  j += (1<<lrate);
+		while (p < arrlen && *start < j) { ++p; ++start; }
+	} while (j < rangelen);
+	hints.set(hints.length() - 1, arrlen);
+	return hints;
+}
 
 } //namespace
 #endif // __BITVECTOR_H_

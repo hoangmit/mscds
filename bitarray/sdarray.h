@@ -123,6 +123,7 @@ private:
 	uint64_t sum_;
 	friend class SDArrayBuilder;
 	friend class SDRankSelect;
+	friend struct SDAIIterator;
 };
 
 class SDRankSelect {

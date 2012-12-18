@@ -8,7 +8,7 @@
 #include "utils/str_utils.h"
 #include "utils/file_utils.h"
 #include "RMQ_sct.h"
-
+#include <cstdlib>
 #include "utils/utest.h"
 
 using namespace std;
@@ -75,14 +75,6 @@ void test_find_pioneer2() {
 	}
 }
 
-uint64_t rand64() {
-	return 
-	  (((uint64_t) rand() <<  0) & 0x000000000000FFFFull) | 
-	  (((uint64_t) rand() << 16) & 0x00000000FFFF0000ull) | 
-	  (((uint64_t) rand() << 32) & 0x0000FFFF00000000ull) |
-	  (((uint64_t) rand() << 48) & 0xFFFF000000000000ull);
-}
-
 void test_blk1() {
 	{
 		BitArray b = str2bits(")");
@@ -143,7 +135,7 @@ BitArray generate_BPS(size_t len) {
 		bool bit;
 		if (ex == 0) bit = true;
 		else {
-			bit = !((rand() % (op + cl)) < cl);
+			bit = !((rand32() % (op + cl)) < cl);
 		}
 		if (bit) {
 			out.setbit(i, true);
@@ -309,7 +301,7 @@ void testsize() {
 	unsigned int len = 20000000;
 	BitArray b = generate_BPS(len);
 	BP_aux bps;
-	bps.build(b, 128);
+	bps.build(b, 256);
 	OSizeEstArchive ar;
 	bps.save(ar);
 	cout.imbue(std::locale(cout.getloc(), new comma_numpunct()));
@@ -377,10 +369,9 @@ void test_all() {
 	cout << endl;
 }
 
-int main() {	
+int main() {
 	testsize();
-	//test_all();
-
+	test_all();
 	//print_ex();
 	return 0;
 }

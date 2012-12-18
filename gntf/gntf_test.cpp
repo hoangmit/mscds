@@ -2,6 +2,7 @@
 #include "RLSA.h"
 #include "mem/filearchive.h"
 #include "utils/file_utils.h"
+#include "utils/utest.h"
 
 #include <vector>
 #include <sstream>
@@ -33,16 +34,16 @@ void test_tb_1() {
 	bd.build(&y);
 
 	for (int i = 0; i < inp.size(); ++i) {
-		assert(x.start[i] == y.range_start(i));
-		assert(x.sum_[i] == y.range_psum(i));
-		assert(x.rlen[i] == y.range_len(i));
+		ASSERT(x.start[i] == y.range_start(i));
+		ASSERT(x.sum_[i] == y.range_psum(i));
+		ASSERT(x.rlen[i] == y.range_len(i));
 	}
 
 	for (int i = 0; i < len; ++i) {
-		assert(S[i] == x.sum(i));
+		ASSERT(S[i] == x.sum(i));
 		if (S[i] != y.sum(i)) {
 			cout << i << "  " << S[i] << " " << x.sum(i) << " " << y.sum(i) << endl;
-			assert(S[i] == y.sum(i));
+			ASSERT(S[i] == y.sum(i));
 		}
 	}
 	cout << ".";
@@ -80,16 +81,16 @@ void test_tb_2() {
 	y.load(fi);
 
 	for (int i = 0; i < inp.size(); ++i) {
-		assert(x.start[i] == y.range_start(i));
-		assert(x.sum_[i] == y.range_psum(i));
-		assert(x.rlen[i] == y.range_len(i));
+		ASSERT(x.start[i] == y.range_start(i));
+		ASSERT(x.sum_[i] == y.range_psum(i));
+		ASSERT(x.rlen[i] == y.range_len(i));
 	}
 
 	for (int i = 0; i < len; ++i) {
-		assert(S[i] == x.sum(i));
+		ASSERT(S[i] == x.sum(i));
 		if (S[i] != y.sum(i)) {
 			cout << i << "  " << x.sum(i) << endl;
-			assert(S[i] == y.sum(i));
+			ASSERT(S[i] == y.sum(i));
 		}
 	}
 	cout << ".";
@@ -154,16 +155,16 @@ void test_tb_rng(int test_num) {
 	fi.close();
 
 	for (int i = 0; i < inp.size(); ++i) {
-		assert(x.start[i] == y.range_start(i));
-		assert(x.sum_[i] == y.range_psum(i));
-		assert(x.rlen[i] == y.range_len(i));
+		ASSERT(x.start[i] == y.range_start(i));
+		ASSERT(x.sum_[i] == y.range_psum(i));
+		ASSERT(x.rlen[i] == y.range_len(i));
 	}
 
 	for (int i = 0; i < len; ++i) {
-		assert(S[i] == x.sum(i));
+		ASSERT(S[i] == x.sum(i));
 		if (S[i] != y.sum(i)) {
 			cout << i << "  " << x.sum(i) << endl;
-			assert(S[i] == y.sum(i));
+			ASSERT(S[i] == y.sum(i));
 		}
 	}
 	cout << ".";

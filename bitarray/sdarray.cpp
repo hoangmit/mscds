@@ -220,6 +220,21 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos) const {
 	//return sum + prev;
 }
 
+uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_rank) const {
+	uint64_t bpos   = pos / BLOCK_SIZE;
+	uint64_t offset = pos % BLOCK_SIZE;
+	uint64_t sum    = Ltable_.word(bpos * 2);
+	uint64_t prev   = 0;
+	if (offset == 0) {
+		prev = 0;
+	} else {
+		prev = selectBlock(offset, Ltable_.word(bpos * 2 + 1));
+	}
+	uint64_t cur = selectBlock(offset+1, Ltable_.word(bpos * 2 + 1));
+	prev_rank = sum + prev;
+	return cur - prev;
+}
+
 
 uint64_t SDArrayQuery::find(const uint64_t val) const {
 	if (sum_ < val) {
@@ -245,7 +260,7 @@ uint64_t SDArrayQuery::find(const uint64_t val) const {
 	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
 } 
 
-uint64_t SDArrayQuery::hint_find(uint64_t val, uint64_t low, uint64_t high) const {
+uint64_t SDArrayQuery::hint_find2(uint64_t val, uint64_t low, uint64_t high) const {
 	//uint64_t high = Ltable_.word_count() / 2;
 	while (low < high){
 		uint64_t mid = low + (high - low)/2;
@@ -493,7 +508,7 @@ uint64_t SDRankSelect::rank(uint64_t p) const {
 	/*uint64_t kt = qs.find(p);
 	kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;*/
 
-	uint64_t k = qs.hint_find(p, i, j);
+	uint64_t k = qs.hint_find2(p, i, j);
 	//assert(k == kt);
 
 	return k;

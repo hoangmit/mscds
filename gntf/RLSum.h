@@ -19,7 +19,9 @@ public:
 	void clear();
 private:
 	unsigned int len, lastst;
-	SDArrayBuilder psbd, stbd, rlenbd;
+	SDArrayBuilder psbd, rlenbd;
+	SDRankSelect stbd;
+	std::vector<unsigned int> stpos;
 };
 
 class RunLenSumArray {
@@ -40,7 +42,8 @@ public:
 	unsigned int range_len(unsigned int i);
 private:
 	unsigned int len;
-	SDArrayQuery psum, start, rlen;
+	SDRankSelect start;
+	SDArrayQuery psum, rlen;
 	friend class RunLenSumArrayBuilder;
 };
 

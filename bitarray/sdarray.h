@@ -90,6 +90,7 @@ public:
    * @ret vals_[0]+vals_[1]+...+vals_[pos-1] and set vals_[pos] to val
    */
 	uint64_t lookup(uint64_t pos) const;
+	uint64_t lookup(uint64_t pos, uint64_t& prev_rank) const;
 
 	/*
    * @ret Return ind s.t. prefixSum(ind) <= val < prefixSum(ind+1) or NOTFOUND if not exist
@@ -114,7 +115,7 @@ private:
 	uint64_t getBitsI(uint64_t pos, uint64_t num) const;
 
 	// return i such that A[i] < val <= val[i+1]
-	uint64_t hint_find(uint64_t val, uint64_t low, uint64_t high) const;
+	uint64_t hint_find2(uint64_t val, uint64_t low, uint64_t high) const;
 	uint64_t rankBlock2(uint64_t val, uint64_t header) const;
 
 	BitArray Ltable_;

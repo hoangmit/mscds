@@ -220,7 +220,7 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos) const {
 	//return sum + prev;
 }
 
-uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_rank) const {
+uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_sum) const {
 	uint64_t bpos   = pos / BLOCK_SIZE;
 	uint64_t offset = pos % BLOCK_SIZE;
 	uint64_t sum    = Ltable_.word(bpos * 2);
@@ -231,7 +231,7 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_rank) const {
 		prev = selectBlock(offset, Ltable_.word(bpos * 2 + 1));
 	}
 	uint64_t cur = selectBlock(offset+1, Ltable_.word(bpos * 2 + 1));
-	prev_rank = sum + prev;
+	prev_sum = sum + prev;
 	return cur - prev;
 }
 

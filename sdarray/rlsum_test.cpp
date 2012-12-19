@@ -117,6 +117,8 @@ vector<int> generate(int len) {
 	return ret;
 }
 
+
+
 void test_tb_rng(int test_num) {
 	int len = 10000;
 	vector<int> A = generate(len);
@@ -170,12 +172,92 @@ void test_tb_rng(int test_num) {
 	cout << ".";
 }
 
+void test_sum_delta1() {
+	unsigned int len = 2000;
+	int delta = 1;
+
+	vector<int> A = generate(len);
+	vector<int> S(len+1);
+	S[0] = 0;
+	for (int i = 1; i <= len; i++)
+		if (A[i-1] != 0)
+			S[i] = S[i-1] + A[i-1] + delta;
+		else
+			S[i] = S[i-1];
+	int lastv = 0, start;
+	std::deque<ValRange> inp;
+	A.push_back(0);
+	for (int i = 0; i < len+1; i++) {
+		if (A[i] != lastv) {
+			if (lastv != 0) 
+				inp.push_back(ValRange(start, i, lastv));
+			start = i;
+		}
+		lastv = A[i];
+	}
+
+	RunLenSumArrayBuilder bd;
+	for (unsigned int i = 0; i < inp.size(); ++i)
+		bd.add(inp[i].st, inp[i].ed, inp[i].val);
+	RunLenSumArray y;
+	bd.build(&y);
+	for (int i = 0; i < len; ++i) {
+		if (S[i] != y.sum_delta(i, delta)) {
+			cout << S[i] << " " << y.sum_delta(i, delta) << endl;
+			ASSERT(S[i] == y.sum_delta(i, delta));
+		}
+	}
+
+}
+
+void test_sum_delta2() {
+	unsigned int len = 2000;
+	int delta = -1;
+
+	vector<int> A = generate(len);
+	vector<int> S(len+1);
+	S[0] = 0;
+	for (int i = 1; i <= len; i++)
+		if (A[i-1] != 0)
+			S[i] = S[i-1] + A[i-1] + delta;
+		else
+			S[i] = S[i-1];
+	int lastv = 0, start;
+	std::deque<ValRange> inp;
+	A.push_back(0);
+	for (int i = 0; i < len+1; i++) {
+		if (A[i] != lastv) {
+			if (lastv != 0) 
+				inp.push_back(ValRange(start, i, lastv));
+			start = i;
+		}
+		lastv = A[i];
+	}
+
+	RunLenSumArrayBuilder bd;
+	for (unsigned int i = 0; i < inp.size(); ++i)
+		bd.add(inp[i].st, inp[i].ed, inp[i].val);
+	RunLenSumArray y;
+	bd.build(&y);
+	for (int i = 0; i < len; ++i) {
+		if (S[i] != y.sum_delta(i, delta)) {
+			cout << S[i] << " " << y.sum_delta(i, delta) << endl;
+			ASSERT(S[i] == y.sum_delta(i, delta));
+		}
+	}
+
+}
+
+
 void test_trivbin_all() {
+	test_sum_delta1();
+	test_sum_delta2();
 	test_tb_1();
 	test_tb_2();
 	for (int i = 0; i < 1000; i++) {
 		test_tb_rng(i);
 	}
+	
 }
 
 

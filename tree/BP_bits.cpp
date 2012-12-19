@@ -500,18 +500,14 @@ std::string BP_aux::to_str() const {
 OArchive &BP_aux::save(OArchive &ar) const {
 	ar.startclass("BP_aux", 1);
 	ar.var("blksize").save(blksize);
-	ar.var("bp");
-	bp_bits.save(ar);
-	ar.var("rank");
-	bprank.save(ar);
-	ar.var("pioneers");
-	pioneer_map.save(ar);
+	bp_bits.save(ar.var("bp"));
+	bprank.save(ar.var("rank"));
+	pioneer_map.save(ar.var("pioneers"));
 	blk.save(ar);
 	if (lowerlvl != NULL) {
 		uint32_t nextlvl = 1;
 		ar.var("nextlvl").save(nextlvl);
-		ar.var("lowerlvl");
-		lowerlvl->save(ar);
+		lowerlvl->save(ar.var("lowerlvl"));
 	}else {
 		uint32_t nextlvl = 0;
 		ar.var("nextlvl").save(nextlvl);
@@ -523,20 +519,16 @@ OArchive &BP_aux::save(OArchive &ar) const {
 IArchive &BP_aux::load(IArchive &ar) {
 	ar.loadclass("BP_aux");
 	ar.var("blksize").load(blksize);
-	ar.var("bp");
-	bp_bits.load(ar);
-	ar.var("rank");
-	bprank.load(ar, bp_bits);
-	ar.var("pioneers");
-	pioneer_map.load(ar);
+	bp_bits.load(ar.var("bp"));
+	bprank.load(ar.var("rank"), bp_bits);
+	pioneer_map.load(ar.var("pioneers"));
 	blk.load(ar);
 	blk.init(bp_bits, blksize);
 	uint32_t nextlvl;
 	ar.var("nextlvl").load(nextlvl);
 	if (nextlvl != 0) {
-		ar.var("lowerlvl");
 		lowerlvl = new BP_aux();
-		lowerlvl->load(ar);
+		lowerlvl->load(ar.var("lowerlvl"));
 	}
 	ar.endclass();
 	return ar;

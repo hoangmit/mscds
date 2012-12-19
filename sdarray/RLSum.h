@@ -32,14 +32,17 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 
-	uint64_t sum(uint32_t pos);
+	uint64_t sum(uint32_t pos) const;
+	int64_t sum_delta(uint32_t pos, int64_t delta) const;
 
 	unsigned int length() const;
 	void clear();
 
-	uint64_t range_start(unsigned int i);
-	uint64_t range_psum(unsigned int i);
-	unsigned int range_len(unsigned int i);
+	uint64_t range_start(unsigned int i) const;
+	uint64_t range_psum(unsigned int i) const;
+	unsigned int range_len(unsigned int i) const;
+	unsigned int range_value(unsigned int) const;
+	unsigned int pslen(unsigned int) const;
 private:
 	unsigned int len;
 	SDRankSelect start;

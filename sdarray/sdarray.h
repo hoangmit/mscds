@@ -90,7 +90,7 @@ public:
    * @ret vals_[0]+vals_[1]+...+vals_[pos-1] and set vals_[pos] to val
    */
 	uint64_t lookup(uint64_t pos) const;
-	uint64_t lookup(uint64_t pos, uint64_t& prev_rank) const;
+	uint64_t lookup(uint64_t pos, uint64_t& prev_sum) const;
 
 	/*
    * @ret Return ind s.t. prefixSum(ind) <= val < prefixSum(ind+1) or NOTFOUND if not exist

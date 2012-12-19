@@ -18,6 +18,17 @@ struct ArchiveProp {
 	void * ext2;
 };
 
+class ioerror: public std::exception {
+public:
+	ioerror() {}
+	~ioerror() throw() {}
+	ioerror(const ioerror& other): msg(other.msg) {}
+	ioerror(const std::string& _msg): msg(_msg) {}
+	const char* what() const throw() { return msg.c_str(); }
+private:
+	std::string msg;
+};
+
 class OArchive {
 public:
 	virtual ~OArchive() {}
@@ -60,16 +71,6 @@ public:
 	//virtual ArchiveProp properties() = 0;
 };
 
-class ioerror: public std::exception {
-public:
-	ioerror() {}
-	~ioerror() throw() {}
-	ioerror(const ioerror& other): msg(other.msg) {}
-	ioerror(const std::string& _msg): msg(_msg) {}
-	const char* what() const throw() { return msg.c_str(); }
-private:
-	std::string msg;
-};
 
 }//namespace
 #endif //__ARCHIVE_H_

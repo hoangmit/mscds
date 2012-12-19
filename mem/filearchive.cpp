@@ -146,4 +146,33 @@ uint32_t FNV_hash24(const std::string& s) {
 		in = NULL;
 	}
 
+	void save_str(OArchive& ar, const std::string& st) {
+		if (st.length() > 0xFFFF) throw ioerror("string too long");
+		uint32_t v = (0x7374u << 16) | (st.length() & 0xFFFF); //"st"
+		ar.save_bin(&v, sizeof(v));
+		if (st.length() > 0)
+			ar.save_bin(st.c_str(), st.length());
+		v = 0;
+		ar.save_bin(&v, 4 - (st.length() % 4));
+	}
+
+	std::string load_str(IArchive& ar) {
+		uint32_t v = 0;
+		ar.load_bin(&v, sizeof(v));
+		if ((v >> 16) != 0x7374u) throw ioerror("wrong string id");
+		size_t len = v & 0xFFFF;
+		char * st;
+		st = new char[len + 1];
+		if (len > 0) {
+			ar.load_bin(st, len);
+			st[len] = 0;
+		}
+		v = 0;
+		ar.load_bin(&v, 4 - (len % 4));
+		if (v != 0) { delete[] st; throw ioerror("wrong ending");}
+		std::string ret(st, st + len);
+		delete[] st;
+		return ret;
+	}
+
 } //namespace mscds

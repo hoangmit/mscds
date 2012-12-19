@@ -66,6 +66,21 @@ private:
 	uint64_t pos;
 };
 
+class OClassInfoArchive: public OArchive {
+	OClassInfoArchive();
+	OArchive& var(const std::string& name);
+	OArchive& startclass(const std::string& name, unsigned char version);
+	OArchive& endclass() {return *this;}
+	OArchive& save_bin(const void* ptr, size_t size);
+	size_t opos() const {return pos;}
+private:
+	uint64_t pos;
+	void* impl;
+};
+
+void save_str(OArchive& ar, const std::string& st);
+std::string load_str(IArchive& ar);
+
 }//namespace
 
 

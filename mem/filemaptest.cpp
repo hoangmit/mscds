@@ -76,10 +76,26 @@ void test_map2() {
 	fi.close();
 }
 
+void test_map3() {
+	string fn = utils::get_temp_path() + "test_mapfile";
+	OFileArchive fa;
+	string str = "testing something";
+	fa.open_write(fn);
+	save_str(fa, str);
+	fa.close();
+
+	IFileArchive fi;
+	fi.open_read(fn);
+	string s2 = load_str(fi);
+	fi.close();
+	ASSERT_EQ(str, s2);
+}
+
 
 void test_map_all() {
 	test_map1();
 	test_map2();
+	test_map3();
 }
 
 int main() {

@@ -26,17 +26,21 @@ public:
 		BitArray b = build_supercartisian_tree(minstr, arr.begin(), arr.end());
 		bp.build(b, blksize);
 	}
+	void build(const BitArray& b, unsigned int blksize = 256) {
+		bp.build(b, blksize);
+	}
 
 	size_t m_idx(size_t st, size_t ed) const;
 	size_t psv(size_t p) const;
 	size_t nsv(size_t p) const;
 
-	OArchive& save(OArchive& ar) const;
-	IArchive& load(IArchive& ar);
+	void save(OArchive& ar) const { bp.save(ar); }
+	void load(IArchive& ar) { bp.load(ar); }
+	void clear() {bp.clear();}
 };
 
 template<typename RandomAccessIterator>
-inline BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last){
+inline BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last) {
 	BitArray bp = BitArray(2*std::distance(first, last));
 	bp.fillzero();
 	typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;

@@ -22,7 +22,8 @@ void RunLenSumArrayBuilder::clear() {
 void RunLenSumArrayBuilder::add(unsigned int st, unsigned int ed, unsigned int v) {
 	len++;
 	unsigned int llen = ed - st;
-	if (st < lastst) throw std::logic_error("required sorted array");
+	if (llen == 0) throw std::runtime_error("zero length range");
+	if (st < lastst) throw std::runtime_error("required sorted array");
 	psbd.add(llen * v);
 	stpos.push_back(st);
 	rlenbd.add(llen);
@@ -70,13 +71,15 @@ void RunLenSumArray::load(IArchive& ar) {
 	ar.endclass();
 }
 
-uint64_t RunLenSumArray::range_start(unsigned int i) { return start.select(i); }
-uint64_t RunLenSumArray::range_psum(unsigned int i) { return psum.prefixsum(i); }
-unsigned int RunLenSumArray::range_len(unsigned int i) { return rlen.prefixsum(i+1) - rlen.prefixsum(i); }
+uint64_t RunLenSumArray::range_start(unsigned int i) const { return start.select(i); }
+uint64_t RunLenSumArray::range_psum(unsigned int i) const { return psum.prefixsum(i); }
+unsigned int RunLenSumArray::range_len(unsigned int i) const { return rlen.lookup(i); }
+unsigned int RunLenSumArray::range_value(unsigned int i) const { return (psum.lookup(i)/range_len(i)); }
+//unsigned int RunLenSumArray::pslen(unsigned int i) const { return rlen.prefixsum(i+1); }
 
 RunLenSumArray::RunLenSumArray(): len(0) {}
 
-uint64_t RunLenSumArray::sum(uint32_t pos) {
+uint64_t RunLenSumArray::sum(uint32_t pos) const {
 	uint64_t p = start.rank(pos+1);
 	if (p == 0) return 0;
 	p--;
@@ -95,6 +98,25 @@ uint64_t RunLenSumArray::sum(uint32_t pos) {
 		return  pm + kl*(val/rangelen);
 	} else
 		return psum.prefixsum(p+1);
+}
+
+int64_t RunLenSumArray::sum_delta(uint32_t pos, int64_t delta) const {
+	uint64_t p = start.rank(pos+1);
+	if (p == 0) return 0;
+	p--;
+	uint64_t sp = start.select(p);
+	if (sp == pos)
+		return (int64_t)psum.prefixsum(p) + delta * rlen.prefixsum(p);
+	assert(sp < pos);
+	uint32_t kl = pos - sp;
+	uint64_t ps;
+	uint32_t rangelen = rlen.lookup(p, ps);
+	if (rangelen >= kl) {
+		uint64_t pm = 0, val;
+		val = psum.lookup(p, pm);
+		return  pm + kl*(val/rangelen) + delta * (kl + ps);
+	} else
+		return psum.prefixsum(p+1) + delta*(rangelen + ps);
 }
 
 unsigned int RunLenSumArray::length() const {

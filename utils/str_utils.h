@@ -118,7 +118,7 @@ namespace utils {
 		return ss.str();
 	}
 
-	#define WATCH(x) cout<< #x <<"="<<(x)<<endl;
+	#define PRT(x) cout<< #x <<"="<<(x)<<endl;
 	
 	template <class cT, class traits = std::char_traits<cT> >
 	class basic_nullbuf: public std::basic_streambuf<cT, traits> {

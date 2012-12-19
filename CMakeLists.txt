@@ -55,6 +55,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
+add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
 
 

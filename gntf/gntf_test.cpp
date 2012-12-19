@@ -1,5 +1,6 @@
 #include "gntf.h"
 #include "utils/str_utils.h"
+#include "mem/filearchive.h"
 #include "utils/utest.h"
 #include <tuple>
 
@@ -73,6 +74,44 @@ void test_chrbychr2() {
 	cout << '.';
 }
 
+void test_chrbychr3() {
+	const char* input[9] =
+		{"chr19 2000 2300 -1.0",
+		"chr19 2300 2600 -0.75",
+		"chr19 2600 2900 -0.50",
+		"chr19 2900 3200 -0.25",
+		"chr19 3200 3500 0.0",
+		"chr20 3500 3800 0.25",
+		"chr20 3800 4100 0.50",
+		"chr20 4100 4400 0.75",
+		"chr21 4400 4700 1.00"};
+
+	GenomeNumDataBuilder bd;
+	bd.init(true);
+	std::string st;
+	for (size_t i = 0; i < 9; ++i) {
+		BED_Entry e;
+		e.parse(input[i]);
+		if (e.chrname != st) {
+			bd.changechr(e.chrname); st = e.chrname;
+		}
+		bd.add(e.st, e.ed, e.val);
+	}
+	GenomeNumData d;
+	mscds::OFileArchive fo;
+	std::stringstream ss;
+	fo.assign_write(&ss);
+	bd.build(fo);
+
+	mscds::IFileArchive fi;
+	fi.assign_read(&ss);
+	d.load(fi);
+
+	ASSERT_EQ(2500, d.sum(1,3600));
+	cout << '.';
+}
+
+
 void test_mix() {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
@@ -106,6 +145,7 @@ void test_mix() {
 int main() {
 	test_chrbychr1();
 	test_chrbychr2();
+	test_chrbychr3();
 	test_mix();
 	return 0;
 }

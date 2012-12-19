@@ -82,9 +82,14 @@ struct FMDeleter {
 SharedPtr IFileMapArchive::load_mem(int type, size_t size) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	fm->fi.seekg(size, ios_base::cur);
-	mapped_region * rg = new mapped_region(fm->m_file, read_only, fm->pos, size);
-	fm->pos += size;
-	return SharedPtr(rg->get_address(), FMDeleter(rg));
+	if (size > 0) {
+		mapped_region * rg;
+		rg = new mapped_region(fm->m_file, read_only, fm->pos, size);
+		fm->pos += size;
+		return SharedPtr(rg->get_address(), FMDeleter(rg));
+	} else {
+		return SharedPtr();
+	}
 }
 
 size_t IFileMapArchive::ipos() const {

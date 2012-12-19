@@ -129,6 +129,10 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 void GenomeNumDataBuilder::build(mscds::OArchive &ar) {
 	if (onechr) {
 		GenomeNumData data;
+		if (list[0].size() > 0) {
+			buildtemp(lastname);
+			numchr++;
+		}
 		data.clear();
 		data.chrs.resize(numchr);
 		data.nchr = numchr;
@@ -138,6 +142,7 @@ void GenomeNumDataBuilder::build(mscds::OArchive &ar) {
 			mscds::IFileMapArchive fi;
 			fi.open_read(*fni);
 			data.chrs[i].load(fi);
+			i++;
 			fi.close();
 			std::remove(fni->c_str());
 		}
@@ -167,7 +172,6 @@ void GenomeNumData::loadinit() {
 
 void GenomeNumData::load(mscds::IArchive &ar) {
 	ar.loadclass("genome_num_data");
-	assert(nchr == chrs.size());
 	ar.var("num_chr").load(nchr);
 	for (size_t i = 0; i < nchr; ++i) {
 		chrs.push_back(ChrNumThread());

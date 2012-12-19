@@ -7,7 +7,7 @@ set(HEADERS sdarray.h rlsum_trivbin.h RLSum.h)
 
 #add_library(sdarray ${SRCS} ${HEADERS})
 #target_link_libraries(sdarray bitarray)
-add_sources(mscdsa ${SRCS})
+add_sources(mscdsa ${SRCS} ${HEADERS})
 
 add_executable(t_sda sda_test.cpp)
 target_link_libraries(t_sda mscdsa)

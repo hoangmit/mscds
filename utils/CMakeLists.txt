@@ -24,6 +24,6 @@ utest.h
 #message(${Boost_LIBRARIES})
 #add_library(utils ${SRCS} ${HEADERS})
 #target_link_libraries(utils)
-add_sources(mscdsa ${SRCS})
+add_sources(mscdsa ${SRCS} ${HEADERS})
 
 

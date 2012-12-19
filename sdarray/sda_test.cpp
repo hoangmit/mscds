@@ -319,6 +319,6 @@ void testspeed() {
 
 int main() {
 	testspeed();
-	//test_SDA_all();
+	test_SDA_all();
 	return 0;
 }

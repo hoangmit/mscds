@@ -7,7 +7,7 @@ set(HEADERS bitarray.h rank6p.h rank25p.h rankselect.h bitop.h)
 
 #add_library(bitarray ${SRCS} ${HEADERS})
 #target_link_libraries(bitarray)
-add_sources(mscdsa ${SRCS})
+add_sources(mscdsa ${SRCS} ${HEADERS})
 
 add_executable(t_rank ranktest.cpp)
 target_link_libraries(t_rank mscdsa)

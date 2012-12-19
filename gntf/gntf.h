@@ -14,6 +14,7 @@ namespace app_ds {
 class GenomeNumData;
 
 class GenomeNumDataBuilder {
+public:
 	void build_bedgraph(std::istream& fi);
 	void init(bool one_by_one_chrom = true, unsigned int factor = 100,
 			  minmaxop_t opt = NO_MINMAX);
@@ -22,7 +23,7 @@ class GenomeNumDataBuilder {
 	void build(GenomeNumData* data);
 	void build(mscds::OArchive& ar);
 	void clear();
-public:
+private:
 	std::map<std::string, unsigned int> chrid;
 	typedef std::deque<ValRange> RangeListTp;
 	std::vector<RangeListTp> list;
@@ -38,6 +39,9 @@ public:
 
 class GenomeNumData {
 public:
+	int64_t sum(unsigned int chrid, unsigned int p) {
+		return chrs[chrid].sum(p);
+	}
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);

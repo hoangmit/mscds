@@ -16,8 +16,9 @@ void ChrNumThreadBuilder::init(minmaxop_t option, unsigned int factor) {
 
 void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, int val) {
 	if (!setup_) throw std::runtime_error("need setup");
-	if (val == 0) throw std::runtime_error("zero value");
-	ranges.push_back(ValRange(st, ed, val));
+	//if (val == 0) throw std::runtime_error("zero value");
+	if (val != 0)
+		ranges.push_back(ValRange(st, ed, val));
 }
 
 void ChrNumThreadBuilder::build(mscds::OArchive& ar) {
@@ -27,7 +28,7 @@ void ChrNumThreadBuilder::build(mscds::OArchive& ar) {
 }
 
 int ChrNumThreadBuilder::find_min() {
-	int minv = std::numeric_limits<int>::min();
+	int minv = std::numeric_limits<int>::max();
 	for (auto it = ranges.begin(); it != ranges.end(); ++it)
 		if (minv > it->val)
 			minv = it->val;

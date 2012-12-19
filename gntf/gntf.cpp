@@ -22,7 +22,6 @@ void GenomeNumDataBuilder::init(bool one_by_one_chrom, unsigned int factor, minm
 
 	numchr = 0;
 	lastname = "";
-	chrid[""] = 0;
 	if (onechr){
 		lastchr = 1;
 		list.resize(1);
@@ -57,8 +56,9 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 }
 
 void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d) {
-	int num = (int)(d * factor + 0.5);
-	if (d - num*factor > 1E-7) {
+	d *= factor;
+	int num = (int)((d > 0.0) ? floor(d + 0.5) : ceil(d - 0.5));
+	if (fabs(d - num) > 1E-7) {
 		std::cout << "warning: number convertion may be incorrect" << std::endl;
 	}
 	if (lastchr == 0) throw std::runtime_error("no chr name");
@@ -91,6 +91,10 @@ void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, 
 
 void GenomeNumDataBuilder::build(GenomeNumData *data) {
 	if (onechr) {
+		if (list[0].size() > 0) {
+			buildtemp(lastname);
+			numchr++;
+		}
 		data->clear();
 		data->chrs.resize(numchr);
 		data->nchr = numchr;
@@ -100,6 +104,7 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 			mscds::IFileArchive fi;
 			fi.open_read(*fni);
 			data->chrs[i].load(fi);
+			i++;
 			fi.close();
 			std::remove(fni->c_str());
 		}
@@ -111,9 +116,8 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 		assert(chrid.size() == numchr);
 		for (auto chrit = chrid.begin(); chrit != chrid.end(); ++chrit) {
 			if (list[chrit->second-1].size() > 0) {
-				buildchr(chrit->first, list[chrit->second-1], &(data->chrs[chrit->second-1]));
-			} else {
-
+				data->chrs.push_back(ChrNumThread());
+				buildchr(chrit->first, list[chrit->second-1], &(data->chrs.back()));
 			}
 		}
 		data->nchr = data->chrs.size();

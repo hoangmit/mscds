@@ -5,5 +5,9 @@ project(gntf)
 set(SRCS chrfmt.cpp gntf.cpp)
 set(HEADERS chrfmt.h gntf.h)
 
-add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
-target_link_libraries(bedgraph2gnt mscdsa)
+#add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
+#target_link_libraries(bedgraph2gnt mscdsa)
+
+add_executable(t_gntf gntf_test.cpp ${SRCS} ${HEADERS})
+target_link_libraries(t_gntf mscdsa)
+set_target_properties(t_gntf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

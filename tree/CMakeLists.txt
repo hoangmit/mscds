@@ -6,13 +6,14 @@ project(tree)
 set(SRCS ReadTree.cpp BP_bits.cpp RMQ_sct.cpp RMQ_table.cpp)
 set(HEADERS CartesianTree.h LCA.h ReadTree.h RMQ_table.h tree.h BP_bits.h RMQ_sct.h)
 
-add_library(tree ${SRCS} ${HEADERS})
-target_link_libraries(tree bitarray sdarray)
+#add_library(tree ${SRCS} ${HEADERS})
+#target_link_libraries(tree bitarray sdarray)
+add_sources(mscdsa ${SRCS})
 
 add_executable(t_rmq rmq_test.cpp)
-target_link_libraries(t_rmq tree)
+target_link_libraries(t_rmq mscdsa)
 set_target_properties(t_rmq PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(t_bptree bptree_test.cpp)
-target_link_libraries(t_bptree tree mem utils)
+target_link_libraries(t_bptree mscdsa)
 set_target_properties(t_bptree PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

@@ -4,4 +4,4 @@ project(export_lib)
 
 swig_python_init()
 
-add_python_module(count2d_exp intarray mem)
+add_python_module(count2d_exp mscdsa)

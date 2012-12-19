@@ -58,3 +58,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
 
 
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
+add_library(mscdsa STATIC ${mscdsa_SRCS})
+

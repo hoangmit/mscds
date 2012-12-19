@@ -15,7 +15,7 @@ class GenomeNumData;
 
 class GenomeNumDataBuilder {
 	void build_bedgraph(std::istream& fi);
-	void init(bool seq_chrom = true, unsigned int factor = 100,
+	void init(bool one_by_one_chrom = true, unsigned int factor = 100,
 			  minmaxop_t opt = NO_MINMAX);
 	void changechr(const std::string& chr);
 	void add(unsigned int st, unsigned int ed, double d);
@@ -30,6 +30,10 @@ public:
 	unsigned int lastchr, numchr;
 	std::string lastname;
 	minmaxop_t opt;
+	bool onechr;
+	void buildtemp(const std::string& name);
+	void buildchr(const std::string& name, RangeListTp& lst, ChrNumThread * out);
+	std::vector<std::string> tmpfn;
 };
 
 class GenomeNumData {

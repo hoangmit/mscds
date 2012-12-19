@@ -3,6 +3,7 @@
 #include "utils/utest.h"
 #include <vector>
 #include <utility>
+#include <algorithm>
 using namespace std;
 using namespace mscds;
 

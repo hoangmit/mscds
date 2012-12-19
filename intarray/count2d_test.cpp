@@ -7,6 +7,7 @@
 #include <cassert>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include <random>
 #include <ctime>

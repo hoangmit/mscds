@@ -15,8 +15,8 @@ class GenomeNumData;
 
 class GenomeNumDataBuilder {
 	void build_bedgraph(std::istream& fi);
-
-	void init(unsigned int factor = 100, minmaxop_t opt = NO_MINMAX);
+	void init(bool seq_chrom = true, unsigned int factor = 100,
+			  minmaxop_t opt = NO_MINMAX);
 	void changechr(const std::string& chr);
 	void add(unsigned int st, unsigned int ed, double d);
 	void build(GenomeNumData* data);

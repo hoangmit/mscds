@@ -1,6 +1,11 @@
 #include "filearchive.h"
 #include <iostream>
 #include <cstring>
+#include <vector>
+#include <memory>
+#include <tuple>
+#include <stack>
+#include <sstream>
 using namespace std;
 
 namespace mscds {
@@ -79,7 +84,7 @@ uint32_t FNV_hash24(const std::string& s) {
 		out = NULL;
 	}
 
-//----------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 	unsigned char IFileArchive::loadclass(const std::string& name) {
 		uint32_t hash = FNV_hash24(name);
@@ -146,6 +151,7 @@ uint32_t FNV_hash24(const std::string& s) {
 		in = NULL;
 	}
 
+//----------------------------------------------------------------------------
 	void save_str(OArchive& ar, const std::string& st) {
 		if (st.length() > 0xFFFF) throw ioerror("string too long");
 		uint32_t v = (0x7374u << 16) | (st.length() & 0xFFFF); //"st"
@@ -174,5 +180,114 @@ uint32_t FNV_hash24(const std::string& s) {
 		delete[] st;
 		return ret;
 	}
+//----------------------------------------------------------------------------
+	
+	struct CInfoNode;
+	typedef std::shared_ptr<CInfoNode> PInfoNode;
+	struct CInfoNode {
+		CInfoNode(): total(0), version(0) {}
+		struct VarInfo {
+			VarInfo(): size(0), childidx(0) {}
+			VarInfo(const string& s): name(s), size(0), childidx(0) {}
+			std::string name;
+			size_t size;
+			int childidx;
+		};
+		std::vector<VarInfo> lst;
+		std::vector<PInfoNode> children;
+		std::string type;
+		size_t total;
+		int version;
+		void finalize() {
+			total = 0;
+			for (auto it = children.begin(); it != children.end(); ++it) (*it)->finalize();
+			for (auto it = lst.begin(); it != lst.end(); ++it) {
+				if (it->childidx > 0) it->size = children[it->childidx - 1]->total;
+				total += it->size;
+			}
+		}
 
+		void printxml(std::ostream& ss, const string& vname) {
+			ss << "<class vname=\"" << vname << "\"  size=\'" << total << "\'>";
+			for (auto it = lst.begin(); it != lst.end(); ++it) {
+				if (it->childidx > 0) {
+					children[it->childidx - 1]->printxml(ss, it->name);
+				}else 
+					ss << "<data vname=\"" << it->name << "\"  size=\'" << it->size << "\'>";
+			}
+			ss << "</class>";
+		}
+	};
+
+	struct ClassListInfo  {
+		PInfoNode cur;
+		std::stack<PInfoNode> parents;
+	};
+
+	OClassInfoArchive::OClassInfoArchive(): pos(0) {
+		impl = new ClassListInfo();
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		x.cur = PInfoNode(new CInfoNode());
+		finalized = false;
+	}
+
+	OClassInfoArchive::~OClassInfoArchive() {
+		ClassListInfo* x = (ClassListInfo*) impl;
+		delete x;
+		impl = NULL;
+	}
+
+	OArchive& OClassInfoArchive::var(const std::string& name) {
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		x.cur->lst.push_back(CInfoNode::VarInfo(name));
+		return *this;
+	}
+
+	OArchive& OClassInfoArchive::save_bin(const void* ptr, size_t size) {
+		pos += size;
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		if (x.cur->lst.empty())
+			x.cur->lst.push_back(CInfoNode::VarInfo());
+		x.cur->lst.back().size += size;
+		return *this;
+	}
+
+	OArchive& OClassInfoArchive::startclass(const std::string& name, unsigned char version) {
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		if (x.cur->lst.empty())
+			x.cur->lst.push_back(CInfoNode::VarInfo());
+		if (x.cur->lst.back().size != 0)
+			x.cur->lst.push_back(CInfoNode::VarInfo());
+		x.cur->lst.back().childidx = x.cur->children.size() + 1;
+		x.cur->children.push_back(PInfoNode(new CInfoNode()));
+		x.parents.push(x.cur);
+		x.cur = x.cur->children.back();
+		x.cur->type = name;
+		x.cur->version = version;
+		return *this;
+	}
+
+	OArchive& OClassInfoArchive::endclass() {
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		if (x.parents.empty()) throw ioerror("too many endclass");
+		x.cur = x.parents.top();
+		x.parents.pop();
+		return *this;
+	}
+
+	void OClassInfoArchive::close() {
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		if (!x.parents.empty()) throw ioerror("not enough endclass");
+		finalized = true;
+		x.cur->finalize();
+	}
+
+	std::string OClassInfoArchive::printxml() {
+		std::ostringstream ss;
+		ClassListInfo& x = *((ClassListInfo*)impl);
+		if (!finalized) close();
+		x.cur->printxml(ss, "root");
+		return ss.str();
+	}
+	
 } //namespace mscds

@@ -68,13 +68,17 @@ private:
 
 class OClassInfoArchive: public OArchive {
 	OClassInfoArchive();
+	~OClassInfoArchive();
 	OArchive& var(const std::string& name);
-	OArchive& startclass(const std::string& name, unsigned char version);
-	OArchive& endclass() {return *this;}
 	OArchive& save_bin(const void* ptr, size_t size);
+	OArchive& startclass(const std::string& name, unsigned char version);
+	OArchive& endclass();
+	void close();
 	size_t opos() const {return pos;}
+	std::string printxml();
 private:
 	uint64_t pos;
+	bool finalized;
 	void* impl;
 };
 

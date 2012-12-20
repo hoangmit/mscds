@@ -67,6 +67,7 @@ private:
 };
 
 class OClassInfoArchive: public OArchive {
+public:
 	OClassInfoArchive();
 	~OClassInfoArchive();
 	OArchive& var(const std::string& name);

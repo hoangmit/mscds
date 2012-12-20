@@ -256,7 +256,7 @@ uint32_t FNV_hash24(const std::string& s) {
 		ClassListInfo& x = *((ClassListInfo*)impl);
 		if (x.cur->lst.empty())
 			x.cur->lst.push_back(CInfoNode::VarInfo());
-		if (x.cur->lst.back().size != 0)
+		if (x.cur->lst.back().size != 0 || x.cur->lst.back().childidx != 0)
 			x.cur->lst.push_back(CInfoNode::VarInfo());
 		x.cur->lst.back().childidx = x.cur->children.size() + 1;
 		x.cur->children.push_back(PInfoNode(new CInfoNode()));

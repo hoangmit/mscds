@@ -58,9 +58,10 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d) {
 	d *= factor;
 	int num = (int)((d > 0.0) ? floor(d + 0.5) : ceil(d - 0.5));
-	if (fabs(d - num) > 1E-7) {
-		std::cout << "warning: number convertion may be incorrect" << std::endl;
-	}
+	//if (fabs(d - num) > 1E-2) {
+	//	std::cout.precision(10);
+	//	std::cout << "warning: number convertion may be incorrect: " << d << " " << num << " " << fabs(d - num) << '\n';
+	//}
 	if (lastchr == 0) throw std::runtime_error("no chr name");
 	list[lastchr - 1].push_back(ValRange(st, ed, num));
 }

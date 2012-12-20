@@ -52,7 +52,7 @@ uint32_t FNV_hash24(const std::string& s) {
 	void OFileArchive::open_write(const std::string& fname) {
 		close();
 		std::ofstream * fout = (new std::ofstream(fname.c_str(), std::ios::binary));
-		if (!fout->is_open()) throw ioerror("cannot open file");
+		if (!fout->is_open()) throw ioerror("cannot open file to write: " + fname);
 		out = fout;
 		needclose = true;
 		pos = 0;
@@ -126,7 +126,7 @@ uint32_t FNV_hash24(const std::string& s) {
 	void IFileArchive::open_read(const std::string& fname) {
 		close();
 		std::ifstream * fin = new std::ifstream(fname.c_str(), std::ios::binary);
-		if (!fin->is_open()) throw ioerror("cannot open file");
+		if (!fin->is_open()) throw ioerror("cannot open file to read: " + fname);
 		in = fin;
 		needclose = true;
 		pos = 0;

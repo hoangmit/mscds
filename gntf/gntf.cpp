@@ -145,12 +145,14 @@ void GenomeNumDataBuilder::build(mscds::OArchive &ar) {
 			data.chrs[i].load(fi);
 			i++;
 			fi.close();
-			std::remove(fni->c_str());
 		}
 		data.loadinit();
 		data.save(ar);
 		clear();
 		data.clear();
+		for (auto fni = tmpfn.begin(); fni != tmpfn.end(); ++fni) {
+			std::remove(fni->c_str());
+		}
 	}else {
 		GenomeNumData data;
 		build(&data);

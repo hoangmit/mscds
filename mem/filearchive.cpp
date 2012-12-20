@@ -6,6 +6,8 @@
 #include <tuple>
 #include <stack>
 #include <sstream>
+#include <iomanip>
+
 using namespace std;
 
 namespace mscds {
@@ -187,11 +189,12 @@ uint32_t FNV_hash24(const std::string& s) {
 	struct CInfoNode {
 		CInfoNode(): total(0), version(0) {}
 		struct VarInfo {
-			VarInfo(): size(0), childidx(0) {}
-			VarInfo(const string& s): name(s), size(0), childidx(0) {}
+			VarInfo(): size(0), childidx(0), sval(0) {}
+			VarInfo(const string& s): name(s), size(0), childidx(0), sval(0) {}
 			std::string name;
 			size_t size;
 			int childidx;
+			uint64_t sval;
 		};
 		std::vector<VarInfo> lst;
 		std::vector<PInfoNode> children;
@@ -212,8 +215,12 @@ uint32_t FNV_hash24(const std::string& s) {
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
 				if (it->childidx > 0) {
 					children[it->childidx - 1]->printxml(ss, it->name);
-				}else 
-					ss << "<data vname=\"" << it->name << "\" size=\'" << it->size << "\' />";
+				}else {
+					ss << "<data vname=\"" << it->name << "\" size=\'" << it->size << "\'";
+					if (it->size <= 8)
+						ss << " val=\'" << it->sval << '\'';
+					ss << " />";
+				}
 			}
 			ss << "</class>";
 		}
@@ -248,7 +255,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		ClassListInfo& x = *((ClassListInfo*)impl);
 		if (x.cur->lst.empty())
 			x.cur->lst.push_back(CInfoNode::VarInfo());
-		x.cur->lst.back().size += size;
+		CInfoNode::VarInfo & v = x.cur->lst.back();
+		if (size <= 8 && v.size == 0 && v.childidx == 0)
+			memcpy(&(v.sval), ptr, std::min<size_t>(size, 8u));
+		v.size += size;
 		return *this;
 	}
 

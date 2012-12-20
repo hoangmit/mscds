@@ -208,12 +208,12 @@ uint32_t FNV_hash24(const std::string& s) {
 		}
 
 		void printxml(std::ostream& ss, const string& vname) {
-			ss << "<class vname=\"" << vname << "\"  size=\'" << total << "\'>";
+			ss << "<class vname=\"" << vname << "\" size=\'" << total << "\' type=\"" << type << "\">";
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
 				if (it->childidx > 0) {
 					children[it->childidx - 1]->printxml(ss, it->name);
 				}else 
-					ss << "<data vname=\"" << it->name << "\"  size=\'" << it->size << "\'>";
+					ss << "<data vname=\"" << it->name << "\" size=\'" << it->size << "\' />";
 			}
 			ss << "</class>";
 		}

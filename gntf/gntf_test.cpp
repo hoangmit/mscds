@@ -3,6 +3,7 @@
 #include "mem/filearchive.h"
 #include "utils/utest.h"
 #include <tuple>
+#include <fstream>
 
 using namespace std;
 using namespace app_ds;
@@ -141,8 +142,35 @@ void test_mix() {
 	cout << '.';
 }
 
+void testbig() {
+	string inp = "D:/temp/textBigwig.bed";
+	ifstream fi(inp.c_str());
+	GenomeNumDataBuilder bd;
+	bd.init(true, 100);
+	string lastchr = "";
+	while (fi) {
+		string line;
+		getline(fi,line);
+		if (line.empty()) break;
+		BED_Entry e;
+		e.parse(line);
+		if (e.chrname != lastchr) {
+			cout << e.chrname << endl;
+			lastchr = e.chrname;
+			bd.changechr(lastchr);
+		}
+		bd.add(e.st, e.ed, e.val);
+	}
+	mscds::OFileArchive fo;
+	fo.open_write("D:/temp/a.gnt");
+	bd.build(fo);
+	fo.close();
+	fi.close();
+}
 
 int main() {
+	testbig();
+	return 0;
 	test_chrbychr1();
 	test_chrbychr2();
 	test_chrbychr3();

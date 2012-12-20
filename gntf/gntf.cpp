@@ -31,8 +31,7 @@ void GenomeNumDataBuilder::init(bool one_by_one_chrom, unsigned int factor, minm
 
 void GenomeNumDataBuilder::changechr(const std::string &chr) {
 	if (onechr) {
-		if (lastname == chr) 
-			throw std::runtime_error("duplicated chromosome name");
+		if (lastname == chr) return ;
 		if (list[0].size() > 0) {
 			buildtemp(lastname);
 			numchr++;
@@ -58,7 +57,7 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d) {
 	d *= factor;
 	int num = (int)((d > 0.0) ? floor(d + 0.5) : ceil(d - 0.5));
-	//if (fabs(d - num) > 1E-2) {
+	//if (fabs(d - num) > 1E-3) {
 	//	std::cout.precision(10);
 	//	std::cout << "warning: number convertion may be incorrect: " << d << " " << num << " " << fabs(d - num) << '\n';
 	//}
@@ -91,6 +90,7 @@ void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, 
 }
 
 void GenomeNumDataBuilder::build(GenomeNumData *data) {
+	if (list.empty()) return ;
 	if (onechr) {
 		if (list[0].size() > 0) {
 			buildtemp(lastname);

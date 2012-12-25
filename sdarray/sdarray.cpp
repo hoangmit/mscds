@@ -142,9 +142,9 @@ void SDArrayBuilder::build(OArchive& ar){
 	ar.startclass("sdarray", 1);
 	ar.var("size").save(size_);
 	ar.var("sum").save(sum_);
-	BitArray b(&(B_[0]), B_.size() * 64);
+	BitArray b(B_.data(), B_.size() * 64);
 	b.save(ar.var("bits"));
-	BitArray l(&(Ltable_[0]), Ltable_.size() * 64);
+	BitArray l(Ltable_.data(), Ltable_.size() * 64);
 	l.save(ar.var("table"));
 	ar.endclass();
 	clear();
@@ -156,9 +156,9 @@ void SDArrayBuilder::build(SDArrayQuery * out) {
 	out->size_ = this->size_;
 	out->sum_ = this->sum_;
 	if (B_.size() > 0)
-		out->B_ = BitArray::create(&(B_[0]), B_.size() * 64);
+		out->B_ = BitArray::create(B_.data(), B_.size() * 64);
 	if (Ltable_.size() > 0)
-		out->Ltable_ = BitArray::create(&(Ltable_[0]), Ltable_.size() * 64);
+		out->Ltable_ = BitArray::create(Ltable_.data(), Ltable_.size() * 64);
 	clear();
 }
 
@@ -198,9 +198,8 @@ uint64_t SDArrayQuery::prefixsum(const uint64_t pos) const {
 	uint64_t bpos   = pos / BLOCK_SIZE;
 	uint64_t offset = pos % BLOCK_SIZE;
 	uint64_t sum    = Ltable_.word(bpos * 2);
-	if (offset == 0) {
+	if (offset == 0)
 		return sum;
-	}
 	return sum + selectBlock(offset, Ltable_.word(bpos * 2 + 1));
 }
 
@@ -235,7 +234,7 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_sum) const {
 	return cur - prev;
 }
 
-
+/*
 uint64_t SDArrayQuery::find(const uint64_t val) const {
 	if (sum_ < val) {
 		//cout << "come0" << endl;
@@ -258,7 +257,7 @@ uint64_t SDArrayQuery::find(const uint64_t val) const {
 	assert(low*2 == Ltable_.word_count() || val < Ltable_.word(low*2));
 
 	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
-} 
+}*/
 
 uint64_t SDArrayQuery::hint_find2(uint64_t val, uint64_t low, uint64_t high) const {
 	//uint64_t high = Ltable_.word_count() / 2;
@@ -417,6 +416,15 @@ uint64_t SDArrayQuery::getBitsI(const uint64_t pos, const uint64_t num) const {
 		return ((B_.word(bpos) >> (pos % 64)) + (B_.word(bpos + 1) << (BLOCK_SIZE - offset))) & mask;
 	}
 }
+
+void SDArrayQuery::dump_text(std::ostream& fo) const {
+	//fo << "#sd_array\n";
+	fo << length() << ' ';
+	for (size_t i = 0; i < length(); ++i)
+		fo << lookup(i) << ' ';
+	fo << '\n';
+}
+
 
 std::string SDArrayQuery::to_str(bool psum) const {
 	ostringstream ss;

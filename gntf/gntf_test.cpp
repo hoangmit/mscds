@@ -2,6 +2,7 @@
 #include "utils/str_utils.h"
 #include "mem/filearchive.h"
 #include "utils/utest.h"
+#include "sdarray/sdarray_small.h"
 #include <tuple>
 #include <fstream>
 
@@ -155,6 +156,7 @@ void testbig() {
 		BED_Entry e;
 		e.parse(line);
 		if (e.chrname != lastchr) {
+			//if (lastchr.length() > 0) break;
 			cout << e.chrname << endl;
 			lastchr = e.chrname;
 			bd.changechr(lastchr);
@@ -165,12 +167,40 @@ void testbig() {
 	fo.open_write("D:/temp/a.gnt");
 	bd.build(fo);
 	fo.close();
+
+	/*GenomeNumData gd;
+	bd.build(&gd);
+	ofstream fox("D:/temp/dump_chr1_rlen.txt");
+	gd.__testing_dump_1st_st(fox);
+	fox.close();*/
+
+	fi.close();
+}
+
+void testsize2() {
+	ifstream fi("D:/temp/dump_psum_chr1.txt");
+	//ifstream fi("D:/temp/dump_chr1_rlen.txt");
+	uint64_t len;
+	fi >> len;
+	cout.imbue(std::locale(cout.getloc(), new utils::comma_numpunct()));
+	mscds::SDArraySmlBuilder bd;
+	for (size_t i = 0; i < len; ++i) {
+		uint64_t n;
+		fi >> n;
+		assert(fi);
+		bd.add(n);
+	}
+	//cout << bd.build() << endl;
+	
 	fi.close();
 }
 
 int main() {
-	testbig();
+	//testbig();
+	testsize2();
 	return 0;
+	//testbig();
+	//return 0;
 	test_chrbychr1();
 	test_chrbychr2();
 	test_chrbychr3();

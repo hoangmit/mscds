@@ -46,6 +46,7 @@ public:
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
+	//void __testing_dump_1st_st(std::ostream& fo) const { chrs[0].vals.rlen.dump_text(fo); }
 private:
 	void loadinit();
 	unsigned int nchr;

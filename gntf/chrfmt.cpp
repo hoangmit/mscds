@@ -54,11 +54,11 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 
 	if (out->minmax_opt & MIN_OP != 0) {
 		BitArray b = build_supercartisian_tree(true, minmaxr.begin(), minmaxr.end());
-		out->min.build(b, 256);
+		out->min.build(b, 512);
 	}
 	if (out->minmax_opt & MAX_OP != 0) {
 		BitArray b = build_supercartisian_tree(false, minmaxr.begin(), minmaxr.end());
-		out->max.build(b, 256);
+		out->max.build(b, 512);
 	}
 	setup_ = false;
 }

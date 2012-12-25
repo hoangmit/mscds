@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(sdarray)
 
-set(SRCS sdarray.cpp RLSum.cpp)
-set(HEADERS sdarray.h rlsum_trivbin.h RLSum.h)
+set(SRCS sdarray.cpp RLSum.cpp sdarray_small.cpp)
+set(HEADERS sdarray.h rlsum_trivbin.h RLSum.h sdarray_small.h)
 
 #add_library(sdarray ${SRCS} ${HEADERS})
 #target_link_libraries(sdarray bitarray)

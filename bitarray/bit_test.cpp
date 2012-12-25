@@ -1,6 +1,7 @@
 #include "bitarray.h"
 #include "utils/str_utils.h"
 #include "utils/utest.h"
+#include "bitstream.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -59,7 +60,32 @@ void test2(int len = 2048) {
 	cout << "." ;
 }
 
+void test3(int len = 2048) {
+	OBitStream os;
+	vector<bool> v;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 2 == 1) {
+			os.put1();
+			v.push_back(true);
+		}else {
+			os.put0();
+			v.push_back(false);
+		}
+	}
+	os.close();
+	BitArray b = BitArray::create(os.data(), len);
+	for (int i = 0; i < len; ++i) {
+		if (v[i] != b[i]) {
+			cout << v[i] << " " << b[i] << endl;
+			ASSERT_EQ(v[i], b[i]);
+		}
+	}
+}
+
 void test_bit_all() {
+	for (int i = 0; i < 200; i++)
+		test3(1024 + rand() % 64);
+
 	for (int i = 0; i < 1000; i++)
 		test1(1024 + rand() % 256);
 	for (int i = 0; i < 100; i++)

@@ -194,5 +194,4 @@ void GenomeNumData::save(mscds::OArchive &ar) const {
 }
 
 
-
 }//namespace

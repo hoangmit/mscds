@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 
 
@@ -45,11 +46,13 @@ public:
 	const static unsigned int WORDLEN = 64;
 
 	uint64_t bits(size_t bitindex, unsigned int len) const {
-		assert(len <= WORDLEN && len > 0);
+		assert(len <= WORDLEN); // len > 0
 		assert(bitindex + len <= bitlen);
+		if (len==0) return 0;
 		uint64_t i = bitindex / WORDLEN;
 		unsigned int j = bitindex % WORDLEN; 
-		uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull;
+		//uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull;
+		uint64_t mask = ((~0ull) >> (WORDLEN - len));
 		if (j + len <= WORDLEN) 
 			return (data[i] >> j) & mask;
 		else
@@ -61,7 +64,8 @@ public:
 		assert(bitindex + len <= bitlen);
 		uint64_t i = bitindex / WORDLEN;
 		unsigned int j = bitindex % WORDLEN; 
-		uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull; // & (~0ull >> (WORDLEN - len))
+		//uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull; // & (~0ull >> (WORDLEN - len))
+		uint64_t mask = ((~0ull) >> (WORDLEN - len));
 		value = value & mask;
 		data[i] = (data[i] & ~(mask << j)) | (value << j);
 		if (j + len > WORDLEN)

@@ -165,7 +165,7 @@ uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 			d -= wr;
 		widx += 1;
 	}
-	return -1ull;
+	return ~0ull;
 }
 
 uint64_t Rank6p::blkrank0(size_t blk) const {
@@ -208,7 +208,7 @@ uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 			d -= wr;
 		widx += 1;
 	}
-	return -1ull;
+	return ~0ull;
 }
 
 void Rank6p::clear() {

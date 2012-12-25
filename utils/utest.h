@@ -2,6 +2,9 @@
 #ifndef __UNIT_TEST_H_
 #define __UNIT_TEST_H_
 
+#define PRT(x) cout<< #x <<"="<<(x) << endl
+
+
 #ifndef ASSERT
 
 #include <iostream>
@@ -9,6 +12,9 @@
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
 // http://stackoverflow.com/questions/37473/how-can-i-assert-without-using-abort
 // http://en.wikipedia.org/wiki/Assert.h
+
+#define __EXPVAL(exp,val) \
+	((void)(std::cerr << "Expected: " << #exp << " = " << (exp) << endl << "Value: " << #val << " = " << (val) << endl))
 
 #define __FAILED_MSG(err, file, line, func) \
 	((void)(std::cerr << "Assertion failed: `" << err << "`, file: "<<file<<", func: "<< func <<", line: "<< line << "\n"), abort(), 0)

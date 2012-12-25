@@ -104,6 +104,7 @@ public:
 	void save(OArchive& ar) const;
 	void clear();
 
+	void dump_text(std::ostream& fo) const; /* len, then numbers */
 	std::string to_str(bool psum = false) const; 
 
 private:

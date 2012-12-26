@@ -3,6 +3,8 @@
 #include "bitarray/bitop.h"
 
 #include <cassert>
+#include <sstream>
+#include <algorithm>
 
 namespace mscds {
 
@@ -30,11 +32,25 @@ void SDArraySmlBuilder::build(SDArraySml* out) {
 	p_sum = 0;
 }
 
+void SDArraySmlBuilder::build(OArchive& ar) {
+	SDArraySml sda;
+	build(&sda);
+	sda.save(ar);
+	sda.clear();
+}
+
+
 const uint64_t SDArraySmlBuilder::BLKSIZE = 512;
 const uint16_t SDArraySmlBuilder::SUBB_PER_BLK = 7;
 const uint64_t SDArraySml::BLKSIZE = 512;
 const uint64_t SDArraySml::SUBB_SIZE = 74;//=(ceil(BLKSIZE/SUBB_PER_BLK))
 
+
+void SDArraySmlBuilder::clear() {
+	vals.clear();
+	table.clear();
+	bits.clear();
+}
 
 void SDArraySmlBuilder::build_blk(){
 	assert(vals.size() <= BLKSIZE);
@@ -91,14 +107,20 @@ struct BlkHintInfo {
 	BlkHintInfo(){}
 	BlkHintInfo(uint64_t v):hints(v){}
 	uint32_t getHints(uint32_t p) const {
+		assert(p < 6);
 		if (p == 0) return 0;
-		return 0;
+		return getBits((p-1)*10, 10);
+	}
+
+	uint64_t getBits(uint64_t beg, uint64_t num) const {
+		return (hints >> beg) & ((1ULL << num) - 1);
 	}
 };
 
 uint64_t SDArraySml::getBits(uint64_t x, uint64_t beg, uint64_t num) {
 	return (x >> beg) & ((1ULL << num) - 1);
 }
+
 
 uint64_t SDArraySml::prefixsum(size_t p) const {
 	if (p >= len) return this->sum;
@@ -204,6 +226,21 @@ uint64_t SDArraySml::rank(uint64_t val) const {
 	return lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
 }
 
+uint64_t SDArraySml::rank(uint64_t lo, uint64_t hi, uint64_t val) const {
+	assert(lo <= hi);
+	assert(hi <= table.word_count() / 3);
+	while (lo < hi) {
+		uint64_t mid = lo + (hi - lo) / 2;
+		if (table.word(mid*3) < val) lo = mid + 1;
+		else hi = mid;
+	}
+	if (lo == 0) return 0;
+	lo--;
+	assert(val > table.word(lo*3));
+	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
+	return lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
+}
+
 uint64_t SDArraySml::rankBlk(uint64_t blk, uint64_t val) const {
 	uint64_t info   = table.word(blk * 3 + 1);
 	uint64_t blkptr = info & 0x01FFFFFFFFFFFFFFull;
@@ -283,5 +320,168 @@ uint64_t SDArraySml::scan_hi_bitslow(uint64_t start, uint32_t res) const {
 	return ~0ull;
 }
 */
+
+
+void SDArraySml::dump_text(std::ostream& fo) const {
+	//fo << "#sd_array\n";
+	fo << length() << ' ';
+	for (size_t i = 0; i < length(); ++i)
+		fo << lookup(i) << ' ';
+	fo << '\n';
+}
+
+
+std::string SDArraySml::to_str(bool psum) const {
+	std::ostringstream ss;
+	if (psum) {
+		ss << '<';
+		if (length() > 0)
+			ss << prefixsum(1);
+		for (unsigned int i = 2; i <= length(); ++i) {
+			ss << ',' << prefixsum(i);
+		}
+		ss << '>';
+	}else {
+		ss << '{';
+		if (length() > 0)
+			ss << lookup(0);
+		for (unsigned int i = 1; i < length(); ++i) {
+			ss << ',' << lookup(i);
+		}
+		ss << '}';
+	}
+	return ss.str();
+}
+
+
+void SDArraySml::clear() {
+	sum = 0;
+	len = 0;
+	bits.clear();
+	table.clear();
+}
+
+void SDArraySml::save(OArchive& ar) const {
+	ar.startclass("SDArraySml", 1);
+	ar.var("length").save(len);
+	ar.var("sum").save(sum);
+	bits.save(ar.var("bits"));
+	table.save(ar.var("table"));
+	ar.endclass();
+}
+
+void SDArraySml::load(IArchive& ar) {
+	ar.loadclass("SDArraySml");
+	ar.var("length").load(len);
+	ar.var("sum").load(sum);
+	bits.load(ar.var("bits"));
+	table.load(ar.var("table"));
+	ar.endclass();
+}
+//---------------------------------------------------------------------------------------
+
+void SDRankSelectSml::build(const std::vector<uint64_t>& inc_pos) {
+	clear();
+	bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
+	if (!b) throw std::logic_error("required sorted array");
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
+	if (inc_pos.size() == 0) return;
+	SDArraySmlBuilder bd;
+	if (inc_pos[0] == 0) bd.add(0);
+	else bd.add(inc_pos[0]);
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		bd.add(inc_pos[i] - inc_pos[i-1]);
+	bd.build(&qs);
+	initrank();
+}
+
+void SDRankSelectSml::build(const std::vector<unsigned int>& inc_pos) {
+	clear();
+	bool b = std::is_sorted(inc_pos.begin(), inc_pos.end());
+	if (!b) throw std::logic_error("required sorted array");
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		if (inc_pos[i] == inc_pos[i-1]) throw std::logic_error("required non-duplicated elements");
+	if (inc_pos.size() == 0) return;
+	SDArraySmlBuilder bd;
+	if (inc_pos[0] == 0) bd.add(0);
+	else bd.add(inc_pos[0]);
+	for (size_t i = 1; i < inc_pos.size(); i++) 
+		bd.add(inc_pos[i] - inc_pos[i-1]);
+	bd.build(&qs);
+	initrank();
+}
+
+void SDRankSelectSml::build(BitArray& ba) {
+	clear();
+	SDArraySmlBuilder bd;
+	uint64_t last = 0;
+	for (size_t i = 0; i < ba.length(); i++)
+		if (ba[i]) {
+			bd.add(i-last);
+			last = i;
+		}
+	bd.build(&qs);
+	initrank();
+}
+
+struct SDASIIterator {
+	const SDArraySml& q;
+	uint64_t p;
+	SDASIIterator(const SDArraySml& _q): q(_q), p(0) {}
+	uint64_t operator*() const { return q.table.word(3*p); }
+	void operator++() { ++p; }
+};
+
+void SDRankSelectSml::initrank() {
+	if (qs.length() == 0) return;
+	ranklrate = ceillog2(qs.total() / qs.length() + 1) + 7;
+	SDASIIterator it(qs);
+	rankhints = bsearch_hints(it, qs.table.word_count() / 3, qs.total(), ranklrate);
+}
+
+uint64_t SDRankSelectSml::rank(uint64_t p) const {
+	if (p == 0) return 0;
+	if (p > qs.total()) return qs.length();
+	uint64_t i = rankhints[p>>ranklrate], j = rankhints[(p>>ranklrate)+1];
+
+	/*uint64_t kt = qs.find(p);
+	kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;*/
+
+	uint64_t k = qs.rank(i, j, p);
+	//assert(k == kt);
+	if (k == 0) return 0;
+	else return k - 1;
+	return k;
+}
+
+void SDRankSelectSml::load(IArchive& ar) {
+	ar.loadclass("sd_rank_select");
+	qs.load(ar);
+	ar.load(ranklrate);
+	rankhints.load(ar);
+	ar.endclass();
+}
+
+void SDRankSelectSml::save(OArchive& ar) const {
+	ar.startclass("sd_rank_select", 1);
+	qs.save(ar);
+	ar.save(ranklrate);
+	rankhints.save(ar);
+	ar.endclass();
+}
+
+std::string SDRankSelectSml::to_str() const {
+	std::ostringstream ss;
+	ss << '{';
+	if (qs.length() > 0) {
+		ss << qs.prefixsum(1);
+		for (size_t i = 2; i <= qs.length(); i++) 
+			ss << ',' << qs.prefixsum(i);
+	}
+	ss << '}';
+	return ss.str();
+}
+
 
 }//namespace

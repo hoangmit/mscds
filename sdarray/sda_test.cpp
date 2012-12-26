@@ -277,7 +277,7 @@ BitArray randbit(unsigned int len, unsigned int & cnt) {
 	BitArray b = BitArray::create(len);
 	cnt = 0;
 	for (size_t i = 0; i < len; ++i)
-		if (rand() % 100 < 20) { b.setbit(i, true); cnt++;}
+		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
 		else b.setbit(i, false);
 	return b;
 }
@@ -425,14 +425,67 @@ void test_sda2_zeros() {
 }
 
 
+void test_rank2(int len) {
+	std::vector<bool> vec;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 20 == 1)
+			vec.push_back(true);
+		else vec.push_back(false);
+	}
+
+	vector<int> ranks(vec.size() + 1);
+	ranks[0] = 0;
+	for (unsigned int i = 1; i <= vec.size(); i++)
+		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
+		else ranks[i] = ranks[i-1];
+	BitArray v;
+	v = BitArray::create(vec.size());
+	v.fillzero();
+	for (unsigned int i = 0; i < vec.size(); i++)
+		v.setbit(i, vec[i]);
+
+	for (unsigned int i = 0; i < vec.size(); i++)
+		ASSERT(vec[i] == v.bit(i));
+
+	SDRankSelectSml r;
+	r.build(v);
+
+	for (int i = 0; i <= vec.size(); ++i)
+		if (ranks[i] != r.rank(i)) {
+			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
+			ASSERT(ranks[i] == r.rank(i));
+		}
+	unsigned int onecnt = 0;
+	for (unsigned int i = 0; i < vec.size(); ++i)
+		if (vec[i]) onecnt++;
+	int last = -1;
+	for (unsigned int i = 0; i < onecnt; ++i) {
+		int pos = r.select(i);
+		if (pos >= vec.size() || !vec[pos] || pos <= last) {
+			cout << "select " << i << "  " << r.select(i) << endl;
+			if (i > 0) r.select(i-1);
+			ASSERT(vec[pos] == true);
+		}
+		ASSERT(pos > last);
+		last = pos;
+	}
+	cout << ".";
+}
+
+
+
+
 int main() {
+	testspeed();
+	return 0;
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();
+	for (int i = 0; i < 200; i++)
+		test_rank2(1000);
 	for (int i = 0; i < 100; i++)
 		test_sda2_rand();
 	return 0;
-	testspeed();
 	test_SDA_all();
 	return 0;
 }

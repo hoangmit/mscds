@@ -5,6 +5,8 @@
 #include "archive.h"
 
 #include "sdarray/sdarray.h"
+#include "sdarray/sdarray_small.h"
+
 
 namespace mscds {
 
@@ -19,7 +21,7 @@ public:
 	void clear();
 private:
 	unsigned int len, lastst;
-	SDArrayBuilder psbd, rlenbd;
+	SDArraySmlBuilder psbd, rlenbd;
 	SDRankSelect stbd;
 	std::vector<unsigned int> stpos;
 };
@@ -45,8 +47,8 @@ public:
 	unsigned int pslen(unsigned int) const;
 private:
 	unsigned int len;
-	SDRankSelect start;
-	SDArrayQuery psum, rlen;
+	SDRankSelectSml start;
+	SDArraySml psum, rlen;
 	friend class RunLenSumArrayBuilder;
 };
 

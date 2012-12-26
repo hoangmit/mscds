@@ -33,6 +33,13 @@ public:
 		bitlen += WORDLEN;
 	}
 
+	void clear() {
+		os.clear();
+		cur = 0;
+		j = 0;
+		bitlen = 0;
+	}
+
 	void close() {
 		if (j > 0) {
 			os.push_back(cur);

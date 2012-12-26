@@ -27,7 +27,7 @@ void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
 	Y.erase(unique(Y.begin(), Y.end()), Y.end());
 	out->SY.build(Y);
 
-	SDArrayBuilder xbd, dp;
+	SDArraySmlBuilder xbd, dp;
 	//work on X
 	if (X.size() > 0) {
 		vector<unsigned int> Cnt;

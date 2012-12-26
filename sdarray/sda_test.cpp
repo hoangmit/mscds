@@ -4,7 +4,7 @@
 #include "utils/utest.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
-#include "sdarray_small.h"
+#include "sdarray_sml.h"
 
 #include <vector>
 #include <cassert>
@@ -293,7 +293,7 @@ void testspeed() {
 	srand(0);
 	unsigned int len = 10000000, oc;
 	BitArray b = randbit(len, oc);
-	SDRankSelect rs;
+	SDRankSelectSml rs;
 	rs.build(b);
 	cout << "ones = " << oc << endl;
 	cout << get_bit_size(rs) << endl;
@@ -323,6 +323,7 @@ void test_sda2_rand() {
 		bd.add(vals[i]);
 		sum += vals[i];
 	}
+	cums[N] = sum;
 	SDArraySml sda;
 	bd.build(&sda);
 
@@ -346,6 +347,46 @@ void test_sda2_rand() {
 	}
 }
 
+void test_sda2_rand2() {
+	SDArraySmlBuilder bd;
+	uint64_t N = 1000;
+	vector<uint64_t> vals(N);
+	vector<uint64_t> cums(N+1);
+	uint64_t sum = 0;
+	for (uint64_t i = 0; i < N; ++i){
+		cums[i] = sum;
+		vals[i] = rand() % 3;
+		bd.add(vals[i]);
+		sum += vals[i];
+	}
+	cums[N] = sum;
+	SDArraySml sda;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	for (int i = 0; i < N; ++i) {
+		uint64_t v = sda.prefixsum(i);
+		ASSERT_EQ(cums[i], v);
+		ASSERT_EQ(vals[i], sda.lookup(i));
+	}
+
+	uint64_t M = 100;
+	for (uint64_t i = 0; i < M; ++i){
+		uint64_t val = rand() % sum;
+
+		vector<uint64_t>::iterator it = lower_bound(cums.begin(), cums.end(), val);
+		size_t ind = it - cums.begin();
+
+		if (ind < cums.size())
+			ASSERT(val <= cums[ind]);
+		if (ind != sda.rank(val)) {
+			auto v = sda.rank(val);
+			ASSERT_EQ(ind, sda.rank(val));
+		}
+	}
+}
+
+
 void test_sda2_inc() {
 	SDArraySmlBuilder bd;
 	uint64_t N = 1000;
@@ -358,6 +399,7 @@ void test_sda2_inc() {
 		bd.add(vals[i]);
 		sum += vals[i];
 	}
+	cums[N] = sum;
 	SDArraySml sda;
 	bd.build(&sda);
 
@@ -476,16 +518,18 @@ void test_rank2(int len) {
 
 
 int main() {
-	testspeed();
-	return 0;
+	//testspeed();
+	//return 0;
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();
 	for (int i = 0; i < 200; i++)
 		test_rank2(1000);
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 100; i++) {
 		test_sda2_rand();
-	return 0;
+		test_sda2_rand2();
+	}
+	//return 0;
 	test_SDA_all();
 	return 0;
 }

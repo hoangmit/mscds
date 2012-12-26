@@ -47,7 +47,7 @@ namespace mscds {
 	unsigned int lsb_table(uint64_t number) {
 		if (!lmsb_init_flag) lmsb_init_tables();
 		if (number & 0xffffffffULL) return lsb_table32(number & 0xffffffffULL);
-		else lsb_table32(number >> 32);
+		else return lsb_table32(number >> 32);
 	}
 	
 	unsigned int msb_table(uint64_t number) {

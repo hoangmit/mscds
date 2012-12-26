@@ -29,7 +29,7 @@ set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "-std=c++0x -fPIC -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC")
 else()
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 	add_definitions(/wd4244)

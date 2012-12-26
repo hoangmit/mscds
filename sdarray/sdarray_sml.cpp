@@ -1,4 +1,4 @@
-#include "sdarray_small.h"
+#include "sdarray_sml.h"
 
 #include "bitarray/bitop.h"
 
@@ -213,6 +213,7 @@ uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
 
 //number of 1 that is less than val
 uint64_t SDArraySml::rank(uint64_t val) const {
+	if (val > sum) return len;
 	uint64_t lo = 0;
 	uint64_t hi = table.word_count() / 3;
 	while (lo < hi) {
@@ -230,6 +231,7 @@ uint64_t SDArraySml::rank(uint64_t val) const {
 uint64_t SDArraySml::rank(uint64_t lo, uint64_t hi, uint64_t val) const {
 	assert(lo <= hi);
 	assert(hi <= table.word_count() / 3);
+	if (val > sum) return len;
 	while (lo < hi) {
 		uint64_t mid = lo + (hi - lo) / 2;
 		if (table.word(mid*3) < val) lo = mid + 1;

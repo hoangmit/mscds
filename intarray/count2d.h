@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "archive.h"
 #include "wat_array.h"
-#include "sdarray/sdarray.h"
+#include "sdarray/sdarray_sml.h"
 
 namespace mscds{
 
@@ -40,7 +40,7 @@ public:
 	size_t size();
 private:
 	WatQuery wq;
-	SDRankSelect SX, SY, DPX;
+	SDRankSelectSml SX, SY, DPX;
 	unsigned int max_x, max_y;
 	friend class Count2DBuilder;
 

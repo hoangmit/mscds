@@ -5,7 +5,7 @@
 #include "archive.h"
 
 #include "sdarray/sdarray.h"
-#include "sdarray/sdarray_small.h"
+#include "sdarray/sdarray_sml.h"
 
 
 namespace mscds {
@@ -22,7 +22,7 @@ public:
 private:
 	unsigned int len, lastst;
 	SDArraySmlBuilder psbd, rlenbd;
-	SDRankSelect stbd;
+	SDRankSelectSml stbd;
 	std::vector<unsigned int> stpos;
 };
 

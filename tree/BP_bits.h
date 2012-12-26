@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "bitarray/bitarray.h"
 #include "bitarray/rank6p.h"
-#include "sdarray/sdarray.h"
+#include "sdarray/sdarray_sml.h"
 #include <algorithm>
 #include <string>
 
@@ -107,7 +107,7 @@ private:
 	BitArray bp_bits;
 	Rank6p bprank;
 	BP_aux * lowerlvl;
-	SDRankSelect pioneer_map;
+	SDRankSelectSml pioneer_map;
 
 	unsigned int rec_lvl;
 	unsigned int blksize;

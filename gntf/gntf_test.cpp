@@ -2,7 +2,7 @@
 #include "utils/str_utils.h"
 #include "mem/filearchive.h"
 #include "utils/utest.h"
-#include "sdarray/sdarray_small.h"
+#include "sdarray/sdarray_sml.h"
 #include <tuple>
 #include <fstream>
 
@@ -196,11 +196,6 @@ void testsize2() {
 }
 
 int main() {
-	//testbig();
-	testsize2();
-	return 0;
-	//testbig();
-	//return 0;
 	test_chrbychr1();
 	test_chrbychr2();
 	test_chrbychr3();

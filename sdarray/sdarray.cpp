@@ -234,7 +234,7 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_sum) const {
 	return cur - prev;
 }
 
-/*
+
 uint64_t SDArrayQuery::find(const uint64_t val) const {
 	if (sum_ < val) {
 		//cout << "come0" << endl;
@@ -257,7 +257,7 @@ uint64_t SDArrayQuery::find(const uint64_t val) const {
 	assert(low*2 == Ltable_.word_count() || val < Ltable_.word(low*2));
 
 	return bpos * BLOCK_SIZE + rankBlock(val - Ltable_.word(bpos*2), Ltable_.word(bpos*2+1));
-}*/
+}
 
 uint64_t SDArrayQuery::hint_find2(uint64_t val, uint64_t low, uint64_t high) const {
 	//uint64_t high = Ltable_.word_count() / 2;

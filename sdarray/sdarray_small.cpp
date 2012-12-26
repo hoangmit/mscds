@@ -5,6 +5,7 @@
 #include <cassert>
 #include <sstream>
 #include <algorithm>
+#include <stdexcept>
 
 namespace mscds {
 

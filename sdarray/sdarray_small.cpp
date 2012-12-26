@@ -457,7 +457,7 @@ uint64_t SDRankSelectSml::rank(uint64_t p) const {
 }
 
 void SDRankSelectSml::load(IArchive& ar) {
-	ar.loadclass("sd_rank_select");
+	ar.loadclass("sd_rank_select_sml");
 	qs.load(ar);
 	ar.load(ranklrate);
 	rankhints.load(ar);
@@ -465,7 +465,7 @@ void SDRankSelectSml::load(IArchive& ar) {
 }
 
 void SDRankSelectSml::save(OArchive& ar) const {
-	ar.startclass("sd_rank_select", 1);
+	ar.startclass("sd_rank_select_sml", 1);
 	qs.save(ar);
 	ar.save(ranklrate);
 	rankhints.save(ar);

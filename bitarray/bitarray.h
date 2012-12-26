@@ -127,13 +127,19 @@ public:
 		ptr.reset();
 	}
 
+	template<typename T>
+	struct CppArrDeleter {
+		void operator()(void* p) const {
+			delete[] ((T*) p);
+		}
+	};
 	static BitArray create(size_t bitlen) {
 		BitArray v;
 		if (bitlen == 0) return v;
 		assert(bitlen > 0);
 		size_t arrlen = (size_t) ceildiv(bitlen, WORDLEN);
 		v.data = new uint64_t[arrlen];
-		v.ptr = SharedPtr(v.data);
+		v.ptr = SharedPtr(v.data, CppArrDeleter<uint64_t>());
 		v.bitlen = bitlen;
 		v.data[arrlen-1] = 0;
 		return v;

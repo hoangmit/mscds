@@ -122,9 +122,14 @@ uint64_t SDArraySml::getBits(uint64_t x, uint64_t beg, uint64_t num) {
 	return (x >> beg) & ((1ULL << num) - 1);
 }
 
-
 uint64_t SDArraySml::prefixsum(size_t p) const {
 	if (p >= len) return this->sum;
+	c_rcnt++;
+	if (c_select >= 0 && p == c_rank)
+		return c_select;
+	if (c_preselect >= 0 && p == c_rank - 1)
+		return c_preselect;
+	c_miss++;
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
 	uint64_t sum  = table.word(bpos * 3);
@@ -171,11 +176,8 @@ uint64_t SDArraySml::lookup(const uint64_t p) const {
 	uint64_t blkptr = info & 0x01FFFFFFFFFFFFFFull;
 	uint32_t width  = info >> 57;
 	uint64_t prev = 0;
-	int64_t prehi;
-	if (off == 0) {
-		prehi = 0;
-		prev = 0;
-	} else {
+	int64_t prehi = 0;
+	if (off > 0) {
 		uint64_t prelo = bits.bits(blkptr + width * (off - 1), width);
 		prehi = select_hi(table.word(bpos * 3 + 2), blkptr + width*BLKSIZE, off - 1) + 1 - off;
 		prev = ((prehi << width) | prelo);
@@ -194,11 +196,8 @@ uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
 	uint64_t blkptr = info & 0x01FFFFFFFFFFFFFFull;
 	uint32_t width  = info >> 57;
 	uint64_t prev = 0;
-	int64_t prehi;
-	if (off == 0) {
-		prehi = 0;
-		prev = 0;
-	} else {
+	int64_t prehi = 0;
+	if (off > 0) {
 		uint64_t prelo = bits.bits(blkptr + width * (off - 1), width);
 		prehi = select_hi(table.word(bpos * 3 + 2), blkptr + width*BLKSIZE, off - 1) + 1 - off;
 		prev = ((prehi << width) | prelo);
@@ -225,10 +224,11 @@ uint64_t SDArraySml::rank(uint64_t val) const {
 	lo--;
 	assert(val > table.word(lo*3));
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
+	c_rank = table.word(lo*3);
 	return lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
 }
 
-uint64_t SDArraySml::rank(uint64_t lo, uint64_t hi, uint64_t val) const {
+uint64_t SDArraySml::rank(uint64_t val, uint64_t lo, uint64_t hi) const {
 	assert(lo <= hi);
 	assert(hi <= table.word_count() / 3);
 	if (val > sum) return len;
@@ -241,7 +241,13 @@ uint64_t SDArraySml::rank(uint64_t lo, uint64_t hi, uint64_t val) const {
 	lo--;
 	assert(val > table.word(lo*3));
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
-	return lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
+	uint64_t ret = lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
+	if (c_select >= 0) {
+		c_select += table.word(lo*3); 
+		c_rank += lo * BLKSIZE;
+		if (c_preselect >= 0) c_preselect += table.word(lo*3);
+	}
+	return ret;
 }
 
 uint64_t SDArraySml::rankBlk(uint64_t blk, uint64_t val) const {
@@ -254,14 +260,19 @@ uint64_t SDArraySml::rankBlk(uint64_t blk, uint64_t val) const {
 	uint32_t hipos = 0, rank = 0;
 	if (vhi > 0) {
 		hipos = select_zerohi(table.word(blk * 3 + 2), blkptr + width*BLKSIZE, vhi-1)+1;
-		//uint32_t ck = scan_zerohi_bitslow(blkptr + width*BLKSIZE, vhi-1) + 1;
-		//assert(ck == hipos);
+		//assert(scan_zerohi_bitslow(blkptr + width*BLKSIZE, vhi-1) + 1 == hipos);
 		rank = hipos - vhi;
 	}
+	c_rank = rank+1;
+	c_select = c_preselect = -1;
 	uint64_t curlo = 0;
 	while (rank < BLKSIZE && bits.bit(blkptr + width*BLKSIZE + hipos)) {
 		curlo =  bits.bits(blkptr + width * rank, width);
-		if (curlo >= vlo) break;
+		c_preselect = c_select;
+		c_select = ((hipos - rank) << width) | curlo;
+		if (curlo >= vlo)
+			break;
+		++c_rank;
 		++rank;
 		++hipos;
 	} 
@@ -340,17 +351,15 @@ std::string SDArraySml::to_str(bool psum) const {
 		ss << '<';
 		if (length() > 0)
 			ss << prefixsum(1);
-		for (unsigned int i = 2; i <= length(); ++i) {
+		for (unsigned int i = 2; i <= length(); ++i)
 			ss << ',' << prefixsum(i);
-		}
 		ss << '>';
 	}else {
 		ss << '{';
 		if (length() > 0)
 			ss << lookup(0);
-		for (unsigned int i = 1; i < length(); ++i) {
+		for (unsigned int i = 1; i < length(); ++i)
 			ss << ',' << lookup(i);
-		}
 		ss << '}';
 	}
 	return ss.str();
@@ -362,6 +371,8 @@ void SDArraySml::clear() {
 	len = 0;
 	bits.clear();
 	table.clear();
+	c_select = c_preselect = -1;
+	c_miss = c_rcnt = 0;
 }
 
 void SDArraySml::save(OArchive& ar) const {
@@ -451,11 +462,10 @@ uint64_t SDRankSelectSml::rank(uint64_t p) const {
 	/*uint64_t kt = qs.find(p);
 	kt = (qs.prefixsum(kt) != p) ? kt : kt - 1;*/
 
-	uint64_t k = qs.rank(i, j, p);
+	uint64_t k = qs.rank(p, i, j);
 	//assert(k == kt);
 	if (k == 0) return 0;
 	else return k - 1;
-	return k;
 }
 
 void SDRankSelectSml::load(IArchive& ar) {

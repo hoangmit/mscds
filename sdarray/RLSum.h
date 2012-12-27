@@ -40,11 +40,25 @@ public:
 	unsigned int length() const;
 	void clear();
 
-	uint64_t range_start(unsigned int i) const;
+	unsigned int range_start(unsigned int i) const;
 	uint64_t range_psum(unsigned int i) const;
 	unsigned int range_len(unsigned int i) const;
-	unsigned int range_value(unsigned int) const;
-	unsigned int pslen(unsigned int) const;
+	unsigned int range_value(unsigned int i) const;
+
+	/** \brief counts the number of non-zero numbers in the half-open range [0..p) */
+	unsigned int countnz(unsigned int p) const;
+
+	/** \brief returns the values of the integer at position `pos'. Note that
+		 sequence index starts at 0 */
+	unsigned int access(unsigned int) const;
+
+	/** \brief returns largest position that is less than or equal to the input
+		and its value is non-zero (returns -1 if cannot find) */
+	int prev(unsigned int) const;
+
+	/** \brief returns the smallest position that is greater than the input
+		and its value is non-zero (return -1 if cannot find) */
+	int next(unsigned int) const;
 private:
 	unsigned int len;
 	SDRankSelectSml start;

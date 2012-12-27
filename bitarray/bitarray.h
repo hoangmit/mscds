@@ -122,9 +122,9 @@ public:
 	}
 
 	void clear() {
+		if (bitlen > 0) ptr.reset();
 		bitlen = 0;
 		data = NULL;
-		ptr.reset();
 	}
 
 	template<typename T>

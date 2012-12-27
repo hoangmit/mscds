@@ -277,7 +277,7 @@ BitArray randbit(unsigned int len, unsigned int & cnt) {
 	BitArray b = BitArray::create(len);
 	cnt = 0;
 	for (size_t i = 0; i < len; ++i)
-		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
+		if (rand() % 100 < 30) { b.setbit(i, true); cnt++;}
 		else b.setbit(i, false);
 	return b;
 }
@@ -291,7 +291,7 @@ size_t get_bit_size(const T& t) {
 
 void testspeed() {
 	srand(0);
-	unsigned int len = 10000000, oc;
+	unsigned int len = 50000000, oc;
 	BitArray b = randbit(len, oc);
 	SDRankSelectSml rs;
 	rs.build(b);
@@ -299,10 +299,14 @@ void testspeed() {
 	cout << get_bit_size(rs) << endl;
 	clock_t st = std::clock();
 	uint64_t val = 3;
-	unsigned int nqueries = 1000000;
-	for (size_t i = 0; i < nqueries; i++)
-		val |= rs.rank(rand() % (len));
+	unsigned int nqueries = 3000000;
+	for (size_t i = 0; i < nqueries; i++) {
+		uint64_t r = rs.rank(rand() % (len/2));
+		//val ^= r;
+		val ^= rs.select(r);
+	}
 	clock_t ed = std::clock();
+	cout << rs.qs.c_rcnt << "  " << rs.qs.c_miss << endl;
 	if (val) cout << ' ';
 	double t = ((double)(ed - st) / CLOCKS_PER_SEC);
 	cout << nqueries / t << endl;
@@ -514,8 +518,32 @@ void test_rank2(int len) {
 	cout << ".";
 }
 
+void test_rank3(int len) {
+	std::vector<bool> vec;
+	for (int i = 0; i < len; ++i) {
+		if (rand() % 20 == 1)
+			vec.push_back(true);
+		else vec.push_back(false);
+	}
+
+	BitArray v;
+	v = BitArray::create(vec.size());
+	v.fillzero();
+	for (unsigned int i = 0; i < vec.size(); i++)
+		v.setbit(i, vec[i]);
+
+	for (unsigned int i = 0; i < vec.size(); i++)
+		ASSERT(vec[i] == v.bit(i));
+
+	SDRankSelectSml r;
+	r.build(v);
 
 
+	for (unsigned int i = 0; i < vec.size(); ++i)
+		if (vec[i])
+			ASSERT_EQ(i, r.select(r.rank(i)));
+	cout << ".";
+}
 
 int main() {
 	//testspeed();
@@ -523,8 +551,10 @@ int main() {
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 200; i++) {
 		test_rank2(1000);
+		test_rank3(1000);
+	}
 	for (int i = 0; i < 100; i++) {
 		test_sda2_rand();
 		test_sda2_rand2();

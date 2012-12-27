@@ -41,10 +41,27 @@ void test_tb_1() {
 
 	for (int i = 0; i < len; ++i) {
 		ASSERT(S[i] == x.sum(i));
-		if (S[i] != y.sum(i)) {
-			cout << i << "  " << S[i] << " " << x.sum(i) << " " << y.sum(i) << endl;
-			ASSERT(S[i] == y.sum(i));
-		}
+		ASSERT(S[i] == y.sum(i));
+	}
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(A[i], y.access(i));
+	}
+
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp =-1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
 	}
 	cout << ".";
 }
@@ -88,10 +105,26 @@ void test_tb_2() {
 
 	for (int i = 0; i < len; ++i) {
 		ASSERT(S[i] == x.sum(i));
-		if (S[i] != y.sum(i)) {
-			cout << i << "  " << x.sum(i) << endl;
-			ASSERT(S[i] == y.sum(i));
-		}
+		ASSERT(S[i] == y.sum(i));
+	}
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(A[i], y.access(i));
+	}
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp =-1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
 	}
 	cout << ".";
 }
@@ -164,10 +197,26 @@ void test_tb_rng(int test_num) {
 
 	for (int i = 0; i < len; ++i) {
 		ASSERT(S[i] == x.sum(i));
-		if (S[i] != y.sum(i)) {
-			cout << i << "  " << x.sum(i) << endl;
-			ASSERT(S[i] == y.sum(i));
-		}
+		ASSERT(S[i] == y.sum(i));
+	}
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(A[i], y.access(i));
+	}
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp =-1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
 	}
 	cout << ".";
 }
@@ -202,12 +251,29 @@ void test_sum_delta1() {
 	RunLenSumArray y;
 	bd.build(&y);
 	for (int i = 0; i < len; ++i) {
-		if (S[i] != y.sum_delta(i, delta)) {
-			cout << S[i] << " " << y.sum_delta(i, delta) << endl;
-			ASSERT(S[i] == y.sum_delta(i, delta));
+		ASSERT(S[i] == y.sum_delta(i, delta));
+	}
+	for (int i = 0; i < len; ++i) {
+		if (A[i] != y.access(i)) {
+			ASSERT_EQ(A[i], y.access(i));
 		}
 	}
-
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp =-1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
+	}
 }
 
 void test_sum_delta2() {
@@ -245,19 +311,36 @@ void test_sum_delta2() {
 			ASSERT(S[i] == y.sum_delta(i, delta));
 		}
 	}
-
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(A[i], y.access(i));
+	}
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp = -1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0) {
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
+	}
 }
 
 
 void test_trivbin_all() {
-	test_sum_delta1();
-	test_sum_delta2();
 	test_tb_1();
 	test_tb_2();
+	test_sum_delta1();
+	test_sum_delta2();
 	for (int i = 0; i < 1000; i++) {
 		test_tb_rng(i);
-	}
-	
+	}	
 }
 
 

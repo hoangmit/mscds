@@ -34,8 +34,8 @@ private:
 
 class SDArraySml {
 public:
-	SDArraySml() { clear(); cnt = 0;}
-	~SDArraySml() { clear(); std::cout << cnt << std::endl; }
+	SDArraySml() { clear(); }
+	~SDArraySml() { clear();  }
 	uint64_t prefixsum(size_t p) const ;
 	uint64_t length() const { return len; }
 	uint64_t lookup(const uint64_t p) const;
@@ -64,7 +64,6 @@ private:
 	BitArray table;
 	uint64_t len, sum;
 	
-	mutable uint32_t cnt;
 	// cache to speed up the case: select(rank(p))
 	mutable int64_t c_select, c_rank, c_preselect; 
 	

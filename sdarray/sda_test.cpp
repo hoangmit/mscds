@@ -544,14 +544,14 @@ void test_rank3(int len) {
 }
 
 int main() {
-	testspeed();
-	return 0;
+	//testspeed();
+	//return 0;
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();
 	for (int i = 0; i < 200; i++) {
-		test_rank2(1000);
-		test_rank3(1000);
+		test_rank2(1020 + rand() % 8);
+		test_rank3(1020 + rand() % 8);
 	}
 	for (int i = 0; i < 100; i++) {
 		test_sda2_rand();

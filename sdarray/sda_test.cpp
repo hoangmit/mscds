@@ -306,11 +306,9 @@ void testspeed() {
 		val ^= rs.select(r);
 	}
 	clock_t ed = std::clock();
-	cout << rs.qs.c_rcnt << "  " << rs.qs.c_miss << endl;
 	if (val) cout << ' ';
 	double t = ((double)(ed - st) / CLOCKS_PER_SEC);
 	cout << nqueries / t << endl;
-
 }
 
 //----------------------------------------------------------------------
@@ -546,8 +544,8 @@ void test_rank3(int len) {
 }
 
 int main() {
-	//testspeed();
-	//return 0;
+	testspeed();
+	return 0;
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();

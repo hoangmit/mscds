@@ -47,7 +47,6 @@ public:
 	void save(OArchive& ar) const;
 	void load(IArchive& ar);
 	uint64_t total() const { return sum; }
-	mutable uint32_t c_rcnt, c_miss;
 private:
 	uint64_t rank(uint64_t val, uint64_t lo, uint64_t hi) const;
 
@@ -96,8 +95,8 @@ public:
 
 	void clear() { qs.clear(); rankhints.clear(); }
 	std::string to_str() const;
-	SDArraySml qs;
 private:
+	SDArraySml qs;
 	void initrank();
 	unsigned int ranklrate;
 	FixedWArray rankhints;

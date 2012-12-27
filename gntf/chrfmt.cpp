@@ -65,24 +65,6 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 
 //-----------------------------------------------------------------------------
 
-int64_t ChrNumThread::sum(size_t p) const {
-	return vals.sum_delta(p, delta);
-}
-
-unsigned int ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
-	if (minmax_opt & MIN_OP) {
-		unsigned int i = min.m_idx(st, ed);
-		return (int)(vals.range_value(i) + delta);
-	}else return 0;
-}
-
-unsigned int ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
-	if (minmax_opt & MAX_OP) {
-		unsigned int i = min.m_idx(st, ed);
-		return (int)(vals.range_value(i) + delta);
-	}else return 0;
-}
-
 void ChrNumThread::clear() {
 	vals.clear();
 	min.clear();

@@ -7,9 +7,11 @@
 #include <algorithm>
 #include <stdexcept>
 
-#define CACHE_SELECT_RANK
+
 
 namespace mscds {
+
+#define CACHE_SELECT_RANK
 
 SDArraySmlBuilder::SDArraySmlBuilder() {
 	vals.reserve(BLKSIZE);
@@ -127,10 +129,8 @@ uint64_t SDArraySml::getBits(uint64_t x, uint64_t beg, uint64_t num) {
 uint64_t SDArraySml::prefixsum(size_t p) const {
 	if (p >= len) return this->sum;
 	#ifdef CACHE_SELECT_RANK
-	if (c_select >= 0 && p == c_rank)
-		return c_select;
-	if (c_preselect >= 0 && p == c_rank - 1)
-		return c_preselect;
+	if (c_select >= 0 && p == c_rank) return c_select;
+	if (c_preselect >= 0 && p == c_rank - 1) return c_preselect;
 	#endif
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
@@ -226,8 +226,15 @@ uint64_t SDArraySml::rank(uint64_t val) const {
 	lo--;
 	assert(val > table.word(lo*3));
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
-	c_rank = table.word(lo*3);
-	return lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
+	uint64_t ret = lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
+	#ifdef CACHE_SELECT_RANK
+	if (c_select >= 0) {
+		c_select += table.word(lo*3); 
+		c_rank += lo * BLKSIZE;
+		if (c_preselect >= 0) c_preselect += table.word(lo*3);
+	}
+	#endif
+	return ret;
 }
 
 uint64_t SDArraySml::rank(uint64_t val, uint64_t lo, uint64_t hi) const {
@@ -248,7 +255,10 @@ uint64_t SDArraySml::rank(uint64_t val, uint64_t lo, uint64_t hi) const {
 	if (c_select >= 0) {
 		c_select += table.word(lo*3); 
 		c_rank += lo * BLKSIZE;
-		if (c_preselect >= 0) c_preselect += table.word(lo*3);
+		if (c_preselect >= 0) {
+			c_preselect += table.word(lo*3);
+			cnt++;
+}
 	}
 	#endif
 	return ret;

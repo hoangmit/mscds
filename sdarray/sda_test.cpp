@@ -277,7 +277,7 @@ BitArray randbit(unsigned int len, unsigned int & cnt) {
 	BitArray b = BitArray::create(len);
 	cnt = 0;
 	for (size_t i = 0; i < len; ++i)
-		if (rand() % 100 < 30) { b.setbit(i, true); cnt++;}
+		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
 		else b.setbit(i, false);
 	return b;
 }
@@ -291,19 +291,19 @@ size_t get_bit_size(const T& t) {
 
 void testspeed() {
 	srand(0);
-	unsigned int len = 50000000, oc;
+	unsigned int len = 10000000, oc;
 	BitArray b = randbit(len, oc);
-	SDRankSelectSml rs;
+	SDRankSelect rs;
 	rs.build(b);
 	cout << "ones = " << oc << endl;
 	cout << get_bit_size(rs) << endl;
 	clock_t st = std::clock();
 	uint64_t val = 3;
-	unsigned int nqueries = 3000000;
+	unsigned int nqueries = 1000000;
 	for (size_t i = 0; i < nqueries; i++) {
-		uint64_t r = rs.rank(rand() % (len/2));
-		//val ^= r;
-		val ^= rs.select(r);
+		uint64_t r = rs.select(rand() % (len));
+		val ^= r;
+		//val ^= rs.select(r);
 	}
 	clock_t ed = std::clock();
 	if (val) cout << ' ';

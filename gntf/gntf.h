@@ -42,11 +42,13 @@ public:
 	int64_t sum(unsigned int chrid, unsigned int p) {
 		return chrs[chrid].sum(p);
 	}
+	const ChrNumThread& getChr(unsigned int chrid) {
+		return chrs[chrid];
+	}
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
-	//void __testing_dump_1st_st(std::ostream& fo) const { chrs[0].vals.rlen.dump_text(fo); }
 private:
 	void loadinit();
 	unsigned int nchr;

@@ -79,6 +79,13 @@ unsigned int RunLenSumArray::range_value(unsigned int i) const { return (psum.lo
 
 RunLenSumArray::RunLenSumArray(): len(0) {}
 
+unsigned int RunLenSumArray::count_range(unsigned int pos) const {
+	uint64_t p = start.rank(pos+1);
+	if (p == 0) return 0;
+	//p--;
+	return p;
+}
+
 uint64_t RunLenSumArray::sum(uint32_t pos) const {
 	uint64_t p = start.rank(pos+1);
 	if (p == 0) return 0;

@@ -43,7 +43,6 @@ public:
 	void close() {
 		if (j > 0) {
 			os.push_back(cur);
-			bitlen += j;
 			j = 0;
 			cur = 0;	
 		}

@@ -45,6 +45,8 @@ public:
 	unsigned int range_len(unsigned int i) const;
 	unsigned int range_value(unsigned int i) const;
 
+	unsigned int count_range(unsigned int pos) const;
+
 	/** \brief counts the number of non-zero numbers in the half-open range [0..p) */
 	unsigned int countnz(unsigned int p) const;
 

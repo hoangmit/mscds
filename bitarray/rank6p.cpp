@@ -1,7 +1,6 @@
 #include "rank6p.h"
-
 #include "bitop.h"
-
+//#include "bitstream.h"
 #include <stdexcept>
 #include <algorithm>
 

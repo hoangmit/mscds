@@ -8,17 +8,20 @@ namespace app_ds {
 
 ChrNumThreadBuilder::ChrNumThreadBuilder():setup_(false){}
 
-void ChrNumThreadBuilder::init(minmaxop_t option, unsigned int factor) {
+void ChrNumThreadBuilder::init(minmaxop_t option, unsigned int factor, bool range_annotations) {
 	this->factor = factor;
 	this->minmax_opt = option;
+	this->has_annotation = range_annotations;
 	setup_ = true;
 }
 
-void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, int val) {
+void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, int val, const std::string& s) {
 	if (!setup_) throw std::runtime_error("need setup");
-	//if (val == 0) throw std::runtime_error("zero value");
+	//if (val == 0) std::runtime_error("zero value with annotation");
 	if (val != 0)
 		ranges.push_back(ValRange(st, ed, val));
+	if (has_annotation)
+		annbd.add(s);
 }
 
 void ChrNumThreadBuilder::build(mscds::OArchive& ar) {
@@ -60,6 +63,10 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 		BitArray b = build_supercartisian_tree(false, minmaxr.begin(), minmaxr.end());
 		out->max.build(b, 512);
 	}
+	out->has_annotation = has_annotation;
+	if (has_annotation) {
+		annbd.build(&out->annotations);
+	}
 	setup_ = false;
 }
 
@@ -84,6 +91,9 @@ void ChrNumThread::load(mscds::IArchive& ar) {
 	vals.load(ar.var("values"));
 	min.load(ar.var("min"));
 	min.load(ar.var("max"));
+	ar.var("annotation_opt").load(o);
+	if (o != 0)
+		annotations.load(ar.var("annotation"));
 	ar.endclass();
 }
 
@@ -97,6 +107,10 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 	vals.save(ar.var("values"));
 	min.save(ar.var("min"));
 	min.save(ar.var("max"));
+	o = has_annotation;
+	ar.var("annotation_opt").save(o);
+	if (has_annotation)
+		annotations.save(ar.var("annotation"));
 	ar.endclass();
 }
 
@@ -106,7 +120,10 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 		unsigned int ed = st + vals.range_len(i);
 		int val = vals.range_value(i);
 		fo << name << " " << st
-			<< ed << " " << (val + delta) << '\n';
+			<< ed << " " << (val + delta);
+		if (has_annotation)
+			fo << " " << annotations.get(i);
+		fo << '\n';
 	}
 }
 

@@ -16,8 +16,6 @@
 #include <memory>
 #include <vector>
 
-
-
 namespace mscds {
 
 class BitArraySeqBuilder {
@@ -40,6 +38,17 @@ public:
 		assert(wl == pos);
 	}
 };
+
+template<typename T>
+struct CppArrDeleter {
+	void operator()(void* p) const {
+		delete[] ((T*) p);
+	}
+};
+
+inline SharedPtr createUI64Arr(size_t len) {
+	return SharedPtr(new uint64_t[len], CppArrDeleter<uint64_t>());
+}
 
 class BitArray {
 public:
@@ -127,21 +136,15 @@ public:
 		data = NULL;
 	}
 
-	template<typename T>
-	struct CppArrDeleter {
-		void operator()(void* p) const {
-			delete[] ((T*) p);
-		}
-	};
 	static BitArray create(size_t bitlen) {
 		BitArray v;
 		if (bitlen == 0) return v;
 		assert(bitlen > 0);
 		size_t arrlen = (size_t) ceildiv(bitlen, WORDLEN);
-		v.data = new uint64_t[arrlen];
-		v.ptr = SharedPtr(v.data, CppArrDeleter<uint64_t>());
+		v.ptr = createUI64Arr(arrlen);
+		v.data = (uint64_t*) v.ptr.get();
 		v.bitlen = bitlen;
-		v.data[arrlen-1] = 0;
+		if (arrlen > 0) v.data[arrlen-1] = 0;
 		return v;
 	}
 
@@ -165,16 +168,15 @@ public:
 		return (a + b - 1) / b;
 	}
 
-	IArchive& load_nocls(IArchive& ar);
 	IArchive& load(IArchive& ar);
-	OArchive& save_nocls(OArchive& ar) const;
 	OArchive& save(OArchive& ar) const;
+	OArchive& save_nocls(OArchive& ar) const;
+	IArchive& load_nocls(IArchive& ar);
 	std::string to_str() const;
 
 private:
 	size_t bitlen;
 	uint64_t * data;
-private:
 	SharedPtr ptr;
 };
 

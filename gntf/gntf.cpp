@@ -3,8 +3,39 @@
 #include "mem/filearchive.h"
 #include "mem/fmaparchive.h"
 #include <iostream>
+#include <fstream>
+#include <stdexcept>
+
+using namespace std;
 
 namespace app_ds {
+
+void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar) {
+	clear();
+	init(false, 100, app_ds::ALL_OP, true);
+	while (fi) {
+		std::string line;
+		std::getline(fi, line);
+		if (!fi) break;
+		line = utils::trim(line);
+		if (line.empty()) continue;
+		if (line[0] == '#') continue;
+		BED_Entry b;
+		b.parse(line);
+		add(b.st, b.ed, b.val, b.annotation);
+	}
+	build(ar);
+}
+
+void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output) {
+	std::ifstream fi(input.c_str());
+	mscds::OFileArchive fo;
+	fo.open_write(output);
+	build_bedgraph(fi, fo);
+	fo.close();
+	fi.close();
+}
+
 
 void GenomeNumDataBuilder::clear() {
 	chrid.clear();
@@ -14,18 +45,19 @@ void GenomeNumDataBuilder::clear() {
 	numchr = 0;
 }
 
-void GenomeNumDataBuilder::init(bool one_by_one_chrom, unsigned int factor, minmaxop_t opt) {
+void GenomeNumDataBuilder::init(bool one_by_one_chrom, unsigned int factor, minmaxop_t opt, bool range_annotation) {
 	clear();
 	this->factor = factor;
 	this->opt = opt;
 	onechr = one_by_one_chrom;
-
+	annotation = range_annotation;
 	numchr = 0;
 	lastname = "";
 	if (onechr){
 		lastchr = 1;
 		list.resize(1);
 	} else lastchr = 0;
+	empty_ann = true;
 	//list.push_back(RangeListTp());
 }
 
@@ -54,15 +86,16 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 	}
 }
 
-void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d) {
+void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d, const std::string& annotation) {
 	d *= factor;
 	int num = (int)((d > 0.0) ? floor(d + 0.5) : ceil(d - 0.5));
 	//if (fabs(d - num) > 1E-3) {
 	//	std::cout.precision(10);
 	//	std::cout << "warning: number convertion may be incorrect: " << d << " " << num << " " << fabs(d - num) << '\n';
 	//}
+	empty_ann= empty_ann && (annotation.empty());
 	if (lastchr == 0) throw std::runtime_error("no chr name");
-	list[lastchr - 1].push_back(ValRange(st, ed, num));
+	list[lastchr - 1].push_back(ValRange(st, ed, num, annotation));
 }
 
 void GenomeNumDataBuilder::buildtemp(const std::string& name) {
@@ -79,11 +112,12 @@ void GenomeNumDataBuilder::buildtemp(const std::string& name) {
 
 void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, ChrNumThread * out) {
 	ChrNumThreadBuilder bd;
-	bd.init(opt, factor);
+	if (annotation && empty_ann) annotation = false;
+	bd.init(opt, factor, annotation);
 	if (!std::is_sorted(rlst.begin(), rlst.end()))
 		std::sort(rlst.begin(), rlst.end());
 	for (auto it = rlst.begin(); it != rlst.end(); ++it) {
-		bd.add(it->st, it->ed, it->val);
+		bd.add(it->st, it->ed, it->val, it->annotation);
 	}
 	bd.build(out);
 	out->name = name;
@@ -191,6 +225,19 @@ void GenomeNumData::save(mscds::OArchive &ar) const {
 	for (auto it = chrs.begin(); it != chrs.end(); ++it) 
 		it->save(ar);
 	ar.endclass();
+}
+
+void GenomeNumData::dump_bedgraph(std::ostream& fo) {
+	for (size_t i = 0; i < chrs.size(); ++i) {
+		chrs[i].dump_bedgraph(fo);
+	}
+}
+
+void GenomeNumData::dump_bedgraph(const std::string &output) {
+	std::ofstream fo(output.c_str());
+	if (!fo.is_open()) throw std::runtime_error("cannot open file");
+	dump_bedgraph(fo);
+	fo.close();
 }
 
 

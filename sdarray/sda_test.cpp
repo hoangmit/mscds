@@ -293,7 +293,7 @@ void testspeed() {
 	srand(0);
 	unsigned int len = 10000000, oc;
 	BitArray b = randbit(len, oc);
-	SDRankSelect rs;
+	SDRankSelectSml rs;
 	rs.build(b);
 	cout << "ones = " << oc << endl;
 	cout << get_bit_size(rs) << endl;
@@ -301,9 +301,8 @@ void testspeed() {
 	uint64_t val = 3;
 	unsigned int nqueries = 1000000;
 	for (size_t i = 0; i < nqueries; i++) {
-		uint64_t r = rs.select(rand() % (len));
-		val ^= r;
-		//val ^= rs.select(r);
+		uint64_t r = rs.rank(rand() % (len));
+		val ^= rs.select(r);
 	}
 	clock_t ed = std::clock();
 	if (val) cout << ' ';
@@ -546,13 +545,13 @@ void test_rank3(int len) {
 int main() {
 	//testspeed();
 	//return 0;
+	for (int i = 0; i < 200; i++) 
+		test_rank3(1020 + rand() % 8);
 	test_sda2_ones();
 	test_sda2_zeros();
 	test_sda2_inc();
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < 200; i++) 
 		test_rank2(1020 + rand() % 8);
-		test_rank3(1020 + rand() % 8);
-	}
 	for (int i = 0; i < 100; i++) {
 		test_sda2_rand();
 		test_sda2_rand2();

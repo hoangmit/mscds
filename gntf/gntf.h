@@ -8,20 +8,37 @@
 #include <map>
 #include "chrfmt.h"
 #include "archive.h"
+#include "utils/str_utils.h"
 
 namespace app_ds {
 
 class GenomeNumData;
 
+struct BED_Entry {
+	std::string chrname;
+	unsigned int st, ed;
+	double val;
+	std::string annotation;
+	void parse(const std::string& s) {
+		std::istringstream ss(s);
+		ss >> chrname >> st >> ed >> val;
+		if (!ss) throw std::runtime_error("error parsing line");
+		annotation.clear();
+		getline(ss, annotation);
+		annotation = utils::trim(annotation);
+	}
+};
+
 class GenomeNumDataBuilder {
 public:
-	void build_bedgraph(std::istream& fi);
 	void init(bool one_by_one_chrom = false, unsigned int factor = 100,
-			  minmaxop_t opt = ALL_OP);
+			  minmaxop_t opt = ALL_OP, bool range_annotation = false);
 	void changechr(const std::string& chr);
-	void add(unsigned int st, unsigned int ed, double d);
+	void add(unsigned int st, unsigned int ed, double d, const std::string& annotation = "");
 	void build(GenomeNumData* data);
 	void build(mscds::OArchive& ar);
+	void build_bedgraph(std::istream& fi, mscds::OArchive& ar);
+	void build_bedgraph(const std::string& input, const std::string& output);
 	void clear();
 private:
 	std::map<std::string, unsigned int> chrid;
@@ -31,7 +48,7 @@ private:
 	unsigned int lastchr, numchr;
 	std::string lastname;
 	minmaxop_t opt;
-	bool onechr;
+	bool onechr, annotation, empty_ann;
 	void buildtemp(const std::string& name);
 	void buildchr(const std::string& name, RangeListTp& lst, ChrNumThread * out);
 	std::vector<std::string> tmpfn;
@@ -39,15 +56,13 @@ private:
 
 class GenomeNumData {
 public:
-	int64_t sum(unsigned int chrid, unsigned int p) {
-		return chrs[chrid].sum(p);
-	}
 	const ChrNumThread& getChr(unsigned int chrid) {
 		return chrs[chrid];
 	}
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
+	void dump_bedgraph(const std::string& output);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
 private:
 	void loadinit();

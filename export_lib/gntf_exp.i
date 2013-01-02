@@ -28,7 +28,7 @@ public:
 	void dump_bedgraph(const std::string& output);
 };
 
-GenomeNumDataBuilder {
+class GenomeNumDataBuilder {
 public:
 	void build_bedgraph(const std::string& input, const std::string& output);
 };

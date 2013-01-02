@@ -6,6 +6,7 @@
 
 #include "stringarr.h"
 
+#include <cstring>
 #include <tuple>
 #include <fstream>
 

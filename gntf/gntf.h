@@ -37,8 +37,26 @@ public:
 	void add(unsigned int st, unsigned int ed, double d, const std::string& annotation = "");
 	void build(GenomeNumData* data);
 	void build(mscds::OArchive& ar);
-	void build_bedgraph(std::istream& fi, mscds::OArchive& ar);
-	void build_bedgraph(const std::string& input, const std::string& output);
+	void build_bedgraph(std::istream& fi, mscds::OArchive& ar,
+		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
+	/**
+	  * \brief converts the BED graph file into our format
+	  *
+	  * Our format does not handle floating numbers. Each number is multipled with a factor
+	  * and rounded to the nearest integer
+	  *
+	  * \param input  input file name
+	  * \param output output file name
+	  * \param factor the multiply factor (default is 100)
+	  * \param minmax_query sets to true if you want to ask min/max query (default is true)
+	  * \param annotation   sets to true if you want to add text annotations (default is false)
+	  *
+	  * The BED graph file format contains multiple lines. Each line has four tokens
+	  * <chromsome_name>  <start_position>  <end_position>  <optional_annotation>
+	  * 
+	  */
+	void build_bedgraph(const std::string& input, const std::string& output,
+		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
 	void clear();
 private:
 	std::map<std::string, unsigned int> chrid;
@@ -56,12 +74,18 @@ private:
 
 class GenomeNumData {
 public:
+	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
 	const ChrNumThread& getChr(unsigned int chrid) { return chrs[chrid]; }
 	void load(const std::string& input);
 	void load(mscds::IArchive& ar);
+
+	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const { return nchr; }
+
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
+
+	/** \brief writes the current data into bedgraph format */
 	void dump_bedgraph(const std::string& output);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
 private:

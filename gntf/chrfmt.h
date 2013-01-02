@@ -28,7 +28,7 @@ enum minmaxop_t {NO_MINMAX= 0, MIN_OP=1, MAX_OP=2, ALL_OP=3};
 class ChrNumThreadBuilder {
 public:
 	ChrNumThreadBuilder();
-	void init(minmaxop_t option=NO_MINMAX, unsigned int factor=1, bool range_annotations = false);
+	void init(minmaxop_t option=NO_MINMAX, unsigned int factor=100, bool range_annotations = false);
 	void add(unsigned int st, unsigned int ed, int val, const std::string& s = "");
 	void build(mscds::OArchive& ar);
 	void build(ChrNumThread* out);
@@ -46,20 +46,30 @@ private:
 class ChrNumThread {
 public:
 	int64_t sum(size_t p) const;
+	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
+	
+	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_range(unsigned int i) const;
 
+	/** \brief returns the minimum value in [st..ed) */
 	unsigned int min_value(unsigned int st, unsigned int ed) const;
+
+	/** \brief returns the minimum value in [st..ed) */
 	unsigned int max_value(unsigned int st, unsigned int ed) const;
+
+	/** \brief returns the position of the next non-zero value */
 	unsigned int next_nz(unsigned int) const;
+
+	/** \brief returns the position of the previous non-zero value */
 	unsigned int prev_nz(unsigned int) const;
+
+	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;
 
 	void clear();
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
-
-	void load(const std::string& input);
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 private:

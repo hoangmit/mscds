@@ -5,7 +5,25 @@
 #include "../gntf/gntf.h"
 %}
 
+
+// see `gntf.h' for documentation
+
 namespace app_ds {
+
+class GenomeNumDataBuilder {
+public:
+	void build_bedgraph(const std::string& input, const std::string& output,
+		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
+};
+
+class GenomeNumData {
+public:
+	const ChrNumThread& getChr(unsigned int chrid);
+	void load(const std::string& input);
+	unsigned int chromosome_count() const;
+	void dump_bedgraph(const std::string& output);
+};
+
 
 class ChrNumThread {
 public:
@@ -20,19 +38,6 @@ public:
 	unsigned int count_nz(unsigned int) const;
 
 	std::string name;
-};
-
-class GenomeNumData {
-public:
-	const ChrNumThread& getChr(unsigned int chrid);
-	void load(const std::string& input);
-	unsigned int chromosome_count() const;
-	void dump_bedgraph(const std::string& output);
-};
-
-class GenomeNumDataBuilder {
-public:
-	void build_bedgraph(const std::string& input, const std::string& output);
 };
 
 }

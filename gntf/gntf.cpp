@@ -10,9 +10,10 @@ using namespace std;
 
 namespace app_ds {
 
-void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar) {
+void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
+										  unsigned int factor, bool minmax_query, bool annotation) {
 	clear();
-	init(false, 100, app_ds::ALL_OP, true);
+	init(false, factor, (minmax_query ? ALL_OP : NO_MINMAX), annotation);
 	while (fi) {
 		std::string line;
 		std::getline(fi, line);
@@ -27,11 +28,12 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar)
 	build(ar);
 }
 
-void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output) {
+void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output,
+										  unsigned int factor, bool minmax_query, bool annotation) {
 	std::ifstream fi(input.c_str());
 	mscds::OFileArchive fo;
 	fo.open_write(output);
-	build_bedgraph(fi, fo);
+	build_bedgraph(fi, fo, factor, minmax_query, annotation);
 	fo.close();
 	fi.close();
 }

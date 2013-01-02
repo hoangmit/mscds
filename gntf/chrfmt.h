@@ -59,6 +59,7 @@ public:
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
 
+	void load(const std::string& input);
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 private:
@@ -85,6 +86,7 @@ inline int64_t ChrNumThread::sum(size_t p) const {
 inline const std::string ChrNumThread::range_annotation(unsigned int i) const {
 	if (has_annotation)
 		return annotations.get(i);
+	else return "";
 }
 
 inline unsigned int ChrNumThread::count_range(unsigned int i) const {

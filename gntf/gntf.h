@@ -56,10 +56,10 @@ private:
 
 class GenomeNumData {
 public:
-	const ChrNumThread& getChr(unsigned int chrid) {
-		return chrs[chrid];
-	}
+	const ChrNumThread& getChr(unsigned int chrid) { return chrs[chrid]; }
+	void load(const std::string& input);
 	void load(mscds::IArchive& ar);
+	unsigned int chromosome_count() const { return nchr; }
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
 	void dump_bedgraph(const std::string& output);

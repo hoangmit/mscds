@@ -207,6 +207,13 @@ void GenomeNumData::loadinit() {
 	}
 }
 
+void GenomeNumData::load(const std::string &input) {
+	mscds::IFileMapArchive fi;
+	fi.open_read(input);
+	load(fi);
+	fi.close();
+}
+
 void GenomeNumData::load(mscds::IArchive &ar) {
 	ar.loadclass("genome_num_data");
 	ar.var("num_chr").load(nchr);

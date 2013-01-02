@@ -25,6 +25,8 @@ public:
 class GenomeNumData {
 public:
 	const ChrNumThread& getChr(unsigned int chrid);
+	void load(const std::string& input);
+	unsigned int chromosome_count() const;
 	void dump_bedgraph(const std::string& output);
 };
 

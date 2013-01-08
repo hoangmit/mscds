@@ -17,10 +17,6 @@ fix_compiler_flags() #defined inside function.cmake
 #setup directory
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
    CACHE PATH "Single Directory for all Executables.")
-#set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
-#   CACHE PATH "Single Directory for all Libraries")  
-#set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
-#   CACHE PATH "Single Directory for all static libraries.")
 
 set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
 	CACHE PATH "Directory for testings executables")
@@ -61,11 +57,17 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 
 set(CORE_LIBS utils mem bitarray sdarray intarray tree)
 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
+   CACHE PATH "Single Directory for all Libraries")  
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
+   CACHE PATH "Single Directory for all static libraries.")
+#set_target_properties(mscdsa PROPERTIES
+#         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+#set_target_properties(mscdsa PROPERTIES
+#	ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
+
+
 MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
-set_target_properties(mscdsa PROPERTIES
-         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-set_target_properties(mscdsa PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
 	
 #get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
 #message(" Location =" ${mscdsa_location})
@@ -77,10 +79,5 @@ set_target_properties(mscdsa PROPERTIES
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
-
-
-
-
-
 
 

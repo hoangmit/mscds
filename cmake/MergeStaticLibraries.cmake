@@ -20,13 +20,13 @@ ENDFUNCTION()
 # should not not have dependencies on other static libraries.
 # We use it in MySQL to merge mysys,dbug,vio etc into mysqlclient
 
-MACRO(MERGE_STATIC_LIBRARIES TARGET OUTPUT_NAME LIBS_TO_MERGE)
+MACRO(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
   # To produce a library we need at least one source file.
   # It is created by ADD_CUSTOM_COMMAND below and will helps
   # also help to track dependencies.
   SET(SOURCE_FILE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_depends.c)
   ADD_LIBRARY(${TARGET} STATIC ${SOURCE_FILE})
-  SET_TARGET_PROPERTIES(${TARGET} PROPERTIES OUTPUT_NAME ${OUTPUT_NAME})
+  #SET_TARGET_PROPERTIES(${TARGET} PROPERTIES OUTPUT_NAME ${OUTPUT_NAME})
 
   SET(OSLIBS)
   FOREACH(LIB ${LIBS_TO_MERGE})

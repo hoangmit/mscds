@@ -45,7 +45,9 @@ private:
 
 class ChrNumThread {
 public:
+	/** \brief return the sum of the position from 0 to p */
 	int64_t sum(size_t p) const;
+
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
 	

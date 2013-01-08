@@ -11,7 +11,6 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/function.cmake)
-include(cmake/LocateStaticLibraries.cmake)
 include(cmake/MergeStaticLibraries.cmake)
 fix_compiler_flags() #defined inside function.cmake
 
@@ -68,8 +67,8 @@ set_target_properties(mscdsa PROPERTIES
 set_target_properties(mscdsa PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
 	
-get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
-message(" Location =" ${mscdsa_location})
+#get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
+#message(" Location =" ${mscdsa_location})
 #get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
 #add_library(mscdsa STATIC ${mscdsa_SRCS})
 #add_library(mscdsa STATIC common/mscdsa.h common/mscdsa.cpp)

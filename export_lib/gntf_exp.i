@@ -32,22 +32,6 @@ public:
 		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
 };
 
-class GenomeNumData {
-public:
-	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
-	const ChrNumThread& getChr(unsigned int chrid);
-
-	/** \brief returns the number of chromosomes */
-	unsigned int chromosome_count() const;
-
-	/** \brief writes the current data into bedgraph format */
-	void dump_bedgraph(const std::string& output);
-
-	/** \brief loads the data structure from file */
-	void load(const std::string& input);
-};
-
-
 class ChrNumThread {
 public:
 	/** \brief return the sum of the position from 0 to p */
@@ -75,6 +59,22 @@ public:
 	unsigned int count_nz(unsigned int) const;
 
 	std::string name;
+};
+
+
+class GenomeNumData {
+public:
+	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
+	const ChrNumThread& getChr(unsigned int chrid);
+
+	/** \brief returns the number of chromosomes */
+	unsigned int chromosome_count() const;
+
+	/** \brief writes the current data into bedgraph format */
+	void dump_bedgraph(const std::string& output);
+
+	/** \brief loads the data structure from file */
+	void load(const std::string& input);
 };
 
 }

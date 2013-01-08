@@ -211,12 +211,12 @@ uint32_t FNV_hash24(const std::string& s) {
 		}
 
 		void printxml(std::ostream& ss, const string& vname) {
-			ss << "<class vname=\"" << vname << "\" size=\'" << total << "\' type=\"" << type << "\">";
+			ss << "<class name=\"" << vname << "\" size=\'" << total << "\' type=\"" << type << "\">";
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
 				if (it->childidx > 0) {
 					children[it->childidx - 1]->printxml(ss, it->name);
 				}else {
-					ss << "<data vname=\"" << it->name << "\" size=\'" << it->size << "\'";
+					ss << "<data name=\"" << it->name << "\" size=\'" << it->size << "\'";
 					if (it->size <= 8)
 						ss << " val=\'" << it->sval << '\'';
 					ss << " />";
@@ -268,7 +268,7 @@ uint32_t FNV_hash24(const std::string& s) {
 			x.cur->lst.push_back(CInfoNode::VarInfo());
 		if (x.cur->lst.back().size != 0 || x.cur->lst.back().childidx != 0)
 			x.cur->lst.push_back(CInfoNode::VarInfo());
-		x.cur->lst.back().childidx = x.cur->children.size() + 1;
+		x.cur->lst.back().childidx = (int)x.cur->children.size() + 1;
 		x.cur->children.push_back(PInfoNode(new CInfoNode()));
 		x.parents.push(x.cur);
 		x.cur = x.cur->children.back();

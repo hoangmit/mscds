@@ -13,6 +13,7 @@ public:
 	SDArraySmlBuilder();
 
 	void add(uint64_t val);
+	void add_inc(uint64_t delta);
 
 	void build(SDArraySml* out);
 	void build(OArchive& ar);
@@ -29,7 +30,7 @@ private:
 	std::vector<uint64_t> vals;
 	OBitStream bits;
 	std::vector<uint64_t> table;
-	uint64_t cnt, p_sum;
+	uint64_t cnt, p_sum, pslast;
 };
 
 class SDArraySml {

@@ -11,16 +11,17 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/function.cmake)
+include(cmake/LocateStaticLibraries.cmake)
+include(cmake/MergeStaticLibraries.cmake)
 fix_compiler_flags() #defined inside function.cmake
 
 #setup directory
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
    CACHE PATH "Single Directory for all Executables.")
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
-   CACHE PATH "Single Directory for all Libraries")
-   
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
-   CACHE PATH "Single Directory for all static libraries.")
+#set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
+#   CACHE PATH "Single Directory for all Libraries")  
+#set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
+#   CACHE PATH "Single Directory for all static libraries.")
 
 set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
 	CACHE PATH "Directory for testings executables")
@@ -44,22 +45,43 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
 	
 include_directories(${PROJECT_SOURCE_DIR})
-
 include_directories(${PROJECT_SOURCE_DIR}/common)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
+
+set(COMMON_LIBS mem utils)
+
+########################################################
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/sdarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 
+
+set(CORE_LIBS utils mem bitarray sdarray intarray tree)
+
+MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
+set_target_properties(mscdsa PROPERTIES
+         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set_target_properties(mscdsa PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
+	
+get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
+message(" Location =" ${mscdsa_location})
+#get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
+#add_library(mscdsa STATIC ${mscdsa_SRCS})
+#add_library(mscdsa STATIC common/mscdsa.h common/mscdsa.cpp)
+
+########################################################
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
 
 
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
-add_library(mscdsa STATIC ${mscdsa_SRCS})
+
+
+
+
 

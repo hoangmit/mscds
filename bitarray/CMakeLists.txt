@@ -5,15 +5,15 @@ project(bitarray)
 set(SRCS rank6p.cpp bitop.cpp bitarray.cpp)
 set(HEADERS bitarray.h rank6p.h rank25p.h rankselect.h bitop.h bitstream.h)
 
-#add_library(bitarray ${SRCS} ${HEADERS})
-#target_link_libraries(bitarray)
-add_sources(mscdsa ${SRCS} ${HEADERS})
+add_library(bitarray ${SRCS} ${HEADERS})
+target_link_libraries(bitarray)
+#add_sources(mscdsa ${SRCS} ${HEADERS})
 
 add_executable(t_rank ranktest.cpp)
-target_link_libraries(t_rank mscdsa)
+target_link_libraries(t_rank bitarray)
 set_target_properties(t_rank PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 
 add_executable(t_bit bit_test.cpp)
-target_link_libraries(t_bit mscdsa)
+target_link_libraries(t_bit bitarray)
 set_target_properties(t_bit PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

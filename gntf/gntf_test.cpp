@@ -156,10 +156,12 @@ void testbig() {
 		}
 		bd.add(e.st, e.ed, e.val);
 	}
-	mscds::OFileArchive fo;
-	fo.open_write("D:/temp/a.gnt");
+	mscds::OClassInfoArchive fo;
 	bd.build(fo);
 	fo.close();
+	ofstream fox("D:/temp/chr_info.xml");
+	fox << fo.printxml() << endl;
+	fox.close();
 
 	/*GenomeNumData gd;
 	bd.build(&gd);
@@ -244,6 +246,8 @@ void test_annotation() {
 }
 
 int main() {
+	testbig();
+	return 0;
 	test_strarr1();
 	test_annotation();
 	

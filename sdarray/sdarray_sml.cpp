@@ -17,6 +17,7 @@ SDArraySmlBuilder::SDArraySmlBuilder() {
 	vals.reserve(BLKSIZE);
 	cnt = 0;
 	p_sum = 0;
+	pslast = 0;
 }
 
 void SDArraySmlBuilder::add(uint64_t val) {
@@ -24,6 +25,12 @@ void SDArraySmlBuilder::add(uint64_t val) {
 	vals.push_back(val);
 	if (vals.size() == BLKSIZE)
 		build_blk();
+	pslast += val;
+}
+
+void SDArraySmlBuilder::add_inc(uint64_t val) {
+	assert(val >= pslast);
+	add(val - pslast);
 }
 
 void SDArraySmlBuilder::build(SDArraySml* out) {

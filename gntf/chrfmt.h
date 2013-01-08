@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "sdarray/RLSum.h"
+#include "sdarray/RLSum2.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
 #include "archive.h"
@@ -75,7 +75,7 @@ public:
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 private:
-	mscds::RunLenSumArray vals;
+	mscds::RunLenSumArray2 vals;
 	StringArr annotations;
 	mscds::RMQ_sct min, max;
 

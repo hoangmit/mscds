@@ -136,6 +136,8 @@ public:
 		data = NULL;
 	}
 
+	uint64_t* data_ptr() { return data; }
+
 	static BitArray create(size_t bitlen) {
 		BitArray v;
 		if (bitlen == 0) return v;

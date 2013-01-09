@@ -35,7 +35,7 @@ void StringArrBuilder::build(StringArr *out) {
 	assert((os.length() + 63) / 64 == (out->tlen + 7) / 8);
 	size_t arrlen = (out->tlen + 7)/ 8;
 	out->ba = mscds::createUI64Arr(arrlen);
-	std::copy(os.data(), os.data() + arrlen, (uint64_t*)out->ba.get());
+	std::copy(os.data_ptr(), os.data_ptr() + arrlen, (uint64_t*)out->ba.get());
 	bd.build(&(out->start));
 	out->ptrs = (const char*) out->ba.get();
 	store.clear();

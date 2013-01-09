@@ -50,6 +50,7 @@ set(COMMON_LIBS mem utils)
 ########################################################
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
+add_subdirectory(${PROJECT_SOURCE_DIR}/codec)
 add_subdirectory(${PROJECT_SOURCE_DIR}/sdarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)

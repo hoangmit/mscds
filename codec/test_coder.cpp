@@ -208,7 +208,7 @@ void GolombCoder_Encode1() {
 void GolombAdpCoder_estimate1() {
 	std::default_random_engine eng;
 	double p = 0.9;
-	std::geometric_distribution<int, double> geometric(p);
+	std::geometric_distribution<int> geometric(p);
 	int M = 0;
 	//size_t tlen;
 	int med = (int)ceil(-log(2.0)/ log(p));

@@ -9,8 +9,8 @@
 
 using namespace std;
 
-namespace mscds {
-
+namespace app_ds {
+using namespace mscds;
 
 void RunLenSumArrayBuilder2::clear() {
 	len = 0;

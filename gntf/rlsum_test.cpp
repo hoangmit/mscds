@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace mscds;
+using namespace app_ds;
 
 void test_tb_1() {
 	const int len = 11;

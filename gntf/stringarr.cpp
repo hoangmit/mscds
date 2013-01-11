@@ -50,18 +50,26 @@ void StringArrBuilder::build(mscds::OArchive &ar) {
 void StringArr::save(mscds::OArchive &ar) const {
 	ar.startclass("string_array", 1);
 	ar.var("count").save(cnt);
-	ar.var("length").save(tlen);
-	start.save(ar.var("start"));
-	ar.save_bin(ba.get(), ((tlen + 7) / 8)*8);
+	if (cnt > 0) {
+		ar.var("length").save(tlen);
+		start.save(ar.var("start"));
+		ar.save_bin(ba.get(), ((tlen + 7) / 8)*8);
+	}
 	ar.endclass();
 }
 
 void StringArr::load(mscds::IArchive &ar) {
 	ar.loadclass("string_array");
-	ar.var("length").load(cnt);
-	ar.var("length").load(tlen);
-	start.load(ar.var("start"));
-	ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
+	ar.var("count").load(cnt);
+	if (cnt > 0) {
+		ar.var("length").load(tlen);
+		start.load(ar.var("start"));
+		ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
+	} else {
+		ba.reset();
+		start.clear();
+		tlen = 0;
+	}
 	ar.endclass();
 	ptrs = (const char*) ba.get();
 }

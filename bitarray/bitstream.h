@@ -4,6 +4,7 @@
 #include <vector>
 #include <cassert>
 #include <sstream>
+#include "archive.h"
 
 namespace mscds {
 

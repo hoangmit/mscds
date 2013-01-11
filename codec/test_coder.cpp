@@ -23,6 +23,7 @@ using namespace coder;
 using namespace utils;
 using namespace mscds;
 
+void test_codestream_all();
 
 void FibCoder_SmallNumbers() {
 	ASSERT(binstr(FibCoder::encode(1)) == "11");
@@ -277,6 +278,7 @@ int main(int argc, char* argv[]) {
 }*/
 
 int main(int argc, char* argv[]) {
+	test_codestream_all();
 	FibCoder_SmallNumbers();
 	FibCoder_DecodeEncode();
 	GammaCoder_SmallNumbers();

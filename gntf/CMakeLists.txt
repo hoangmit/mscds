@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(gntf)
 
-set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp)
-set(HEADERS chrfmt.h gntf.h stringarr.h)
+set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp RLSum.cpp RLSum2.cpp RLSum3.cpp)
+set(HEADERS chrfmt.h gntf.h stringarr.h RLSum.h RLSum2.h RLSum3.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
 #target_link_libraries(bedgraph2gnt mscdsa)
@@ -14,3 +14,7 @@ target_link_libraries(gntf mscdsa)
 add_executable(t_gntf gntf_test.cpp)
 target_link_libraries(t_gntf gntf)
 set_target_properties(t_gntf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
+add_executable(t_rlsum rlsum_test.cpp)
+target_link_libraries(t_rlsum sdarray  gntf ${COMMON_LIBS})
+set_target_properties(t_rlsum PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

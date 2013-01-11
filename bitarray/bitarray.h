@@ -4,8 +4,6 @@
 #define __BITVECTOR_H_
 
 
-
-
 #include "bitop.h"
 #include "archive.h"
 

@@ -10,7 +10,6 @@ golomb_coder.cpp
 
 set(HEADER
 coder.h
-bstreamg.hpp
 deltacoder.h
 fibcoder.h
 golomb_coder.h

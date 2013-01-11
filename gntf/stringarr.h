@@ -28,6 +28,7 @@ public:
 	size_t length() const { return cnt; }
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
+	void dump(std::ostream& fo) const;
 	void clear();
 private:
 	size_t cnt, tlen;

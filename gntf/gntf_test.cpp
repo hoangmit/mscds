@@ -137,7 +137,8 @@ void test_mix() {
 }
 
 void testbig() {
-	string inp = "D:/temp/textBigwig.bed";
+	//string inp = "D:/temp/textBigwig.bed";
+	string inp = "D:/temp/groseq.bedgraph";
 	ifstream fi(inp.c_str());
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100);

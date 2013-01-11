@@ -8,7 +8,7 @@
 #include "sdarray/sdarray_sml.h"
 
 
-namespace mscds {
+namespace app_ds {
 
 class RunLenSumArray;
 
@@ -17,12 +17,12 @@ public:
 	RunLenSumArrayBuilder(): len(0), lastst(0) {}
 	void add(unsigned int st, unsigned int ed, unsigned int v);
 	void build(RunLenSumArray* arr);
-	void build(OArchive& ar);
+	void build(mscds::OArchive& ar);
 	void clear();
 private:
 	unsigned int len, lastst;
-	SDArraySmlBuilder psbd, rlenbd;
-	SDRankSelectSml stbd;
+	mscds::SDArraySmlBuilder psbd, rlenbd;
+	mscds::SDRankSelectSml stbd;
 	std::vector<unsigned int> stpos;
 };
 
@@ -31,8 +31,8 @@ public:
 	RunLenSumArray();
 	~RunLenSumArray() { clear(); }
 	size_t load(std::istream& fi);
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(mscds::IArchive& ar);
+	void save(mscds::OArchive& ar) const;
 
 	uint64_t sum(uint32_t pos) const;
 	int64_t sum_delta(uint32_t pos, int64_t delta) const;
@@ -63,8 +63,8 @@ public:
 	int next(unsigned int) const;
 private:
 	unsigned int len;
-	SDRankSelectSml start;
-	SDArraySml psum, rlen;
+	mscds::SDRankSelectSml start;
+	mscds::SDArraySml psum, rlen;
 	friend class RunLenSumArrayBuilder;
 };
 

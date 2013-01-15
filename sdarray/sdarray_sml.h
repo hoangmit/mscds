@@ -92,7 +92,7 @@ private:
 	uint64_t last;
 };
 
-
+class SDRankSelectSml;
 
 class SDRankSelectSml {
 public:

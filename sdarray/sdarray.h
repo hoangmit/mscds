@@ -128,6 +128,21 @@ private:
 	friend struct SDAIIterator;
 };
 
+class SDRankSelect;
+
+class SDRankSelectBuilder {
+public:
+	SDRankSelectBuilder() { last = 0; }
+	void add(uint64_t delta) { assert(delta > 0); last += delta; add(last); }
+	void add_inc(uint64_t v) {  assert(v >= last); vals.push_back(v); last = v; }
+	void clear() { vals.clear(); }
+	void build(SDRankSelect* out);
+	void build(OArchive& ar);
+private:
+	std::vector<uint64_t> vals;
+	uint64_t last;
+};
+
 class SDRankSelect {
 public:
 	SDRankSelect() {}
@@ -154,6 +169,8 @@ private:
 	FixedWArray rankhints;
 };
 
+inline void SDRankSelectBuilder::build(OArchive& ar) { SDRankSelect a; a.save(ar); }
+inline void SDRankSelectBuilder::build(SDRankSelect* out) { out->build(vals);};
 
 }//namespace
 

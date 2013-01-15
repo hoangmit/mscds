@@ -14,6 +14,7 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 										  unsigned int factor, bool minmax_query, bool annotation) {
 	clear();
 	init(false, factor, (minmax_query ? ALL_OP : NO_MINMAX), annotation);
+	std::string curchr = "";
 	while (fi) {
 		std::string line;
 		std::getline(fi, line);
@@ -23,6 +24,10 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 		if (line[0] == '#') continue;
 		BED_Entry b;
 		b.parse(line);
+		if (b.chrname != curchr) {
+			changechr(b.chrname);
+			curchr = b.chrname;
+		}
 		add(b.st, b.ed, b.val, b.annotation);
 	}
 	build(ar);

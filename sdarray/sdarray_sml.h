@@ -78,6 +78,22 @@ private:
 	friend class SDRankSelectSml;
 };
 
+
+class SDRankSelectBuilderSml {
+public:
+	SDRankSelectBuilderSml() { last = 0; }
+	void add(uint64_t delta) { assert(delta > 0); last += delta; add(last); }
+	void add_inc(uint64_t v) {  assert(v >= last); vals.push_back(v); last = v; }
+	void clear() { vals.clear(); }
+	void build(SDRankSelectSml* out);
+	void build(OArchive& ar);
+private:
+	std::vector<uint64_t> vals;
+	uint64_t last;
+};
+
+
+
 class SDRankSelectSml {
 public:
 	SDRankSelectSml() {}
@@ -104,6 +120,9 @@ private:
 	FixedWArray rankhints;
 };
 
+inline void SDRankSelectBuilderSml::build(OArchive& ar) { SDRankSelectSml a; a.save(ar); }
+
+inline void SDRankSelectBuilderSml::build(SDRankSelectSml* out) { out->build(vals);};
 
 
 }//namespace

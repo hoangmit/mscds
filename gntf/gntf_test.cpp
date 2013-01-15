@@ -4,7 +4,7 @@
 #include "utils/utest.h"
 #include "sdarray/sdarray_sml.h"
 
-#include "stringarr.h"
+#include "gntf/stringarr.h"
 
 #include <cstring>
 #include <tuple>
@@ -138,7 +138,7 @@ void test_mix() {
 
 void testbig() {
 	//string inp = "D:/temp/textBigwig.bed";
-	string inp = "D:/temp/groseq.bedgraph";
+	string inp = "D:/temp/groseq.ucsc.bedgraph";
 	ifstream fi(inp.c_str());
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100);
@@ -247,7 +247,11 @@ void test_annotation() {
 }
 
 int main() {
-	testbig();
+	try {
+		testbig();
+	}catch(std::exception& e) {
+		std::cerr << e.what() << endl;
+	}
 	return 0;
 	test_strarr1();
 	test_annotation();

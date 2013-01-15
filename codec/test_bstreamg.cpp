@@ -124,10 +124,35 @@ void EncBStream_golomb_encodedecode_small2()  {
 }
 */
 
+void EncBStream_seek_decode1() {
+	size_t len = 100;
+	vector<size_t> stpos;
+	stpos.resize(len + 2);
+	OBitStream os;
+	DeltaCoder dc;
+	for (size_t i = 1; i <= len; ++i) {
+		CodePr c = dc.encode(i);
+		os.puts(c);
+		stpos[i] = c.second;
+	}
+	os.close();
+	stpos[0] = 0;
+	for (size_t i = 1; i <= len; ++i) {
+		stpos[i] += stpos[i-1];
+	}
+
+	for (size_t i = 0; i < len; ++i) {
+		IWBitStream is(os.data_ptr(), stpos[i], os.length() - stpos[i]);
+		CodePr c = dc.decode2(is.peek());
+		ASSERT_EQ(i+1, c.first);
+	}
+}
+
 void test_codestream_all() {
 	EncBStream_delta_EncodeSmall1();
 	EncBStream_delta_EncodeSmall2();
 	EncBStream_delta_encodedecode_small1();
 	EncBStream_delta_encodedecode_small2();
 	EncBStream_delta_encodedecode_medium();
+	EncBStream_seek_decode1();
 }

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "archive.h"
 
-#include "sdarray/sdarray.h"
+//#include "sdarray/sdarray.h"
 #include "sdarray/sdarray_sml.h"
 #include "codec/deltacoder.h"
 
@@ -22,11 +22,12 @@ public:
 	void clear();
 private:
 	unsigned int len, lastst, cnt;
-	mscds::SDArraySmlBuilder stbd, rlbd;
-	mscds::SDArraySmlBuilder pspt;
+	mscds::SDRankSelectBuilderSml stbd;
+	mscds::SDArraySmlBuilder rlbd;
+	mscds::SDArraySmlBuilder vpt, psbd, spsbd;
 	mscds::OBitStream enc;
 	coder::DeltaCoder dc;
-	uint64_t psum;
+	uint64_t psum, sqpsum;
 	int64_t lastv;
 };
 
@@ -68,8 +69,9 @@ public:
 	int next(unsigned int) const;
 private:
 	unsigned int len;
-	mscds::SDArraySml start, rlen;
-	mscds::SDArraySml ptr;
+	mscds::SDRankSelectSml start;
+	mscds::SDArraySml rlen;
+	mscds::SDArraySml ptr, psumx, sqrsum;
 	mscds::BitArray enc;
 	friend class RunLenSumArrayBuilder3;
 };

@@ -134,7 +134,7 @@ public:
 		data = NULL;
 	}
 
-	uint64_t* data_ptr() { return data; }
+	const uint64_t* data_ptr() const { return data; }
 
 	static BitArray create(size_t bitlen) {
 		BitArray v;

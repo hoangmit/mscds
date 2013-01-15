@@ -86,11 +86,11 @@ private:
 
 class IWBitStream {
 private:
-	size_t blen;
 	uint64_t cur, nxt;
+	size_t blen;
 	uint16_t j;
 	
-	void init(uint64_t * _ptr, size_t blen) {
+	void init(const uint64_t * _ptr, size_t blen) {
 		this->ptr = _ptr;
 		this->blen = blen;
 		if (blen > 0) {
@@ -102,12 +102,12 @@ private:
 	}
 
 	SharedPtr handle;
-	uint64_t *ptr;
+	const uint64_t *ptr;
 public:
 	const static uint16_t WORDLEN = 64;
 	IWBitStream(){ clear(); }
 
-	IWBitStream(uint64_t * _ptr, size_t idx, size_t blen) {
+	IWBitStream(const uint64_t * _ptr, size_t idx, size_t blen) {
 		init(_ptr + (idx / WORDLEN), blen + (idx % WORDLEN));
 		skipw(idx % WORDLEN);
 	}
@@ -176,7 +176,7 @@ public:
 		return cur;
 	}
 
-	uint64_t* current_ptr() { return ptr; }
+	const uint64_t* current_ptr() { return ptr; }
 
 	bool empty() { return blen == 0; }
 

@@ -22,7 +22,7 @@ struct BED_Entry {
 	void parse(const std::string& s) {
 		std::istringstream ss(s);
 		ss >> chrname >> st >> ed >> val;
-		if (!ss) throw std::runtime_error("error parsing line");
+		if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
 		annotation.clear();
 		getline(ss, annotation);
 		annotation = utils::trim(annotation);

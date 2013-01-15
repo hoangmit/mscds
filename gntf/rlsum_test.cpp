@@ -1,5 +1,8 @@
-#include "rlsum_trivbin.h"
+
 #include "RLSum.h"
+#include "RLSum3.h"
+
+#include "rlsum_trivbin.h"
 #include "mem/filearchive.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
@@ -130,6 +133,68 @@ void test_tb_2() {
 	cout << ".";
 }
 
+void test_cmp_rlsum3() {
+	const int len = 14;
+	int A[len] = {0, 0, 0, 2, 2, 0, 3, 3, 0, 4, 5, 0, 0, 0};
+	int S[len+1];
+	S[0] = 0;
+	for (int i = 1; i <= len; i++)
+		S[i] = S[i-1] + A[i-1];
+
+	std::deque<ValRange> inp;
+	inp.push_back(ValRange(3, 5, 2));
+	inp.push_back(ValRange(6, 8, 3));
+	inp.push_back(ValRange(9, 10, 4));
+	inp.push_back(ValRange(10, 11, 5));
+
+	TrivBin x;
+	x.build(inp);
+
+	RunLenSumArrayBuilder3 bd;
+	std::stringstream ss(std::stringstream::in|std::stringstream::out|std::stringstream::binary);
+	OFileArchive fo;
+	fo.assign_write(&ss);
+	for (unsigned int i = 0; i < inp.size(); ++i)
+		bd.add(inp[i].st, inp[i].ed, inp[i].val);
+	bd.build(fo);
+	ss.flush();
+	RunLenSumArray3 y;
+	IFileArchive fi;
+	fi.assign_read(&ss);
+	y.load(fi);
+
+	for (int i = 0; i < inp.size(); ++i) {
+		ASSERT(x.start[i] == y.range_start(i));
+		ASSERT(x.rlen[i] == y.range_len(i));
+		ASSERT(x.sum_[i] == y.range_psum(i));
+	}
+
+	for (int i = 0; i < len; ++i) {
+		ASSERT(S[i] == x.sum(i));
+		ASSERT(S[i] == y.sum(i));
+	}
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(A[i], y.access(i));
+	}
+	int exp =-1, nzc = 0;
+	for (int i = 0; i < len; ++i) {
+		ASSERT_EQ(nzc, y.countnz(i));
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.prev(i));
+			exp = i;
+			nzc++;
+		} else ASSERT_EQ(exp, y.prev(i));
+	}
+	exp =-1;
+	for (int i = len - 1; i >= 0; --i) {
+		if (A[i] != 0){
+			ASSERT_EQ(i, y.next(i));
+			exp = i;
+		} else ASSERT_EQ(exp, y.next(i));
+	}
+	cout << ".";
+
+}
 
 vector<int> generate(int len) {
 	int last = 0;
@@ -252,12 +317,13 @@ void test_sum_delta1() {
 	RunLenSumArray y;
 	bd.build(&y);
 	for (int i = 0; i < len; ++i) {
-		ASSERT(S[i] == y.sum_delta(i, delta));
+		if (S[i] != y.sum_delta(i, delta)) {
+			std::cout << S[i] << endl;
+			ASSERT(S[i] == y.sum_delta(i, delta));
+		}
 	}
 	for (int i = 0; i < len; ++i) {
-		if (A[i] != y.access(i)) {
-			ASSERT_EQ(A[i], y.access(i));
-		}
+		ASSERT_EQ(A[i], y.access(i));
 	}
 	int exp =-1, nzc = 0;
 	for (int i = 0; i < len; ++i) {
@@ -335,6 +401,8 @@ void test_sum_delta2() {
 
 
 void test_trivbin_all() {
+	test_cmp_rlsum3();
+
 	test_tb_1();
 	test_tb_2();
 	test_sum_delta1();

@@ -78,6 +78,7 @@ private:
 	friend class SDRankSelectSml;
 };
 
+class SDRankSelectSml;
 
 class SDRankSelectBuilderSml {
 public:
@@ -91,8 +92,6 @@ private:
 	std::vector<uint64_t> vals;
 	uint64_t last;
 };
-
-class SDRankSelectSml;
 
 class SDRankSelectSml {
 public:

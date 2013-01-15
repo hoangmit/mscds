@@ -293,13 +293,17 @@ uint64_t SDArraySml::rankBlk(uint64_t blk, uint64_t val) const {
 		c_select = ((hipos - rank) << width) | curlo;
 		#endif
 		if (curlo >= vlo)
-			break;
+			return rank+1;
 		#ifdef CACHE_SELECT_RANK
 		++c_rank;
 		#endif
 		++rank;
 		++hipos;
-	} 
+	}
+	#ifdef CACHE_SELECT_RANK
+	c_preselect = c_select;
+	c_select = -1;
+	#endif
 	return rank+1;
 }
 

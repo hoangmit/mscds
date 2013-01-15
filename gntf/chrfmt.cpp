@@ -48,7 +48,7 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 	out->delta = -delta;
 	out->minmax_opt = minmax_opt;
 	std::vector<int> minmaxr(ranges.size());
-	RunLenSumArrayBuilder bd;
+	RunLenSumArrayBuilder3 bd;
 	for (auto it = ranges.begin(); it != ranges.end(); ++it) {
 		bd.add(it->st, it->ed, (unsigned int) (it->val + delta));
 		minmaxr.push_back(it->val);

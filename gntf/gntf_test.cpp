@@ -173,6 +173,15 @@ void testbig() {
 	fi.close();
 }
 
+void testx() {
+	GenomeNumDataBuilder bd;
+	try {//wg2V3
+		bd.build_bedgraph("D:/temp/wg2V3.bedGraph", "D:/temp/x.gntf");
+	}catch(std::exception& e) {
+		std::cerr << e.what() << endl;
+	}
+}
+
 void testsize2() {
 	ifstream fi("D:/temp/dump_psum_chr1.txt");
 	//ifstream fi("D:/temp/dump_chr1_rlen.txt");
@@ -248,10 +257,11 @@ void test_annotation() {
 
 int main() {
 	try {
-		testbig();
+		//testbig();
 	}catch(std::exception& e) {
 		std::cerr << e.what() << endl;
 	}
+	testx();
 	return 0;
 	test_strarr1();
 	test_annotation();

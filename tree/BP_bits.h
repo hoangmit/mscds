@@ -9,6 +9,7 @@
 #include "sdarray/sdarray_sml.h"
 #include <algorithm>
 #include <string>
+#include <memory>
 
 #include "archive.h"
 
@@ -98,7 +99,7 @@ Implementation of balance parathesis operations based on:
   */
 class BP_aux {
 public:
-	BP_aux():blksize(0), lowerlvl(NULL) {}
+	BP_aux():blksize(0) {}
 	~BP_aux() {clear();}
 	unsigned int build(const BitArray &bp, unsigned int blksize = 256);
 	void clear();
@@ -106,10 +107,9 @@ private:
 	BP_block blk;
 	BitArray bp_bits;
 	Rank6p bprank;
-	BP_aux * lowerlvl;
+	std::shared_ptr<BP_aux> lowerlvl;
 	SDRankSelectSml pioneer_map;
 
-	unsigned int rec_lvl;
 	unsigned int blksize;
 public:
 	uint64_t rank(uint64_t i) const { return bprank.rank(i); }

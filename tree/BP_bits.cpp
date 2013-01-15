@@ -359,7 +359,7 @@ unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 		BitArray nxtlvl = BitArray::create(pio.size());
 		for (size_t i = 0; i < pio.size(); i++)
 			nxtlvl.setbit(i, bp[pio[i]]);
-		lowerlvl = new BP_aux();
+		lowerlvl = std::make_shared<BP_aux>();
 		return lowerlvl->build(nxtlvl, blksize) + 1;
 	} else {
 		lowerlvl = NULL;
@@ -374,10 +374,7 @@ void BP_aux::clear() {
 		bprank.clear();
 		bp_bits.clear();
 		pioneer_map.clear();
-		blksize = 0;
-		if (lowerlvl != NULL)
-			delete lowerlvl;
-		lowerlvl = NULL;
+		lowerlvl.reset();
 		blksize = 0;
 	}
 }
@@ -527,7 +524,7 @@ IArchive &BP_aux::load(IArchive &ar) {
 	uint32_t nextlvl;
 	ar.var("nextlvl").load(nextlvl);
 	if (nextlvl != 0) {
-		lowerlvl = new BP_aux();
+		lowerlvl = std::make_shared<BP_aux>();
 		lowerlvl->load(ar.var("lowerlvl"));
 	}
 	ar.endclass();

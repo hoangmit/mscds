@@ -26,7 +26,7 @@ public:
 		BitArray b = build_supercartisian_tree(minstr, arr.begin(), arr.end());
 		bp.build(b, blksize);
 	}
-	void build(const BitArray& b, unsigned int blksize = 256) {
+	void build(BitArray& b, unsigned int blksize = 256) {
 		bp.build(b, blksize);
 	}
 

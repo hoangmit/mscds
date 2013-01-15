@@ -120,6 +120,13 @@ public:
 		ptr = other.ptr;
 	}
 
+	BitArray& operator=(const BitArray& other) {
+		data = other.data;
+		bitlen = other.bitlen;
+		ptr = other.ptr;
+		return *this;
+	}
+
 	BitArray(SharedPtr p, size_t bit_len): ptr(p), bitlen(bit_len) {
 		data = (uint64_t*) ptr.get();
 	}

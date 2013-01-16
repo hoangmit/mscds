@@ -1,6 +1,7 @@
 %module gntf_exp
 %include "std_string.i"
 %include "std_vector.i"
+%include "stdint.i"
 %{
 #include "../gntf/gntf.h"
 %}
@@ -35,7 +36,7 @@ public:
 class ChrNumThread {
 public:
 	/** \brief return the sum of the position from 0 to p */
-	int64_t sum(size_t p) const;
+	long long sum(size_t p) const;
 
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;

@@ -257,7 +257,7 @@ void GenomeNumData::dump_bedgraph(const std::string &output) {
 int GenomeNumData::getChrId(const std::string& chrname) const {
 	auto it = chrid.find(chrname);
 	if (it != chrid.end())
-		return it->second;
+		return it->second - 1;
 	else
 		return -1;
 }

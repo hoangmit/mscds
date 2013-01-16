@@ -76,6 +76,7 @@ class GenomeNumData {
 public:
 	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
 	const ChrNumThread& getChr(unsigned int chrid) { return chrs[chrid]; }
+
 	/** \brief loads the data structure from file */
 	void load(const std::string& input);
 
@@ -83,6 +84,10 @@ public:
 
 	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const { return nchr; }
+
+	/** \brief gets the id from the chromosome name if it exists,
+	    returns -1 otherwise */
+	int getChrId(const std::string& chrname) const;
 
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);

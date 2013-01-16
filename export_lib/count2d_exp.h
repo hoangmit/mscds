@@ -55,7 +55,11 @@ struct Count2DQueryEx {
 		 * @return a vector V where V[j * |X| + i] = count(i,j)
 		 * e.g. V = { (x_0,y_0), (x1,y_0), (x_2,y_0) ... (x_|X|, y_0), (x_0, y_1) ... }
 		 */
-	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y);
+	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const
+	std::vector<unsigned int>& Y);
+	
+	std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int y1, 
+	unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny);
 
 	void close();
 private:

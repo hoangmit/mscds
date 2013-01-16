@@ -34,6 +34,9 @@ class Count2DQuery {
 public:
 	uint64_t count(unsigned int x, unsigned int y) const;
 	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const;
+	std::vector<unsigned int> heatmap(unsigned int x1, unsigned int y1, 
+		unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny) const;
+
 	void clear();
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;

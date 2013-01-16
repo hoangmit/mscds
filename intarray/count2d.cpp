@@ -114,6 +114,44 @@ std::vector<unsigned int> Count2DQuery::count_grid(const std::vector<unsigned in
 	return result;
 }
 
+std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int y1, 
+	unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny) const {
+	GridQuery gq;
+	if (x2 - x1 < nx || y2 - y1 < ny) throw std::runtime_error("too small width");
+	std::vector<unsigned int> Xp(nx+1), Yp(ny+1);
+
+	unsigned int dX = (x2 - x1) / nx;
+	unsigned int rX = (x2 - x1) % nx;
+	for (unsigned int i = 0; i < rX; ++i) {
+		Xp[i] = map_x(x1);
+		x1 += dX+1;
+	}
+	for (unsigned int i = rX; i < nx; ++i) {
+		Xp[i] = map_x(x1);
+		x1 += dX;
+	}
+	Xp[Xp.size() - 1] = map_x(x2);
+
+	unsigned int dY = (y2 - y1) / ny;
+	unsigned int rY = (y2 - y1) % ny;
+	for (unsigned int i = 0; i < rY; ++i) {
+		Yp[i] = map_y(y1);
+		y1 += dY + 1;
+	}
+	for (unsigned int i = rY; i < ny; ++i) {
+		Yp[i] = map_y(y1);
+		y1 += dY;
+	}
+	Xp[Yp.size() - 1] = map_y(x2);
+
+	sort(Xp.begin(), Xp.end());
+	sort(Yp.begin(), Yp.end());
+	std::vector<unsigned int> result;
+	gq.process(&wq,  Xp, Yp, &result);
+	return result;
+}
+
+
 size_t Count2DQuery::size() {
 	return wq.length();
 }

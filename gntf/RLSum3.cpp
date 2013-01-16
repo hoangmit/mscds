@@ -46,13 +46,15 @@ void RunLenSumArrayBuilder3::add(unsigned int st, unsigned int ed, unsigned int 
 		vpt.add_inc(enc.length());
 		psbd.add_inc(psum);
 		spsbd.add_inc(sqpsum);
+		//
+		coder::CodePr c = dc.encode(v);
+		enc.puts(c.first, c.second);
 	}else {
-		//uint64_t vx = ((int64_t)v) - lastv;
-		//coder::CodePr c = dc.encode(wrap(vx)+1);
-		//enc.puts(c.first, c.second);
+		uint64_t vx = ((int64_t)v) - lastv;
+		coder::CodePr c = dc.encode(wrap(vx)+1);
+		enc.puts(c.first, c.second);
 	}
-	coder::CodePr c = dc.encode(v);
-	enc.puts(c.first, c.second);
+	//
 	lastv = v;
 
 	psum += llen * v;

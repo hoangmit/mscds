@@ -72,7 +72,7 @@ unsigned int Count2DQueryEx::count(unsigned int x1, unsigned int x2, unsigned in
 std::vector<unsigned int> Count2DQueryEx::count_grid(const std::vector<unsigned int> &X, const std::vector<unsigned int> &Y) {
 	return q.count_grid(X, Y);
 }
-std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int y1, 
+std::vector<unsigned int> Count2DQueryEx::heatmap(unsigned int x1, unsigned int y1, 
 	unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny) {
 	return q.heatmap(x1, y1, x2, y2, nx, ny);
 }

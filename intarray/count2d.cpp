@@ -1,6 +1,6 @@
 #include "count2d.h"
 
-
+#include <stdexcept>
 #include <vector>
 #include <algorithm>
 

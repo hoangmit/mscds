@@ -75,6 +75,10 @@ public:
 
 	/** \brief loads the data structure from file */
 	void load(const std::string& input);
+	
+	/** \brief gets the id from the chromosome name if it exists,
+	    returns -1 otherwise */
+	int getChrId(const std::string& chrname) const;	
 };
 
 }

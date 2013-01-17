@@ -47,12 +47,12 @@ public:
 	/** \brief return the sum of the position from 0 to p */
 	long long sum(size_t p) const;
 
-	std::vector<long long> sum_batch(size_t p1, size_t p2, size_t n) const;
+	std::vector<long long> sum_batch(size_t st, size_t ed, size_t n) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_range(unsigned int i) const;
 
-	std::vector<unsigned int> count_range_batch(size_t p1, size_t p2, size_t n) const;
+	std::vector<unsigned int> count_range_batch(size_t st, size_t ed, size_t n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;

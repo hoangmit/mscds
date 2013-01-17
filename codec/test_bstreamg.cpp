@@ -42,7 +42,7 @@ void EncBStream_delta_encodedecode_small1()  {
 	}
 	os.close();
 	// Decode
-	IWBitStream is(os.data_ptr(), 0, os.length());
+	IWBitStream is(os.data_ptr(), os.length());
 	i = 0;
 	CodePr c;
 	while (!is.empty()) {
@@ -64,7 +64,7 @@ void EncBStream_delta_encodedecode_small2()  {
 	}
 	os.close();
 	// Decode
-	IWBitStream is(os.data_ptr(), 0, os.length());
+	IWBitStream is(os.data_ptr(), os.length());
 	i = 0;
 	CodePr c;
 	while (!is.empty()) {
@@ -86,7 +86,7 @@ void EncBStream_delta_encodedecode_medium()  {
 	}
 	os.close();
 	// Decode
-	IWBitStream is(os.data_ptr(), 0, os.length());
+	IWBitStream is(os.data_ptr(), os.length());
 	i = 0;
 	CodePr c;
 	while (!is.empty()) {
@@ -142,7 +142,7 @@ void EncBStream_seek_decode1() {
 	}
 
 	for (size_t i = 0; i < len; ++i) {
-		IWBitStream is(os.data_ptr(), stpos[i], os.length() - stpos[i]);
+		IWBitStream is(os.data_ptr(), os.length(), stpos[i]);
 		CodePr c = dc.decode2(is.peek());
 		ASSERT_EQ(i+1, c.first);
 	}

@@ -51,6 +51,8 @@ public:
    */
 	void add(uint64_t val);
 
+	void add_inc(uint64_t val);
+
 	void build_bits(BitArray& ba, SDArrayQuery * out);
 	/*
    * Build an index. This build should be called before prefixSum(), prefixSumLookup(), and find().
@@ -72,6 +74,7 @@ private:
 
 	std::vector<uint64_t> vals_;
 	uint64_t sum_;
+	uint64_t last;
 };
 
 

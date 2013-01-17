@@ -1,0 +1,95 @@
+#include "codearray.h"
+
+namespace mscds {
+	DeltaCodeArrBuilder::DeltaCodeArrBuilder() {
+		clear();
+	}
+
+	DeltaCodeArrBuilder::DeltaCodeArrBuilder(unsigned int rate) {
+		clear();
+		sample_rate = rate;
+	}
+
+	void DeltaCodeArrBuilder::clear() {
+		i = 0;
+		sample_rate = 32;
+		enc.clear();
+		ptrbd.clear();
+	}
+
+	void DeltaCodeArrBuilder::add(uint64_t val) {
+		if (i % sample_rate == 0)
+			ptrbd.add_inc(enc.length());
+		enc.puts(dc.encode(val));
+		++i;
+	}
+
+	void DeltaCodeArrBuilder::build(OArchive &ar) {
+		DeltaCodeArr tmp;
+		tmp.save(ar);
+	}
+
+	void DeltaCodeArrBuilder::build(DeltaCodeArr *out) {
+		enc.close();
+		out->clear();
+		out->sample_rate = sample_rate;
+		out->len = i;
+		out->enc = BitArray::create(enc.data_ptr(), enc.length());
+		ptrbd.build(&(out->ptr));
+	}
+
+	DeltaCodeArr::Iterator DeltaCodeArr::getItr(uint64_t pos) const {
+		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
+		const unsigned int r = pos % sample_rate;
+		Iterator it;
+		it.is.init(enc.data_ptr(), enc.length(), p);
+		for (unsigned int i = 0; i < r; ++i)
+			++it;
+		return it;
+	}
+
+	uint64_t DeltaCodeArr::Iterator::operator*() const {
+		if (!cp) {
+			c = dc.decode2(is.peek());
+			cp = true;
+		}
+		return c.first;
+	}
+
+	DeltaCodeArr::Iterator &DeltaCodeArr::Iterator::operator++() {
+		if (!cp) c = dc.decode2(is.peek());
+		is.skipw(c.second);
+		cp = false;
+		return *this;
+	}
+
+	uint64_t DeltaCodeArr::lookup(uint64_t pos) const {
+		return *(getItr(pos));
+	}
+
+	void DeltaCodeArr::save(OArchive &ar) const {
+		ar.startclass("delta_code_array", 1);
+		ar.var("length").save(len);
+		ar.var("sample_rate").save(sample_rate);
+		ptr.save(ar.var("ptr"));
+		enc.save(ar.var("enc"));
+		ar.endclass();
+	}
+
+	void DeltaCodeArr::clear() {
+		len = 0;
+		sample_rate = 0;
+		ptr.clear();
+		enc.clear();
+	}
+
+	void DeltaCodeArr::load(IArchive &ar) {
+		ar.loadclass("delta_code_array");
+		ar.var("length").load(len);
+		ar.var("sample_rate").load(sample_rate);
+		ptr.load(ar.var("ptr"));
+		enc.load(ar.var("enc"));
+		ar.endclass();
+	}
+
+}

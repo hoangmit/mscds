@@ -51,7 +51,6 @@ void SDArraySmlBuilder::build(OArchive& ar) {
 	sda.clear();
 }
 
-
 const uint64_t SDArraySmlBuilder::BLKSIZE = 512;
 const uint16_t SDArraySmlBuilder::SUBB_PER_BLK = 7;
 const uint64_t SDArraySml::BLKSIZE = 512;

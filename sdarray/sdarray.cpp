@@ -43,7 +43,7 @@ uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num){
 	return (x >> beg) & ((1ULL << num) - 1);
 }
 
-SDArrayBuilder::SDArrayBuilder() : size_(0), sum_(0) {}
+SDArrayBuilder::SDArrayBuilder() : size_(0), sum_(0), last(0) {}
 
 SDArrayBuilder::~SDArrayBuilder(){}
 
@@ -54,6 +54,12 @@ void SDArrayBuilder::add(uint64_t val){
 	if (vals_.size() == BLOCK_SIZE) {
 		build_inc();
 	}
+	last += val;
+}
+
+void SDArrayBuilder::add_inc(uint64_t val) {
+	assert(val >= last);
+	add(val - last);
 }
 
 uint64_t SDArrayBuilder::log2(uint64_t x) {
@@ -135,6 +141,7 @@ void SDArrayBuilder::clear(){
 	vals_.clear();
 	size_ = 0;
 	sum_  = 0;
+	last  = 0;
 }
 
 void SDArrayBuilder::build(OArchive& ar){

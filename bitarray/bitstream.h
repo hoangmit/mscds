@@ -90,7 +90,7 @@ private:
 	size_t blen;
 	uint16_t j;
 	
-	void init(const uint64_t * _ptr, size_t blen) {
+	void init_(const uint64_t * _ptr, size_t blen) {
 		this->ptr = _ptr;
 		this->blen = blen;
 		if (blen > 0) {
@@ -107,23 +107,28 @@ public:
 	const static uint16_t WORDLEN = 64;
 	IWBitStream(){ clear(); }
 
-	IWBitStream(const uint64_t * _ptr, size_t idx, size_t blen) {
-		init(_ptr + (idx / WORDLEN), blen + (idx % WORDLEN));
+	void init(const uint64_t * _ptr, size_t blen, size_t idx = 0) {
+		init_(_ptr + (idx / WORDLEN), blen - idx + (idx % WORDLEN));
 		skipw(idx % WORDLEN);
+	}
+
+	IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx = 0) {
+		init(_ptr, blen, idx);
 	}
 
 	IWBitStream(SharedPtr p, size_t idx, size_t blen) {
 		uint64_t * ptr = (uint64_t*) p.get();
 		handle = p;
-		init(ptr + (idx / WORDLEN), blen + (idx % WORDLEN));
-		skipw(idx% WORDLEN);
+		init(ptr, blen, idx);
 	}
+
 
 	void clear() {
 		j = 0;
 		cur = nxt = 0;
 		blen = 0;
 		ptr = NULL;
+		handle.reset();
 	}
 
 	inline void skipw(uint16_t len) {
@@ -172,7 +177,7 @@ public:
 		return v;
 	}
 
-	uint64_t peek() {
+	uint64_t peek() const {
 		return cur;
 	}
 

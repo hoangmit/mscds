@@ -42,7 +42,7 @@ public:
 	uint64_t lookup(const uint64_t p) const;
 	uint64_t lookup(const uint64_t pos, uint64_t& prev_sum) const;
 	uint64_t rank(uint64_t val) const;
-	
+
 	std::string to_str(bool psum) const;
 	void dump_text(std::ostream& fo) const;
 	void clear();

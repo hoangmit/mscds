@@ -45,20 +45,8 @@ private:
 
 class ChrNumThread {
 public:
-	/** \brief return the sum of the position from 0 to p */
-	int64_t sum(size_t p) const;
-
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
-	
-	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
-	unsigned int count_range(unsigned int i) const;
-
-	/** \brief returns the minimum value in [st..ed) */
-	unsigned int min_value(unsigned int st, unsigned int ed) const;
-
-	/** \brief returns the minimum value in [st..ed) */
-	unsigned int max_value(unsigned int st, unsigned int ed) const;
 
 	/** \brief returns the position of the next non-zero value */
 	unsigned int next_nz(unsigned int) const;
@@ -66,8 +54,30 @@ public:
 	/** \brief returns the position of the previous non-zero value */
 	unsigned int prev_nz(unsigned int) const;
 
+	/** \brief return the sum of the position from 0 to p */
+	long long sum(size_t p) const;
+
+	std::vector<long long> sum_batch(size_t p1, size_t p2, size_t n) const;
+
+	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
+	unsigned int count_range(unsigned int i) const;
+
+	std::vector<unsigned int> count_range_batch(size_t p1, size_t p2, size_t n) const;
+
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;
+
+	std::vector<unsigned int> count_nz_batch(unsigned int st, size_t ed, size_t n) const;
+
+	/** \brief returns the minimum value in [st..ed) */
+	unsigned int min_value(unsigned int st, unsigned int ed) const;
+
+	std::vector<unsigned int> min_value_batch(unsigned int st, size_t ed, size_t n) const;
+
+	/** \brief returns the minimum value in [st..ed) */
+	unsigned int max_value(unsigned int st, unsigned int ed) const;
+
+	std::vector<unsigned int> max_value_batch(unsigned int st, size_t ed, size_t n) const;
 
 	void clear();
 	void load(mscds::IArchive& ar);
@@ -130,5 +140,100 @@ inline unsigned int ChrNumThread::prev_nz(unsigned int p) const {
 inline unsigned int ChrNumThread::count_nz(unsigned int p) const {
 	return vals.countnz(p);
 }
+
+inline std::vector<long long> ChrNumThread::sum_batch(size_t st, size_t ed, size_t n) const {
+	std::vector<long long> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = sum(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = sum(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = sum(pos) - lval;
+	}
+	return ret;
+}
+
+inline std::vector<unsigned int> ChrNumThread::count_range_batch(size_t st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = count_range(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = count_range(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = count_range(pos) - lval;
+	}
+	return ret;
+}
+
+inline std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = count_nz(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = count_nz(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = count_nz(pos) - lval;
+	}
+	return ret;
+}
+
+
+inline std::vector<unsigned int> ChrNumThread::min_value_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t lpos = st, pos = st;
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = min_value(lpos, pos);
+		lpos = pos;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = min_value(lpos, pos);
+		lpos = pos;
+	}
+	return ret;
+}
+
+inline std::vector<unsigned int> ChrNumThread::max_value_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t lpos = st, pos = st;
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = max_value(lpos, pos);
+		lpos = pos;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = max_value(lpos, pos);
+		lpos = pos;
+	}
+	return ret;
+}
+
+
 
 }//namespace

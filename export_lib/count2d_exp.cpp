@@ -72,9 +72,18 @@ unsigned int Count2DQueryEx::count(unsigned int x1, unsigned int x2, unsigned in
 std::vector<unsigned int> Count2DQueryEx::count_grid(const std::vector<unsigned int> &X, const std::vector<unsigned int> &Y) {
 	return q.count_grid(X, Y);
 }
-std::vector<unsigned int> Count2DQueryEx::heatmap(unsigned int x1, unsigned int y1, 
-	unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny) {
-	return q.heatmap(x1, y1, x2, y2, nx, ny);
+std::vector<unsigned int> Count2DQueryEx::heatmap(unsigned int x1, unsigned int x2,
+	unsigned int y1, unsigned int y2, unsigned int nx, unsigned int ny) {
+	std::vector<unsigned int> v = q.heatmap(x1, y1, x2, y2, nx, ny);
+	assert((nx+1)*(ny+1) == v.size());
+	std::vector<unsigned int> vp(nx*ny);
+	for (unsigned int i = 0; i < nx; ++i) {
+		for (unsigned int j = 0; j < ny; ++j) {
+			vp[j*nx + i] = v[(j+1)*(nx+1) + i + 1] +  v[(j)*(nx+1) + i]
+					-  v[(j)*(nx+1) + i + 1]  -  v[(j + 1)*(nx+1) + i];
+		}
+	}
+	return vp;
 }
 
 void Count2DQueryEx::close() {

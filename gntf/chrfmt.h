@@ -101,7 +101,7 @@ private:
 
 namespace app_ds {
 
-inline int64_t ChrNumThread::sum(size_t p) const {
+inline long long ChrNumThread::sum(size_t p) const {
 	return vals.sum_delta(p, delta);
 }
 

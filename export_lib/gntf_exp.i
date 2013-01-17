@@ -35,20 +35,8 @@ public:
 
 class ChrNumThread {
 public:
-	/** \brief return the sum of the position from 0 to p */
-	long long sum(size_t p) const;
-
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
-
-	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
-	unsigned int count_range(unsigned int i) const;
-
-	/** \brief returns the minimum value in [st..ed) */
-	unsigned int min_value(unsigned int st, unsigned int ed) const;
-
-	/** \brief returns the minimum value in [st..ed) */
-	unsigned int max_value(unsigned int st, unsigned int ed) const;
 
 	/** \brief returns the position of the next non-zero value */
 	unsigned int next_nz(unsigned int) const;
@@ -56,8 +44,30 @@ public:
 	/** \brief returns the position of the previous non-zero value */
 	unsigned int prev_nz(unsigned int) const;
 
+	/** \brief return the sum of the position from 0 to p */
+	long long sum(size_t p) const;
+
+	std::vector<long long> sum_batch(size_t p1, size_t p2, size_t n) const;
+
+	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
+	unsigned int count_range(unsigned int i) const;
+
+	std::vector<unsigned int> count_range_batch(size_t p1, size_t p2, size_t n) const;
+
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;
+
+	std::vector<unsigned int> count_nz_batch(unsigned int st, size_t ed, size_t n) const;
+
+	/** \brief returns the minimum value in [st..ed) */
+	unsigned int min_value(unsigned int st, unsigned int ed) const;
+
+	std::vector<unsigned int> min_value_batch(unsigned int st, size_t ed, size_t n) const;
+
+	/** \brief returns the minimum value in [st..ed) */
+	unsigned int max_value(unsigned int st, unsigned int ed) const;
+
+	std::vector<unsigned int> max_value_batch(unsigned int st, size_t ed, size_t n) const;
 
 	std::string name;
 };

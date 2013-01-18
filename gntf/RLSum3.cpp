@@ -113,7 +113,7 @@ unsigned int RunLenSumArray3::range_value(unsigned int i) const {
 	size_t p = i/VALUE_GROUP;
 	if (r == 0) return psumx.prefixsum(p);
 	size_t pos = ptr.prefixsum(p);
-	mscds::IWBitStream is(enc.data_ptr(), pos, enc.length() - pos);
+	mscds::IWBitStream is(enc.data_ptr(), enc.length(), pos);
 	coder::DeltaCoder dc;
 	coder::CodePr c;
 	for (unsigned int j = 0; j < r; ++j) {
@@ -129,7 +129,7 @@ uint64_t RunLenSumArray3::range_psum(unsigned int i) const {
 	uint64_t cpsum = psumx.prefixsum(p);
 	if (r == 0) return cpsum;
 	size_t pos = ptr.prefixsum(p);
-	mscds::IWBitStream is(enc.data_ptr(), pos, enc.length() - pos);
+	mscds::IWBitStream is(enc.data_ptr(), enc.length(), pos);
 	coder::DeltaCoder dc;
 	coder::CodePr c;
 	for (unsigned int j = 0; j < r; ++j) {

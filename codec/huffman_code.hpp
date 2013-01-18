@@ -119,7 +119,7 @@ std::vector<unsigned int> canonical_code(size_t nsym, const std::vector<unsigned
 
 void buildtree(const std::vector<std::pair<unsigned int, unsigned int> >& code,
 		std::vector<std::pair<int, int> >& out) {
-	int i;
+	//int i;
 	out.resize(1);
 	out.reserve(code.size() - 1);
 	out[0].first = 0;

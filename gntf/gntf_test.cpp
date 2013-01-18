@@ -2,7 +2,7 @@
 #include "utils/str_utils.h"
 #include "mem/filearchive.h"
 #include "utils/utest.h"
-#include "sdarray/sdarray_sml.h"
+#include "intarray/sdarray_sml.h"
 
 #include "gntf/stringarr.h"
 

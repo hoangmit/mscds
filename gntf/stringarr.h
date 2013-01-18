@@ -2,7 +2,7 @@
 
 #include "bitarray/bitarray.h"
 #include "archive.h"
-#include "sdarray/sdarray_sml.h"
+#include "intarray/sdarray_sml.h"
 
 #include <string>
 #include <deque>

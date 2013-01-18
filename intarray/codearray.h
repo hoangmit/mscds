@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "archive.h"
 #include "bitarray/bitstream.h"
-#include "sdarray/sdarray.h"
+#include "intarray/sdarray.h"
 #include "codec/deltacoder.h"
 
 namespace mscds {

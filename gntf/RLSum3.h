@@ -5,7 +5,7 @@
 #include "archive.h"
 
 //#include "sdarray/sdarray.h"
-#include "sdarray/sdarray_sml.h"
+#include "intarray/sdarray_sml.h"
 #include "codec/deltacoder.h"
 
 

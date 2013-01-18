@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "archive.h"
 #include "wat_array.h"
-#include "sdarray/sdarray_sml.h"
+#include "intarray/sdarray_sml.h"
 
 namespace mscds{
 

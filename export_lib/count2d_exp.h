@@ -3,7 +3,7 @@
 #ifndef __COUNT2D_EXP_H_
 #define __COUNT2D_EXP_H_
 
-#include "intarray/count2d.h"
+#include "wavarray/count2d.h"
 
 #include <string>
 #include <vector>

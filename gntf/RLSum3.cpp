@@ -12,11 +12,6 @@ using namespace std;
 namespace app_ds {
 using namespace mscds;
 
-uint64_t wrap(int64_t v) {
-	if (v == 0) return 0;
-	else if (v > 0) return v*2 - 1;
-	else return (-v)*2;
-}
 
 void RunLenSumArrayBuilder3::clear() {
 	len = 0;
@@ -51,7 +46,7 @@ void RunLenSumArrayBuilder3::add(unsigned int st, unsigned int ed, unsigned int 
 		enc.puts(c.first, c.second);
 	}else {
 		uint64_t vx = ((int64_t)v) - lastv;
-		coder::CodePr c = dc.encode(wrap(vx)+1);
+		coder::CodePr c = dc.encode(coder::absmap(vx)+1);
 		enc.puts(c.first, c.second);
 	}
 	//

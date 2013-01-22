@@ -74,7 +74,7 @@ std::vector<unsigned int> Count2DQueryEx::count_grid(const std::vector<unsigned 
 }
 std::vector<unsigned int> Count2DQueryEx::heatmap(unsigned int x1, unsigned int x2,
 	unsigned int y1, unsigned int y2, unsigned int nx, unsigned int ny) {
-	std::vector<unsigned int> v = q.heatmap(x1, y1, x2, y2, nx, ny);
+	std::vector<unsigned int> v = q.heatmap(x1, x2, y1, y2, nx, ny);
 	assert((nx+1)*(ny+1) == v.size());
 	std::vector<unsigned int> vp(nx*ny);
 	for (unsigned int i = 0; i < nx; ++i) {

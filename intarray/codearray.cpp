@@ -5,7 +5,7 @@ namespace mscds {
 		clear();
 	}
 
-	DeltaCodeArrBuilder::DeltaCodeArrBuilder(unsigned int rate) {
+	void DeltaCodeArrBuilder::init(unsigned int rate) {
 		clear();
 		sample_rate = rate;
 	}
@@ -91,5 +91,104 @@ namespace mscds {
 		enc.load(ar.var("enc"));
 		ar.endclass();
 	}
+
+
+//---------------------------------------------------------------------
+
+	DiffDeltaArrBuilder::DiffDeltaArrBuilder() {
+		clear();
+	}
+
+	void DiffDeltaArrBuilder::init(unsigned int rate) {
+		clear();
+		sample_rate = rate;
+	}
+
+	void DiffDeltaArrBuilder::clear() {
+		i = 0;
+		sample_rate = 32;
+		enc.clear();
+		ptrbd.clear();
+		lastval = 0;
+	}
+
+	void DiffDeltaArrBuilder::add(uint64_t val) {
+		if (i % sample_rate == 0) {
+			ptrbd.add_inc(enc.length());
+			enc.puts(dc.encode(val));
+		}
+		else {
+			enc.puts(dc.encode(coder::absmap((int64_t)val - lastval)));
+		}
+		lastval = val;
+		++i;
+	}
+
+	void DiffDeltaArrBuilder::build(OArchive &ar) {
+		DiffDeltaArr tmp;
+		tmp.save(ar);
+	}
+
+	void DiffDeltaArrBuilder::build(DiffDeltaArr *out) {
+		enc.close();
+		out->clear();
+		out->sample_rate = sample_rate;
+		out->len = i;
+		out->enc = BitArray::create(enc.data_ptr(), enc.length());
+		ptrbd.build(&(out->ptr));
+	}
+
+	DiffDeltaArr::Iterator DiffDeltaArr::getItr(uint64_t pos) const {
+		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
+		const unsigned int r = pos % sample_rate;
+		Iterator it;
+		it.is.init(enc.data_ptr(), enc.length(), p);
+		coder::CodePr c = it.dc.decode2(it.is.peek());
+		it.val = c.first;
+		it.is.skipw(c.second);
+		for (unsigned int i = 0; i < r; ++i) ++it;
+		return it;
+	}
+
+	uint64_t DiffDeltaArr::Iterator::operator*() const {
+		return val;
+	}
+
+	DiffDeltaArr::Iterator &DiffDeltaArr::Iterator::operator++() {
+		coder::CodePr c = dc.decode2(is.peek());
+		val += coder::absunmap(c.first);
+		is.skipw(c.second);
+		return *this;
+	}
+
+	uint64_t DiffDeltaArr::lookup(uint64_t pos) const {
+		return *(getItr(pos));
+	}
+
+	void DiffDeltaArr::save(OArchive &ar) const {
+		ar.startclass("delta_code_array", 1);
+		ar.var("length").save(len);
+		ar.var("sample_rate").save(sample_rate);
+		ptr.save(ar.var("ptr"));
+		enc.save(ar.var("enc"));
+		ar.endclass();
+	}
+
+	void DiffDeltaArr::clear() {
+		len = 0;
+		sample_rate = 0;
+		ptr.clear();
+		enc.clear();
+	}
+
+	void DiffDeltaArr::load(IArchive &ar) {
+		ar.loadclass("delta_code_array");
+		ar.var("length").load(len);
+		ar.var("sample_rate").load(sample_rate);
+		ptr.load(ar.var("ptr"));
+		enc.load(ar.var("enc"));
+		ar.endclass();
+	}
+
 
 }

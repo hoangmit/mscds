@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "archive.h"
 
+#include "rlsum_int.h"
+
 #include "intarray/sdarray.h"
 #include "intarray/sdarray_sml.h"
 
@@ -25,7 +27,7 @@ private:
 	mscds::SDArraySmlBuilder psbd;
 };
 
-class RunLenSumArray2 {
+class RunLenSumArray2 : public RunLenSumArrInt {
 public:
 	RunLenSumArray2();
 	~RunLenSumArray2() { clear(); }

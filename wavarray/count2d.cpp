@@ -114,8 +114,8 @@ std::vector<unsigned int> Count2DQuery::count_grid(const std::vector<unsigned in
 	return result;
 }
 
-std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int y1, 
-	unsigned int x2, unsigned int y2, unsigned int nx, unsigned int ny) const {
+std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int x2, 
+	unsigned int y1, unsigned int y2, unsigned int nx, unsigned int ny) const {
 	GridQuery gq;
 	if (x2 - x1 < nx || y2 - y1 < ny) throw std::runtime_error("too small width");
 	std::vector<unsigned int> Xp(nx+1), Yp(ny+1);

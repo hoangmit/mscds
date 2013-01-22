@@ -128,4 +128,97 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	}
 }
 
+std::vector<long long> ChrNumThread::sum_batch(size_t st, size_t ed, size_t n) const {
+	std::vector<long long> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = sum(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = sum(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = sum(pos) - lval;
+	}
+	return ret;
+}
+
+std::vector<unsigned int> ChrNumThread::count_range_batch(size_t st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = count_range(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = count_range(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = count_range(pos) - lval;
+	}
+	return ret;
+}
+
+std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	uint64_t lval = count_nz(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = count_nz(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = count_nz(pos) - lval;
+	}
+	return ret;
+}
+
+
+std::vector<unsigned int> ChrNumThread::min_value_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t lpos = st, pos = st;
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = min_value(lpos, pos);
+		lpos = pos;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = min_value(lpos, pos);
+		lpos = pos;
+	}
+	return ret;
+}
+
+std::vector<unsigned int> ChrNumThread::max_value_batch(unsigned int st, size_t ed, size_t n) const {
+	std::vector<unsigned int> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t lpos = st, pos = st;
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = max_value(lpos, pos);
+		lpos = pos;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = max_value(lpos, pos);
+		lpos = pos;
+	}
+	return ret;
+}
+
 }//namespace

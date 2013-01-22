@@ -72,5 +72,11 @@ public:
 };
 
 
+class SaveLoadInt {
+	virtual void save(IArchive& ar) const = 0;
+	virtual void load(OArchive& ar) = 0;
+};
+
+
 }//namespace
 #endif //__ARCHIVE_H_

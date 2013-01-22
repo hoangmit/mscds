@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "archive.h"
 
+#include "rlsum_int.h"
+
 #include "intarray/sdarray.h"
 #include "intarray/sdarray_sml.h"
 
@@ -26,7 +28,7 @@ private:
 	std::vector<unsigned int> stpos;
 };
 
-class RunLenSumArray {
+class RunLenSumArray: public RunLenSumArrInt {
 public:
 	RunLenSumArray();
 	~RunLenSumArray() { clear(); }

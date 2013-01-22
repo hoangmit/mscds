@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "archive.h"
 
+#include "rlsum_int.h"
+
 //#include "sdarray/sdarray.h"
 #include "intarray/sdarray_sml.h"
 #include "codec/deltacoder.h"
@@ -31,7 +33,7 @@ private:
 	int64_t lastv;
 };
 
-class RunLenSumArray3 {
+class RunLenSumArray3 : public RunLenSumArrInt  {
 public:
 	RunLenSumArray3();
 	~RunLenSumArray3() { clear(); }

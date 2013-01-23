@@ -12,9 +12,9 @@ class BuilderInt {
 };
 
 template<typename T>
-class Enumerator {
+class EnumeratorInt {
 	virtual bool hasNext() const = 0;
-	virtual T moveNext() = 0;
+	virtual T next() = 0;
 };
 
 

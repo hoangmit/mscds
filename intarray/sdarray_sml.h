@@ -2,6 +2,7 @@
 
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
+#include "intarray.h"
 #include <iostream>
 
 namespace mscds {
@@ -49,6 +50,39 @@ public:
 	void save(OArchive& ar) const;
 	void load(IArchive& ar);
 	uint64_t total() const { return sum; }
+
+	class PSEnum: public EnumeratorInt<uint64_t> {
+	public:
+		PSEnum(const PSEnum& o): basesum(o.basesum), ptr(o.ptr), hiptr(o.hiptr), 
+			loptr(o.loptr), baseptr(o.baseptr), idx(o.idx), blkwidth(o.blkwidth) {}
+		bool hasNext() const;
+		uint64_t next();
+	private:
+		PSEnum(const SDArraySml& p, uint64_t blk);
+		void moveblk(uint64_t blk);
+
+		uint64_t basesum;
+		uint64_t hiptr, loptr;
+		uint64_t baseptr, idx;
+		uint16_t blkwidth;
+
+		const SDArraySml& ptr;
+		friend class SDArraySml;
+	};
+
+	class Enum: public EnumeratorInt<uint64_t> {
+	public:
+		Enum(const Enum& o): e(o.e), last(o.last) {}
+		bool hasNext() const { return e.hasNext(); }
+		uint64_t next() { uint64_t v = e.next(); uint64_t d = v - last; last = v; return d; }
+	private:
+		Enum(const PSEnum& _e, uint64_t _last): e(_e), last(_last) {}
+		PSEnum e;
+		uint64_t last;
+		friend class SDArraySml;
+	};
+	Enum getEnum(size_t idx) const;
+	PSEnum getPSEnum(size_t idx) const;
 private:
 	uint64_t rank(uint64_t val, uint64_t lo, uint64_t hi) const;
 

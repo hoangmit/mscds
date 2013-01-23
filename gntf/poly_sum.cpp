@@ -64,6 +64,11 @@ void PRSumArrBuilder::addmethod(unsigned int val) {
 	else assert(false);
 }
 
+mscds::EnumeratorInt<uint64_t>& PRSumArr::getEnum(size_t idx) const {
+	if (storetype==1) return sda.getEnum(idx);
+	else if (storetype==2) dt1.getEnum(idx);
+	else if (storetype ==3) dt2.getEnum(idx);
+}
 
 
 }//namespace

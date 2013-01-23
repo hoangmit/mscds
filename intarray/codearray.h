@@ -37,19 +37,18 @@ public:
 	void save(OArchive& ar) const;
 	void clear();
 
-	class Iterator {
+	class Enumerator: public EnumeratorInt<uint64_t> {
 	public:
-		Iterator(): cp(false) {}
-		uint64_t operator*() const;
-		Iterator& operator++();
+		Enumerator() {}
+		bool hasNext() const;
+		uint64_t next();
 	private:
 		mscds::IWBitStream is;
 		coder::DeltaCoder dc;
 		mutable coder::CodePr c;
-		mutable bool cp;
 		friend class DeltaCodeArr;
 	};
-	Iterator getItr(uint64_t pos) const;
+	Enumerator getEnum(uint64_t pos) const;
 
 private:
 	uint64_t len;
@@ -82,7 +81,6 @@ private:
 };
 
 
-
 class DiffDeltaArr {
 public:
 	uint64_t lookup(uint64_t pos) const;
@@ -92,18 +90,18 @@ public:
 	void save(OArchive& ar) const;
 	void clear();
 
-	class Iterator {
+	class Enumerator: public EnumeratorInt<uint64_t> {
 	public:
-		Iterator(): val(0) {}
-		uint64_t operator*() const;
-		Iterator& operator++();
+		Enumerator() {}
+		bool hasNext() const;
+		uint64_t next();
 	private:
 		mscds::IWBitStream is;
 		coder::DeltaCoder dc;
 		mutable uint64_t val;
 		friend class DiffDeltaArr;
 	};
-	Iterator getItr(uint64_t pos) const;
+	Enumerator getEnum(uint64_t pos) const;
 
 private:
 	uint64_t len;

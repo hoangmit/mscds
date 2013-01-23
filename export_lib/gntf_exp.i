@@ -6,7 +6,7 @@
 #include "../gntf/gntf.h"
 %}
 %template(VecUI32) std::vector<unsigned int>;
-%template(VecUI64) std::vector<long long>;
+%template(VecI64) std::vector<long long>;
 
 
 // see `gntf.h' for documentation

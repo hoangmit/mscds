@@ -1,12 +1,13 @@
 
 #include "codearray.h"
+#include "sdarray_sml.h"
 #include "utils/utest.h"
 #include <vector>
 
 using namespace std;
 using namespace mscds;
 
-void test_rng() {
+void test_delta() {
 	const unsigned len = 10000;
 	DeltaCodeArrBuilder bd;
 	vector<unsigned> V;
@@ -26,7 +27,7 @@ void test_rng() {
 	}
 }
 
-void test_rng2() {
+void test_diffdelta() {
 	const unsigned len = 10000;
 	DiffDeltaArrBuilder bd;
 	vector<unsigned> V;
@@ -44,11 +45,36 @@ void test_rng2() {
 			ASSERT_EQ(V[i], a[i]);
 		}
 	}
-
 }
 
+void test_sda1() {
+	const unsigned len = 10000;
+	SDArraySmlBuilder bd;
+	vector<unsigned> V;
+	for (unsigned i = 0; i < len; ++i) {
+		unsigned v = (rand() % 1000000) + 1;
+		V.push_back(v);
+		bd.add(v);
+	}
+
+	SDArraySml a;
+	bd.build(&a);
+	uint64_t psum = 0;
+	SDArraySml::PSEnum e = a.getPSEnum(0);
+	SDArraySml::Enum e2 = a.getEnum(0);
+	for (unsigned i = 0; i < len; ++i) {
+		uint64_t vz = e.next();
+		a.prefixsum(i+1);
+		psum += V[i];
+		ASSERT(psum == vz);
+		ASSERT(V[i] == e2.next());
+	}
+}
+
+
 int main() {
-	test_rng();
-	test_rng2();
+	test_delta();
+	test_diffdelta();
+	test_sda1();
 	return 0;
 }

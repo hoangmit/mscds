@@ -129,7 +129,7 @@ public:
 	uint64_t peek() const { return cur; }
 
 	const uint64_t* current_ptr() { return ptr; }
-	bool empty() { return blen == 0; }
+	bool empty() const { return blen == 0; }
 	void close() { clear(); }
 private:
 	uint64_t cur, nxt;

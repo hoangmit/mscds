@@ -56,10 +56,10 @@ class PRSumArr: public PRSumArrInt {
 public:
 	unsigned int sample_rate() { return rate; }
 	uint64_t access(size_t p);
-	uint64_t sum(size_t p);
-	uint64_t sqsum(size_t p);
 	void save(mscds::IArchive& ar) const;
 	void load(mscds::OArchive& ar);
+
+	mscds::EnumeratorInt<uint64_t>& getEnum(size_t idx) const;
 private:
 	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap
 

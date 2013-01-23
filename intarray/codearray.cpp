@@ -38,33 +38,28 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	DeltaCodeArr::Iterator DeltaCodeArr::getItr(uint64_t pos) const {
+	DeltaCodeArr::Enumerator DeltaCodeArr::getEnum(uint64_t pos) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		Iterator it;
-		it.is.init(enc.data_ptr(), enc.length(), p);
+		Enumerator e;
+		e.is.init(enc.data_ptr(), enc.length(), p);
 		for (unsigned int i = 0; i < r; ++i)
-			++it;
-		return it;
+			e.next();
+		return e;
 	}
 
-	uint64_t DeltaCodeArr::Iterator::operator*() const {
-		if (!cp) {
-			c = dc.decode2(is.peek());
-			cp = true;
-		}
+	bool DeltaCodeArr::Enumerator::hasNext() const {
+		return !(is.empty());
+	}
+
+	uint64_t DeltaCodeArr::Enumerator::next() {
+		c = dc.decode2(is.peek());
+		is.skipw(c.second);
 		return c.first;
 	}
 
-	DeltaCodeArr::Iterator &DeltaCodeArr::Iterator::operator++() {
-		if (!cp) c = dc.decode2(is.peek());
-		is.skipw(c.second);
-		cp = false;
-		return *this;
-	}
-
 	uint64_t DeltaCodeArr::lookup(uint64_t pos) const {
-		return *(getItr(pos));
+		return getEnum(pos).next();
 	}
 
 	void DeltaCodeArr::save(OArchive &ar) const {
@@ -138,31 +133,34 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	DiffDeltaArr::Iterator DiffDeltaArr::getItr(uint64_t pos) const {
+	DiffDeltaArr::Enumerator DiffDeltaArr::getEnum(uint64_t pos) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		Iterator it;
+		Enumerator it;
 		it.is.init(enc.data_ptr(), enc.length(), p);
 		coder::CodePr c = it.dc.decode2(it.is.peek());
 		it.val = c.first;
 		it.is.skipw(c.second);
-		for (unsigned int i = 0; i < r; ++i) ++it;
+		for (unsigned int i = 0; i < r; ++i) it.next();
 		return it;
 	}
 
-	uint64_t DiffDeltaArr::Iterator::operator*() const {
-		return val;
+	bool DiffDeltaArr::Enumerator::hasNext() const {
+		return !is.empty();
 	}
 
-	DiffDeltaArr::Iterator &DiffDeltaArr::Iterator::operator++() {
+	uint64_t DiffDeltaArr::Enumerator::next() {
 		coder::CodePr c = dc.decode2(is.peek());
-		val += coder::absunmap(c.first);
-		is.skipw(c.second);
-		return *this;
+		uint64_t oval = val;
+		if (hasNext()) {
+			val += coder::absunmap(c.first);
+			is.skipw(c.second);
+		}
+		return oval;
 	}
 
 	uint64_t DiffDeltaArr::lookup(uint64_t pos) const {
-		return *(getItr(pos));
+		return (getEnum(pos)).next();
 	}
 
 	void DiffDeltaArr::save(OArchive &ar) const {

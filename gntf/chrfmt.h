@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "RLSum.h"
+#include "RLSum4.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
 #include "archive.h"
@@ -20,6 +20,9 @@ struct ValRange {
 		return st == e.st && ed == e.ed && val == e.val;
 	}
 };
+
+typedef RunLenSumArray4 ChrNumValType;
+typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
 class ChrNumThread;
 
@@ -85,7 +88,7 @@ public:
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 private:
-	RunLenSumArray vals;
+	ChrNumValType vals;
 	StringArr annotations;
 	mscds::RMQ_sct min, max;
 

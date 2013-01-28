@@ -421,13 +421,13 @@ void SDArraySml::load(IArchive& ar) {
 	ar.endclass();
 }
 
-SDArraySml::PSEnum::PSEnum(const SDArraySml& p, uint64_t blk): ptr(p) {
+SDArraySml::PSEnum::PSEnum(const SDArraySml * p, uint64_t blk): ptr(p) {
 	moveblk(blk);
 }
 
 void SDArraySml::PSEnum::moveblk(uint64_t blk) {
-	basesum = ptr.table.word(blk*3);
-	uint64_t info   = ptr.table.word(blk * 3 + 1);
+	basesum = ptr->table.word(blk*3);
+	uint64_t info   = ptr->table.word(blk * 3 + 1);
 	loptr = info & 0x01FFFFFFFFFFFFFFull;
 	blkwidth  = info >> 57;
 	baseptr = loptr + blkwidth*BLKSIZE;
@@ -436,14 +436,14 @@ void SDArraySml::PSEnum::moveblk(uint64_t blk) {
 }
 
 bool SDArraySml::PSEnum::hasNext() const {
-	return idx < ptr.length();
+	return idx < ptr->length();
 }
 
 uint64_t SDArraySml::PSEnum::next() {
-	uint64_t d = ptr.scan_hi_bits(baseptr + hiptr, 0);
+	uint64_t d = ptr->scan_hi_bits(baseptr + hiptr, 0);
 	hiptr += d;
 	// extract here
-	uint64_t lo = ptr.bits.bits(loptr, blkwidth);
+	uint64_t lo = ptr->bits.bits(loptr, blkwidth);
 	uint64_t hi = (hiptr - (idx % BLKSIZE));
 	uint64_t val = basesum + lo + (hi << blkwidth);
 
@@ -457,7 +457,7 @@ uint64_t SDArraySml::PSEnum::next() {
 }
 
 SDArraySml::PSEnum SDArraySml::getPSEnum(size_t idx) const {
-	PSEnum e(*this, idx / BLKSIZE);
+	PSEnum e(this, idx / BLKSIZE);
 	uint64_t r = idx % BLKSIZE;
 	for (size_t i = 0; i < r; ++i)
 		e.next();

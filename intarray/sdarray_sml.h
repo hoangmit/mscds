@@ -22,6 +22,7 @@ public:
 
 	static const uint64_t BLKSIZE;
 	static const uint16_t SUBB_PER_BLK;
+	typedef SDArraySml QueryTp;
 
 private:
 	void packHighs(uint64_t begPos, uint64_t width);
@@ -50,6 +51,7 @@ public:
 	void save(OArchive& ar) const;
 	void load(IArchive& ar);
 	uint64_t total() const { return sum; }
+	typedef SDArraySmlBuilder BuilderTp;
 
 	class PSEnum: public EnumeratorInt<uint64_t> {
 	public:
@@ -57,8 +59,9 @@ public:
 			loptr(o.loptr), baseptr(o.baseptr), idx(o.idx), blkwidth(o.blkwidth) {}
 		bool hasNext() const;
 		uint64_t next();
+		PSEnum(): ptr(NULL) {}
 	private:
-		PSEnum(const SDArraySml& p, uint64_t blk);
+		PSEnum(const SDArraySml * p, uint64_t blk);
 		void moveblk(uint64_t blk);
 
 		uint64_t basesum;
@@ -66,12 +69,13 @@ public:
 		uint64_t baseptr, idx;
 		uint16_t blkwidth;
 
-		const SDArraySml& ptr;
+		const SDArraySml * ptr;
 		friend class SDArraySml;
 	};
 
-	class Enum: public EnumeratorInt<uint64_t> {
+	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
+		Enum() {}
 		Enum(const Enum& o): e(o.e), last(o.last) {}
 		bool hasNext() const { return e.hasNext(); }
 		uint64_t next() { uint64_t v = e.next(); uint64_t d = v - last; last = v; return d; }
@@ -117,8 +121,8 @@ class SDRankSelectSml;
 class SDRankSelectBuilderSml {
 public:
 	SDRankSelectBuilderSml() { last = 0; }
-	void add(uint64_t delta) { assert(delta > 0); last += delta; add(last); }
-	void add_inc(uint64_t v) {  assert(v >= last); vals.push_back(v); last = v; }
+	void add(uint64_t delta) { assert(delta > 0); last += delta; add_inc(last); }
+	void add_inc(uint64_t v) { assert(v >= last); vals.push_back(v); last = v; }
 	void clear() { vals.clear(); }
 	void build(SDRankSelectSml* out);
 	void build(OArchive& ar);

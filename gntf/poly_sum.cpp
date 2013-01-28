@@ -1,6 +1,19 @@
 #include "poly_sum.h"
 
+#include <stdexcept>
+
 namespace app_ds {
+
+PRSumArrBuilder::PRSumArrBuilder() {
+	init(0, 32);
+}
+
+void PRSumArrBuilder::init(unsigned int method, unsigned int rate) {
+	this->rate = rate;
+	this->method = method;
+	cnt = 0;
+	lastval = 0;
+}
 
 void PRSumArrBuilder::add(unsigned int v) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD) {
@@ -14,6 +27,8 @@ void PRSumArrBuilder::add(unsigned int v) {
 }
 
 void PRSumArrBuilder::build(PRSumArr* out) {
+	if (method == 0 && cnt <= CHECK_THRESHOLD)
+		choosemethod();
 	out->len = cnt;
 	out->storetype = method;
 	out->rate = rate;
@@ -64,10 +79,53 @@ void PRSumArrBuilder::addmethod(unsigned int val) {
 	else assert(false);
 }
 
-mscds::EnumeratorInt<uint64_t>& PRSumArr::getEnum(size_t idx) const {
-	if (storetype==1) return sda.getEnum(idx);
-	else if (storetype==2) dt1.getEnum(idx);
-	else if (storetype ==3) dt2.getEnum(idx);
+mscds::EnumeratorInt<uint64_t>* PRSumArr::getEnum(size_t idx) const  {
+	if (storetype==1) {
+		return new mscds::SDArraySml::Enum(sda.getEnum(idx));
+	} else if (storetype==2) {
+		return new mscds::DeltaCodeArr::Enumerator(dt1.getEnum(idx));
+	} else if (storetype ==3) {
+		return new mscds::DiffDeltaArr::Enumerator(dt2.getEnum(idx));
+	} else { throw std::runtime_error("wrong type");
+		return NULL;
+	}
+}
+
+uint64_t PRSumArr::access(size_t p) {
+	return 0;
+}
+
+void PRSumArr::save(mscds::OArchive& ar) const {
+	ar.startclass("polymorphic_array", 1);
+	ar.var("length").save(len);
+	ar.var("method").save(storetype);
+	ar.var("rate").save(rate);
+	sda.save(ar.var("sda"));
+	dt1.save(ar.var("delta"));
+	dt2.save(ar.var("diff_delta"));
+	ar.endclass();
+}
+
+void PRSumArr::load(mscds::IArchive& ar) {
+	ar.loadclass("polymorphic_array");
+	ar.var("length").load(len);
+	ar.var("method").load(storetype);
+	ar.var("rate").load(rate);
+	sda.load(ar.var("sda"));
+	dt1.load(ar.var("delta"));
+	dt2.load(ar.var("diff_delta"));
+	ar.endclass();
+	if (storetype == 0) throw std::runtime_error("unknown type");
+}
+
+
+void PRSumArr::clear() {
+	len = 0;
+	rate = 0;
+	storetype = 0;
+	sda.clear();
+	dt1.clear();
+	dt2.clear();
 }
 
 

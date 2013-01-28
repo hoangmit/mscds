@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(gntf)
 
-set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp RLSum.cpp RLSum2.cpp RLSum3.cpp poly_sum.cpp)
-set(HEADERS chrfmt.h gntf.h stringarr.h RLSum.h RLSum2.h RLSum3.h rlsum_int.h poly_sum.h)
+set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp RLSum.cpp RLSum2.cpp RLSum3.cpp RLSum4.cpp poly_sum.cpp noint.cpp)
+set(HEADERS chrfmt.h gntf.h stringarr.h RLSum.h RLSum2.h RLSum3.h RLSum4.h rlsum_int.h poly_sum.h noint.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
 #target_link_libraries(bedgraph2gnt mscdsa)

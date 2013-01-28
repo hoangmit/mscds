@@ -5,34 +5,40 @@
 #include "archive.h"
 
 #include "rlsum_int.h"
+#include "poly_sum.h"
 
-#include "intarray/sdarray.h"
+//#include "sdarray/sdarray.h"
 #include "intarray/sdarray_sml.h"
+#include "codec/deltacoder.h"
 
 
 namespace app_ds {
 
-class RunLenSumArray;
+class RunLenSumArray4;
 
-class RunLenSumArrayBuilder {
+class RunLenSumArrayBuilder4 {
 public:
-	RunLenSumArrayBuilder(): len(0), lastst(0) {}
+	RunLenSumArrayBuilder4(): len(0), lastst(0), psum(0), sqpsum(0), lastv(0), cnt(0) {}
 	void add(unsigned int st, unsigned int ed, unsigned int v);
-	void build(RunLenSumArray* arr);
+	void build(RunLenSumArray4* arr);
 	void build(mscds::OArchive& ar);
 	void clear();
-	typedef RunLenSumArray QueryTp;
+	typedef RunLenSumArray4 QueryTp;
 private:
-	unsigned int len, lastst;
-	mscds::SDArraySmlBuilder psbd, rlenbd;
-	mscds::SDRankSelectSml stbd;
-	std::vector<unsigned int> stpos;
+	unsigned int len, lastst, cnt;
+	mscds::SDRankSelectBuilderSml stbd;
+	mscds::SDArraySmlBuilder rlbd;
+	mscds::SDArraySmlBuilder psbd, spsbd;
+	PRSumArrBuilder vals;
+
+	uint64_t psum, sqpsum;
+	int64_t lastv;
 };
 
-class RunLenSumArray: public RunLenSumArrInt {
+class RunLenSumArray4 : public RunLenSumArrInt  {
 public:
-	RunLenSumArray();
-	~RunLenSumArray() { clear(); }
+	RunLenSumArray4(): len(0) {};
+	~RunLenSumArray4() { clear(); }
 	size_t load(std::istream& fi);
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
@@ -45,8 +51,9 @@ public:
 
 	unsigned int range_start(unsigned int i) const;
 	uint64_t range_psum(unsigned int i) const;
-	unsigned int range_len(unsigned int i) const;
+	unsigned int range_len(unsigned int i) const;	
 	unsigned int range_value(unsigned int i) const;
+	unsigned int pslen(unsigned int i) const;
 
 	unsigned int count_range(unsigned int pos) const;
 
@@ -64,12 +71,14 @@ public:
 	/** \brief returns the smallest position that is greater than the input
 		and its value is non-zero (return -1 if cannot find) */
 	int next(unsigned int) const;
-	typedef RunLenSumArrayBuilder BuilderTp;
+	typedef RunLenSumArrayBuilder4 BuilderTp;
 private:
 	unsigned int len;
 	mscds::SDRankSelectSml start;
-	mscds::SDArraySml psum, rlen;
-	friend class RunLenSumArrayBuilder;
+	mscds::SDArraySml rlen;
+	mscds::SDArraySml psum, sqrsum;
+	PRSumArr vals;
+	friend class RunLenSumArrayBuilder4;
 };
 
 }//namespace

@@ -113,7 +113,7 @@ namespace mscds {
 			enc.puts(dc.encode(val));
 		}
 		else {
-			enc.puts(dc.encode(coder::absmap((int64_t)val - lastval)));
+			enc.puts(dc.encode(1+coder::absmap((int64_t)val - lastval)));
 		}
 		lastval = val;
 		++i;
@@ -153,7 +153,7 @@ namespace mscds {
 		coder::CodePr c = dc.decode2(is.peek());
 		uint64_t oval = val;
 		if (hasNext()) {
-			val += coder::absunmap(c.first);
+			val += coder::absunmap(c.first) - 1;
 			is.skipw(c.second);
 		}
 		return oval;

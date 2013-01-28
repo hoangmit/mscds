@@ -7,6 +7,7 @@
 using namespace std;
 using namespace mscds;
 
+
 void test_delta() {
 	const unsigned len = 10000;
 	DeltaCodeArrBuilder bd;

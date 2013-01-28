@@ -22,14 +22,9 @@ class PRSumArr;
 
 class PRSumArrBuilder {
 public:
-	PRSumArrBuilder(): method(0), rate(32) {}
+	PRSumArrBuilder();
 
-	void init(unsigned int method, unsigned int rate) {
-		this->rate = rate;
-		this->method = method;
-		cnt = 0;
-		lastval = 0;
-	}
+	void init(unsigned int method, unsigned int rate);
 
 	void add(unsigned int v);
 	void build(PRSumArr* out);
@@ -52,14 +47,16 @@ private:
 };
 
 
-class PRSumArr: public PRSumArrInt {
+class PRSumArr {
 public:
+	PRSumArr(): len(0) {}
 	unsigned int sample_rate() { return rate; }
 	uint64_t access(size_t p);
-	void save(mscds::IArchive& ar) const;
-	void load(mscds::OArchive& ar);
-
-	mscds::EnumeratorInt<uint64_t>& getEnum(size_t idx) const;
+	void save(mscds::OArchive& ar) const;
+	void load(mscds::IArchive& ar);
+	void clear();
+	size_t length() const { return len; }
+	mscds::EnumeratorInt<uint64_t> * getEnum(size_t idx) const;
 private:
 	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap
 

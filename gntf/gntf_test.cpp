@@ -138,7 +138,7 @@ void test_mix() {
 
 void testbig() {
 	//string inp = "D:/temp/textBigwig.bed";
-	string inp = "D:/temp/groseq.ucsc.bedgraph";
+	string inp = "D:/temp/groseq.avg.bedGraph";
 	ifstream fi(inp.c_str());
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100);
@@ -160,20 +160,14 @@ void testbig() {
 	mscds::OClassInfoArchive fo;
 	bd.build(fo);
 	fo.close();
-	ofstream fox("D:/temp/chr_info.xml");
+	ofstream fox("D:/temp/groseq.avg.xml");
 	fox << fo.printxml() << endl;
 	fox.close();
-
-	/*GenomeNumData gd;
-	bd.build(&gd);
-	ofstream fox("D:/temp/dump_chr1_rlen.txt");
-	gd.__testing_dump_1st_st(fox);
-	fox.close();*/
 
 	fi.close();
 }
 
-void testx() {
+void test_real() {
 	GenomeNumDataBuilder bd;
 	try {//wg2V3
 		bd.build_bedgraph("D:/temp/wg2V3.bedGraph", "D:/temp/x.gntf");
@@ -255,13 +249,17 @@ void test_annotation() {
 	ASSERT_EQ(2, d.getChr(0).count_range(2300));
 }
 
-int main() {
+void run_real() {
 	try {
-		//testbig();
+		testbig();
 	}catch(std::exception& e) {
 		std::cerr << e.what() << endl;
 	}
-	testx();
+	//test_real();
+}
+
+int main() {
+	run_real();
 	return 0;
 	test_strarr1();
 	test_annotation();

@@ -19,6 +19,7 @@ public:
 	void build(OArchive& ar);
 	void build(DeltaCodeArr * out);
 	void clear();
+	typedef DeltaCodeArr QueryTp;
 private:
 	coder::DeltaCoder dc;
 	OBitStream enc;
@@ -36,10 +37,12 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
+	typedef DeltaCodeArrBuilder BuilderTp;
 
-	class Enumerator: public EnumeratorInt<uint64_t> {
+	struct Enumerator: public EnumeratorInt<uint64_t> {
 	public:
 		Enumerator() {}
+		Enumerator(const Enumerator& o): is(o.is), c(o.c) {}
 		bool hasNext() const;
 		uint64_t next();
 	private:
@@ -72,6 +75,7 @@ public:
 	void build(OArchive& ar);
 	void build(DiffDeltaArr * out);
 	void clear();
+	typedef DiffDeltaArr QueryTp;
 private:
 	coder::DeltaCoder dc;
 	OBitStream enc;
@@ -89,12 +93,13 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
-
-	class Enumerator: public EnumeratorInt<uint64_t> {
+	typedef DiffDeltaArrBuilder BuilderTp;
+	struct Enumerator: public EnumeratorInt<uint64_t> {
 	public:
 		Enumerator() {}
 		bool hasNext() const;
 		uint64_t next();
+		Enumerator(const Enumerator& o): is(o.is), val(o.val) {}
 	private:
 		mscds::IWBitStream is;
 		coder::DeltaCoder dc;

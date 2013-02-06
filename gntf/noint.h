@@ -80,7 +80,7 @@ namespace app_ds {
 		size_t len, maxpos;
 		mscds::SDRankSelectSml gstart, ilen;
 		mscds::SDRankSelectSml gcnt;
-		friend class BuilderTp;
+		friend class NOInt2Builder;
 	};
 
 

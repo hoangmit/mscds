@@ -11,6 +11,7 @@
 #include <cassert>
 #include <algorithm>
 #include <functional>
+#include <utility>
 
 namespace coder {
 
@@ -37,51 +38,6 @@ uint32_t reverse32b(uint32_t v) {
 	q[1] = reverse8b(p[2]);
 	q[0] = reverse8b(p[3]);
 	return c;
-}
-
-template<typename WeightTp, typename WeightSum>
-WeightSum huffman(const std::vector<WeightTp>& W, std::vector<std::pair<unsigned int, unsigned int> >& output_code) {
-	if (W.empty()) {
-		output_code.clear();
-		return WeightSum();
-	}
-	unsigned int n = W.size();
-	typedef std::pair<WeightTp, unsigned int> PP;
-	std::priority_queue<PP, std::vector<PP>, std::greater<PP> > pq;
-	unsigned int i = 0;
-	for (typename std::vector<WeightTp>::const_iterator it = W.begin(); it != W.end(); ++it)
-		pq.push(make_pair(*it, i++));
-	std::vector<unsigned int> parent(W.size());
-	parent.reserve(W.size()*2 - 1);
-	assert(!pq.empty());
-	while (true) {
-		PP t1 = pq.top();
-		pq.pop();
-		if (pq.empty()) break;
-		PP t2 = pq.top();
-		pq.pop();
-		parent.push_back(0);
-		unsigned int newid = parent.size() - 1;
-		parent[t1.second] = newid;
-		parent[t2.second] = newid;
-		pq.push(make_pair(t1.first + t2.first, newid));
-	}
-	assert(pq.empty());
-	// compute code length
-	std::vector<unsigned int> L(parent.size());
-	L[L.size() - 1] = 0;
-	WeightSum total = 0;
-	for (int i = (int)L.size()-2; i >= 0; i--) {
-		L[i] = 1 + L[parent[i]];
-		if ((unsigned int) i <  n) total += ((WeightSum)W[i]) * L[i];
-	}
-	output_code.resize(W.size());
-	std::vector<unsigned int> code = canonical_code(W.size(), L);
-	for (unsigned int i = 0; i < W.size(); ++i) {
-		output_code[i].first = code[i];
-		output_code[i].second = L[i];
-	}
-	return total;
 }
 
 // input : number of symbol,  vector of code len for each symbol
@@ -116,6 +72,50 @@ std::vector<unsigned int> canonical_code(size_t nsym, const std::vector<unsigned
 }
 
 
+template<typename WeightTp, typename WeightSum>
+WeightSum huffman(const std::vector<WeightTp>& W, std::vector<std::pair<unsigned int, unsigned int> >& output_code) {
+	if (W.empty()) {
+		output_code.clear();
+		return WeightSum();
+	}
+	unsigned int n = W.size();
+	typedef std::pair<WeightTp, unsigned int> PP;
+	std::priority_queue<PP, std::vector<PP>, std::greater<PP> > pq;
+	unsigned int i = 0;
+	for (typename std::vector<WeightTp>::const_iterator it = W.begin(); it != W.end(); ++it)
+		pq.push(std::make_pair(*it, i++));
+	std::vector<unsigned int> parent(W.size());
+	parent.reserve(W.size()*2 - 1);
+	assert(!pq.empty());
+	while (true) {
+		PP t1 = pq.top();
+		pq.pop();
+		if (pq.empty()) break;
+		PP t2 = pq.top();
+		pq.pop();
+		parent.push_back(0);
+		unsigned int newid = parent.size() - 1;
+		parent[t1.second] = newid;
+		parent[t2.second] = newid;
+		pq.push(std::make_pair(t1.first + t2.first, newid));
+	}
+	assert(pq.empty());
+	// compute code length
+	std::vector<unsigned int> L(parent.size());
+	L[L.size() - 1] = 0;
+	WeightSum total = 0;
+	for (int i = (int)L.size()-2; i >= 0; i--) {
+		L[i] = 1 + L[parent[i]];
+		if ((unsigned int) i <  n) total += ((WeightSum)W[i]) * L[i];
+	}
+	output_code.resize(W.size());
+	std::vector<unsigned int> code = canonical_code(W.size(), L);
+	for (unsigned int i = 0; i < W.size(); ++i) {
+		output_code[i].first = code[i];
+		output_code[i].second = L[i];
+	}
+	return total;
+}
 
 void buildtree(const std::vector<std::pair<unsigned int, unsigned int> >& code,
 		std::vector<std::pair<int, int> >& out) {

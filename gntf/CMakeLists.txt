@@ -23,3 +23,7 @@ set_target_properties(t_gntf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_D
 add_executable(t_rlsum rlsum_test.cpp)
 target_link_libraries(t_rlsum intarray  gntf ${COMMON_LIBS})
 set_target_properties(t_rlsum PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
+
+add_executable(tbm_gntf benchmark_gntf.cpp)
+target_link_libraries(tbm_gntf gntf)

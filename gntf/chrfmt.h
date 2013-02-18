@@ -57,6 +57,9 @@ public:
 	/** \brief returns the position of the previous non-zero value */
 	unsigned int prev_nz(unsigned int) const;
 
+	/** \brief returns the last position */
+	unsigned int last_position() const { return vals.last_position(); }
+
 	/** \brief return the sum of the position from 0 to p */
 	long long sum(size_t p) const;
 

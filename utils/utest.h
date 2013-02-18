@@ -8,6 +8,7 @@
 #ifndef ASSERT
 
 #include <iostream>
+#include <ctime>
 
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
 // http://stackoverflow.com/questions/37473/how-can-i-assert-without-using-abort
@@ -108,8 +109,29 @@ struct XorShiftRng {
 		x = y; y = z; z = w;
 		return w = w ^ (w >> 19) ^ (t ^ (t >> 8));
 	}
-
 };
+
+
+struct Timer {
+	std::clock_t last, start;
+	Timer() { reset(); }
+
+	void reset() {
+		start = std::clock();
+		last = start;
+	}
+	double current() {
+		clock_t c = std::clock();
+		double t = (double)(c - last)  / CLOCKS_PER_SEC;
+		last = c;
+		return t;
+	}
+
+	double total() {
+		return (double)(std::clock() - start) / CLOCKS_PER_SEC;
+	}
+};
+
 
 }//namespace
 #endif //__UNIT_TEST_H_

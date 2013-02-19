@@ -6,6 +6,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <cassert>
+#include <stdexcept>
 
 using namespace std;
 

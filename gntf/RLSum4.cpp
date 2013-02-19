@@ -71,7 +71,7 @@ void RunLenSumArrayBuilder4::build(OArchive& ar) {
 //-----------------------------------------------------------------------------
 
 void RunLenSumArray4::save(OArchive& ar) const {
-	ar.startclass("run_length_sum_array3", 1);
+	ar.startclass("run_length_sum_array4", 1);
 	ar.var("len").save(len);
 	start.save(ar.var("start"));
 	rlen.save(ar.var("rlen"));
@@ -83,7 +83,7 @@ void RunLenSumArray4::save(OArchive& ar) const {
 
 void RunLenSumArray4::load(IArchive& ar) {
 	clear();
-	ar.loadclass("run_length_sum_array3");
+	ar.loadclass("run_length_sum_array4");
 	ar.var("len").load(len);
 	start.load(ar.var("start"));
 	rlen.load(ar.var("rlen"));

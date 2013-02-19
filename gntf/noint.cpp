@@ -1,6 +1,11 @@
 #include "noint.h"
 
 #include <stdexcept>
+#include <utility>
+#include "mem/filearchive.h"
+#include "utils/param.h"
+
+using namespace std;
 
 namespace app_ds {
 
@@ -95,6 +100,16 @@ void NOInt::clear() {
 
 size_t NOInt::length() const {
 	return len;
+}
+
+size_t NOInt::find_rlen(size_t val) const {
+	throw std::runtime_error("not implemented");
+	return 0;
+}
+
+size_t NOInt::int_psrlen(size_t i) const {
+	throw std::runtime_error("not implemented");
+	return 0;
 }
 
 //------------------------------------------------------------------------
@@ -207,6 +222,161 @@ void NOInt2::clear() {
 
 size_t NOInt2::length() const {
 	return len;
+}
+
+size_t NOInt2::find_rlen( size_t val ) const {
+	throw std::runtime_error("not implemented");
+	return 0;
+}
+
+size_t NOInt2::int_psrlen( size_t i ) const {
+	throw std::runtime_error("not implemented");
+	return 0;
+}
+
+//------------------------------------------------------------------------
+
+
+void PNOIntBuilder::init(unsigned int method /*= 0*/) {
+	this->method = method;
+	if (method == 0) {
+		auto cf = Config::getInst();
+		if (cf->hasPara("GNTF.POSITION_STORAGE")) {
+			method = cf->getIntPara("GNTF.POSITION_STORAGE");
+			if (method > 2) throw std::runtime_error("invalid method");
+		}
+	}
+	cnt = 0;
+	vals.clear();
+}
+
+void PNOIntBuilder::choosemethod() {
+	bd1.clear();
+	bd2.clear();
+	for (size_t i = 0; i < vals.size(); ++i) {
+		bd1.add(vals[i].first, vals[i].second);
+		bd2.add(vals[i].first, vals[i].second);
+	}
+	mscds::OClassInfoArchive ar;
+	bd1.build(ar);
+	size_t s1 = ar.opos();
+	bd2.build(ar);
+	size_t s2 = ar.opos() - s1;
+	ar.close();
+	size_t sx = s1;
+	method = 1;
+	if (s1 > s2) { method = 2; sx = s2; }
+	for (size_t i = 0; i < vals.size(); ++i)
+		addmethod(vals[i].first, vals[i].second);
+}
+
+
+void PNOIntBuilder::addmethod(size_t st, size_t ed) {
+	if (method == 1) bd1.add(st, ed);
+	else if (method == 2) bd2.add(st, ed);
+	else assert(false);
+}
+
+void PNOIntBuilder::add(size_t st, size_t ed) {
+	if (method == 0 && cnt <= CHECK_THRESHOLD) {
+		vals.push_back(std::make_pair(st, ed));
+		if (cnt == CHECK_THRESHOLD)
+			choosemethod();
+	} else {
+		addmethod(st, ed);
+	}
+	cnt++;
+}
+
+void PNOIntBuilder::build(PNOInt* out) {
+	out->clear();
+	assert(method != 0);
+	out->method = method;
+	bd1.build(&(out->m1));
+	bd2.build(&(out->m2));
+}
+
+//---
+
+void PNOInt::save(mscds::OArchive& ar) const {
+	ar.startclass("poly_non_overlap_intervals", 1);
+	ar.var("method").save(method);
+	if (method == 1) {
+		m1.save(ar.var("method1"));
+	}
+	else if (method == 2) {
+		m2.save(ar.var("method1"));
+	}
+	ar.endclass();
+}
+
+void PNOInt::load( mscds::IArchive& ar ) {
+	clear();
+	ar.loadclass("poly_non_overlap_intervals");
+	ar.var("method").load(method);
+	if (method == 1) {
+		m1.load(ar.var("method1"));
+	}
+	else if (method == 2) {
+		m2.load(ar.var("method1"));
+	}
+	ar.endclass();
+}
+
+
+void PNOInt::clear() {
+	method = 0;
+	m1.clear();
+	m2.clear();
+}
+
+std::pair<size_t, bool> PNOInt::find_interval(size_t pos) const {
+	if (method == 1) return m1.find_interval(pos);
+	else if (method == 2) return m2.find_interval(pos);
+	else assert(false);
+	return make_pair(0,false);
+}
+
+size_t PNOInt::find_rlen(size_t val) const {
+	if (method == 1) return m1.find_rlen(val);
+	else if (method == 2) return m2.find_rlen(val);
+	else assert(false);
+	return 0;
+}
+
+size_t PNOInt::int_start(size_t i) const {
+	if (method == 1) return m1.int_start(i);
+	else if (method == 2) return m2.int_start(i);
+	else assert(false);
+	return 0;
+}
+
+size_t PNOInt::int_len(size_t i) const {
+	if (method == 1) return m1.int_len(i);
+	else if (method == 2) return m2.int_len(i);
+	else assert(false);
+	return 0;
+}
+
+size_t PNOInt::int_end(size_t i) const {
+	if (method == 1) return m1.int_end(i);
+	else if (method == 2) return m2.int_end(i);
+	else assert(false);
+	return 0;
+}
+
+size_t PNOInt::int_psrlen(size_t i) const {
+	if (method == 1) return m1.int_psrlen(i);
+	else if (method == 2) return m2.int_psrlen(i);
+	else assert(false);
+	return 0;
+}
+
+size_t PNOInt::length() const {
+	if (method == 1) return m1.length();
+	else if (method == 2) return m2.length();
+	else assert(false);
+	return 0;
 }
 
 } // namespace

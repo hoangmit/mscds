@@ -1,6 +1,7 @@
 #include "poly_sum.h"
-
+#include "mem/filearchive.h"
 #include <stdexcept>
+#include "utils/param.h"
 
 namespace app_ds {
 
@@ -11,8 +12,16 @@ PRSumArrBuilder::PRSumArrBuilder() {
 void PRSumArrBuilder::init(unsigned int method, unsigned int rate) {
 	this->rate = rate;
 	this->method = method;
+	if (method == 0) {
+		auto cf = Config::getInst();
+		if (cf->hasPara("GNTF.VALUE_STORAGE")) {
+			method = cf->getIntPara("GNTF.VALUE_STORAGE");
+			if (method > 3) throw std::runtime_error("invalid method");
+		}
+	}
 	cnt = 0;
 	lastval = 0;
+	vals.clear();
 }
 
 void PRSumArrBuilder::add(unsigned int v) {
@@ -92,6 +101,8 @@ mscds::EnumeratorInt<uint64_t>* PRSumArr::getEnum(size_t idx) const  {
 }
 
 uint64_t PRSumArr::access(size_t p) {
+	//TODO: finish
+	throw std::runtime_error("not implemented");
 	return 0;
 }
 

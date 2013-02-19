@@ -8,6 +8,7 @@ str_utils.cpp
 file_utils.cpp
 utils.cpp
 debug.cpp
+param.cpp
 )
 
 
@@ -18,6 +19,7 @@ file_utils.h
 utils.h
 debug.h
 utest.h
+param.h
 )
 
 

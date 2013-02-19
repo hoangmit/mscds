@@ -6,7 +6,6 @@
 #include "intarray/intarray.h"
 #include "intarray/codearray.h"
 #include "intarray/sdarray_sml.h"
-#include "mem/filearchive.h"
 
 
 namespace app_ds {

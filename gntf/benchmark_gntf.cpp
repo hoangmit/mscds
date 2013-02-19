@@ -14,6 +14,8 @@ const string inpath = "D:/temp/";
 void build(const string& name) {
 	string inp = inpath + name + ".bedGraph";
 	ifstream fi(inp.c_str());
+	if (!fi) throw runtime_error("cannot open");
+	cout << "Building ... " << name << endl;
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100, app_ds::ALL_OP, false);
 	string lastchr = "";
@@ -54,7 +56,7 @@ double test1(GenomeNumData& qs, unsigned int rep = 2000000) {
 	unsigned int nchr = qs.chromosome_count();
 	vector<unsigned int> lp(nchr);
 
-	for (unsigned int i = 0; i < rep; ++i) {
+	for (unsigned int i = 0; i < nchr; ++i) {
 		lp[i] = qs.getChr(i).last_position();
 	}
 	utils::Timer tm;
@@ -64,6 +66,7 @@ double test1(GenomeNumData& qs, unsigned int rep = 2000000) {
 		cq.sum(rand() % lp[chr]);
 	}
 	double qps = rep / tm.current();
+	cout << "Sum queryies" << endl;
 	cout << "Query_per_second: " << qps << endl;
 	return qps;
 }
@@ -72,7 +75,7 @@ void random_query(const string& name) {
 	GenomeNumData qs;
 	mscds::IFileMapArchive fi;
 	fi.open_read(outpath + name + ".gntf");
-	cout << "Loading ... " << endl;
+	cout << "Loading ... " << name << endl;
 	qs.load(fi);
 	
 	cout << qs.chromosome_count() << " chromosomes " << endl;
@@ -83,7 +86,7 @@ void random_query(const string& name) {
 }
 
 int run(int argc, char* argv[]) {
-	if (argc != 3) return 0;
+	if (argc != 3) return 1;
 	if (argv[1][0] == 'b') {
 		build(argv[2]);
 	}else
@@ -94,5 +97,7 @@ int run(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-	return run(argc, argv);
+	char* testv[] = {"", "r", "groseq.avg"};
+	//return run(argc, argv);
+	return run(3, testv);
 }

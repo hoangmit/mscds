@@ -77,6 +77,7 @@ private:
 	unsigned int len;
 	mscds::SDRankSelectSml start;
 	mscds::SDArraySml rlen;
+
 	mscds::SDArraySml psum, sqrsum;
 	PRSumArr vals;
 	friend class RunLenSumArrayBuilder4;

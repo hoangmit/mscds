@@ -85,7 +85,7 @@ void random_query(const string& name) {
 	qs.clear();
 }
 
-int run(int argc, char* argv[]) {
+int run(int argc, const char* argv[]) {
 	if (argc != 3) return 1;
 	if (argv[1][0] == 'b') {
 		build(argv[2]);
@@ -96,8 +96,8 @@ int run(int argc, char* argv[]) {
 	return 0;
 }
 
-int main(int argc, char* argv[]) {
-	char* testv[] = {"", "r", "groseq.avg"};
-	//return run(argc, argv);
+int main(int argc, const char* argv[]) {
+	const char* testv[] = {"", "r", "groseq.avg"};
+	return run(argc, argv);
 	return run(3, testv);
 }

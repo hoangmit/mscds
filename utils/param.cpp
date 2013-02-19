@@ -64,7 +64,7 @@ Config::Config(std::istream stream) {
 Config::Config(const char* filename) {
 	fstream input(filename, ios_base::in);
 	if (!input.is_open()) {
-		throw std::exception((string("Config: Error opening file: ") + filename).c_str());
+		throw std::runtime_error((string("Config: Error opening file: ") + filename).c_str());
 	}
 	string line;
 	getline(input, line);
@@ -73,7 +73,7 @@ Config::Config(const char* filename) {
 		string exf = variables["INCLUDE_FILE"];
 		ifstream input2(exf.c_str());
 		if (!input2.is_open())
-			throw std::exception(("Cannot open external include file: " + exf).c_str());
+			throw std::runtime_error(("Cannot open external include file: " + exf).c_str());
 		loadFromStream(input2);
 		input2.close();
 	}
@@ -94,7 +94,7 @@ std::string Config::getPara(const std::string pname) {
 	MapType::iterator itr;
 	itr = variables.find(pname);
 	if (itr == variables.end())
-		throw  std::exception(("Cannot find variable: "+pname).c_str());
+		throw  std::runtime_error(("Cannot find variable: "+pname).c_str());
 	return (*itr).second;
 }
 

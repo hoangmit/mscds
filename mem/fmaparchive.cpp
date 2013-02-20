@@ -59,12 +59,12 @@ IArchive &IFileMapArchive::load_bin(void *ptr, size_t size) {
 }
 
 IArchive &IFileMapArchive::endclass(){
-	FileMapImpl * fm = (FileMapImpl *) impl;
+	/*FileMapImpl * fm = (FileMapImpl *) impl;
 	char buf[5];
 	fm->fi.read(buf, 4);
 	buf[4] = 0;
 	if (strcmp(buf, "cend") != 0) throw ioerror("wrong endclass");
-	fm->pos += 4;
+	fm->pos += 4;*/
 	return * this;
 }
 

@@ -40,9 +40,9 @@ uint32_t FNV_hash24(const std::string& s) {
 	}
 
 	OArchive& OFileArchive::endclass() { 
-		out->write("cend", 4);
 		closeclass++;
-		pos+=4;
+		//out->write("cend", 4);
+		//pos+=4;
 		return * this;
 	}
 
@@ -122,11 +122,11 @@ uint32_t FNV_hash24(const std::string& s) {
 	}
 
 	IArchive& IFileArchive::endclass() { 
-		char buf[5];
+		/*char buf[5];
 		in->read(buf, 4);
 		buf[4] = 0;
 		if (strcmp(buf, "cend") != 0) throw ioerror("wrong endclass");
-		pos += 4;
+		pos += 4;*/
 		return * this;
 	}
 
@@ -200,18 +200,24 @@ uint32_t FNV_hash24(const std::string& s) {
 		std::vector<PInfoNode> children;
 		std::string type;
 		size_t total;
+		unsigned int desclasscnt;
 		int version;
 		void finalize() {
+			desclasscnt = 0;
 			total = 0;
 			for (auto it = children.begin(); it != children.end(); ++it) (*it)->finalize();
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
-				if (it->childidx > 0) it->size = children[it->childidx - 1]->total;
+				if (it->childidx > 0) {
+					it->size = children[it->childidx - 1]->total;
+					desclasscnt += children[it->childidx - 1]->desclasscnt + 1;
+				}
 				total += it->size;
 			}
 		}
 
 		void printxml(std::ostream& ss, const string& vname) {
-			ss << "<class name=\"" << vname << "\" size=\'" << total << "\' type=\"" << type << "\">";
+			ss << "<class name=\"" << vname << "\" size=\'" << total
+				  << "\' clscnt=\'" << (desclasscnt+1) << "\' type=\"" << type << "\">";
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
 				if (it->childidx > 0) {
 					children[it->childidx - 1]->printxml(ss, it->name);

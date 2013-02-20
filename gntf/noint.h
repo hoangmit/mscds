@@ -82,7 +82,7 @@ namespace app_ds {
 		void load(mscds::IArchive& ar);
 		typedef NOInt2Builder BuilderTp;
 	private:
-		size_t len, maxpos;
+		size_t len, maxpos, ngrp;
 		mscds::SDRankSelectSml gstart, ilen;
 		mscds::SDRankSelectSml gcnt;
 		friend class NOInt2Builder;
@@ -92,7 +92,8 @@ namespace app_ds {
 
 	class PNOIntBuilder {
 	public:
-		void init(unsigned int method = 0);
+		PNOIntBuilder();
+		void init(unsigned int _method = 0);
 		void add(size_t st, size_t ed);
 		void build(PNOInt* out);
 		void build(mscds::OArchive& ar);
@@ -108,6 +109,7 @@ namespace app_ds {
 		void addmethod(size_t st, size_t ed);
 		NOIntBuilder bd1;
 		NOInt2Builder bd2;
+		bool autoselect;
 	};
 
 
@@ -130,6 +132,7 @@ namespace app_ds {
 		friend class PNOIntBuilder;
 	private:
 		unsigned int method;
+		unsigned int autoselect;
 		NOInt m1;
 		NOInt2 m2;
 	};

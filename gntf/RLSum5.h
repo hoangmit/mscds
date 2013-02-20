@@ -27,7 +27,7 @@ public:
 	typedef RunLenSumArray5 QueryTp;
 private:
 	unsigned int len, lastst, cnt;
-	NOIntBuilder itvb;
+	PNOIntBuilder itvb;
 
 	mscds::SDArraySmlBuilder psbd, spsbd;
 	PRSumArrBuilder vals;
@@ -38,7 +38,7 @@ private:
 
 class RunLenSumArray5 : public RunLenSumArrInt  {
 public:
-	RunLenSumArray5(): len(0) {};
+	RunLenSumArray5(): len(0) {}
 	~RunLenSumArray5() { clear(); }
 	size_t load(std::istream& fi);
 	void load(mscds::IArchive& ar);
@@ -76,7 +76,7 @@ public:
 	typedef RunLenSumArrayBuilder5 BuilderTp;
 private:
 	unsigned int len;
-	NOInt itv;
+	PNOInt itv;
 
 	mscds::SDArraySml psum, sqrsum;
 	PRSumArr vals;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "RLSum4.h"
+#include "RLSum5.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
 #include "archive.h"
@@ -21,7 +21,7 @@ struct ValRange {
 	}
 };
 
-typedef RunLenSumArray4 ChrNumValType;
+typedef RunLenSumArray5 ChrNumValType;
 typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
 class ChrNumThread;

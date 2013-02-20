@@ -62,18 +62,18 @@ double Config::getDoublePara(const std::string& pname) {
 	return std::atof(getPara(pname).c_str());
 }
 
-void Config::dump(std::ostream& out) {
+void Config::dump(std::ostream& out /* = std::cout */) {
 	MapType::iterator it;
 	for (it = variables.begin(); it != variables.end(); it++) {
-		out << '$' << it->first << " = " << it->second << endl;
+		out << it->first << " = " << it->second << endl;
 	}
 }
 
 void Config::parse(int argc, const char* argv[]) {
 	for (int i = 1; i < argc; ++i) {
 		const string s = argv[i];
-		if (s.length() > 2 && s[0] == '-' && s[1] == '$')
-			extractVar(s.substr(1));
+		if (s.length() > 3 && s[0] == '-' && s[1] == 'D')
+			extractVar(s.substr(2));
 		if (s.length() > 2 && s[0] == '-' && s[1] == 'F')
 			loadFile(s.substr(2));
 	}
@@ -104,11 +104,11 @@ void Config::loadFile(const std::string& filename) {
 bool Config::extractVar(const std::string& line) {
 	if (line.empty())
 		return false;
-	if (line[0] ==  '$') {
+	{
 		int pos = (int) line.find_first_of("=");
 		if (pos != (int) string::npos) {
 			int p2 = (int) line.find_last_not_of(" =", pos);
-			string start = line.substr(1, p2);
+			string start = line.substr(0, p2+1);
 			int p3 = (int) line.find_first_not_of(" =", pos);
 			string end;
 			if (p3 == (int)  string::npos) end = "";

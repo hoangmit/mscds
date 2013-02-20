@@ -9,9 +9,9 @@ PRSumArrBuilder::PRSumArrBuilder() {
 	init(0, 32);
 }
 
-void PRSumArrBuilder::init(unsigned int method, unsigned int rate) {
+void PRSumArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
-	this->method = method;
+	this->method = _method;
 	if (method == 0) {
 		auto cf = Config::getInst();
 		if (cf->hasPara("GNTF.VALUE_STORAGE")) {
@@ -19,6 +19,7 @@ void PRSumArrBuilder::init(unsigned int method, unsigned int rate) {
 			if (method > 3) throw std::runtime_error("invalid method");
 		}
 	}
+	autoselect = (method == 0);
 	cnt = 0;
 	lastval = 0;
 	vals.clear();
@@ -41,6 +42,7 @@ void PRSumArrBuilder::build(PRSumArr* out) {
 	out->len = cnt;
 	out->storetype = method;
 	out->rate = rate;
+	out->autoselect = (int) autoselect;
 	if (method == 1) sdab.build(&(out->sda));
 	else if(method == 2) dt1.build(&(out->dt1));
 	else if(method == 3) dt2.build(&(out->dt2));
@@ -111,9 +113,10 @@ void PRSumArr::save(mscds::OArchive& ar) const {
 	ar.var("length").save(len);
 	ar.var("method").save(storetype);
 	ar.var("rate").save(rate);
-	sda.save(ar.var("sda"));
-	dt1.save(ar.var("delta"));
-	dt2.save(ar.var("diff_delta"));
+	ar.var("autoselect").save(autoselect);
+	if (storetype == 1) sda.save(ar.var("sda"));
+	if (storetype == 2) dt1.save(ar.var("delta"));
+	if (storetype == 3) dt2.save(ar.var("diff_delta"));
 	ar.endclass();
 }
 
@@ -122,9 +125,10 @@ void PRSumArr::load(mscds::IArchive& ar) {
 	ar.var("length").load(len);
 	ar.var("method").load(storetype);
 	ar.var("rate").load(rate);
-	sda.load(ar.var("sda"));
-	dt1.load(ar.var("delta"));
-	dt2.load(ar.var("diff_delta"));
+	ar.var("autoselect").load(autoselect);
+	if (storetype == 1) sda.load(ar.var("sda"));
+	if (storetype == 2) dt1.load(ar.var("delta"));
+	if (storetype == 3) dt2.load(ar.var("diff_delta"));
 	ar.endclass();
 	if (storetype == 0) throw std::runtime_error("unknown type");
 }

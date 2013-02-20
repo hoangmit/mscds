@@ -35,7 +35,7 @@ public:
 	}
 
 	void log(std::string msg) { *_logger << msg << std::endl; }
-	void dump(std::ostream& out);
+	void dump(std::ostream& out = std::cout);
 
 	Config();
 	Config(std::istream& stream);

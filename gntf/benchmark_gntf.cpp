@@ -14,8 +14,8 @@ string inpath = "D:/temp/";
 void build(const string& inpname, const string& outname) {
 	string inp = inpath + inpname + ".bedGraph";
 	ifstream fi(inp.c_str());
-	if (!fi) throw runtime_error("cannot open: " + inpname);
-	cout << "Building ... " << inpname << "  " << outname << endl;
+	if (!fi) throw runtime_error("cannot open: " + inp);
+	cout << "Building ... " << inpname << " -> " << outname << endl;
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100, app_ds::ALL_OP, false);
 	string lastchr = "";
@@ -91,7 +91,8 @@ int run(int argc, const char* argv[]) {
 	if (c->hasPara("INPUT_DIR")) inpath = c->getPara("INPUT_DIR");
 	if (c->hasPara("OUTPUT_DIR")) outpath = c->getPara("OUTPUT_DIR");
 	cout << "params: " << endl;
-	c->dump(cout);
+	c->dump();
+	cout << endl;
 	if (argc < 3) return 1;
 	if (argv[1][0] == 'b') {
 		if (argc < 4) throw runtime_error("wrong");
@@ -104,7 +105,7 @@ int run(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
-	cout << "runing.." << endl;
+	cout << "running.." << endl;
 	const char* testv[] = {"", "r", "groseq.avg"};
 	return run(argc, argv);
 	//return run(3, testv);

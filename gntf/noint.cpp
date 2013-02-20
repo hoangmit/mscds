@@ -237,8 +237,13 @@ size_t NOInt2::int_psrlen( size_t i ) const {
 //------------------------------------------------------------------------
 
 
-void PNOIntBuilder::init(unsigned int method /*= 0*/) {
-	this->method = method;
+PNOIntBuilder::PNOIntBuilder() {
+	init();
+}
+
+void PNOIntBuilder::init(unsigned int _method /*= 0*/) {
+	clear();
+	this->method = _method;
 	if (method == 0) {
 		auto cf = Config::getInst();
 		if (cf->hasPara("GNTF.POSITION_STORAGE")) {
@@ -246,6 +251,7 @@ void PNOIntBuilder::init(unsigned int method /*= 0*/) {
 			if (method > 2) throw std::runtime_error("invalid method");
 		}
 	}
+	autoselect = (method == 0);
 	cnt = 0;
 	vals.clear();
 }
@@ -292,8 +298,16 @@ void PNOIntBuilder::build(PNOInt* out) {
 	out->clear();
 	assert(method != 0);
 	out->method = method;
+	out->autoselect = (int) autoselect;
 	bd1.build(&(out->m1));
 	bd2.build(&(out->m2));
+}
+
+void PNOIntBuilder::clear() {
+	bd1.clear();
+	bd2.clear();
+	cnt = 0;
+	method = 0;
 }
 
 //---
@@ -301,11 +315,12 @@ void PNOIntBuilder::build(PNOInt* out) {
 void PNOInt::save(mscds::OArchive& ar) const {
 	ar.startclass("poly_non_overlap_intervals", 1);
 	ar.var("method").save(method);
+	ar.var("autoselect").save(autoselect);
 	if (method == 1) {
 		m1.save(ar.var("method1"));
 	}
 	else if (method == 2) {
-		m2.save(ar.var("method1"));
+		m2.save(ar.var("method2"));
 	}
 	ar.endclass();
 }
@@ -314,11 +329,12 @@ void PNOInt::load( mscds::IArchive& ar ) {
 	clear();
 	ar.loadclass("poly_non_overlap_intervals");
 	ar.var("method").load(method);
+	ar.var("autoselect").load(autoselect);
 	if (method == 1) {
 		m1.load(ar.var("method1"));
 	}
 	else if (method == 2) {
-		m2.load(ar.var("method1"));
+		m2.load(ar.var("method2"));
 	}
 	ar.endclass();
 }

@@ -23,7 +23,7 @@ class PRSumArrBuilder {
 public:
 	PRSumArrBuilder();
 
-	void init(unsigned int method, unsigned int rate);
+	void init(unsigned int _method, unsigned int rate);
 
 	void add(unsigned int v);
 	void build(PRSumArr* out);
@@ -38,6 +38,7 @@ private:
 	mscds::SDArraySmlBuilder sdab;
 	mscds::DeltaCodeArrBuilder dt1;
 	mscds::DiffDeltaArrBuilder dt2;
+	bool autoselect;
 
 	void resetbd();
 
@@ -61,6 +62,7 @@ private:
 
 	uint64_t len;
 	unsigned int rate;
+	unsigned int autoselect;
 	mscds::SDArraySml sda;
 	mscds::DeltaCodeArr dt1;
 	mscds::DiffDeltaArr dt2;

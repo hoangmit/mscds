@@ -2,20 +2,20 @@
 #include "gntf.h"
 #include "mem/fmaparchive.h"
 #include "utils/utest.h"
+#include "utils/param.h"
 
 using namespace std;
 using namespace app_ds;
 using namespace mscds;
 
-const string outpath = "D:/temp/";
+string outpath = "D:/temp/";
+string inpath = "D:/temp/";
 
-const string inpath = "D:/temp/";
-
-void build(const string& name) {
-	string inp = inpath + name + ".bedGraph";
+void build(const string& inpname, const string& outname) {
+	string inp = inpath + inpname + ".bedGraph";
 	ifstream fi(inp.c_str());
-	if (!fi) throw runtime_error("cannot open");
-	cout << "Building ... " << name << endl;
+	if (!fi) throw runtime_error("cannot open: " + inpname);
+	cout << "Building ... " << inpname << "  " << outname << endl;
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100, app_ds::ALL_OP, false);
 	string lastchr = "";
@@ -40,13 +40,13 @@ void build(const string& name) {
 		mscds::OClassInfoArchive fo;
 		qs.save(fo);
 		fo.close();
-		ofstream fox(outpath + name + ".xml");
+		ofstream fox(outpath + outname + ".xml");
 		fox << fo.printxml() << endl;
 		fox.close();
 	}
 	{
 		mscds::OFileArchive fo2;
-		fo2.open_write(outpath + name + ".gntf");
+		fo2.open_write(outpath + outname + ".gntf");
 		qs.save(fo2);
 		fo2.close();
 	}
@@ -86,9 +86,16 @@ void random_query(const string& name) {
 }
 
 int run(int argc, const char* argv[]) {
-	if (argc != 3) return 1;
+	Config * c = Config::getInst();
+	c->parse(argc, argv);
+	if (c->hasPara("INPUT_DIR")) inpath = c->getPara("INPUT_DIR");
+	if (c->hasPara("OUTPUT_DIR")) outpath = c->getPara("OUTPUT_DIR");
+	cout << "params: " << endl;
+	c->dump(cout);
+	if (argc < 3) return 1;
 	if (argv[1][0] == 'b') {
-		build(argv[2]);
+		if (argc < 4) throw runtime_error("wrong");
+		build(argv[2], argv[3]);
 	}else
 	if (argv[1][0] == 'r') {
 		random_query(argv[2]);
@@ -97,7 +104,8 @@ int run(int argc, const char* argv[]) {
 }
 
 int main(int argc, const char* argv[]) {
+	cout << "runing.." << endl;
 	const char* testv[] = {"", "r", "groseq.avg"};
-	//return run(argc, argv);
-	return run(3, testv);
+	return run(argc, argv);
+	//return run(3, testv);
 }

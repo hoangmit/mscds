@@ -86,7 +86,7 @@ void Config::loadFile(const std::string& filename) {
 	}
 	string line;
 	getline(input, line);
-	if (extractVar(line) && variables["INCLUDE_FILE"] != string()) {
+	if (extractVar(line) && hasPara("INCLUDE_FILE")) {
 		string exf = variables["INCLUDE_FILE"];
 		ifstream input2(exf.c_str());
 		if (!input2.is_open())
@@ -105,9 +105,8 @@ bool Config::extractVar(const std::string& line) {
 	if (line.empty())
 		return false;
 	if (line[0] ==  '$') {
-		int pos = (int) line.find_first_of("=", 0);
-		if (pos != (int) string::npos) // found
-		{
+		int pos = (int) line.find_first_of("=");
+		if (pos != (int) string::npos) {
 			int p2 = (int) line.find_last_not_of(" =", pos);
 			string start = line.substr(1, p2);
 			int p3 = (int) line.find_first_not_of(" =", pos);

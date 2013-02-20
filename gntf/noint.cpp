@@ -122,27 +122,27 @@ void NOInt2Builder::clear() {
 	gcbd.clear();
 	cnt = 0;
 	last_ed = 0;
-	g_cnt = 0;
+	g_pos = 0;
 	llen = 0;
 }
 
 void NOInt2Builder::add(size_t st, size_t ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	if (last_ed > st) throw std::runtime_error("required sorted array");
-	if (ed > last_ed) {
+	if (st > last_ed) {
 		gstbd.add_inc(st);
-		gcbd.add_inc(g_cnt);
+		gcbd.add_inc(g_pos);
 	} else
-		assert(ed == last_ed);
+		assert(st == last_ed);
 	ilbd.add_inc(llen);
-	++g_cnt;
+	++g_pos;
 	last_ed = ed;
 	llen += ed - st;
 	++cnt;
 }
 
 void NOInt2Builder::build(NOInt2 *out) {
-	gcbd.add(g_cnt);
+	gcbd.add(g_pos);
 	ilbd.add_inc(llen);
 	out->len = cnt;
 	out->maxpos = last_ed;

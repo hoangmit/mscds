@@ -59,7 +59,7 @@ namespace app_ds {
 		void clear();
 		typedef NOInt2 QueryTp;
 	private:
-		size_t last_ed, g_cnt, cnt, llen;
+		size_t last_ed, g_pos, cnt, llen;
 		mscds::SDRankSelectBuilderSml gstbd, ilbd;
 		mscds::SDRankSelectBuilderSml gcbd;
 	};

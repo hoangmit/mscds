@@ -58,7 +58,7 @@ void PRSumArrBuilder::choosemethod() {
 		dt1.add(vx);
 		dt2.add(vx);
 	}
-	mscds::OClassInfoArchive ar;
+	mscds::OSizeEstArchive ar;
 	sdab.build(ar);
 	size_t s1 = ar.opos();
 	dt1.build(ar);

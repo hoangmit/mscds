@@ -62,6 +62,7 @@ public:
 	OArchive& endclass() {return *this;}
 	OArchive& save_bin(const void* ptr, size_t size) { pos += size; return *this;}
 	size_t opos() const {return pos;}
+	void close() {}
 private:
 	uint64_t pos;
 };

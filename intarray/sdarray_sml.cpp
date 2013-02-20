@@ -561,9 +561,9 @@ void SDRankSelectSml::load(IArchive& ar) {
 
 void SDRankSelectSml::save(OArchive& ar) const {
 	ar.startclass("sd_rank_select_sml", 1);
-	qs.save(ar);
-	ar.save(ranklrate);
-	rankhints.save(ar);
+	qs.save(ar.var("sdarray"));
+	ar.var("log_sample_rate").save(ranklrate);
+	rankhints.save(ar.var("rank_hints"));
 	ar.endclass();
 }
 

@@ -263,7 +263,7 @@ void PNOIntBuilder::choosemethod() {
 		bd1.add(vals[i].first, vals[i].second);
 		bd2.add(vals[i].first, vals[i].second);
 	}
-	mscds::OClassInfoArchive ar;
+	mscds::OSizeEstArchive ar;
 	bd1.build(ar);
 	size_t s1 = ar.opos();
 	bd2.build(ar);
@@ -296,11 +296,15 @@ void PNOIntBuilder::add(size_t st, size_t ed) {
 
 void PNOIntBuilder::build(PNOInt* out) {
 	out->clear();
-	assert(method != 0);
+	if (method == 0) {
+		choosemethod();
+	}
 	out->method = method;
 	out->autoselect = (int) autoselect;
-	bd1.build(&(out->m1));
-	bd2.build(&(out->m2));
+	if (method == 1)
+		bd1.build(&(out->m1));
+	if (method == 2)
+		bd2.build(&(out->m2));
 }
 
 void PNOIntBuilder::clear() {

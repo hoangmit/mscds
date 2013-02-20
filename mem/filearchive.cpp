@@ -208,7 +208,7 @@ uint32_t FNV_hash24(const std::string& s) {
 			for (auto it = children.begin(); it != children.end(); ++it) (*it)->finalize();
 			for (auto it = lst.begin(); it != lst.end(); ++it) {
 				if (it->childidx > 0) {
-					it->size = children[it->childidx - 1]->total;
+					it->size += children[it->childidx - 1]->total;
 					desclasscnt += children[it->childidx - 1]->desclasscnt + 1;
 				}
 				total += it->size;
@@ -259,7 +259,7 @@ uint32_t FNV_hash24(const std::string& s) {
 	OArchive& OClassInfoArchive::save_bin(const void* ptr, size_t size) {
 		pos += size;
 		ClassListInfo& x = *((ClassListInfo*)impl);
-		if (x.cur->lst.empty())
+		if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0)
 			x.cur->lst.push_back(CInfoNode::VarInfo());
 		CInfoNode::VarInfo & v = x.cur->lst.back();
 		if (size <= 8 && v.size == 0 && v.childidx == 0)

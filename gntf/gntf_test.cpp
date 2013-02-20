@@ -138,7 +138,7 @@ void test_mix() {
 
 void testbig() {
 	//string inp = "D:/temp/textBigwig.bed";
-	string inp = "D:/temp/groseq.avg.bedGraph";
+	string inp = "D:/temp/groseq.bedGraph";
 	ifstream fi(inp.c_str());
 	GenomeNumDataBuilder bd;
 	bd.init(true, 100);
@@ -157,12 +157,25 @@ void testbig() {
 		}
 		bd.add(e.st, e.ed, e.val);
 	}
+	GenomeNumData out;
 	mscds::OClassInfoArchive fo;
-	bd.build(fo);
+	bd.build(&out);
+	out.save(fo);
 	fo.close();
-	ofstream fox("D:/temp/groseq.avg.xml");
+	ofstream fox("D:/temp/groseq.xml");
 	fox << fo.printxml() << endl;
 	fox.close();
+
+	mscds::OSizeEstArchive fo2;
+	out.save(fo2);
+	cout << " estimate_size " << fo2.opos() << endl;
+	fo2.close();
+
+	mscds::OFileArchive fo3;
+	fo3.open_write("D:/temp/groseq.gntf");
+	out.save(fo3);
+	fo3.close();
+
 
 	fi.close();
 }

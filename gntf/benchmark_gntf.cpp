@@ -98,6 +98,6 @@ int run(int argc, const char* argv[]) {
 
 int main(int argc, const char* argv[]) {
 	const char* testv[] = {"", "r", "groseq.avg"};
-	return run(argc, argv);
+	//return run(argc, argv);
 	return run(3, testv);
 }

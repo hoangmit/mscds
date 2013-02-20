@@ -12,23 +12,19 @@
 class Config
 {
 public:
-	bool extractVar(std::string line);
-	std::string getPara(const std::string pname);
-	std::string getPara(const char* pname);
+	bool extractVar(const std::string& line);
+	void parse(int argc, const char* argv[]);
+	void loadFile(const std::string& filename);
+	void loadFromStream(std::istream& input);
 
 	std::ostream* getLogger() { return _logger; }
-
 	void reset();
 
-	void loadFromStream(std::istream& input);
-	void addPara(std::string para, std::string value);
-	void addPara(const char* pname, const char* value);
-
-	bool hasPara(const std::string name);
-	int getIntPara(const std::string pname);
-	int getIntPara(const char* pname);
-	double getDoublePara(const std::string pname);
-	double getDoublePara(const char* pname);
+	bool hasPara(const std::string& name);
+	void addPara(const std::string& para, const std::string& value);
+	std::string getPara(const std::string& pname);
+	int getIntPara(const std::string& pname);
+	double getDoublePara(const std::string& pname);
 
 	static Config* getInst() {
 		if(!instanceFlag) {
@@ -42,8 +38,8 @@ public:
 	void dump(std::ostream& out);
 
 	Config();
-	Config(std::istream stream);
-	Config(const char* filename);
+	Config(std::istream& stream);
+	Config(const std::string& filename);
 	~Config(){}
 
 private:

@@ -67,9 +67,11 @@ namespace app_ds {
 		void clear();
 		typedef NIntv2 QueryTp;
 	private:
-		size_t last_ed, g_pos, cnt, llen;
+		size_t last_ed;
+		size_t g_pos, cnt, llen;
 		mscds::SDRankSelectBuilderSml gstbd, ilbd;
 		mscds::SDRankSelectBuilderSml gcbd;
+		bool first;
 	};
 
 	class NIntv2 {

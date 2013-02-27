@@ -91,12 +91,13 @@ void PRSumArrBuilder::addmethod(unsigned int val) {
 }
 
 void PRSumArr::Enumerator::init(int _etype) {
+	this->etype = _etype;
 	if (etype == 1) {
-		if (e1 != NULL) e1 = new mscds::SDArraySml::Enum();
+		if (e1 == NULL) e1 = new mscds::SDArraySml::Enum();
 	} else if (etype == 2) {
-		if (e2 != NULL) e2 = new mscds::DeltaCodeArr::Enumerator();
+		if (e2 == NULL) e2 = new mscds::DeltaCodeArr::Enumerator();
 	} else if (etype == 3) {
-		if (e3 != NULL) e3 = new mscds::DiffDeltaArr::Enumerator();
+		if (e3 == NULL) e3 = new mscds::DiffDeltaArr::Enumerator();
 	}
 }
 

@@ -258,11 +258,11 @@ uint64_t SDArraySml::rank(uint64_t val, uint64_t lo, uint64_t hi) const {
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
 	uint64_t ret = lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
 	#ifdef CACHE_SELECT_RANK
-	if (c_select >= 0) {
+	c_rank += lo * BLKSIZE;
+	if (c_select >= 0)
 		c_select += table.word(lo*3); 
-		c_rank += lo * BLKSIZE;
-		if (c_preselect >= 0) c_preselect += table.word(lo*3);
-	}
+	if (c_preselect >= 0)
+		c_preselect += table.word(lo*3);
 	#endif
 	return ret;
 }

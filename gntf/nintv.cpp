@@ -65,7 +65,7 @@ std::pair<size_t, size_t> NIntv::find_cover(size_t pos) const {
 	size_t kl = pos - sp + 1;
 	size_t rangelen = rlen.lookup(p);
 	if (kl <= rangelen) return pair<size_t, size_t>(p, kl);
-	else pair<size_t, size_t>(p+1, 0);
+	else return pair<size_t, size_t>(p+1, 0);
 }
 
 size_t NIntv::rank_interval(size_t pos) const {
@@ -76,6 +76,7 @@ size_t NIntv::rank_interval(size_t pos) const {
 
 size_t NIntv::coverage(size_t pos) const {
 	uint64_t p = rank_interval(pos);
+	if (p == npos()) return 0;
 	uint64_t sp = start.select(p);
 	assert(sp <= pos);
 	size_t ps = 0;
@@ -127,26 +128,33 @@ void NIntv2Builder::clear() {
 	last_ed = 0;
 	g_pos = 0;
 	llen = 0;
+	first = true;
 }
 
 void NIntv2Builder::add(size_t st, size_t ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
-	if (last_ed > st) throw std::runtime_error("required sorted array");
-	if (st > last_ed) {
+	if (first) {
+		ilbd.add_inc(0);
+		gcbd.add_inc(0);
 		gstbd.add_inc(st);
-		gcbd.add_inc(g_pos);
-	} else
-		assert(st == last_ed);
-	ilbd.add_inc(llen);
-	++g_pos;
-	last_ed = ed;
-	llen += ed - st;
+		first = false;
+		g_pos = 1;
+		last_ed = ed;
+	}else {
+		if (last_ed > st) throw std::runtime_error("required sorted array");
+		if (st > last_ed) {
+			gstbd.add_inc(st);
+			gcbd.add_inc(g_pos);
+		}else assert(st == last_ed);
+		++g_pos;
+		last_ed = ed;
+	}
+	ilbd.add(ed - st);
 	++cnt;
 }
 
 void NIntv2Builder::build(NIntv2 *out) {
 	gcbd.add(g_pos);
-	ilbd.add_inc(llen);
 	out->len = cnt;
 	out->maxpos = last_ed;
 	gstbd.build(&(out->gstart));
@@ -189,12 +197,13 @@ std::pair<size_t, size_t> NIntv2::find_cover(size_t pos) const {
 	size_t ds = ilen.select(gcnt.select(j));
 	size_t i = ilen.rank(pos + ds + 1) - 1;
 	size_t nb = gcnt.select(j+1);
-	if (i < nb) return pair<size_t, size_t>(i, pos + ds - ilen.select(i));
+	if (i < nb) return pair<size_t, size_t>(i, pos + ds - ilen.select(i) + 1);
 	else
 		return pair<size_t, size_t>(nb, 0);
 }
 
 size_t NIntv2::rank_interval(size_t pos) const {
+	if (pos >= maxpos) return len - 1;
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return npos();
 	--j;
@@ -217,7 +226,7 @@ size_t NIntv2::coverage(size_t pos) const {
 }
 
 size_t NIntv2::int_start(size_t i) const {
-	uint64_t j = gcnt.rank(i);
+	uint64_t j = gcnt.rank(i+1)-1;
 	return gstart.select(j) + ilen.select(i) - ilen.select(gcnt.select(j));
 }
 

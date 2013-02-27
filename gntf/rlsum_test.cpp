@@ -101,7 +101,7 @@ void test_rlsum_basic_vec(const vector<int>& A) {
 }
 
 template<typename StructTp>
-void test_intervals(const std::deque<ValRange>& rng) {
+void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 	typename StructTp::BuilderTp bd;
 	for (size_t i = 0; i < rng.size(); ++i)
 		bd.add(rng[i].st, rng[i].ed);
@@ -114,26 +114,27 @@ void test_intervals(const std::deque<ValRange>& rng) {
 		ASSERT_EQ(rng[i].ed - rng[i].st, r.int_len(i));
 	}
 	size_t mlen = rng.back().ed;
-	size_t j = 0;
+	size_t j = 0, jp = r.npos();
 	size_t cnt = 0;
 	for (size_t i = 0; i < mlen; ++i) {
 		if (rng[j].ed <= i) ++j;
+		if (rng[j].st <= i) jp = j;
 		auto v = r.rank_interval(i);
+		ASSERT_EQ(jp, v);
 		ASSERT_EQ(cnt, r.coverage(i));
 		auto p = r.find_cover(i);
 		if (rng[j].st <= i) {
 			++cnt;
 			ASSERT_EQ(j, p.first);
-			ASSERT_EQ(i - rng[j].st, p.second);
+			ASSERT_EQ(i - rng[j].st + 1, p.second);
 		}else {
 			ASSERT_EQ(j, p.first);
 			ASSERT_EQ(0, p.second);
 		}
-		ASSERT_EQ(j, v);
 	}
 	ASSERT_EQ(j, rng.size() - 1);
 	auto v = r.rank_interval(mlen);
-	ASSERT_EQ(v, rng.size());
+	ASSERT_EQ(v, rng.size() - 1);
 }
 
 void test_rlsum_tb_1() {
@@ -208,14 +209,16 @@ void test_intv_start_end3() {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
-	test_intervals<NIntv2>(genInp(Av));
+	auto iv = genInp(Av);
+	test_intervals<NIntv2>(iv);
 }
 
 void test_intv_start_end4() {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
-		test_intervals<NIntv2>(genInp(A));
+		auto iv = genInp(A);
+		test_intervals<NIntv2>(iv, i);
 		if (i % 10 == 0) cout << '.';
 	}
 }
@@ -290,11 +293,6 @@ void test_rlsum_rls4() {
 }
 
 void test_trivbin_all() {
-	test_intv_start_end3();
-	test_intv_start_end4();
-
-	test_intv_start_end1();
-	test_intv_start_end2();
 
 	test_rlsum_tb_1();
 	test_rlsum_tb_2();
@@ -305,6 +303,12 @@ void test_trivbin_all() {
 
 	test_rlsum_sum_delta1();
 	test_rlsum_sum_delta2();
+
+	test_intv_start_end3();
+	test_intv_start_end4();
+
+	test_intv_start_end1();
+	test_intv_start_end2();
 }
 
 

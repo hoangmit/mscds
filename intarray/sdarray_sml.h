@@ -120,10 +120,10 @@ class SDRankSelectSml;
 
 class SDRankSelectBuilderSml {
 public:
-	SDRankSelectBuilderSml() { last = 0; }
+	SDRankSelectBuilderSml(): last(0) { }
 	void add(uint64_t delta) { assert(delta > 0); last += delta; add_inc(last); }
 	void add_inc(uint64_t v) { assert(v >= last); vals.push_back(v); last = v; }
-	void clear() { vals.clear(); }
+	void clear() { vals.clear(); last = 0; }
 	void build(SDRankSelectSml* out);
 	void build(OArchive& ar);
 private:

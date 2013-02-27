@@ -456,22 +456,23 @@ uint64_t SDArraySml::PSEnum::next() {
 	return val;
 }
 
-SDArraySml::PSEnum SDArraySml::getPSEnum(size_t idx) const {
-	PSEnum e(this, idx / BLKSIZE);
+void SDArraySml::getPSEnum(size_t idx, PSEnum * e) const {
+	e->ptr = this;
+	e->moveblk(idx / BLKSIZE);
+	//Enum e(this, idx / BLKSIZE);
 	uint64_t r = idx % BLKSIZE;
 	for (size_t i = 0; i < r; ++i)
-		e.next();
-	return e;
+		e->next();
 }
 
-SDArraySml::Enum SDArraySml::getEnum(size_t idx) const {
+void SDArraySml::getEnum(size_t idx, Enum* e) const {
 	if (idx > 0) {
-		PSEnum pe(getPSEnum(idx-1));
-		uint64_t last = pe.next();
-		SDArraySml::Enum e(pe, last);
-		return e;
+		getPSEnum(idx-1,&(e->e));		
+		uint64_t last = e->e.next();
+		e->last = last;
 	} else {
-		return SDArraySml::Enum(getPSEnum(0), 0);
+		getPSEnum(0, &(e->e));
+		e->last = 0;
 	}
 }
 

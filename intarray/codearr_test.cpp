@@ -61,8 +61,10 @@ void test_sda1() {
 	SDArraySml a;
 	bd.build(&a);
 	uint64_t psum = 0;
-	SDArraySml::PSEnum e = a.getPSEnum(0);
-	SDArraySml::Enum e2 = a.getEnum(0);
+	SDArraySml::PSEnum e;
+	a.getPSEnum(0, &e);
+	SDArraySml::Enum e2;
+	a.getEnum(0, &e2);
 	for (unsigned i = 0; i < len; ++i) {
 		uint64_t vz = e.next();
 		a.prefixsum(i+1);

@@ -51,7 +51,7 @@ public:
 		mutable coder::CodePr c;
 		friend class DeltaCodeArr;
 	};
-	Enumerator getEnum(uint64_t pos) const;
+	void getEnum(uint64_t pos, Enumerator * e) const;
 
 private:
 	uint64_t len;
@@ -106,7 +106,7 @@ public:
 		mutable uint64_t val;
 		friend class DiffDeltaArr;
 	};
-	Enumerator getEnum(uint64_t pos) const;
+	void getEnum(uint64_t pos, Enumerator * e) const;
 
 private:
 	uint64_t len;

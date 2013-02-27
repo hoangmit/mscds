@@ -7,7 +7,7 @@
 #include "rlsum_int.h"
 #include "poly_sum.h"
 
-#include "noint.h"
+#include "nintv.h"
 
 #include "intarray/sdarray_sml.h"
 #include "codec/deltacoder.h"
@@ -27,7 +27,7 @@ public:
 	typedef RunLenSumArray5 QueryTp;
 private:
 	unsigned int len, lastst, cnt;
-	PNOIntBuilder itvb;
+	PNIntvBuilder itvb;
 
 	mscds::SDArraySmlBuilder psbd, spsbd;
 	PRSumArrBuilder vals;
@@ -76,7 +76,7 @@ public:
 	typedef RunLenSumArrayBuilder5 BuilderTp;
 private:
 	unsigned int len;
-	PNOInt itv;
+	PNIntv itv;
 
 	mscds::SDArraySml psum, sqrsum;
 	PRSumArr vals;

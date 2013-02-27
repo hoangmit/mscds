@@ -38,14 +38,12 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	DeltaCodeArr::Enumerator DeltaCodeArr::getEnum(uint64_t pos) const {
+	void DeltaCodeArr::getEnum(uint64_t pos, Enumerator * e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		Enumerator e;
-		e.is.init(enc.data_ptr(), enc.length(), p);
+		e->is.init(enc.data_ptr(), enc.length(), p);
 		for (unsigned int i = 0; i < r; ++i)
-			e.next();
-		return e;
+			e->next();
 	}
 
 	bool DeltaCodeArr::Enumerator::hasNext() const {
@@ -59,7 +57,9 @@ namespace mscds {
 	}
 
 	uint64_t DeltaCodeArr::lookup(uint64_t pos) const {
-		return getEnum(pos).next();
+		Enumerator e;
+		getEnum(pos, &e);
+		return e.next();
 	}
 
 	void DeltaCodeArr::save(OArchive &ar) const {
@@ -133,16 +133,14 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	DiffDeltaArr::Enumerator DiffDeltaArr::getEnum(uint64_t pos) const {
+	void DiffDeltaArr::getEnum(uint64_t pos, Enumerator *e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		Enumerator it;
-		it.is.init(enc.data_ptr(), enc.length(), p);
-		coder::CodePr c = it.dc.decode2(it.is.peek());
-		it.val = c.first;
-		it.is.skipw(c.second);
-		for (unsigned int i = 0; i < r; ++i) it.next();
-		return it;
+		e->is.init(enc.data_ptr(), enc.length(), p);
+		coder::CodePr c = e->dc.decode2(e->is.peek());
+		e->val = c.first;
+		e->is.skipw(c.second);
+		for (unsigned int i = 0; i < r; ++i) e->next();
 	}
 
 	bool DiffDeltaArr::Enumerator::hasNext() const {
@@ -153,14 +151,16 @@ namespace mscds {
 		coder::CodePr c = dc.decode2(is.peek());
 		uint64_t oval = val;
 		if (hasNext()) {
-			val += coder::absunmap(c.first) - 1;
+			val += coder::absunmap(c.first - 1);
 			is.skipw(c.second);
 		}
 		return oval;
 	}
 
 	uint64_t DiffDeltaArr::lookup(uint64_t pos) const {
-		return (getEnum(pos)).next();
+		Enumerator e;
+		getEnum(pos, &e);
+		return e.next();
 	}
 
 	void DiffDeltaArr::save(OArchive &ar) const {

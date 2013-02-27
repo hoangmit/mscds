@@ -2,7 +2,7 @@
 #include "RLSum.h"
 #include "RLSum4.h"
 
-#include "noint.h"
+#include "nintv.h"
 #include "rlsum_trivbin.h"
 #include "mem/filearchive.h"
 #include "utils/file_utils.h"
@@ -34,7 +34,7 @@ std::deque<ValRange> genInp(const vector<int>& A) {
 }
 
 template<typename StructTp, bool tofile>
-void test_basic_vec(const vector<int>& A) {
+void test_rlsum_basic_vec(const vector<int>& A) {
 	unsigned int len = A.size();
 	std::deque<ValRange> inp = genInp(A);
 	vector<int> S(len+1);
@@ -118,21 +118,25 @@ void test_intervals(const std::deque<ValRange>& rng) {
 	size_t cnt = 0;
 	for (size_t i = 0; i < mlen; ++i) {
 		if (rng[j].ed <= i) ++j;
-		auto v = r.find_interval(i);
+		auto v = r.rank_interval(i);
 		ASSERT_EQ(cnt, r.coverage(i));
+		auto p = r.find_cover(i);
 		if (rng[j].st <= i) {
 			++cnt;
-			ASSERT_EQ(v.second, true);
-		} else ASSERT_EQ(v.second, false);
-		ASSERT_EQ(v.first, j);
+			ASSERT_EQ(j, p.first);
+			ASSERT_EQ(i - rng[j].st, p.second);
+		}else {
+			ASSERT_EQ(j, p.first);
+			ASSERT_EQ(0, p.second);
+		}
+		ASSERT_EQ(j, v);
 	}
 	ASSERT_EQ(j, rng.size() - 1);
-	auto v = r.find_interval(mlen);
-	ASSERT_EQ(v.first, rng.size());
-	ASSERT_EQ(v.second, false);
+	auto v = r.rank_interval(mlen);
+	ASSERT_EQ(v, rng.size());
 }
 
-void test_tb_1() {
+void test_rlsum_tb_1() {
 	/*std::deque<ValRange> inp;
 	inp.push_back(ValRange(0, 3, 1));
 	inp.push_back(ValRange(5, 7, 9));
@@ -143,12 +147,12 @@ void test_tb_1() {
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 
 	vector<int> Av(A,A+len);
-	test_basic_vec<RunLenSumArray, false>(Av);
+	test_rlsum_basic_vec<RunLenSumArray, false>(Av);
 	cout << ".";
 }
 
 
-void test_tb_2() {
+void test_rlsum_tb_2() {
 	/*std::deque<ValRange> inp;
 	inp.push_back(ValRange(3, 5, 2));
 	inp.push_back(ValRange(6, 8, 3));
@@ -159,7 +163,7 @@ void test_tb_2() {
 	int A[len] = {0, 0, 0, 2, 2, 0, 3, 3, 0, 4, 5, 0, 0, 0};
 
 	vector<int> Av(A,A+len);
-	test_basic_vec<RunLenSumArray, true>(Av);
+	test_rlsum_basic_vec<RunLenSumArray, true>(Av);
 	cout << ".";
 }
 
@@ -184,48 +188,48 @@ vector<int> generate(int len) {
 }
 
 
-void test_start_end1() {
+void test_intv_start_end1() {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
-	test_intervals<NOInt>(genInp(Av));
+	test_intervals<NIntv>(genInp(Av));
 }
 
-void test_start_end2() {
+void test_intv_start_end2() {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
-		test_intervals<NOInt>(genInp(A));
+		test_intervals<NIntv>(genInp(A));
 		if (i % 10 == 0) cout << '.';
 	}
 }
 
-void test_start_end3() {
+void test_intv_start_end3() {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
-	test_intervals<NOInt2>(genInp(Av));
+	test_intervals<NIntv2>(genInp(Av));
 }
 
-void test_start_end4() {
+void test_intv_start_end4() {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
-		test_intervals<NOInt2>(genInp(A));
+		test_intervals<NIntv2>(genInp(A));
 		if (i % 10 == 0) cout << '.';
 	}
 }
 
 
 //------------------------------------------------------------------------
-void test_tb_rng(int test_num) {
+void test_rlsum_tb_rng(int test_num) {
 	int len = 10000;
 	vector<int> A = generate(len);
-	test_basic_vec<RunLenSumArray, true>(A);
+	test_rlsum_basic_vec<RunLenSumArray, true>(A);
 	cout << ".";
 }
 
-void test_sum_delta1() {
+void test_rlsum_sum_delta1() {
 	unsigned int len = 2000;
 	int delta = 1;
 
@@ -252,7 +256,7 @@ void test_sum_delta1() {
 	}
 }
 
-void test_sum_delta2() {
+void test_rlsum_sum_delta2() {
 	unsigned int len = 2000;
 	int delta = -1;
 
@@ -279,28 +283,28 @@ void test_sum_delta2() {
 	}
 }
 
-void test_rls4() {
+void test_rlsum_rls4() {
 	int len = 2000;
 	vector<int> A = generate(len);
-	test_basic_vec<RunLenSumArray4, true>(A);
+	test_rlsum_basic_vec<RunLenSumArray4, true>(A);
 }
 
 void test_trivbin_all() {
-	test_start_end3();
-	test_start_end4();
+	test_intv_start_end3();
+	test_intv_start_end4();
 
-	test_start_end1();
-	test_start_end2();
+	test_intv_start_end1();
+	test_intv_start_end2();
 
-	test_tb_1();
-	test_tb_2();
-	test_rls4();
+	test_rlsum_tb_1();
+	test_rlsum_tb_2();
+	test_rlsum_rls4();
 	for (int i = 0; i < 1000; i++) {
-		test_tb_rng(i);
+		test_rlsum_tb_rng(i);
 	}	
 
-	test_sum_delta1();
-	test_sum_delta2();
+	test_rlsum_sum_delta1();
+	test_rlsum_sum_delta2();
 }
 
 

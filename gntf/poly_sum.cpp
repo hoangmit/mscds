@@ -90,15 +90,49 @@ void PRSumArrBuilder::addmethod(unsigned int val) {
 	else assert(false);
 }
 
-mscds::EnumeratorInt<uint64_t>* PRSumArr::getEnum(size_t idx) const  {
+void PRSumArr::Enumerator::init(int _etype) {
+	if (etype == 1) {
+		if (e1 != NULL) e1 = new mscds::SDArraySml::Enum();
+	} else if (etype == 2) {
+		if (e2 != NULL) e2 = new mscds::DeltaCodeArr::Enumerator();
+	} else if (etype == 3) {
+		if (e3 != NULL) e3 = new mscds::DiffDeltaArr::Enumerator();
+	}
+}
+
+PRSumArr::Enumerator::~Enumerator() {
+	if (e1 != NULL) delete e1;
+	if (e2 != NULL) delete e2;
+	if (e3 != NULL) delete e3;
+}
+
+bool PRSumArr::Enumerator::hasNext() const {
+	switch (etype) {
+	case 1: return e1->hasNext();
+	case 2: return e2->hasNext();
+	case 3: return e3->hasNext();
+	}
+	return false;
+}
+
+uint64_t PRSumArr::Enumerator::next() {
+	switch (etype) {
+	case 1: return e1->next();
+	case 2: return e2->next();
+	case 3: return e3->next();
+	}
+	return 0;
+}
+
+void PRSumArr::getEnum(size_t idx, Enumerator * e) const  {
+	e->init(storetype);
 	if (storetype==1) {
-		return new mscds::SDArraySml::Enum(sda.getEnum(idx));
+		sda.getEnum(idx, (e->e1));
 	} else if (storetype==2) {
-		return new mscds::DeltaCodeArr::Enumerator(dt1.getEnum(idx));
+		dt1.getEnum(idx, (e->e2));
 	} else if (storetype ==3) {
-		return new mscds::DiffDeltaArr::Enumerator(dt2.getEnum(idx));
+		dt2.getEnum(idx, e->e3);
 	} else { throw std::runtime_error("wrong type");
-		return NULL;
 	}
 }
 
@@ -133,7 +167,6 @@ void PRSumArr::load(mscds::IArchive& ar) {
 	if (storetype == 0) throw std::runtime_error("unknown type");
 }
 
-
 void PRSumArr::clear() {
 	len = 0;
 	rate = 0;
@@ -142,6 +175,8 @@ void PRSumArr::clear() {
 	dt1.clear();
 	dt2.clear();
 }
+
+
 
 
 }//namespace

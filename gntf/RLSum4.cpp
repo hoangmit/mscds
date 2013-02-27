@@ -99,11 +99,11 @@ unsigned int RunLenSumArray4::pslen(unsigned int i) const { return rlen.prefixsu
 unsigned int RunLenSumArray4::range_value(unsigned int i) const {
 	size_t r = i % VALUE_GROUP;
 	size_t p = i / VALUE_GROUP;
-	mscds::EnumeratorInt<uint64_t> * g = vals.getEnum(p*VALUE_GROUP);
+	PRSumArr::Enumerator g;
+	vals.getEnum(p*VALUE_GROUP, &g);
 	unsigned int x;
-	for (size_t i = 0; i < r; ++i) g->next();
-	x = g->next();
-	delete g;
+	for (size_t i = 0; i < r; ++i) g.next();
+	x = g.next();
 	return x;
 }
 
@@ -112,10 +112,10 @@ uint64_t RunLenSumArray4::range_psum(unsigned int i) const {
 	size_t p = i / VALUE_GROUP;
 	uint64_t cpsum = psum.prefixsum(p+1);
 	if (r == 0) return cpsum;
-	mscds::EnumeratorInt<uint64_t> * g = vals.getEnum(p*VALUE_GROUP);
+	PRSumArr::Enumerator g;
+	vals.getEnum(p*VALUE_GROUP, &g);
 	for (size_t j = 0; j < r; ++j)
-		cpsum += g->next() * range_len(p*VALUE_GROUP + j);
-	delete g;
+		cpsum += g.next() * range_len(p*VALUE_GROUP + j);
 	return cpsum;
 }
 

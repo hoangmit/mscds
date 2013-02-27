@@ -2,32 +2,38 @@
 
 
 #include "archive.h"
-
 #include "intarray/sdarray_sml.h"
+
 #include <stdint.h>
 #include <vector>
+#include <limits>
 
 namespace app_ds {
-	class NOInt;
+	class NIntv;
 
-	class NOIntBuilder {
+	class NIntvBuilder {
 	public:
-		NOIntBuilder();
+		NIntvBuilder();
 		void add(size_t st, size_t ed);
-		void build(NOInt* out);
+		void build(NIntv* out);
 		void build(mscds::OArchive& ar);
 		void clear();
-		typedef NOInt QueryTp;
+		typedef NIntv QueryTp;
 	private:
 		unsigned int lasted, cnt;
 		mscds::SDRankSelectBuilderSml stbd;
 		mscds::SDArraySmlBuilder rlbd;
 	};
 
-	class NOInt {
+	class NIntv {
 	public:
-		NOInt(): len(0) {}
-		std::pair<size_t, bool> find_interval(size_t pos) const;
+		NIntv(): len(0) {}
+		/* \brief find an interval i such that s_i <= pos; return max(size_t) if not found */
+		size_t rank_interval(size_t pos) const;
+
+		/* \brief find an interval i */
+		std::pair<size_t, size_t> find_cover(size_t pos) const;
+
 		size_t find_rlen(size_t val) const;
 		size_t coverage(size_t pos) const;
 
@@ -36,38 +42,42 @@ namespace app_ds {
 		size_t int_end(size_t i) const;
 		size_t int_psrlen(size_t i) const;
 
+		static size_t npos() { return std::numeric_limits<size_t>::max(); }
+
 		void clear();
 		size_t length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
-		typedef NOIntBuilder BuilderTp;
+		typedef NIntvBuilder BuilderTp;
 	private:
 		size_t len;
 		mscds::SDRankSelectSml start;
 		mscds::SDArraySml rlen;
-		friend class NOIntBuilder;
+		friend class NIntvBuilder;
 	};
 
-	class NOInt2;
+	class NIntv2;
 
-	class NOInt2Builder {
+	class NIntv2Builder {
 	public:
-		NOInt2Builder();
+		NIntv2Builder();
 		void add(size_t st, size_t ed);
-		void build(NOInt2* out);
+		void build(NIntv2* out);
 		void build(mscds::OArchive& ar);
 		void clear();
-		typedef NOInt2 QueryTp;
+		typedef NIntv2 QueryTp;
 	private:
 		size_t last_ed, g_pos, cnt, llen;
 		mscds::SDRankSelectBuilderSml gstbd, ilbd;
 		mscds::SDRankSelectBuilderSml gcbd;
 	};
 
-	class NOInt2 {
+	class NIntv2 {
 	public:
-		NOInt2(): len(0) {}
-		std::pair<size_t, bool> find_interval(size_t pos) const;
+		NIntv2(): len(0) {}
+		size_t rank_interval(size_t pos) const;
+		std::pair<size_t, size_t> find_cover(size_t pos) const;
+
 		size_t find_rlen(size_t val) const;
 		size_t coverage(size_t pos) const;
 
@@ -76,29 +86,31 @@ namespace app_ds {
 		size_t int_end(size_t i) const;
 		size_t int_psrlen(size_t i) const;
 
+		static size_t npos() { return std::numeric_limits<size_t>::max(); }
+
 		void clear();
 		size_t length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
-		typedef NOInt2Builder BuilderTp;
+		typedef NIntv2Builder BuilderTp;
 	private:
 		size_t len, maxpos, ngrp;
 		mscds::SDRankSelectSml gstart, ilen;
 		mscds::SDRankSelectSml gcnt;
-		friend class NOInt2Builder;
+		friend class NIntv2Builder;
 	};
 
-	class PNOInt;
+	class PNIntv;
 
-	class PNOIntBuilder {
+	class PNIntvBuilder {
 	public:
-		PNOIntBuilder();
+		PNIntvBuilder();
 		void init(unsigned int _method = 0);
 		void add(size_t st, size_t ed);
-		void build(PNOInt* out);
+		void build(PNIntv* out);
 		void build(mscds::OArchive& ar);
 		void clear();
-		typedef PNOInt QueryTp;
+		typedef PNIntv QueryTp;
 	private:
 		static const unsigned int CHECK_THRESHOLD = 10000;
 		unsigned int method;
@@ -107,15 +119,16 @@ namespace app_ds {
 		void choosemethod();
 
 		void addmethod(size_t st, size_t ed);
-		NOIntBuilder bd1;
-		NOInt2Builder bd2;
+		NIntvBuilder bd1;
+		NIntv2Builder bd2;
 		bool autoselect;
 	};
 
-
-	class PNOInt {
+	class PNIntv {
 	public:
-		std::pair<size_t, bool> find_interval(size_t pos) const;
+		std::pair<size_t, size_t> find_cover(size_t pos) const;
+		size_t rank_interval(size_t pos) const;
+
 		size_t find_rlen(size_t val) const;
 		size_t coverage(size_t pos) const;
 
@@ -123,19 +136,19 @@ namespace app_ds {
 		size_t int_len(size_t i) const;
 		size_t int_end(size_t i) const;
 		size_t int_psrlen(size_t i) const;
+		static size_t npos() { return std::numeric_limits<size_t>::max(); }
 
 		void clear();
 		size_t length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
-		typedef PNOIntBuilder BuilderTp;
-		friend class PNOIntBuilder;
+		typedef PNIntvBuilder BuilderTp;
+		friend class PNIntvBuilder;
 	private:
 		unsigned int method;
 		unsigned int autoselect;
-		NOInt m1;
-		NOInt2 m2;
+		NIntv m1;
+		NIntv2 m2;
 	};
-
 
 }//namespace

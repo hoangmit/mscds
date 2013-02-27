@@ -56,7 +56,22 @@ public:
 	void load(mscds::IArchive& ar);
 	void clear();
 	size_t length() const { return len; }
-	mscds::EnumeratorInt<uint64_t> * getEnum(size_t idx) const;
+	class Enumerator : public mscds::EnumeratorInt<uint64_t> {
+	public:
+		Enumerator(): e1(NULL), e2(NULL), e3(NULL) {}
+		~Enumerator();
+
+		void init(int _etype);
+		bool hasNext() const;
+		uint64_t next();
+	private:
+		int etype;
+		mscds::SDArraySml::Enum * e1;
+		mscds::DeltaCodeArr::Enumerator * e2;
+		mscds::DiffDeltaArr::Enumerator * e3;
+		friend class PRSumArr;
+	};
+	void getEnum(size_t idx, Enumerator * e) const;
 private:
 	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap
 

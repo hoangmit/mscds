@@ -80,13 +80,13 @@ public:
 		bool hasNext() const { return e.hasNext(); }
 		uint64_t next() { uint64_t v = e.next(); uint64_t d = v - last; last = v; return d; }
 	private:
-		Enum(const PSEnum& _e, uint64_t _last): e(_e), last(_last) {}
+		//Enum(const PSEnum& _e, uint64_t _last): e(_e), last(_last) {}
 		PSEnum e;
 		uint64_t last;
 		friend class SDArraySml;
 	};
-	Enum getEnum(size_t idx) const;
-	PSEnum getPSEnum(size_t idx) const;
+	void getEnum(size_t idx, Enum * e) const;
+	void getPSEnum(size_t idx, PSEnum * e) const;
 private:
 	uint64_t rank(uint64_t val, uint64_t lo, uint64_t hi) const;
 

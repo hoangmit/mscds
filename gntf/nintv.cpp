@@ -1,4 +1,4 @@
-#include "noint.h"
+#include "nintv.h"
 
 #include <stdexcept>
 #include <utility>
@@ -9,16 +9,16 @@ using namespace std;
 
 namespace app_ds {
 
-NOIntBuilder::NOIntBuilder() { clear(); }
+NIntvBuilder::NIntvBuilder() { clear(); }
 
-void NOIntBuilder::clear() {
+void NIntvBuilder::clear() {
 	stbd.clear();
 	rlbd.clear();
 	cnt = 0;
 	lasted = 0;
 }
 
-void NOIntBuilder::add(size_t st, size_t ed) {
+void NIntvBuilder::add(size_t st, size_t ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	size_t llen = ed - st;
 	if (lasted > st) throw std::runtime_error("required sorted array");
@@ -28,20 +28,20 @@ void NOIntBuilder::add(size_t st, size_t ed) {
 	++cnt;
 }
 
-void NOIntBuilder::build(NOInt *out) {
+void NIntvBuilder::build(NIntv *out) {
 	out->len = cnt;
 	stbd.build(&(out->start));
 	rlbd.build(&(out->rlen));
 	clear();
 }
 
-void NOIntBuilder::build(mscds::OArchive &ar) {
-	NOInt a;
+void NIntvBuilder::build(mscds::OArchive &ar) {
+	NIntv a;
 	build(&a);
 	a.save(ar);
 }
 
-void NOInt::save(mscds::OArchive &ar) const {
+void NIntv::save(mscds::OArchive &ar) const {
 	ar.startclass("non-overlapped_intervals", 1);
 	ar.var("length").save(len);
 	start.save(ar.var("start"));
@@ -49,7 +49,7 @@ void NOInt::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NOInt::load(mscds::IArchive &ar) {
+void NIntv::load(mscds::IArchive &ar) {
 	ar.loadclass("non-overlapped_intervals");
 	ar.var("length").load(len);
 	start.load(ar.var("start"));
@@ -57,22 +57,25 @@ void NOInt::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-std::pair<size_t, bool> NOInt::find_interval(size_t pos) const {
-	uint64_t p = start.rank(pos+1);
-	if (p == 0) return std::pair<size_t, bool>(0, false);
-	p--;
+std::pair<size_t, size_t> NIntv::find_cover(size_t pos) const {
+	size_t p = rank_interval(pos);
+	if (p == npos()) return pair<size_t, size_t>(0u, 0u);
 	uint64_t sp = start.select(p);
 	assert(sp <= pos);
-	size_t kl = pos - sp;
+	size_t kl = pos - sp + 1;
 	size_t rangelen = rlen.lookup(p);
-	if (rangelen > kl) return std::pair<size_t, bool>(p, true);
-	else return std::pair<size_t, bool>(p+1, false);
+	if (kl <= rangelen) return pair<size_t, size_t>(p, kl);
+	else pair<size_t, size_t>(p+1, 0);
 }
 
-size_t NOInt::coverage(size_t pos) const {
+size_t NIntv::rank_interval(size_t pos) const {
 	uint64_t p = start.rank(pos+1);
-	if (p == 0) return 0;
-	p--;
+	if (p == 0) return npos();
+	return p-1;
+}
+
+size_t NIntv::coverage(size_t pos) const {
+	uint64_t p = rank_interval(pos);
 	uint64_t sp = start.select(p);
 	assert(sp <= pos);
 	size_t ps = 0;
@@ -80,43 +83,43 @@ size_t NOInt::coverage(size_t pos) const {
 	return std::min<size_t>((pos - sp), rangelen) + ps;
 }
 
-size_t NOInt::int_start(size_t i) const {
+size_t NIntv::int_start(size_t i) const {
 	return start.select(i);
 }
 
-size_t NOInt::int_len(size_t i) const {
+size_t NIntv::int_len(size_t i) const {
 	return rlen.lookup(i);
 }
 
-size_t NOInt::int_end(size_t i) const {
+size_t NIntv::int_end(size_t i) const {
 	return int_start(i) + int_len(i);
 }
 
-void NOInt::clear() {
+void NIntv::clear() {
 	len = 0;
 	start.clear();
 	rlen.clear();
 }
 
-size_t NOInt::length() const {
+size_t NIntv::length() const {
 	return len;
 }
 
-size_t NOInt::find_rlen(size_t val) const {
+size_t NIntv::find_rlen(size_t val) const {
 	throw std::runtime_error("not implemented");
 	return 0;
 }
 
-size_t NOInt::int_psrlen(size_t i) const {
+size_t NIntv::int_psrlen(size_t i) const {
 	throw std::runtime_error("not implemented");
 	return 0;
 }
 
 //------------------------------------------------------------------------
 
-NOInt2Builder::NOInt2Builder() { clear(); }
+NIntv2Builder::NIntv2Builder() { clear(); }
 
-void NOInt2Builder::clear() {
+void NIntv2Builder::clear() {
 	gstbd.clear();
 	ilbd.clear();
 	gcbd.clear();
@@ -126,7 +129,7 @@ void NOInt2Builder::clear() {
 	llen = 0;
 }
 
-void NOInt2Builder::add(size_t st, size_t ed) {
+void NIntv2Builder::add(size_t st, size_t ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	if (last_ed > st) throw std::runtime_error("required sorted array");
 	if (st > last_ed) {
@@ -141,7 +144,7 @@ void NOInt2Builder::add(size_t st, size_t ed) {
 	++cnt;
 }
 
-void NOInt2Builder::build(NOInt2 *out) {
+void NIntv2Builder::build(NIntv2 *out) {
 	gcbd.add(g_pos);
 	ilbd.add_inc(llen);
 	out->len = cnt;
@@ -152,13 +155,13 @@ void NOInt2Builder::build(NOInt2 *out) {
 	clear();
 }
 
-void NOInt2Builder::build(mscds::OArchive &ar) {
-	NOInt2 a;
+void NIntv2Builder::build(mscds::OArchive &ar) {
+	NIntv2 a;
 	build(&a);
 	a.save(ar);
 }
 
-void NOInt2::save(mscds::OArchive &ar) const {
+void NIntv2::save(mscds::OArchive &ar) const {
 	ar.startclass("non-overlapped_grouped_intervals", 1);
 	ar.var("length").save(len);
 	ar.var("max_pos").save(maxpos);
@@ -168,7 +171,7 @@ void NOInt2::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NOInt2::load(mscds::IArchive &ar) {
+void NIntv2::load(mscds::IArchive &ar) {
 	ar.loadclass("non-overlapped_grouped_intervals");
 	ar.var("length").load(len);
 	ar.var("max_pos").load(maxpos);
@@ -178,18 +181,31 @@ void NOInt2::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-std::pair<size_t, bool> NOInt2::find_interval(size_t pos) const {
-	if (pos >= maxpos) return std::pair<size_t, bool>(length(), false);
+std::pair<size_t, size_t> NIntv2::find_cover(size_t pos) const {
 	uint64_t j = gstart.rank(pos+1);
-	if (j == 0) return std::pair<size_t, bool>(0, false);
+	if (j == 0) return pair<size_t, size_t>(0, 0);
+	--j;
+	pos -= gstart.select(j);
+	size_t ds = ilen.select(gcnt.select(j));
+	size_t i = ilen.rank(pos + ds + 1) - 1;
+	size_t nb = gcnt.select(j+1);
+	if (i < nb) return pair<size_t, size_t>(i, pos + ds - ilen.select(i));
+	else
+		return pair<size_t, size_t>(nb, 0);
+}
+
+size_t NIntv2::rank_interval(size_t pos) const {
+	uint64_t j = gstart.rank(pos+1);
+	if (j == 0) return npos();
 	--j;
 	pos -= gstart.select(j);
 	size_t i = ilen.rank(pos + ilen.select(gcnt.select(j)) + 1) - 1;
-	if (i < gcnt.select(j+1)) return std::pair<size_t, bool>(i, true);
-	else return std::pair<size_t, bool>(gcnt.select(j+1), false);
+	size_t nb = gcnt.select(j+1);
+	if (i < nb) return i;
+	else return nb - 1;
 }
 
-size_t NOInt2::coverage(size_t pos) const {
+size_t NIntv2::coverage(size_t pos) const {
 	if (pos >= maxpos) return ilen.select(ilen.one_count() - 1);
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return 0;
@@ -200,48 +216,46 @@ size_t NOInt2::coverage(size_t pos) const {
 	else return ilen.select(gcnt.select(j+1));
 }
 
-size_t NOInt2::int_start(size_t i) const {
+size_t NIntv2::int_start(size_t i) const {
 	uint64_t j = gcnt.rank(i);
 	return gstart.select(j) + ilen.select(i) - ilen.select(gcnt.select(j));
 }
 
-size_t NOInt2::int_len(size_t i) const {
+size_t NIntv2::int_len(size_t i) const {
 	return ilen.select(i+1) - ilen.select(i);
 }
 
-size_t NOInt2::int_end(size_t i) const {
+size_t NIntv2::int_end(size_t i) const {
 	return int_start(i) + int_len(i);
 }
 
-void NOInt2::clear() {
+void NIntv2::clear() {
 	len = 0;
 	gcnt.clear();
 	ilen.clear();
 	gstart.clear();
 }
 
-size_t NOInt2::length() const {
+size_t NIntv2::length() const {
 	return len;
 }
 
-size_t NOInt2::find_rlen( size_t val ) const {
-	throw std::runtime_error("not implemented");
-	return 0;
+size_t NIntv2::find_rlen(size_t val) const {
+	return ilen.rank(val);
 }
 
-size_t NOInt2::int_psrlen( size_t i ) const {
-	throw std::runtime_error("not implemented");
-	return 0;
+size_t NIntv2::int_psrlen(size_t i) const {
+	return ilen.select(i);
 }
 
 //------------------------------------------------------------------------
 
 
-PNOIntBuilder::PNOIntBuilder() {
+PNIntvBuilder::PNIntvBuilder() {
 	init();
 }
 
-void PNOIntBuilder::init(unsigned int _method /*= 0*/) {
+void PNIntvBuilder::init(unsigned int _method /*= 0*/) {
 	clear();
 	this->method = _method;
 	if (method == 0) {
@@ -256,7 +270,7 @@ void PNOIntBuilder::init(unsigned int _method /*= 0*/) {
 	vals.clear();
 }
 
-void PNOIntBuilder::choosemethod() {
+void PNIntvBuilder::choosemethod() {
 	bd1.clear();
 	bd2.clear();
 	for (size_t i = 0; i < vals.size(); ++i) {
@@ -277,13 +291,13 @@ void PNOIntBuilder::choosemethod() {
 }
 
 
-void PNOIntBuilder::addmethod(size_t st, size_t ed) {
+void PNIntvBuilder::addmethod(size_t st, size_t ed) {
 	if (method == 1) bd1.add(st, ed);
 	else if (method == 2) bd2.add(st, ed);
 	else assert(false);
 }
 
-void PNOIntBuilder::add(size_t st, size_t ed) {
+void PNIntvBuilder::add(size_t st, size_t ed) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD) {
 		vals.push_back(std::make_pair(st, ed));
 		if (cnt == CHECK_THRESHOLD)
@@ -294,7 +308,7 @@ void PNOIntBuilder::add(size_t st, size_t ed) {
 	cnt++;
 }
 
-void PNOIntBuilder::build(PNOInt* out) {
+void PNIntvBuilder::build(PNIntv* out) {
 	out->clear();
 	if (method == 0) {
 		choosemethod();
@@ -307,7 +321,7 @@ void PNOIntBuilder::build(PNOInt* out) {
 		bd2.build(&(out->m2));
 }
 
-void PNOIntBuilder::clear() {
+void PNIntvBuilder::clear() {
 	bd1.clear();
 	bd2.clear();
 	cnt = 0;
@@ -316,7 +330,7 @@ void PNOIntBuilder::clear() {
 
 //---
 
-void PNOInt::save(mscds::OArchive& ar) const {
+void PNIntv::save(mscds::OArchive& ar) const {
 	ar.startclass("poly_non_overlap_intervals", 1);
 	ar.var("method").save(method);
 	ar.var("autoselect").save(autoselect);
@@ -329,7 +343,7 @@ void PNOInt::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void PNOInt::load( mscds::IArchive& ar ) {
+void PNIntv::load( mscds::IArchive& ar ) {
 	clear();
 	ar.loadclass("poly_non_overlap_intervals");
 	ar.var("method").load(method);
@@ -344,59 +358,67 @@ void PNOInt::load( mscds::IArchive& ar ) {
 }
 
 
-void PNOInt::clear() {
+void PNIntv::clear() {
 	method = 0;
 	m1.clear();
 	m2.clear();
 }
 
-std::pair<size_t, bool> PNOInt::find_interval(size_t pos) const {
-	if (method == 1) return m1.find_interval(pos);
-	else if (method == 2) return m2.find_interval(pos);
+std::pair<size_t, size_t> PNIntv::find_cover(size_t pos) const {
+	if (method == 1) return m1.find_cover(pos);
+	else if (method == 2) return m2.find_cover(pos);
 	else assert(false);
-	return make_pair(0,false);
+	return std::pair<size_t, size_t>();
 }
 
-size_t PNOInt::find_rlen(size_t val) const {
+size_t PNIntv::rank_interval(size_t pos) const {
+	if (method == 1) return m1.rank_interval(pos);
+	else if (method == 2) return m2.rank_interval(pos);
+	else assert(false);
+	return 0;
+}
+
+size_t PNIntv::find_rlen(size_t val) const {
 	if (method == 1) return m1.find_rlen(val);
 	else if (method == 2) return m2.find_rlen(val);
 	else assert(false);
 	return 0;
 }
 
-size_t PNOInt::int_start(size_t i) const {
+size_t PNIntv::int_start(size_t i) const {
 	if (method == 1) return m1.int_start(i);
 	else if (method == 2) return m2.int_start(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNOInt::int_len(size_t i) const {
+size_t PNIntv::int_len(size_t i) const {
 	if (method == 1) return m1.int_len(i);
 	else if (method == 2) return m2.int_len(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNOInt::int_end(size_t i) const {
+size_t PNIntv::int_end(size_t i) const {
 	if (method == 1) return m1.int_end(i);
 	else if (method == 2) return m2.int_end(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNOInt::int_psrlen(size_t i) const {
+size_t PNIntv::int_psrlen(size_t i) const {
 	if (method == 1) return m1.int_psrlen(i);
 	else if (method == 2) return m2.int_psrlen(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNOInt::length() const {
+size_t PNIntv::length() const {
 	if (method == 1) return m1.length();
 	else if (method == 2) return m2.length();
 	else assert(false);
 	return 0;
 }
+
 
 } // namespace

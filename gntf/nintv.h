@@ -20,7 +20,7 @@ namespace app_ds {
 		void clear();
 		typedef NIntv QueryTp;
 	private:
-		unsigned int lasted, cnt;
+		size_t lasted, cnt;
 		mscds::SDRankSelectBuilderSml stbd;
 		mscds::SDArraySmlBuilder rlbd;
 	};
@@ -31,7 +31,7 @@ namespace app_ds {
 		/* \brief find an interval i such that s_i <= pos; return max(size_t) if not found */
 		size_t rank_interval(size_t pos) const;
 
-		/* \brief find an interval i */
+		/* \brief returns (interval, length) or (interval, 0) */
 		std::pair<size_t, size_t> find_cover(size_t pos) const;
 
 		size_t find_rlen(size_t val) const;

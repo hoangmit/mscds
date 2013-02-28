@@ -88,7 +88,7 @@ void RunLenSumArray5::load(IArchive& ar) {
 
 unsigned int RunLenSumArray5::range_start(unsigned int i) const { return itv.int_start(i); }
 unsigned int RunLenSumArray5::range_len(unsigned int i) const { return itv.int_len(i); }
-unsigned int RunLenSumArray5::pslen(unsigned int i) const { return 0; throw "wrong"; }
+
 unsigned int RunLenSumArray5::range_value(unsigned int i) const {
 	size_t r = i % VALUE_GROUP;
 	size_t p = i / VALUE_GROUP;
@@ -97,115 +97,61 @@ unsigned int RunLenSumArray5::range_value(unsigned int i) const {
 	unsigned int x;
 	for (size_t i = 0; i < r; ++i) g.next();
 	x = g.next();
-	
 	return x;
 }
 
-uint64_t RunLenSumArray5::range_psum(unsigned int i) const {
-	size_t r = i % VALUE_GROUP;
-	size_t p = i / VALUE_GROUP;
-	uint64_t cpsum = psum.prefixsum(p+1);
-	if (r == 0) return cpsum;
-	PRSumArr::Enumerator g;
-	vals.getEnum(p*VALUE_GROUP, &g);
-	for (size_t j = 0; j < r; ++j)
-		cpsum += g.next() * range_len(p*VALUE_GROUP + j);
-	return cpsum;
+unsigned int RunLenSumArray5::count_range(unsigned int pos) const {
+	auto res = itv.find_cover(pos);
+	if (res.first == 0 && res.second == 0) return 0;
 }
 
-
-unsigned int RunLenSumArray5::count_range(unsigned int pos) const {
-	return 0;
+uint64_t RunLenSumArray5::range_psum(unsigned int i) const {
+	return sum(range_start(i));
 }
 
 uint64_t RunLenSumArray5::sum(uint32_t pos) const {
-	uint64_t p = itv.rank_interval(pos+1); //start.rank(pos+1);
-	if (p == 0) return 0;
-	p--;
-	uint64_t sp = itv.int_start(p);
-	if (sp == pos)
-		return range_psum(p);
-	assert(sp < pos);
-	uint32_t kl = pos - sp;
-	uint32_t rangelen = itv.int_len(p);
-	if (rangelen >= kl) {
-		uint64_t pm, val;
-		pm = range_psum(p);
-		val = range_value(p);
-		return  pm + kl*(val);
-	} else
-		return range_psum(p+1);
+	if (pos == 0) return 0;
+	auto res = itv.find_cover(pos - 1);
+	if (res.first == 0 && res.second == 0) return 0;
+	size_t r = res.first % VALUE_GROUP;
+	size_t p = res.first / VALUE_GROUP;
+	uint64_t cpsum = psum.prefixsum(p+1);
+	PRSumArr::Enumerator g;
+	if (r > 0 || res.second > 0) {
+		vals.getEnum(p*VALUE_GROUP, &g);
+		for (size_t j = 0; j < r; ++j)
+			cpsum += g.next() * range_len(p*VALUE_GROUP + j);
+	} 
+	if (res.second > 0) return cpsum + g.next() * res.second;
+	else return cpsum;
 }
 
 int64_t RunLenSumArray5::sum_delta(uint32_t pos, int64_t delta) const {
-	uint64_t p = itv.rank_interval(pos);
-	if (p == 0) return 0;
-	p--;
-	uint64_t sp = itv.int_start(p);
-	if (sp == pos)
-		return (int64_t)range_psum(p) + delta * pslen(p);
-	assert(sp < pos);
-	uint32_t kl = pos - sp;
-	uint64_t ps;
-	uint32_t rangelen = 0;//rlen.lookup(p, ps);
-	if (rangelen >= kl) {
-		uint64_t pm, val;
-		pm = range_psum(p);
-		val = range_value(p);
-		return  pm + kl*(val) + delta * (kl + ps);
-	} else
-		return range_psum(p+1) + delta*(rangelen + ps);
+	return delta * itv.coverage(pos) + sum(pos);
 }
 
 unsigned int RunLenSumArray5::countnz(unsigned int pos) const {
-	uint64_t p = itv.rank_interval(pos);
-	if (p == 0) return 0;
-	p--;
-	uint64_t sp = itv.int_start(p);
-	assert(sp <= pos);
-	uint64_t ps = 0;
-	uint32_t rangelen = 0;//rlen.lookup(p, ps);
-	return std::min<uint32_t>((pos - sp), rangelen) + ps;
+	return itv.coverage(pos);
 }
 
 unsigned int RunLenSumArray5::access(unsigned int pos) const {
-	uint64_t p = itv.rank_interval(pos);
-	if (p == 0) return 0;
-	p--;
-	uint64_t sp = itv.int_start(p); //start.select(p);
-	assert(sp <= pos);
-	uint32_t rangelen = 0;//rlen.lookup(p);
-	if (rangelen > (pos - sp)) {
-		return range_value(p);
-	} else
-		return 0;
+	auto res = itv.find_cover(pos);
+	if (res.second != 0) return range_value(res.first);
+	else return 0;
 }
 
 int RunLenSumArray5::prev(unsigned int pos) const {
-	uint64_t p = itv.rank_interval(pos);
-	if (p == 0) return -1;
-	p--;
-	uint64_t sp = itv.int_start(p);
-	assert(sp <= pos);
-	uint32_t rangelen = 0;//rlen.lookup(p);
-	if (rangelen > (pos - sp))
-		return  pos;
-	else return sp + rangelen - 1;
+	auto res = itv.find_cover(pos);
+	if (res.second > 0) return pos;
+	else if (res.first > 0) return itv.int_end(res.first - 1) - 1;
+	else return -1;
 }
 
 int RunLenSumArray5::next(unsigned int pos) const {
-	uint64_t p = itv.rank_interval(pos);
-	if (p == 0) return (len > 0) ? itv.int_start(0) : -1;
-	p--;
-	uint64_t sp = itv.int_start(p);
-	assert(sp <= pos);
-	uint32_t rangelen = 0;//rlen.lookup(p);
-	if (rangelen > (pos - sp))
-		return pos;
-	else {
-		if (p == len-1) return -1;
-		else return itv.int_start(p+1);
-	}
+	auto res = itv.find_cover(pos);
+	if (res.second > 0) return pos;
+	else if (res.first < len) return itv.int_start(res.first);
+	else return -1;
 }
 
 unsigned int RunLenSumArray5::length() const {

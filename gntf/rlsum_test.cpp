@@ -1,6 +1,7 @@
 
 #include "RLSum.h"
 #include "RLSum4.h"
+#include "RLSum5.h"
 
 #include "nintv.h"
 #include "rlsum_trivbin.h"
@@ -168,6 +169,17 @@ void test_rlsum_tb_2() {
 	cout << ".";
 }
 
+void test_rlsum5_tb_1() {
+
+	const int len = 11;
+	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
+
+	vector<int> Av(A,A+len);
+	test_rlsum_basic_vec<RunLenSumArray5, true>(Av);
+	cout << ".";
+}
+
+
 vector<int> generate(int len) {
 	int last = 0;
 	const int VAL_RANGE = 5;
@@ -292,12 +304,22 @@ void test_rlsum_rls4() {
 	test_rlsum_basic_vec<RunLenSumArray4, true>(A);
 }
 
+void test_rlsum_rls5() {
+	int len = 2000;
+	vector<int> A = generate(len);
+	test_rlsum_basic_vec<RunLenSumArray5, true>(A);
+}
+
+
 void test_trivbin_all() {
+	test_rlsum5_tb_1();
+	test_rlsum_rls5();
 
 	test_rlsum_tb_1();
 	test_rlsum_tb_2();
 	test_rlsum_rls4();
-	for (int i = 0; i < 1000; i++) {
+	
+	for (int i = 0; i < 100; i++) {
 		test_rlsum_tb_rng(i);
 	}	
 

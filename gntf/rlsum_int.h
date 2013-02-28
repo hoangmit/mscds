@@ -16,9 +16,9 @@ public:
 	virtual void clear() = 0;
 
 	virtual unsigned int range_start(unsigned int i) const = 0;
-	virtual uint64_t range_psum(unsigned int i) const = 0;
 	virtual unsigned int range_len(unsigned int i) const = 0;
 	virtual unsigned int range_value(unsigned int i) const = 0;
+	virtual uint64_t range_psum(unsigned int i) const = 0;
 
 	virtual unsigned int count_range(unsigned int pos) const = 0;
 

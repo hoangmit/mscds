@@ -345,8 +345,7 @@ void PNIntv::save(mscds::OArchive& ar) const {
 	ar.var("autoselect").save(autoselect);
 	if (method == 1) {
 		m1.save(ar.var("method1"));
-	}
-	else if (method == 2) {
+	} else if (method == 2) {
 		m2.save(ar.var("method2"));
 	}
 	ar.endclass();
@@ -365,7 +364,6 @@ void PNIntv::load( mscds::IArchive& ar ) {
 	}
 	ar.endclass();
 }
-
 
 void PNIntv::clear() {
 	method = 0;
@@ -390,6 +388,13 @@ size_t PNIntv::rank_interval(size_t pos) const {
 size_t PNIntv::find_rlen(size_t val) const {
 	if (method == 1) return m1.find_rlen(val);
 	else if (method == 2) return m2.find_rlen(val);
+	else assert(false);
+	return 0;
+}
+
+size_t PNIntv::coverage(size_t pos) const {
+	if (method == 1) return m1.coverage(pos);
+	else if (method == 2) return m2.coverage(pos);
 	else assert(false);
 	return 0;
 }
@@ -428,6 +433,5 @@ size_t PNIntv::length() const {
 	else assert(false);
 	return 0;
 }
-
 
 } // namespace

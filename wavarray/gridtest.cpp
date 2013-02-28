@@ -221,8 +221,11 @@ void watarr_list() {
 					if (exp.size() > 0) {
 						std::sort(exp.begin(), exp.end());
 						std::sort(rs.begin(), rs.end());
-						for (int k = 0; k < exp.size(); ++k) 
+						for (int k = 0; k < exp.size(); ++k) {
+							//ASSERT_EQ(exp[k].first, rs[k].first);
+							//ASSERT_EQ(exp[k].second, rs[k].second);
 							ASSERT_EQ(exp[k], rs[k]);
+						}
 					}
 				}
 	}

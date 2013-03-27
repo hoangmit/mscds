@@ -1,27 +1,29 @@
 #pragma once
 
 #include <string>
-#include "RLSum5.h"
+#include "RLSum6.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
 #include "archive.h"
 
 namespace app_ds {
 
-struct ValRange {
+template<typename T>
+struct ValRangeG {
 	unsigned int st, ed;
-	int val;
+	T val;
 	std::string annotation;
-	ValRange() {}
-	ValRange(unsigned int s, unsigned int e, int v):st(s), ed(e), val(v) {}
-	ValRange(unsigned int s, unsigned int e, int v, const std::string& ann):st(s), ed(e), val(v), annotation(ann) {}
-	bool operator<(const ValRange& e) const { return st < e.st; }
-	bool operator==(const ValRange& e) const {
+	ValRangeG() {}
+	ValRangeG(unsigned int s, unsigned int e, T v):st(s), ed(e), val(v) {}
+	ValRangeG(unsigned int s, unsigned int e, T v, const std::string& ann):st(s), ed(e), val(v), annotation(ann) {}
+	bool operator<(const ValRangeG<T>& e) const { return st < e.st; }
+	bool operator==(const ValRangeG<T>& e) const {
 		return st == e.st && ed == e.ed && val == e.val;
 	}
 };
+typedef ValRangeG<double> ValRange;
 
-typedef RunLenSumArray5 ChrNumValType;
+typedef RunLenSumArray6 ChrNumValType;
 typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
 class ChrNumThread;

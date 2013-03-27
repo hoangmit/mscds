@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 2.6)
 project(gntf)
 
 set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp
-RLSum.cpp RLSum4.cpp RLSum5.cpp 
+RLSum6.cpp 
 poly_sum.cpp nintv.cpp)
 
 set(HEADERS chrfmt.h gntf.h stringarr.h 
-RLSum.h RLSum4.h RLSum5.h
+RLSum6.h
 rlsum_int.h poly_sum.h nintv.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})

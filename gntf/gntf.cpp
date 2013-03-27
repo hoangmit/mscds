@@ -13,9 +13,9 @@ namespace app_ds {
 
 
 void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
-										  unsigned int factor, bool minmax_query, bool annotation) {
+										  bool minmax_query, bool annotation) {
 	clear();
-	init(false, factor, (minmax_query ? ALL_OP : NO_MINMAX), annotation);
+	init(false, (minmax_query ? ALL_OP : NO_MINMAX), annotation);
 	std::string curchr = "";
 	while (fi) {
 		std::string line;
@@ -25,7 +25,8 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 		if (line.empty()) continue;
 		if (line[0] == '#') continue;
 		BED_Entry b;
-		b.parse(line);
+		if (annotation) b.parse_ann(line);
+		else b.parse(line);
 		if (b.chrname != curchr) {
 			changechr(b.chrname);
 			curchr = b.chrname;
@@ -36,11 +37,11 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 }
 
 void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output,
-										  unsigned int factor, bool minmax_query, bool annotation) {
+										  bool minmax_query, bool annotation) {
 	std::ifstream fi(input.c_str());
 	mscds::OFileArchive fo;
 	fo.open_write(output);
-	build_bedgraph(fi, fo, factor, minmax_query, annotation);
+	build_bedgraph(fi, fo, minmax_query, annotation);
 	fo.close();
 	fi.close();
 }
@@ -50,13 +51,11 @@ void GenomeNumDataBuilder::clear() {
 	chrid.clear();
 	list.clear();
 	tmpfn.clear();
-	factor = 0;
 	numchr = 0;
 }
 
-void GenomeNumDataBuilder::init(bool one_by_one_chrom, unsigned int factor, minmaxop_t opt, bool range_annotation) {
+void GenomeNumDataBuilder::init(bool one_by_one_chrom, minmaxop_t opt, bool range_annotation) {
 	clear();
-	this->factor = factor;
 	this->opt = opt;
 	onechr = one_by_one_chrom;
 	annotation = range_annotation;
@@ -96,15 +95,9 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 }
 
 void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d, const std::string& annotation) {
-	d *= factor;
-	int num = (int)((d > 0.0) ? floor(d + 0.5) : ceil(d - 0.5));
-	//if (fabs(d - num) > 1E-3) {
-	//	std::cout.precision(10);
-	//	std::cout << "warning: number convertion may be incorrect: " << d << " " << num << " " << fabs(d - num) << '\n';
-	//}
 	empty_ann= empty_ann && (annotation.empty());
 	if (lastchr == 0) throw std::runtime_error("no chr name");
-	list[lastchr - 1].push_back(ValRange(st, ed, num, annotation));
+	list[lastchr - 1].push_back(ValRange(st, ed, d, annotation));
 }
 
 void GenomeNumDataBuilder::buildtemp(const std::string& name) {
@@ -122,7 +115,7 @@ void GenomeNumDataBuilder::buildtemp(const std::string& name) {
 void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, ChrNumThread * out) {
 	ChrNumThreadBuilder bd;
 	if (annotation && empty_ann) annotation = false;
-	bd.init(opt, factor, annotation);
+	bd.init(opt, annotation);
 	if (!std::is_sorted(rlst.begin(), rlst.end()))
 		std::sort(rlst.begin(), rlst.end());
 	for (auto it = rlst.begin(); it != rlst.end(); ++it) {

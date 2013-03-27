@@ -19,26 +19,33 @@ struct BED_Entry {
 	unsigned int st, ed;
 	double val;
 	std::string annotation;
+	void parse_ann(const std::string& s) {
+		std::istringstream ss(s);
+		ss >> chrname >> st >> ed >> val;
+		if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
+		
+		annotation.clear();
+		getline(ss, annotation);
+		annotation = utils::trim(annotation);
+	}
+
 	void parse(const std::string& s) {
 		std::istringstream ss(s);
 		ss >> chrname >> st >> ed >> val;
 		if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
-		annotation.clear();
-		getline(ss, annotation);
-		annotation = utils::trim(annotation);
 	}
 };
 
 class GenomeNumDataBuilder {
 public:
-	void init(bool one_by_one_chrom = false, unsigned int factor = 100,
+	void init(bool one_by_one_chrom = false,
 			  minmaxop_t opt = ALL_OP, bool range_annotation = false);
 	void changechr(const std::string& chr);
 	void add(unsigned int st, unsigned int ed, double d, const std::string& annotation = "");
 	void build(GenomeNumData* data);
 	void build(mscds::OArchive& ar);
 	void build_bedgraph(std::istream& fi, mscds::OArchive& ar,
-		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
+		 bool minmax_query = true, bool annotation = false);
 	/**
 	  * \brief converts the BED graph file into our format
 	  *
@@ -56,13 +63,12 @@ public:
 	  * 
 	  */
 	void build_bedgraph(const std::string& input, const std::string& output,
-		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
+		bool minmax_query = true, bool annotation = false);
 	void clear();
 private:
 	std::map<std::string, unsigned int> chrid;
 	typedef std::deque<ValRange> RangeListTp;
 	std::vector<RangeListTp> list;
-	unsigned int factor;
 	unsigned int lastchr, numchr;
 	std::string lastname;
 	minmaxop_t opt;

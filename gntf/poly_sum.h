@@ -10,12 +10,12 @@
 
 namespace app_ds {
 
-class PRSumArrInt: public mscds::SaveLoadInt {
+/*class PRSumArrInt: public mscds::SaveLoadInt {
 public:
 	virtual uint64_t access(size_t p) const = 0;
 	virtual uint64_t sum(size_t p) const = 0;
 	virtual uint64_t sqsum(size_t p) const = 0;
-};
+};*/
 
 class PRSumArr;
 

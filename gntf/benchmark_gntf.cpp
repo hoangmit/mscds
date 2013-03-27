@@ -11,13 +11,13 @@ using namespace mscds;
 string outpath = "D:/temp/";
 string inpath = "D:/temp/";
 
-void build(const string& inpname, const string& outname) {
+void build(const string& inpname, const string& outfile) {
 	string inp = inpath + inpname + ".bedGraph";
 	ifstream fi(inp.c_str());
 	if (!fi) throw runtime_error("cannot open: " + inp);
-	cout << "Building ... " << inpname << " -> " << outname << endl;
+	cout << "Building ... " << inpname << " -> " << outfile << endl;
 	GenomeNumDataBuilder bd;
-	bd.init(true, 100, app_ds::ALL_OP, false);
+	bd.init(true, app_ds::ALL_OP, false);
 	string lastchr = "";
 	while (fi) {
 		string line;
@@ -40,13 +40,13 @@ void build(const string& inpname, const string& outname) {
 		mscds::OClassInfoArchive fo;
 		qs.save(fo);
 		fo.close();
-		ofstream fox(outpath + outname + ".xml");
+		ofstream fox(outfile + ".xml");
 		fox << fo.printxml() << endl;
 		fox.close();
 	}
 	{
 		mscds::OFileArchive fo2;
-		fo2.open_write(outpath + outname + ".gntf");
+		fo2.open_write(outfile);
 		qs.save(fo2);
 		fo2.close();
 	}

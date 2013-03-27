@@ -141,7 +141,7 @@ void testbig() {
 	string inp = "D:/temp/groseq.bedGraph";
 	ifstream fi(inp.c_str());
 	GenomeNumDataBuilder bd;
-	bd.init(true, 100);
+	bd.init(true);
 	string lastchr = "";
 	while (fi) {
 		string line;
@@ -234,11 +234,11 @@ void test_annotation() {
 		"chr19 4400 4700 1.00 tt"};
 	bool has_ann = false;
 	GenomeNumDataBuilder bd;
-	bd.init(true, 100, app_ds::NO_MINMAX, true);
+	bd.init(true, app_ds::NO_MINMAX, true);
 	std::string st;
 	for (size_t i = 0; i < 9; ++i) {
 		BED_Entry e;
-		e.parse(input[i]);
+		e.parse_ann(input[i]);
 		if (e.chrname != st) {
 			bd.changechr(e.chrname); st = e.chrname;
 		}

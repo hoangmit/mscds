@@ -32,7 +32,7 @@ public:
 	  *
 	  */
 	void build_bedgraph(const std::string& input, const std::string& output,
-		unsigned int factor = 100u, bool minmax_query = true, bool annotation = false);
+		bool minmax_query = true, bool annotation = false);
 };
 
 class ChrNumThread {

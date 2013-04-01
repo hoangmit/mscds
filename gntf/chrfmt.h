@@ -21,7 +21,7 @@ class ChrNumThreadBuilder {
 public:
 	ChrNumThreadBuilder();
 	void init(minmaxop_t option=NO_MINMAX, bool range_annotations = false);
-	void add(unsigned int st, unsigned int ed, int val, const std::string& s = "");
+	void add(unsigned int st, unsigned int ed, double val, const std::string& s = "");
 	void build(mscds::OArchive& ar);
 	void build(ChrNumThread* out);
 private:

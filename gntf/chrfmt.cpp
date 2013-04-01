@@ -15,7 +15,7 @@ void ChrNumThreadBuilder::init(minmaxop_t option, bool range_annotations) {
 	setup_ = true;
 }
 
-void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, int val, const std::string& s) {
+void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, double val, const std::string& s) {
 	if (!setup_) throw std::runtime_error("need setup");
 	//if (val == 0) std::runtime_error("zero value with annotation");
 	ranges.push_back(ValRange(st, ed, val));

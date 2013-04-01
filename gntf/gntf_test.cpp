@@ -65,7 +65,7 @@ void test_chrbychr2() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
-	ASSERT_EQ(2500, d.getChr(1).sum(3600));
+	ASSERT_EQ(0.25 * 100, d.getChr(1).sum(3600));
 	cout << '.';
 }
 
@@ -102,7 +102,7 @@ void test_chrbychr3() {
 	fi.assign_read(&ss);
 	d.load(fi);
 
-	ASSERT_EQ(2500, d.getChr(1).sum(3600));
+	ASSERT_EQ(25, d.getChr(1).sum(3600));
 	cout << '.';
 }
 
@@ -132,7 +132,7 @@ void test_mix() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
-	ASSERT_EQ(2500, d.getChr(1).sum(3600));
+	ASSERT_EQ(25, d.getChr(1).sum(3600));
 	cout << '.';
 }
 

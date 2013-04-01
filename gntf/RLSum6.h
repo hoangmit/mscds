@@ -50,19 +50,7 @@ private:
 	unsigned int factor;
 	int delta;
 
-	static unsigned int precision(double d) {
-		unsigned int p = 0;
-		d = fabs(d);
-		d = d - floor(d);
-		while (d > 1e-5 && p < 6) {
-			d*=10;
-			d -= floor(d);
-			p++;
-		}
-		return p;
-	}
-	static double floatval(double r) {return (r > 0.0) ? r - floor(r) : ceil(r) - r; }
-
+	static unsigned int precision(double d);
 };
 
 class RunLenSumArray6 : public RunLenSumArrIt<double>  {

@@ -12,6 +12,27 @@ using namespace std;
 namespace app_ds {
 using namespace mscds;
 
+static double floatval(double r) {return (r > 0.0) ? r - floor(r) : ceil(r) - r; }
+
+double roundn(double r) {
+	return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
+}
+
+unsigned int RunLenSumArrayBuilder6::precision(double d) {
+	return -floor(std::log10(fabs(d - roundn(d))));
+
+	unsigned int p = 0;
+	d = fabs(d);
+	d = d - floor(d);
+	while (d > 1e-5 && p < 6) {
+		d*=10;
+		d -= floor(d);
+		p++;
+	}
+	return p;
+}
+
+
 void RunLenSumArrayBuilder6::clear() {
 	len = 0;
 	lastst = 0;

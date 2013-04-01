@@ -74,6 +74,8 @@ namespace utils {
 		buffer[L_tmpnam] = '\0';
 		char * pointer;
 		tmpnam(buffer);
+		for (unsigned int i = 0; i < L_tmpnam; ++i)
+			if (buffer[i] == '/') buffer[i] = '$';
 		return string(buffer);
 	}
 

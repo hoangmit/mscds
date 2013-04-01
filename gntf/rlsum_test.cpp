@@ -1,13 +1,11 @@
 
-#include "RLSum.h"
-#include "RLSum4.h"
-#include "RLSum5.h"
 
 #include "nintv.h"
 #include "rlsum_trivbin.h"
 #include "mem/filearchive.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
+#include "RLSum6.h"
 
 #include <vector>
 #include <sstream>
@@ -138,6 +136,7 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 	ASSERT_EQ(v, rng.size() - 1);
 }
 
+template<typename RunLenSumArray>
 void test_rlsum_tb_1() {
 	/*std::deque<ValRange> inp;
 	inp.push_back(ValRange(0, 3, 1));
@@ -153,7 +152,7 @@ void test_rlsum_tb_1() {
 	cout << ".";
 }
 
-
+template<typename RunLenSumArray>
 void test_rlsum_tb_2() {
 	/*std::deque<ValRange> inp;
 	inp.push_back(ValRange(3, 5, 2));
@@ -166,16 +165,6 @@ void test_rlsum_tb_2() {
 
 	vector<int> Av(A,A+len);
 	test_rlsum_basic_vec<RunLenSumArray, true>(Av);
-	cout << ".";
-}
-
-void test_rlsum5_tb_1() {
-
-	const int len = 11;
-	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
-
-	vector<int> Av(A,A+len);
-	test_rlsum_basic_vec<RunLenSumArray5, true>(Av);
 	cout << ".";
 }
 
@@ -237,94 +226,23 @@ void test_intv_start_end4() {
 
 
 //------------------------------------------------------------------------
+template<typename RunLenSumType>
 void test_rlsum_tb_rng(int test_num) {
 	int len = 10000;
 	vector<int> A = generate(len);
-	test_rlsum_basic_vec<RunLenSumArray, true>(A);
+	test_rlsum_basic_vec<RunLenSumType, true>(A);
 	cout << ".";
-}
-
-void test_rlsum_sum_delta1() {
-	unsigned int len = 2000;
-	int delta = 1;
-
-	vector<int> A = generate(len);
-	vector<int> S(len+1);
-	S[0] = 0;
-	for (int i = 1; i <= len; i++)
-		if (A[i-1] != 0)
-			S[i] = S[i-1] + A[i-1] + delta;
-		else
-			S[i] = S[i-1];
-	std::deque<ValRange> inp = genInp(A);
-
-	RunLenSumArrayBuilder bd;
-	for (unsigned int i = 0; i < inp.size(); ++i)
-		bd.add(inp[i].st, inp[i].ed, inp[i].val);
-	RunLenSumArray y;
-	bd.build(&y);
-	for (int i = 0; i < len; ++i) {
-		if (S[i] != y.sum_delta(i, delta)) {
-			std::cout << S[i] << endl;
-			ASSERT(S[i] == y.sum_delta(i, delta));
-		}
-	}
-}
-
-void test_rlsum_sum_delta2() {
-	unsigned int len = 2000;
-	int delta = -1;
-
-	vector<int> A = generate(len);
-	vector<int> S(len+1);
-	S[0] = 0;
-	for (int i = 1; i <= len; i++)
-		if (A[i-1] != 0)
-			S[i] = S[i-1] + A[i-1] + delta;
-		else
-			S[i] = S[i-1];
-	std::deque<ValRange> inp = genInp(A);
-
-	RunLenSumArrayBuilder bd;
-	for (unsigned int i = 0; i < inp.size(); ++i)
-		bd.add(inp[i].st, inp[i].ed, inp[i].val);
-	RunLenSumArray y;
-	bd.build(&y);
-	for (int i = 0; i < len; ++i) {
-		if (S[i] != y.sum_delta(i, delta)) {
-			cout << S[i] << " " << y.sum_delta(i, delta) << endl;
-			ASSERT(S[i] == y.sum_delta(i, delta));
-		}
-	}
-}
-
-void test_rlsum_rls4() {
-	int len = 2000;
-	vector<int> A = generate(len);
-	test_rlsum_basic_vec<RunLenSumArray4, true>(A);
-}
-
-void test_rlsum_rls5() {
-	int len = 2000;
-	vector<int> A = generate(len);
-	test_rlsum_basic_vec<RunLenSumArray5, true>(A);
 }
 
 
 void test_trivbin_all() {
-	test_rlsum5_tb_1();
-	test_rlsum_rls5();
 
-	test_rlsum_tb_1();
-	test_rlsum_tb_2();
-	test_rlsum_rls4();
+	test_rlsum_tb_1<RunLenSumArray6>();
+	test_rlsum_tb_2<RunLenSumArray6>();
 	
 	for (int i = 0; i < 100; i++) {
-		test_rlsum_tb_rng(i);
+		test_rlsum_tb_rng<RunLenSumArray6>(i);
 	}	
-
-	test_rlsum_sum_delta1();
-	test_rlsum_sum_delta2();
 
 	test_intv_start_end3();
 	test_intv_start_end4();

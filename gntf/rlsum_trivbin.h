@@ -12,26 +12,15 @@
 #include <stdexcept>
 #include <cstring>
 
+#include "valrange.h"
 
-
-struct ValRange {
-	unsigned int st, ed;
-	unsigned int val;
-	ValRange() {}
-	ValRange(unsigned int s, unsigned int e, unsigned int v):st(s), ed(e), val(v) {}
-	bool operator<(const ValRange& e) const {
-		return st < e.st;
-	}
-	bool operator==(const ValRange& e) const {
-		return st == e.st && ed == e.ed && val == e.val;
-	}
-};
 
 class TrivBin {
 public:
-	typedef uint64_t SumETp;
+	typedef double SumETp;
 	typedef uint32_t StartETp;
 	typedef uint16_t LenETp;
+	typedef app_ds::ValRange ValRange;
 public:
 	size_t len;
 	SumETp * sum_;
@@ -47,11 +36,11 @@ public:
 
 	void build(const std::deque<ValRange>& inp) {
 		len = inp.size();
-		sum_ = new uint64_t[len + 1];
-		start = new uint32_t[len];
-		rlen = new uint16_t[len];
+		sum_ = new SumETp[len + 1];
+		start = new StartETp[len];
+		rlen = new LenETp[len];
 		uint32_t i = 0;
-		uint64_t psum = 0;
+		SumETp psum = 0;
 		for (auto it = inp.begin(); it != inp.end(); ++it) {
 			start[i] = it->st;
 			int llen = it->ed - it->st;
@@ -65,7 +54,7 @@ public:
 		sum_[i] = psum;
 	}
 
-	uint64_t sum(uint32_t pos) {
+	SumETp sum(uint32_t pos) {
 		uint32_t p = std::lower_bound(start, start + len, pos) - start;
 		if (p == 0) return 0;
 		if (p < len && start[p] == pos) 
@@ -103,9 +92,9 @@ public:
 			throw std::runtime_error("wrong magic bytes");
 		fi.read((char*) &len, sizeof(len));
 		if (len > 0) {
-			sum_ = new uint64_t[len + 1];
-			start = new uint32_t[len];
-			rlen = new uint16_t[len];
+			sum_ = new SumETp[len + 1];
+			start = new StartETp[len];
+			rlen = new LenETp[len];
 			fi.read((char*)sum_, sizeof(SumETp)*(len+1));
 			fi.read((char*)start, sizeof(StartETp)*(len));
 			fi.read((char*)rlen, sizeof(LenETp)*(len));

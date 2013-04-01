@@ -36,7 +36,7 @@ void test_chrbychr1() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
-	ASSERT_EQ(-10000, d.getChr(0).sum(2100));
+	ASSERT_EQ(-1.0 * 100, d.getChr(0).sum(2100));
 	cout << '.';
 }
 
@@ -256,10 +256,10 @@ void test_annotation() {
 	ASSERT_EQ(string(""), d.getChr(0).range_annotation(7));
 	ASSERT_EQ(string("tt"), d.getChr(0).range_annotation(8));
 
-	ASSERT_EQ(0, d.getChr(0).count_range(1999));
-	ASSERT_EQ(1, d.getChr(0).count_range(2000));
-	ASSERT_EQ(1, d.getChr(0).count_range(2299));
-	ASSERT_EQ(2, d.getChr(0).count_range(2300));
+	ASSERT_EQ(0, d.getChr(0).count_intervals(1999));
+	ASSERT_EQ(1, d.getChr(0).count_intervals(2000));
+	ASSERT_EQ(1, d.getChr(0).count_intervals(2299));
+	ASSERT_EQ(2, d.getChr(0).count_intervals(2300));
 }
 
 void run_real() {
@@ -272,8 +272,8 @@ void run_real() {
 }
 
 int main() {
-	run_real();
-	return 0;
+	//run_real();
+	//return 0;
 	test_strarr1();
 	test_annotation();
 	

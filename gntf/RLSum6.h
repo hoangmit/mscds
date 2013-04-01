@@ -52,8 +52,13 @@ private:
 
 	static unsigned int precision(double d) {
 		unsigned int p = 0;
-		d = floatval(d);
-		while (d > 1e-5 && p < 6) { d*=10; p++; }
+		d = fabs(d);
+		d = d - floor(d);
+		while (d > 1e-5 && p < 6) {
+			d*=10;
+			d -= floor(d);
+			p++;
+		}
 		return p;
 	}
 	static double floatval(double r) {return (r > 0.0) ? r - floor(r) : ceil(r) - r; }

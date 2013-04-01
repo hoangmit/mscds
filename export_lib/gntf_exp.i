@@ -47,9 +47,9 @@ public:
 	unsigned int prev_nz(unsigned int) const;
 
 	/** \brief return the sum of the position from 0 to p */
-	long long sum(size_t p) const;
+	double sum(size_t p) const;
 
-	std::vector<long long> sum_batch(size_t st, size_t ed, size_t n) const;
+	std::vector<double> sum_batch(size_t st, size_t ed, size_t n) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_range(unsigned int i) const;
@@ -62,14 +62,14 @@ public:
 	std::vector<unsigned int> count_nz_batch(unsigned int st, size_t ed, size_t n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
-	unsigned int min_value(unsigned int st, unsigned int ed) const;
+	double min_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<unsigned int> min_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> min_value_batch(unsigned int st, size_t ed, size_t n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
-	unsigned int max_value(unsigned int st, unsigned int ed) const;
+	double max_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<unsigned int> max_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> max_value_batch(unsigned int st, size_t ed, size_t n) const;
 
 	std::string name;
 };

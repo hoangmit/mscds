@@ -52,9 +52,9 @@ public:
 	std::vector<double> sum_batch(size_t st, size_t ed, size_t n) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
-	unsigned int count_range(unsigned int i) const;
+	unsigned int count_intervals(unsigned int i) const;
 
-	std::vector<unsigned int> count_range_batch(size_t st, size_t ed, size_t n) const;
+	std::vector<unsigned int> count_intervals_batch(size_t st, size_t ed, size_t n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;

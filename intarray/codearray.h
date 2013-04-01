@@ -27,8 +27,6 @@ private:
 	unsigned int sample_rate, i;
 };
 
-
-
 class DeltaCodeArr {
 public:
 	uint64_t lookup(uint64_t pos) const;

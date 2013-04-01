@@ -41,13 +41,16 @@ void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
 void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
 	out->len = len;
+	comp_transform();
+	lastst = 0;
+	for (auto it = ptr->begin(); it != ptr->end(); ++it)
+		addint(it->st, it->ed, it->val * factor + delta);
 	itvb.build(&(out->itv));
 	psbd.build(&(out->psum));
 	spsbd.build(&(out->sqrsum));
-	comp_transform();
-	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		addint(it->st, it->ed, it->val * factor + delta);
 	vals.build(&(out->vals));
+	out->factor = factor;
+	out->delta = delta;
 	clear();
 }
 
@@ -97,8 +100,9 @@ void RunLenSumArrayBuilder6::addint(unsigned int st, unsigned int ed, unsigned i
 void RunLenSumArray6::save(OArchive& ar) const {
 	ar.startclass("run_length_sum_array3", 1);
 	ar.var("len").save(len);
+	ar.var("factor").save(factor);
+	ar.var("delta").save(delta);
 	itv.save(ar.var("intervals"));
-
 	vals.save(ar.var("vals"));
 	psum.save(ar.var("sampled_psum"));
 	sqrsum.save(ar.var("sampled_sqrsum"));
@@ -109,6 +113,8 @@ void RunLenSumArray6::load(IArchive& ar) {
 	clear();
 	ar.loadclass("run_length_sum_array3");
 	ar.var("len").load(len);
+	ar.var("factor").load(factor);
+	ar.var("delta").load(delta);
 	itv.load(ar.var("intervals"));
 	vals.load(ar.var("vals"));
 	psum.load(ar.var("sampled_psum"));
@@ -147,6 +153,7 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	size_t r = res.first % VALUE_GROUP;
 	size_t p = res.first / VALUE_GROUP;
 	int64_t cpsum = psum.prefixsum(p+1);
+	cpsum -= itv.int_psrlen(res.first - r) * delta;
 	PRSumArr::Enumerator g;
 	if (r > 0 || res.second > 0) {
 		vals.getEnum(p*VALUE_GROUP, &g);

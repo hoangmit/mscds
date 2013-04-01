@@ -77,6 +77,8 @@ namespace app_ds {
 	class NIntv2 {
 	public:
 		NIntv2(): len(0) {}
+
+		/* \brief returns (interval, length) or (interval, 0) */
 		size_t rank_interval(size_t pos) const;
 		std::pair<size_t, size_t> find_cover(size_t pos) const;
 

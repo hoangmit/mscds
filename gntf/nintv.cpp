@@ -112,8 +112,7 @@ size_t NIntv::find_rlen(size_t val) const {
 }
 
 size_t NIntv::int_psrlen(size_t i) const {
-	throw std::runtime_error("not implemented");
-	return 0;
+	return rlen.prefixsum(i);
 }
 
 //------------------------------------------------------------------------

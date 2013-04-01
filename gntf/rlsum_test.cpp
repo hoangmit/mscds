@@ -237,8 +237,8 @@ void test_rlsum_tb_rng(int test_num) {
 
 void test_trivbin_all() {
 
-	test_rlsum_tb_1<RunLenSumArray6>();
 	test_rlsum_tb_2<RunLenSumArray6>();
+	test_rlsum_tb_1<RunLenSumArray6>();
 	
 	for (int i = 0; i < 100; i++) {
 		test_rlsum_tb_rng<RunLenSumArray6>(i);

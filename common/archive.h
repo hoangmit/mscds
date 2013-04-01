@@ -54,6 +54,7 @@ class IArchive {
 public:
 	virtual ~IArchive() {}
 	virtual IArchive& var(const std::string& name) { return * this; }
+	virtual IArchive& var(const char* name) { return * this; }
 	virtual unsigned char loadclass(const std::string& name) = 0;
 	virtual IArchive& endclass() = 0;
 

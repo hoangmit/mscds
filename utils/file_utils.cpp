@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
+#include <cstdio>
 
 #if (defined(_WIN32)||defined(_WIN64))
 	#include <Windows.h>
@@ -68,6 +69,13 @@ namespace utils {
 		return static_cast<size_t>(f.tellg() - begin_pos);
 	}
 
+	std::string tempname() {
+		char buffer[L_tmpnam+1];
+		buffer[L_tmpnam] = '\0';
+		char * pointer;
+		tmpnam(buffer);
+		return string(buffer);
+	}
 
 #if (defined(_WIN32)|| defined(_WIN64))
 	

@@ -101,7 +101,7 @@ void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d, const
 }
 
 void GenomeNumDataBuilder::buildtemp(const std::string& name) {
-	std::string fn = utils::get_temp_path() + "_temp_bw_chr_" + name;
+	std::string fn = utils::get_temp_path() + "_temp_bw_chr_" + name + "_" + utils::tempname();
 	ChrNumThread data;
 	buildchr(name, list[0], &data);
 	mscds::OFileArchive fo;

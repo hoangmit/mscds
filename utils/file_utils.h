@@ -35,6 +35,8 @@ namespace utils {
 
 	/** \brief get temporary directory (cross platform) */
 	std::string get_temp_path();
+
+	std::string tempname();
 }
 
 #endif //__FILE_UTILS_H_

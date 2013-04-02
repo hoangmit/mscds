@@ -78,8 +78,10 @@ void ChrNumThread::load(mscds::IArchive& ar) {
 	min.load(ar.var("min"));
 	min.load(ar.var("max"));
 	ar.var("annotation_opt").load(o);
-	if (o != 0)
+	if (o != 0) {
+		has_annotation = true;
 		annotations.load(ar.var("annotation"));
+	}else has_annotation = false;
 	ar.endclass();
 }
 

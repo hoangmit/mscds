@@ -30,13 +30,12 @@ namespace utils {
 	/** \brief returns the size of the file */
 	size_t filesize(const std::string& filename);
 
-	/** \brief open a temp file using prefix */
-	std::string open_temp(std::ofstream& f, const std::string& prefix = "");
+	/** \brief return a temp file using prefix */
+	std::string tempfname(const std::string& prefix = "");
 
 	/** \brief get temporary directory (cross platform) */
 	std::string get_temp_path();
 
-	std::string tempname();
 }
 
 #endif //__FILE_UTILS_H_

@@ -84,26 +84,18 @@ namespace utils {
 		if (!b) throw std::runtime_error("cannot copy file");
 	}
 
-	std::string open_temp(std::ofstream& f, const std::string& prefix) {
-		string path = prefix + "_XXXXXX";
+	std::string tempfname(const std::string& prefix) {
+		string path;
+		if (prefix == "") path = get_temp_path();
+		else path = prefix;
+		path += "_XXXXXX";
 		char* name = _strdup(path.c_str());
 		int ret = _mktemp_s(name, path.length()+1);
 		path = name;
 		free(name);
 		if(ret == 0) {
-			f.open(path.c_str(), std::ios_base::trunc | std::ios_base::out);
 			return path;
 		} else return "";
-	}
-
-	std::string tempname() {
-		string path = "_XXXXXX";
-		char* name = _strdup(path.c_str());
-		int ret = _mktemp_s(name, path.length()+1);
-		path = name;
-		string sx = string(name);
-		free(name);
-		return sx;
 	}
 
 	bool make_dir(const std::string& name) {
@@ -150,27 +142,19 @@ namespace utils {
 		return mkdir(name.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IXOTH) == 0;
 	}
 	
-	std::string open_temp(std::ofstream& f, const std::string& prefix) {
-		string path = prefix + "_XXXXXX";
+	std::string tempfname(const std::string& prefix) {
+		string path;
+		if (prefix == "") path = get_temp_path();
+		else path = prefix;
+		path += "_XXXXXX";
 		char *ftemp = strdup(path.c_str());
 		int fd = mkstemp(ftemp);
 		path = ftemp;
 		free(ftemp);
 		if(fd != -1) {
-			f.open(path.c_str(), std::ios_base::trunc | std::ios_base::out);
 			close(fd);
 			return path;
-		}else return "";
-	}
-
-	std::string tempname() {
-		string path = "_XXXXXX";
-		char* name = strdup(path.c_str());
-		int ret = mktemp_s(name, path.length()+1);
-		path = name;
-		string sx = string(name);
-		free(name);
-		return sx;
+		} else return "";
 	}
 
 	std::string get_temp_path() {

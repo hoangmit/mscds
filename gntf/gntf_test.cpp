@@ -47,7 +47,7 @@ void test_chrbychr2() {
 		"chr19 2600 2900 -0.50",
 		"chr19 2900 3200 -0.25",
 		"chr19 3200 3500 0.0",
-		"chr20 3500 3800 0.25",
+		"chr20 3500 3800 0.1",
 		"chr20 3800 4100 0.50",
 		"chr20 4100 4400 0.75",
 		"chr21 4400 4700 1.00"};
@@ -65,7 +65,7 @@ void test_chrbychr2() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
-	ASSERT_EQ(0.25 * 100, d.getChr(1).sum(3600));
+	ASSERT_EQ(0.1 * 100, d.getChr(1).sum(3600));
 	cout << '.';
 }
 
@@ -76,7 +76,7 @@ void test_chrbychr3() {
 		"chr19 2600 2900 -0.50",
 		"chr19 2900 3200 -0.25",
 		"chr19 3200 3500 0.0",
-		"chr20 3500 3800 0.25",
+		"chr20 3500 3800 0.01",
 		"chr20 3800 4100 0.50",
 		"chr20 4100 4400 0.75",
 		"chr21 4400 4700 1.00"};
@@ -102,7 +102,7 @@ void test_chrbychr3() {
 	fi.assign_read(&ss);
 	d.load(fi);
 
-	ASSERT_EQ(25, d.getChr(1).sum(3600));
+	ASSERT_EQ(0.01 * 100, d.getChr(1).sum(3600));
 	cout << '.';
 }
 
@@ -114,7 +114,7 @@ void test_mix() {
 		"chr19 2600 2900 -0.50",
 		"chr19 2900 3200 -0.25",
 		"chr19 3200 3500 0.0",
-		"chr20 3500 3800 0.25",
+		"chr20 3500 3800 0.02",
 		"chr20 3800 4100 0.50",
 		"chr20 4100 4400 0.75",
 		"chr21 4400 4700 1.00"};
@@ -132,7 +132,7 @@ void test_mix() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
-	ASSERT_EQ(25, d.getChr(1).sum(3600));
+	ASSERT_EQ(0.02* 300 + 0.5 * 100, d.getChr(1).sum(3900));
 	cout << '.';
 }
 

@@ -69,15 +69,7 @@ namespace utils {
 		return static_cast<size_t>(f.tellg() - begin_pos);
 	}
 
-	std::string tempname() {
-		char buffer[L_tmpnam+1];
-		buffer[L_tmpnam] = '\0';
-		char * pointer;
-		tmpnam(buffer);
-		for (unsigned int i = 0; i < L_tmpnam; ++i)
-			if (buffer[i] == '/') buffer[i] = '$';
-		return string(buffer);
-	}
+
 
 #if (defined(_WIN32)|| defined(_WIN64))
 	
@@ -101,7 +93,17 @@ namespace utils {
 		if(ret == 0) {
 			f.open(path.c_str(), std::ios_base::trunc | std::ios_base::out);
 			return path;
-		}else return "";
+		} else return "";
+	}
+
+	std::string tempname() {
+		string path = "_XXXXXX";
+		char* name = _strdup(path.c_str());
+		int ret = _mktemp_s(name, path.length()+1);
+		path = name;
+		string sx = string(name);
+		free(name);
+		return sx;
 	}
 
 	bool make_dir(const std::string& name) {
@@ -159,6 +161,16 @@ namespace utils {
 			close(fd);
 			return path;
 		}else return "";
+	}
+
+	std::string tempname() {
+		string path = "_XXXXXX";
+		char* name = strdup(path.c_str());
+		int ret = mktemp_s(name, path.length()+1);
+		path = name;
+		string sx = string(name);
+		free(name);
+		return sx;
 	}
 
 	std::string get_temp_path() {

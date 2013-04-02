@@ -84,13 +84,15 @@ void test_obitstream(int len = 2048) {
 
 void test_ibitstream(int len, int idx) {
 	OBitStream os;
+	string debug;
 	for (int i = 0; i < len; ++i)
-		if (rand() % 2 == 1) os.put1();
-		else os.put0();
+		if (rand() % 2 == 1) { os.put1(); debug.append("1"); }
+		else { os.put0();  debug.append("0"); }
 	os.close();
 	BitArray b = BitArray::create(os.data_ptr(), len);
-	IWBitStream is(os.data_ptr(), 0, len);
+	IWBitStream is(os.data_ptr(), len, 0);
 	string s = os.to_str();
+	ASSERT_EQ(debug, s);
 	int bl = len;
 	int pos = 0, j = 0;
 	while (pos < len) {

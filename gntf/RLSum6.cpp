@@ -34,7 +34,6 @@ unsigned int RunLenSumArrayBuilder6::precision(double d) {
 
 
 void RunLenSumArrayBuilder6::clear() {
-	len = 0;
 	lastst = 0;
 	itvb.clear();
 	psbd.clear();
@@ -51,7 +50,6 @@ void RunLenSumArrayBuilder6::clear() {
 const unsigned int VALUE_GROUP = 64;
 
 void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
-	len++;
 	if (ed - st == 0) throw std::runtime_error("zero length range");
 	if (st < lastst) throw std::runtime_error("required sorted array");
 	
@@ -61,11 +59,11 @@ void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
 
 void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
-	out->len = len;
 	comp_transform();
 	lastst = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
 		addint(it->st, it->ed, it->val * factor + delta);
+	out->len = ptr->size();
 	itvb.build(&(out->itv));
 	psbd.build(&(out->psum));
 	spsbd.build(&(out->sqrsum));
@@ -95,7 +93,6 @@ void RunLenSumArrayBuilder6::comp_transform() {
 }
 
 void RunLenSumArrayBuilder6::addint(unsigned int st, unsigned int ed, unsigned int v) {
-	len++;
 	unsigned int llen = ed - st;
 	if (llen == 0) throw std::runtime_error("zero length range");
 	if (st < lastst) throw std::runtime_error("required sorted array");

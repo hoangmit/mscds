@@ -12,7 +12,7 @@ string outpath = "D:/temp/";
 string inpath = "D:/temp/";
 
 void build(const string& inpname, const string& outfile) {
-	string inp = inpath + inpname + ".bedGraph";
+	string inp = inpath + inpname;
 	ifstream fi(inp.c_str());
 	if (!fi) throw runtime_error("cannot open: " + inp);
 	cout << "Building ... " << inpname << " -> " << outfile << endl;
@@ -40,32 +40,36 @@ void build(const string& inpname, const string& outfile) {
 		mscds::OClassInfoArchive fo;
 		qs.save(fo);
 		fo.close();
-		ofstream fox(outfile + ".xml");
+		ofstream fox(outpath + outfile + ".xml");
 		fox << fo.printxml() << endl;
 		fox.close();
 	}
 	{
 		mscds::OFileArchive fo2;
-		fo2.open_write(outfile);
+		fo2.open_write(outpath + outfile);
 		qs.save(fo2);
 		fo2.close();
 	}
 }
 
-double test1(GenomeNumData& qs, unsigned int rep = 2000000) {
+double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 	unsigned int nchr = qs.chromosome_count();
-	vector<unsigned int> lp(nchr);
+	vector<unsigned int> lp, mapchr;
 
 	for (unsigned int i = 0; i < nchr; ++i) {
-		lp[i] = qs.getChr(i).last_position();
+		unsigned int len =  qs.getChr(i).last_position();
+		if (len > 0) {
+			lp.push_back(len);
+			mapchr.push_back(i);
+		}
 	}
 	utils::Timer tm;
-	for (unsigned int i = 0; i < rep; ++i) {
-		unsigned int chr = rand() % nchr;
-		const ChrNumThread & cq = qs.getChr(chr);
+	for (unsigned int i = 0; i < nqrs; ++i) {
+		unsigned int chr = rand() % lp.size();
+		const ChrNumThread & cq = qs.getChr(mapchr[chr]);
 		cq.sum(rand() % lp[chr]);
 	}
-	double qps = rep / tm.current();
+	double qps = nqrs / tm.current();
 	cout << "Sum queryies" << endl;
 	cout << "Query_per_second: " << qps << endl;
 	return qps;
@@ -74,7 +78,7 @@ double test1(GenomeNumData& qs, unsigned int rep = 2000000) {
 void random_query(const string& name) {
 	GenomeNumData qs;
 	mscds::IFileMapArchive fi;
-	fi.open_read(outpath + name + ".gntf");
+	fi.open_read(outpath + name);
 	cout << "Loading ... " << name << endl;
 	qs.load(fi);
 	
@@ -106,7 +110,8 @@ int run(int argc, const char* argv[]) {
 
 int main(int argc, const char* argv[]) {
 	cout << "running.." << endl;
-	const char* testv[] = {"", "r", "groseq.avg"};
-	return run(argc, argv);
-	//return run(3, testv);
+	const char* testv[] = {"", "r", "groseq.gntf"};
+	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gntf"};
+	//return run(argc, argv);
+	return run(3, testv);
 }

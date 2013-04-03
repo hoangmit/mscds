@@ -21,7 +21,7 @@ class RunLenSumArray6;
 
 class RunLenSumArrayBuilder6 {
 public:
-	RunLenSumArrayBuilder6(): len(0), lastst(0), psum(0), sqpsum(0), lastv(0), cnt(0), ptr(&svals) {}
+	RunLenSumArrayBuilder6(): lastst(0), psum(0), sqpsum(0), lastv(0), cnt(0), ptr(&svals) {}
 	void add(unsigned int st, unsigned int ed, double v);
 
 	void build(RunLenSumArray6* arr);
@@ -37,7 +37,7 @@ private:
 	void add_all_vals();
 
 	void addint(unsigned int st, unsigned int ed, unsigned int val);
-	unsigned int len, lastst, cnt;
+	unsigned int lastst, cnt;
 	PNIntvBuilder itvb;
 
 	mscds::SDArraySmlBuilder psbd, spsbd;

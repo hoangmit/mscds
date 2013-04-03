@@ -170,8 +170,8 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	if (res.first == 0 && res.second == 0) return 0;
 	size_t r = res.first % VALUE_GROUP;
 	size_t p = res.first / VALUE_GROUP;
-	int64_t cpsum = psum.prefixsum(p+1);
-	cpsum -= itv.int_psrlen(res.first - r) * delta;
+	int64_t cpsum = itv.int_psrlen(res.first - r) * delta;
+	cpsum = psum.prefixsum(p+1) - cpsum;
 	PRSumArr::Enumerator g;
 	if (r > 0 || res.second > 0) {
 		vals.getEnum(p*VALUE_GROUP, &g);

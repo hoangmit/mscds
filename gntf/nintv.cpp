@@ -18,9 +18,9 @@ void NIntvBuilder::clear() {
 	lasted = 0;
 }
 
-void NIntvBuilder::add(size_t st, size_t ed) {
+void NIntvBuilder::add(PosType st, PosType ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
-	size_t llen = ed - st;
+	PosType llen = ed - st;
 	if (lasted > st) throw std::runtime_error("required sorted array");
 	stbd.add_inc(st);
 	rlbd.add(llen);
@@ -57,42 +57,42 @@ void NIntv::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-std::pair<size_t, size_t> NIntv::find_cover(size_t pos) const {
-	size_t p = rank_interval(pos);
-	if (p == npos()) return pair<size_t, size_t>(0u, 0u);
+std::pair<NIntv::PosType, NIntv::PosType> NIntv::find_cover(PosType pos) const {
+	PosType p = rank_interval(pos);
+	if (p == npos()) return pair<PosType, PosType>(0u, 0u);
 	uint64_t sp = start.select(p);
 	assert(sp <= pos);
-	size_t kl = pos - sp + 1;
-	size_t rangelen = rlen.lookup(p);
-	if (kl <= rangelen) return pair<size_t, size_t>(p, kl);
-	else return pair<size_t, size_t>(p+1, 0);
+	PosType kl = pos - sp + 1;
+	PosType rangelen = rlen.lookup(p);
+	if (kl <= rangelen) return pair<PosType, PosType>(p, kl);
+	else return pair<PosType, PosType>(p+1, 0);
 }
 
-size_t NIntv::rank_interval(size_t pos) const {
+NIntv::PosType NIntv::rank_interval(PosType pos) const {
 	uint64_t p = start.rank(pos+1);
 	if (p == 0) return npos();
 	return p-1;
 }
 
-size_t NIntv::coverage(size_t pos) const {
+NIntv::PosType NIntv::coverage(PosType pos) const {
 	uint64_t p = rank_interval(pos);
 	if (p == npos()) return 0;
 	uint64_t sp = start.select(p);
 	assert(sp <= pos);
-	size_t ps = 0;
-	size_t rangelen = rlen.lookup(p, ps);
-	return std::min<size_t>((pos - sp), rangelen) + ps;
+	uint64_t ps = 0;
+	PosType rangelen = rlen.lookup(p, ps);
+	return std::min<PosType>((pos - sp), rangelen) + ps;
 }
 
-size_t NIntv::int_start(size_t i) const {
+NIntv::PosType NIntv::int_start(PosType i) const {
 	return start.select(i);
 }
 
-size_t NIntv::int_len(size_t i) const {
+NIntv::PosType NIntv::int_len(PosType i) const {
 	return rlen.lookup(i);
 }
 
-size_t NIntv::int_end(size_t i) const {
+NIntv::PosType NIntv::int_end(PosType i) const {
 	return int_start(i) + int_len(i);
 }
 
@@ -102,16 +102,16 @@ void NIntv::clear() {
 	rlen.clear();
 }
 
-size_t NIntv::length() const {
+NIntv::PosType NIntv::length() const {
 	return len;
 }
 
-size_t NIntv::find_rlen(size_t val) const {
+NIntv::PosType NIntv::find_rlen(PosType val) const {
 	throw std::runtime_error("not implemented");
 	return 0;
 }
 
-size_t NIntv::int_psrlen(size_t i) const {
+NIntv::PosType NIntv::int_psrlen(PosType i) const {
 	return rlen.prefixsum(i);
 }
 
@@ -130,7 +130,7 @@ void NIntv2Builder::clear() {
 	first = true;
 }
 
-void NIntv2Builder::add(size_t st, size_t ed) {
+void NIntv2Builder::add(PosType st, PosType ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	if (first) {
 		ilbd.add_inc(0);
@@ -188,52 +188,52 @@ void NIntv2::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-std::pair<size_t, size_t> NIntv2::find_cover(size_t pos) const {
+std::pair<NIntv2::PosType, NIntv2::PosType> NIntv2::find_cover(PosType pos) const {
 	uint64_t j = gstart.rank(pos+1);
-	if (j == 0) return pair<size_t, size_t>(0, 0);
+	if (j == 0) return pair<PosType, PosType>(0, 0);
 	--j;
 	pos -= gstart.select(j);
-	size_t ds = ilen.select(gcnt.select(j));
-	size_t i = ilen.rank(pos + ds + 1) - 1;
-	size_t nb = gcnt.select(j+1);
-	if (i < nb) return pair<size_t, size_t>(i, pos + ds - ilen.select(i) + 1);
+	PosType ds = ilen.select(gcnt.select(j));
+	PosType i = ilen.rank(pos + ds + 1) - 1;
+	PosType nb = gcnt.select(j+1);
+	if (i < nb) return pair<PosType, PosType>(i, pos + ds - ilen.select(i) + 1);
 	else
-		return pair<size_t, size_t>(nb, 0);
+		return pair<PosType, PosType>(nb, 0);
 }
 
-size_t NIntv2::rank_interval(size_t pos) const {
+NIntv2::PosType NIntv2::rank_interval(PosType pos) const {
 	if (pos >= maxpos) return len - 1;
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return npos();
 	--j;
 	pos -= gstart.select(j);
-	size_t i = ilen.rank(pos + ilen.select(gcnt.select(j)) + 1) - 1;
-	size_t nb = gcnt.select(j+1);
+	PosType i = ilen.rank(pos + ilen.select(gcnt.select(j)) + 1) - 1;
+	PosType nb = gcnt.select(j+1);
 	if (i < nb) return i;
 	else return nb - 1;
 }
 
-size_t NIntv2::coverage(size_t pos) const {
+NIntv2::PosType NIntv2::coverage(PosType pos) const {
 	if (pos >= maxpos) return ilen.select(ilen.one_count() - 1);
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return 0;
 	--j;
 	pos -= gstart.select(j);
-	size_t i = ilen.rank(pos + ilen.select(gcnt.select(j)) + 1) - 1;
+	PosType i = ilen.rank(pos + ilen.select(gcnt.select(j)) + 1) - 1;
 	if (i < gcnt.select(j+1)) return ilen.select(gcnt.select(j)) + pos;
 	else return ilen.select(gcnt.select(j+1));
 }
 
-size_t NIntv2::int_start(size_t i) const {
+NIntv2::PosType NIntv2::int_start(PosType i) const {
 	uint64_t j = gcnt.rank(i+1)-1;
 	return gstart.select(j) + ilen.select(i) - ilen.select(gcnt.select(j));
 }
 
-size_t NIntv2::int_len(size_t i) const {
+NIntv2::PosType NIntv2::int_len(PosType i) const {
 	return ilen.select(i+1) - ilen.select(i);
 }
 
-size_t NIntv2::int_end(size_t i) const {
+NIntv2::PosType NIntv2::int_end(PosType i) const {
 	return int_start(i) + int_len(i);
 }
 
@@ -244,15 +244,15 @@ void NIntv2::clear() {
 	gstart.clear();
 }
 
-size_t NIntv2::length() const {
+NIntv2::PosType NIntv2::length() const {
 	return len;
 }
 
-size_t NIntv2::find_rlen(size_t val) const {
+NIntv2::PosType NIntv2::find_rlen(PosType val) const {
 	return ilen.rank(val);
 }
 
-size_t NIntv2::int_psrlen(size_t i) const {
+NIntv2::PosType NIntv2::int_psrlen(PosType i) const {
 	return ilen.select(i);
 }
 
@@ -281,31 +281,31 @@ void PNIntvBuilder::init(unsigned int _method /*= 0*/) {
 void PNIntvBuilder::choosemethod() {
 	bd1.clear();
 	bd2.clear();
-	for (size_t i = 0; i < vals.size(); ++i) {
+	for (PosType i = 0; i < vals.size(); ++i) {
 		bd1.add(vals[i].first, vals[i].second);
 		bd2.add(vals[i].first, vals[i].second);
 	}
 	mscds::OSizeEstArchive ar;
 	bd1.build(ar);
-	size_t s1 = ar.opos();
+	PosType s1 = ar.opos();
 	bd2.build(ar);
-	size_t s2 = ar.opos() - s1;
+	PosType s2 = ar.opos() - s1;
 	ar.close();
-	size_t sx = s1;
+	PosType sx = s1;
 	method = 1;
 	if (s1 > s2) { method = 2; sx = s2; }
-	for (size_t i = 0; i < vals.size(); ++i)
+	for (PosType i = 0; i < vals.size(); ++i)
 		addmethod(vals[i].first, vals[i].second);
 }
 
 
-void PNIntvBuilder::addmethod(size_t st, size_t ed) {
+void PNIntvBuilder::addmethod(PosType st, PosType ed) {
 	if (method == 1) bd1.add(st, ed);
 	else if (method == 2) bd2.add(st, ed);
 	else assert(false);
 }
 
-void PNIntvBuilder::add(size_t st, size_t ed) {
+void PNIntvBuilder::add(PosType st, PosType ed) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD) {
 		vals.push_back(std::make_pair(st, ed));
 		if (cnt == CHECK_THRESHOLD)
@@ -370,63 +370,63 @@ void PNIntv::clear() {
 	m2.clear();
 }
 
-std::pair<size_t, size_t> PNIntv::find_cover(size_t pos) const {
+std::pair<PNIntv::PosType, PNIntv::PosType> PNIntv::find_cover(PosType pos) const {
 	if (method == 1) return m1.find_cover(pos);
 	else if (method == 2) return m2.find_cover(pos);
 	else assert(false);
-	return std::pair<size_t, size_t>();
+	return std::pair<PosType, PosType>();
 }
 
-size_t PNIntv::rank_interval(size_t pos) const {
+PNIntv::PosType PNIntv::rank_interval(PosType pos) const {
 	if (method == 1) return m1.rank_interval(pos);
 	else if (method == 2) return m2.rank_interval(pos);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::find_rlen(size_t val) const {
+PNIntv::PosType PNIntv::find_rlen(PosType val) const {
 	if (method == 1) return m1.find_rlen(val);
 	else if (method == 2) return m2.find_rlen(val);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::coverage(size_t pos) const {
+PNIntv::PosType PNIntv::coverage(PosType pos) const {
 	if (method == 1) return m1.coverage(pos);
 	else if (method == 2) return m2.coverage(pos);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::int_start(size_t i) const {
+PNIntv::PosType PNIntv::int_start(PosType i) const {
 	if (method == 1) return m1.int_start(i);
 	else if (method == 2) return m2.int_start(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::int_len(size_t i) const {
+PNIntv::PosType PNIntv::int_len(PosType i) const {
 	if (method == 1) return m1.int_len(i);
 	else if (method == 2) return m2.int_len(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::int_end(size_t i) const {
+PNIntv::PosType PNIntv::int_end(PosType i) const {
 	if (method == 1) return m1.int_end(i);
 	else if (method == 2) return m2.int_end(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::int_psrlen(size_t i) const {
+PNIntv::PosType PNIntv::int_psrlen(PosType i) const {
 	if (method == 1) return m1.int_psrlen(i);
 	else if (method == 2) return m2.int_psrlen(i);
 	else assert(false);
 	return 0;
 }
 
-size_t PNIntv::length() const {
+PNIntv::PosType PNIntv::length() const {
 	if (method == 1) return m1.length();
 	else if (method == 2) return m2.length();
 	else assert(false);

@@ -79,6 +79,16 @@ void Config::parse(int argc, const char* argv[]) {
 	}
 }
 
+void Config::parse(int argc, char* argv[]) {
+	for (int i = 1; i < argc; ++i) {
+		const string s = argv[i];
+		if (s.length() > 3 && s[0] == '-' && s[1] == 'D')
+			extractVar(s.substr(2));
+		if (s.length() > 2 && s[0] == '-' && s[1] == 'F')
+			loadFile(s.substr(2));
+	}
+}
+
 void Config::loadFile(const std::string& filename) {
 	fstream input(filename.c_str(), ios_base::in);
 	if (!input.is_open()) {

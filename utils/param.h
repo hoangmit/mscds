@@ -14,6 +14,7 @@ class Config
 public:
 	bool extractVar(const std::string& line);
 	void parse(int argc, const char* argv[]);
+	void parse(int argc, char* argv[]);
 	void loadFile(const std::string& filename);
 	void loadFromStream(std::istream& input);
 

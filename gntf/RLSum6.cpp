@@ -34,10 +34,10 @@ unsigned int RunLenSumArrayBuilder6::precision(double d) {
 
 
 void RunLenSumArrayBuilder6::clear() {
-	lastst = 0;
 	itvb.clear();
 	psbd.clear();
 	spsbd.clear();
+	lastst = 0;
 	psum = 0;
 	lastv = 0;
 	cnt = 0;
@@ -61,8 +61,15 @@ void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
 	comp_transform();
 	lastst = 0;
+	psum = 0;
+	lastv = 0;
+	cnt = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
 		addint(it->st, it->ed, it->val * factor + delta);
+	if (cnt % VALUE_GROUP == 0) {
+		psbd.add_inc(psum);
+		spsbd.add_inc(sqpsum);
+	}
 	out->len = ptr->size();
 	itvb.build(&(out->itv));
 	psbd.build(&(out->psum));

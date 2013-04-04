@@ -150,6 +150,18 @@ public:
 
 	void clear() { qs.clear(); rankhints.clear(); }
 	std::string to_str() const;
+	struct Enum: public EnumeratorInt<uint64_t> {
+	public:
+		Enum() {}
+		Enum(const Enum& o): re(o.re){}
+		bool hasNext() const { return re.hasNext(); }
+		uint64_t next() { return re.next(); }
+	private:
+		SDArraySml::Enum re;
+		friend class SDRankSelectSml;
+	};
+	void getDisEnum(size_t idx, Enum * e) const { return qs.getEnum(idx, &(e->re));}
+
 private:
 	SDArraySml qs;
 	void initrank();

@@ -112,6 +112,13 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 		ASSERT_EQ(rng[i].ed, r.int_end(i));
 		ASSERT_EQ(rng[i].ed - rng[i].st, r.int_len(i));
 	}
+	for (size_t i = 0; i < rng.size() - 3; ++i) {
+		StructTp::Enum e;
+		r.getLenEnum(i, &e);
+		for (size_t j = 0; j < 3; ++j) {
+			ASSERT_EQ(rng[i+j].ed - rng[i+j].st, e.next());
+		}
+	}
 	size_t mlen = rng.back().ed;
 	size_t j = 0, jp = r.npos();
 	size_t cnt = 0;
@@ -236,19 +243,19 @@ void test_rlsum_tb_rng(int test_num) {
 
 
 void test_trivbin_all() {
-
-	test_rlsum_tb_2<RunLenSumArray6>();
-	test_rlsum_tb_1<RunLenSumArray6>();
-	
-	for (int i = 0; i < 100; i++) {
-		test_rlsum_tb_rng<RunLenSumArray6>(i);
-	}	
+	test_intv_start_end1();
+	test_intv_start_end2();
 
 	test_intv_start_end3();
 	test_intv_start_end4();
+	cout << endl;
 
-	test_intv_start_end1();
-	test_intv_start_end2();
+	test_rlsum_tb_2<RunLenSumArray6>();
+	test_rlsum_tb_1<RunLenSumArray6>();
+
+	for (int i = 0; i < 100; i++) {
+		test_rlsum_tb_rng<RunLenSumArray6>(i);
+	}
 }
 
 

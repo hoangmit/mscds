@@ -1,4 +1,5 @@
-	#include <iostream>
+
+#include <iostream>
 #include "gntf.h"
 #include "mem/fmaparchive.h"
 #include "utils/utest.h"
@@ -115,3 +116,168 @@ int main(int argc, const char* argv[]) {
 	//return run(argc, argv);
 	return run(3, testv);
 }
+
+
+/*
+
+#include "gntf/gntf.h"
+#include "mem/fmaparchive.h"
+#include "utils/utest.h"
+#include "utils/param.h"
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <fstream>
+
+using namespace std;
+using namespace app_ds;
+using namespace mscds;
+
+struct QueryX {
+	unsigned int st, ed;
+	unsigned char chr;
+	QueryX(){}
+	QueryX(unsigned char _chr, unsigned int _st, unsigned _ed): chr(_chr), st(_st), ed(_ed){}
+	QueryX(const QueryX& o): chr(o.chr), st(o.st), ed(o.ed) {}
+	friend bool operator< (const QueryX& a, const QueryX& b) {
+		if (a.chr != b.chr) return a.chr < b.chr;
+		else if (a.st != b.st) return b.st < b.st;
+		else return a.ed < b.ed;
+	}
+};
+
+void get_chr_info(GenomeNumData& qs, vector<unsigned int>& chrlen, std::map<string, unsigned int>& namemap, vector<string>& names) {
+	unsigned int nchr = qs.chromosome_count();
+	chrlen.clear();
+	namemap.clear();
+	names.clear();
+	for (unsigned int i = 0; i < nchr; ++i) {
+		unsigned int len = qs.getChr(i).last_position();
+		string name = qs.getChr(i).name;
+		namemap[name] = i;
+		chrlen.push_back(len);
+		names.push_back(name);
+	}
+}
+
+void generate_queries(const vector<unsigned int>& chrlen, vector<QueryX>& out, unsigned int nqrs = 2000000, bool sort_qs = false) {
+	unsigned int nchr = chrlen.size();
+	out.resize(nqrs);
+	vector<unsigned int> lp, mapchr;
+
+	for (unsigned int i = 0; i < nchr; ++i) {
+		unsigned int len =  chrlen[i];
+		if (len > 0) {
+			lp.push_back(len);
+			mapchr.push_back(i);
+		}
+	}
+	utils::Timer tm;
+	for (unsigned int i = 0; i < nqrs; ++i) {
+		unsigned int chr = rand() % lp.size();
+		unsigned int p1 = rand() % (lp[chr] - 1);
+		unsigned int p2 = rand() % lp[chr];
+		if (p1 > p2) std::swap(p1, p2);
+		out[i] = QueryX(mapchr[chr], p1, p2);
+	}
+	if (sort_qs)
+		sort(out.begin(), out.end());
+}
+
+void read_queries(const string& fname, const std::map<string, unsigned int>& namemap, vector<QueryX>& ret) {
+	ret.clear();
+	ifstream fi(fname.c_str());
+	if (!fi.is_open()) throw runtime_error("file not opened");
+	string pre;
+	unsigned int id = 0;
+	while (fi) {
+		string str;
+		int st, ed;
+		fi >> str >> st >> ed;
+		if (!fi) break;
+		fi.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		if (str != pre) {
+			pre = str;
+			map<string,unsigned int>::const_iterator it = namemap.find(pre);
+			if (it == namemap.end()) throw runtime_error(string("cannot find chr name: ") + pre);
+			id = it->second;
+		}
+		ret.push_back(QueryX(id, st, ed));
+	}
+	fi.close();
+}
+
+
+double test_sum(GenomeNumData& qs, const vector<QueryX>& lst) {
+	utils::Timer tm;
+	for (unsigned int i = 0; i < lst.size(); ++i) {
+		const ChrNumThread & cq = qs.getChr(lst[i].chr);
+		cq.sum(lst[i].st);
+	}
+	double qps = lst.size() / tm.current();
+	cout << "Sum queryies" << endl;
+	cout << "Query_per_second: " << qps << endl;
+	return qps;
+}
+
+void random_query(const string& name, bool is_sort) {
+	GenomeNumData qs;
+	mscds::IFileMapArchive fi;
+	fi.open_read(name);
+	cout << "Loading ... " << name << endl;
+	qs.load(fi);
+
+	cout << qs.chromosome_count() << " chromosomes " << endl;
+
+	vector<unsigned int> chrlen;
+	std::map<string, unsigned int> namemap;
+	vector<string> names;
+	get_chr_info(qs, chrlen, namemap, names);
+
+	vector<QueryX> qlst;
+	generate_queries(chrlen, qlst, 2000000, is_sort);
+
+	test_sum(qs, qlst);
+	qlst.clear();
+	qs.clear();
+}
+
+void test_qs_file(const string& testfn,  const string& dsname) {
+	GenomeNumData qs;
+	mscds::IFileMapArchive fi;
+	fi.open_read(dsname);
+	cout << "Loading ... " << dsname << endl;
+	qs.load(fi);
+	cout << qs.chromosome_count() << " chromosomes " << endl;
+
+	vector<unsigned int> chrlen;
+	std::map<string, unsigned int> namemap;
+	vector<string> names;
+	get_chr_info(qs, chrlen, namemap, names);
+
+	cout << "Read queries ... ";
+	vector<QueryX> qlst;
+	read_queries(testfn, namemap, qlst);
+	cout << qlst.size() << endl;
+
+	test_sum(qs, qlst);
+	qlst.clear();
+	qs.clear();
+}
+
+
+void printhelp() {
+	cout << "Program usage:" << endl;
+	cout << "  program  rand    <gntf_file>" << endl;
+	cout << "  program  ransort <gntf_file>" << endl;
+	cout << "  program  file    <bed_format_file> <gntf_file>" << endl;
+}
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+	random_query("D:/temp/groseq.gntf", true);
+}
+*/

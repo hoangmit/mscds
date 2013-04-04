@@ -13,8 +13,9 @@ namespace app_ds {
 
 	class NIntvBuilder {
 	public:
+		typedef unsigned int PosType;
 		NIntvBuilder();
-		void add(size_t st, size_t ed);
+		void add(PosType st, PosType ed);
 		void build(NIntv* out);
 		void build(mscds::OArchive& ar);
 		void clear();
@@ -27,28 +28,41 @@ namespace app_ds {
 
 	class NIntv {
 	public:
+		typedef unsigned int PosType;
 		NIntv(): len(0) {}
-		/* \brief find an interval i such that s_i <= pos; return max(size_t) if not found */
-		size_t rank_interval(size_t pos) const;
+		/* \brief find an interval i such that s_i <= pos; return max(PosType) if not found */
+		PosType rank_interval(PosType pos) const;
 
 		/* \brief returns (interval, length) or (interval, 0) */
-		std::pair<size_t, size_t> find_cover(size_t pos) const;
+		std::pair<PosType, PosType> find_cover(PosType pos) const;
 
-		size_t find_rlen(size_t val) const;
-		size_t coverage(size_t pos) const;
+		PosType find_rlen(PosType val) const;
+		PosType coverage(PosType pos) const;
 
-		size_t int_start(size_t i) const;
-		size_t int_len(size_t i) const;
-		size_t int_end(size_t i) const;
-		size_t int_psrlen(size_t i) const;
+		PosType int_start(PosType i) const;
+		PosType int_len(PosType i) const;
+		PosType int_end(PosType i) const;
+		PosType int_psrlen(PosType i) const;
 
-		static size_t npos() { return std::numeric_limits<size_t>::max(); }
+		static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
 		void clear();
-		size_t length() const;
+		PosType length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
 		typedef NIntvBuilder BuilderTp;
+		class Enum : public mscds::EnumeratorInt<PosType> {
+		public:
+			Enum() {}
+			Enum(const Enum& o): re(o.re) {}
+
+			bool hasNext() const {return re.hasNext(); }
+			PosType next() { return re.next(); }
+		private:
+			mscds::SDArraySml::Enum re;
+			friend class NIntv;
+		};
+		void getLenEnum(PosType idx, Enum * e) const { rlen.getEnum(idx, &(e->re)); }
 	private:
 		size_t len;
 		mscds::SDRankSelectSml start;
@@ -60,8 +74,9 @@ namespace app_ds {
 
 	class NIntv2Builder {
 	public:
+		typedef unsigned int PosType;
 		NIntv2Builder();
-		void add(size_t st, size_t ed);
+		void add(PosType st, PosType ed);
 		void build(NIntv2* out);
 		void build(mscds::OArchive& ar);
 		void clear();
@@ -76,27 +91,41 @@ namespace app_ds {
 
 	class NIntv2 {
 	public:
+		typedef unsigned int PosType;
 		NIntv2(): len(0) {}
 
 		/* \brief returns (interval, length) or (interval, 0) */
-		size_t rank_interval(size_t pos) const;
-		std::pair<size_t, size_t> find_cover(size_t pos) const;
+		PosType rank_interval(PosType pos) const;
+		std::pair<PosType, PosType> find_cover(PosType pos) const;
 
-		size_t find_rlen(size_t val) const;
-		size_t coverage(size_t pos) const;
+		PosType find_rlen(PosType val) const;
+		PosType coverage(PosType pos) const;
 
-		size_t int_start(size_t i) const;
-		size_t int_len(size_t i) const;
-		size_t int_end(size_t i) const;
-		size_t int_psrlen(size_t i) const;
+		PosType int_start(PosType i) const;
+		PosType int_len(PosType i) const;
+		PosType int_end(PosType i) const;
+		PosType int_psrlen(PosType i) const;
 
-		static size_t npos() { return std::numeric_limits<size_t>::max(); }
+		static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
 		void clear();
-		size_t length() const;
+		PosType length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
 		typedef NIntv2Builder BuilderTp;
+
+		class Enum : public mscds::EnumeratorInt<PosType> {
+		public:
+			Enum() {}
+			Enum(const Enum& o): re(o.re) {}
+			bool hasNext() const {return re.hasNext(); }
+			PosType next() { return re.next(); }
+		private:
+			mscds::SDRankSelectSml::Enum re;
+			friend class NIntv2;
+		};
+		void getLenEnum(PosType idx, Enum *e) const { ilen.getDisEnum(idx+1, &(e->re)); }
+
 	private:
 		size_t len, maxpos, ngrp;
 		mscds::SDRankSelectSml gstart, ilen;
@@ -108,9 +137,10 @@ namespace app_ds {
 
 	class PNIntvBuilder {
 	public:
+		typedef unsigned int PosType;
 		PNIntvBuilder();
 		void init(unsigned int _method = 0);
-		void add(size_t st, size_t ed);
+		void add(PosType st, PosType ed);
 		void build(PNIntv* out);
 		void build(mscds::OArchive& ar);
 		void clear();
@@ -119,10 +149,10 @@ namespace app_ds {
 		static const unsigned int CHECK_THRESHOLD = 10000;
 		unsigned int method;
 		uint64_t cnt;
-		std::vector<std::pair<size_t, size_t> > vals;
+		std::vector<std::pair<PosType, PosType> > vals;
 		void choosemethod();
 
-		void addmethod(size_t st, size_t ed);
+		void addmethod(PosType st, PosType ed);
 		NIntvBuilder bd1;
 		NIntv2Builder bd2;
 		bool autoselect;
@@ -130,20 +160,21 @@ namespace app_ds {
 
 	class PNIntv {
 	public:
-		std::pair<size_t, size_t> find_cover(size_t pos) const;
-		size_t rank_interval(size_t pos) const;
+		typedef unsigned int PosType;
+		std::pair<PosType, PosType> find_cover(PosType pos) const;
+		PosType rank_interval(PosType pos) const;
 
-		size_t find_rlen(size_t val) const;
-		size_t coverage(size_t pos) const;
+		PosType find_rlen(PosType val) const;
+		PosType coverage(PosType pos) const;
 
-		size_t int_start(size_t i) const;
-		size_t int_len(size_t i) const;
-		size_t int_end(size_t i) const;
-		size_t int_psrlen(size_t i) const;
-		static size_t npos() { return std::numeric_limits<size_t>::max(); }
+		PosType int_start(PosType i) const;
+		PosType int_len(PosType i) const;
+		PosType int_end(PosType i) const;
+		PosType int_psrlen(PosType i) const;
+		static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
 		void clear();
-		size_t length() const;
+		PosType length() const;
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
 		typedef PNIntvBuilder BuilderTp;

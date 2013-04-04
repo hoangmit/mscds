@@ -113,7 +113,7 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 		ASSERT_EQ(rng[i].ed - rng[i].st, r.int_len(i));
 	}
 	for (size_t i = 0; i < rng.size() - 3; ++i) {
-		StructTp::Enum e;
+		typename StructTp::Enum e;
 		r.getLenEnum(i, &e);
 		for (size_t j = 0; j < 3; ++j) {
 			ASSERT_EQ(rng[i+j].ed - rng[i+j].st, e.next());

@@ -76,7 +76,7 @@ void ChrNumThread::load(mscds::IArchive& ar) {
 	minmax_opt = (minmaxop_t) o;
 	vals.load(ar.var("values"));
 	min.load(ar.var("min"));
-	min.load(ar.var("max"));
+	max.load(ar.var("max"));
 	ar.var("annotation_opt").load(o);
 	if (o != 0) {
 		has_annotation = true;
@@ -92,7 +92,7 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 	ar.var("minmax_opt").save(o);
 	vals.save(ar.var("values"));
 	min.save(ar.var("min"));
-	min.save(ar.var("max"));
+	max.save(ar.var("max"));
 	o = has_annotation;
 	ar.var("annotation_opt").save(o);
 	if (has_annotation)

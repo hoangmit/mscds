@@ -68,7 +68,10 @@ double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 	for (unsigned int i = 0; i < nqrs; ++i) {
 		unsigned int chr = rand() % lp.size();
 		const ChrNumThread & cq = qs.getChr(mapchr[chr]);
-		cq.sum(rand() % lp[chr]);
+		unsigned int p1 = rand() % lp[chr];
+		unsigned int p2 = rand() % lp[chr];
+		if (p1 > p2) swap(p1, p2);
+		cq.max_value(p1, p2);
 	}
 	double qps = nqrs / tm.current();
 	cout << "Sum queryies" << endl;

@@ -161,12 +161,6 @@ double RunLenSumArray6::range_value(unsigned int i) const {
 	return (x - delta) / (double) factor;
 }
 
-unsigned int RunLenSumArray6::count_range(unsigned int pos) const {
-	auto res = itv.find_cover(pos);
-	if (res.first == 0 && res.second == 0) return 0;
-	else return res.first + 1;
-}
-
 double RunLenSumArray6::range_psum(unsigned int i) const {
 	return sum(range_start(i));
 }
@@ -183,10 +177,10 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	PNIntv::Enum rle;
 	if (r > 0 || res.second > 0) {
 		vals.getEnum(p*VALUE_GROUP, &g);
-		itv.getLenEnum(p*VALUE_GROUP, &rle);
+		//itv.getLenEnum(p*VALUE_GROUP, &rle);
 		for (size_t j = 0; j < r; ++j) {
 			// assert(rle.next() == range_len(p*VALUE_GROUP + j));
-			cpsum += (g.next() - delta) * rle.next();
+			cpsum += (g.next() - delta) * range_len(p*VALUE_GROUP + j);
 		}
 	} 
 	if (res.second > 0) cpsum += (g.next() - delta) * res.second;
@@ -216,6 +210,24 @@ int RunLenSumArray6::next(unsigned int pos) const {
 	else if (res.first < len) return itv.int_start(res.first);
 	else return -1;
 }
+
+unsigned int RunLenSumArray6::count_range(unsigned int pos) const {
+	auto res = itv.find_cover(pos);
+	if (res.first == 0 && res.second == 0) return 0;
+	else return res.first + 1;
+}
+
+std::pair<int, int> RunLenSumArray6::find_intervals(unsigned int st, unsigned int ed) const {
+	std::pair<unsigned int, unsigned int> ret;
+	auto r1 = itv.find_cover(st);
+	auto r2 = itv.find_cover(ed);
+	if (r1.second > 0) ret.first = r1.first;
+	else ret.first = r1.first + 1;
+	if (r2.second > 0) ret.second = r2.first;
+	else r2.first = r2.first - 1;
+	return ret;
+}
+
 
 unsigned int RunLenSumArray6::length() const {
 	return len;

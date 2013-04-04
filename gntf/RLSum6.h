@@ -89,6 +89,10 @@ public:
 	/** \brief returns the smallest position that is greater than the input
 		and its value is non-zero (return -1 if cannot find) */
 	int next(unsigned int) const;
+
+	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
+	std::pair<int, int> find_intervals(unsigned int st, unsigned int ed) const;
+
 	typedef RunLenSumArrayBuilder6 BuilderTp;
 private:
 	unsigned int len;

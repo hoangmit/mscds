@@ -113,7 +113,7 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	}
 }
 
-std::vector<double> ChrNumThread::sum_batch(size_t st, size_t ed, size_t n) const {
+std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<double> ret(n);
 	assert(ed - st >= n);
 	size_t d = (ed - st) / n;
@@ -131,7 +131,7 @@ std::vector<double> ChrNumThread::sum_batch(size_t st, size_t ed, size_t n) cons
 	return ret;
 }
 
-std::vector<unsigned int> ChrNumThread::count_intervals_batch(size_t st, size_t ed, size_t n) const {
+std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<unsigned int> ret(n);
 	assert(ed - st >= n);
 	size_t d = (ed - st) / n;
@@ -149,7 +149,7 @@ std::vector<unsigned int> ChrNumThread::count_intervals_batch(size_t st, size_t 
 	return ret;
 }
 
-std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, size_t ed, size_t n) const {
+std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<unsigned int> ret(n);
 	assert(ed - st >= n);
 	size_t d = (ed - st) / n;
@@ -168,7 +168,7 @@ std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, size_t e
 }
 
 
-std::vector<double> ChrNumThread::min_value_batch(unsigned int st, size_t ed, size_t n) const {
+std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<double> ret(n);
 	assert(ed - st >= n);
 	size_t d = (ed - st) / n;
@@ -187,7 +187,7 @@ std::vector<double> ChrNumThread::min_value_batch(unsigned int st, size_t ed, si
 	return ret;
 }
 
-std::vector<double> ChrNumThread::max_value_batch(unsigned int st, size_t ed, size_t n) const {
+std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<double> ret(n);
 	assert(ed - st >= n);
 	size_t d = (ed - st) / n;

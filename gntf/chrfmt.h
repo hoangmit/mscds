@@ -47,34 +47,39 @@ public:
 	/** \brief returns the last position i.e. the length of the sequence */
 	unsigned int last_position() const { return vals.last_position(); }
 
-	/** \brief return the sum of the position from 0 to p */
-	double sum(size_t p) const;
+	unsigned int coverage(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> sum_batch(size_t st, size_t ed, size_t n) const;
+	/** \brief return the sum of the position from 0 to p */
+	double sum(unsigned int p) const;
+
+	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+
+	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
+	std::pair<unsigned int, unsigned int> find_intervals(unsigned int st, unsigned int ed) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_intervals(unsigned int i) const;
 
-	std::vector<unsigned int> count_intervals_batch(size_t st, size_t ed, size_t n) const;
+	std::vector<unsigned int> count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int count_nz(unsigned int) const;
 
-	std::vector<unsigned int> count_nz_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<unsigned int> count_nz_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
 	double min_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> min_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
 	double max_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> max_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the standdard deviation of the values in [st..ed) */
 	double stddev(unsigned int st, unsigned int ed) const;
-	std::vector<double> stddev_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> stddev_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	void clear();
 	void load(mscds::IArchive& ar);
@@ -96,7 +101,7 @@ private:
 
 namespace app_ds {
 
-inline double ChrNumThread::sum(size_t p) const {
+inline double ChrNumThread::sum(unsigned int p) const {
 	return vals.sum(p);
 }
 
@@ -112,18 +117,31 @@ inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
 
 inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MIN_OP) {
-		throw std::runtime_error("unimplemented");
-		unsigned int i = (unsigned int) min.m_idx(st, ed);
-		return (int)(vals.range_value(i));
+		auto ls = vals.find_intervals(st, ed - 1);
+		if (ls.first <= ls.second) {
+			unsigned int i = min.m_idx(ls.first, ls.second);
+			return vals.range_value(i);
+		}else return 0;
 	}else return 0;
 }
 
 inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MAX_OP) {
-		throw std::runtime_error("unimplemented");
-		unsigned int i = (unsigned int) min.m_idx(st, ed);
-		return (int)(vals.range_value(i));
+		auto ls = vals.find_intervals(st, ed - 1);
+		if (ls.first <= ls.second) {
+			unsigned int i = max.m_idx(ls.first, ls.second);
+			return vals.range_value(i);
+		}else return 0;
 	}else return 0;
+}
+
+inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsigned int st, unsigned int ed) const {
+	auto r = vals.find_intervals(st, ed);
+	std::pair<unsigned int, unsigned int> ret(1,0);
+	if (r.first <= r.second) {
+		ret = r;
+		return ret;
+	} return ret;
 }
 
 inline unsigned int ChrNumThread::next_nz(unsigned int p) const {
@@ -138,5 +156,8 @@ inline unsigned int ChrNumThread::count_nz(unsigned int p) const {
 	return vals.countnz(p);
 }
 
+inline unsigned int ChrNumThread::coverage(unsigned int st, unsigned int ed) const {
+	return vals.countnz(ed) - vals.countnz(st);
+}
 
 }//namespace

@@ -433,4 +433,12 @@ PNIntv::PosType PNIntv::length() const {
 	return 0;
 }
 
+void PNIntv::getLenEnum( PosType idx, Enum *e ) const {
+	e->method = method;
+	if (method == 1) m1.getLenEnum(idx, &(e->e1));
+	else
+		if (method == 2) m2.getLenEnum(idx, &(e->e2));
+		else throw std::runtime_error("not initilized");
+}
+
 } // namespace

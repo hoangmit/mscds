@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <vector>
 #include <limits>
+#include <stdexcept>
 
 namespace app_ds {
 	class NIntv;
@@ -179,9 +180,23 @@ namespace app_ds {
 		void load(mscds::IArchive& ar);
 		typedef PNIntvBuilder BuilderTp;
 		friend class PNIntvBuilder;
+		class Enum : public mscds::EnumeratorInt<PosType> {
+		public:
+			Enum() {}
+			Enum(const Enum& o): e1(o.e1), e2(o.e2), method(o.method) {}
+			bool hasNext() const { if (method == 1) return e1.hasNext(); else if (method == 2) return e2.hasNext(); else throw std::runtime_error("not initilized"); }
+			PosType next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else throw std::runtime_error("not initilized"); }
+		private:
+			NIntv::Enum e1;
+			NIntv2::Enum e2;
+			unsigned int method;
+			friend class PNIntv;
+		};
+		void getLenEnum(PosType idx, Enum *e) const;
 	private:
 		unsigned int method;
 		unsigned int autoselect;
+		
 		NIntv m1;
 		NIntv2 m2;
 	};

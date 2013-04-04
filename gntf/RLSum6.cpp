@@ -180,10 +180,14 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	int64_t cpsum = itv.int_psrlen(res.first - r) * delta;
 	cpsum = psum.prefixsum(p+1) - cpsum;
 	PRSumArr::Enumerator g;
+	PNIntv::Enum rle;
 	if (r > 0 || res.second > 0) {
 		vals.getEnum(p*VALUE_GROUP, &g);
-		for (size_t j = 0; j < r; ++j)
-			cpsum += (g.next() - delta) * range_len(p*VALUE_GROUP + j);
+		itv.getLenEnum(p*VALUE_GROUP, &rle);
+		for (size_t j = 0; j < r; ++j) {
+			// assert(rle.next() == range_len(p*VALUE_GROUP + j));
+			cpsum += (g.next() - delta) * rle.next();
+		}
 	} 
 	if (res.second > 0) cpsum += (g.next() - delta) * res.second;
 	return cpsum/(double)factor;

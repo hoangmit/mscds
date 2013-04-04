@@ -71,7 +71,7 @@ double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 		unsigned int p1 = rand() % lp[chr];
 		unsigned int p2 = rand() % lp[chr];
 		if (p1 > p2) swap(p1, p2);
-		cq.max_value(p1, p2);
+		cq.min_value(p1, p2);
 	}
 	double qps = nqrs / tm.current();
 	cout << "Sum queryies" << endl;

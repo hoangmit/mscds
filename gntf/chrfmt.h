@@ -118,7 +118,7 @@ inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
 inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MIN_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
-		if (ls.first <= ls.second) {
+		if (ls.first < ls.second) {
 			unsigned int i = min.m_idx(ls.first, ls.second);
 			return vals.range_value(i);
 		}else return 0;
@@ -128,7 +128,7 @@ inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MAX_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
-		if (ls.first <= ls.second) {
+		if (ls.first < ls.second) {
 			unsigned int i = max.m_idx(ls.first, ls.second);
 			return vals.range_value(i);
 		}else return 0;

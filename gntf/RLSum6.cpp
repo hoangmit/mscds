@@ -47,7 +47,7 @@ void RunLenSumArrayBuilder6::clear() {
 	delta = 0;
 }
 
-const unsigned int VALUE_GROUP = 64;
+const unsigned int VALUE_GROUP = 32;
 
 void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
 	if (ed - st == 0) throw std::runtime_error("zero length range");

@@ -1,15 +1,15 @@
-#include "poly_sum.h"
+#include "poly_vals.h"
 #include "mem/filearchive.h"
 #include <stdexcept>
 #include "utils/param.h"
 
 namespace app_ds {
 
-PRSumArrBuilder::PRSumArrBuilder() {
+PRValArrBuilder::PRValArrBuilder() {
 	init(0, 32);
 }
 
-void PRSumArrBuilder::init(unsigned int _method, unsigned int rate) {
+void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
 	if (method == 0) {
@@ -25,7 +25,7 @@ void PRSumArrBuilder::init(unsigned int _method, unsigned int rate) {
 	vals.clear();
 }
 
-void PRSumArrBuilder::add(unsigned int v) {
+void PRValArrBuilder::add(unsigned int v) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD) {
 		vals.push_back(v);
 		if (cnt == CHECK_THRESHOLD)
@@ -36,7 +36,7 @@ void PRSumArrBuilder::add(unsigned int v) {
 	cnt++;
 }
 
-void PRSumArrBuilder::build(PRSumArr* out) {
+void PRValArrBuilder::build(PRValArr* out) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD)
 		choosemethod();
 	out->len = cnt;
@@ -48,7 +48,7 @@ void PRSumArrBuilder::build(PRSumArr* out) {
 	else if(method == 3) dt2.build(&(out->dt2));
 }
 
-void PRSumArrBuilder::choosemethod() {
+void PRValArrBuilder::choosemethod() {
 	sdab.clear();
 	dt1.clear();
 	dt2.clear();
@@ -76,21 +76,21 @@ void PRSumArrBuilder::choosemethod() {
 	vals.clear();
 }
 
-void PRSumArrBuilder::resetbd() {
+void PRValArrBuilder::resetbd() {
 	sdab.clear();
 	lastval = 0;
 	dt1.init(rate);
 	dt2.init(rate);
 }
 
-void PRSumArrBuilder::addmethod(unsigned int val) {
+void PRValArrBuilder::addmethod(unsigned int val) {
 	if (method==1) sdab.add(val);
 	else if (method==2) dt1.add(val);
 	else if (method ==3) dt2.add(val);
 	else assert(false);
 }
 
-void PRSumArr::Enumerator::init(int _etype) {
+void PRValArr::Enumerator::init(int _etype) {
 	this->etype = _etype;
 	if (etype == 1) {
 		if (e1 == NULL) e1 = new mscds::SDArraySml::Enum();
@@ -101,13 +101,13 @@ void PRSumArr::Enumerator::init(int _etype) {
 	}
 }
 
-PRSumArr::Enumerator::~Enumerator() {
+PRValArr::Enumerator::~Enumerator() {
 	if (e1 != NULL) delete e1;
 	if (e2 != NULL) delete e2;
 	if (e3 != NULL) delete e3;
 }
 
-bool PRSumArr::Enumerator::hasNext() const {
+bool PRValArr::Enumerator::hasNext() const {
 	switch (etype) {
 	case 1: return e1->hasNext();
 	case 2: return e2->hasNext();
@@ -116,7 +116,7 @@ bool PRSumArr::Enumerator::hasNext() const {
 	return false;
 }
 
-uint64_t PRSumArr::Enumerator::next() {
+uint64_t PRValArr::Enumerator::next() {
 	switch (etype) {
 	case 1: return e1->next();
 	case 2: return e2->next();
@@ -125,7 +125,7 @@ uint64_t PRSumArr::Enumerator::next() {
 	return 0;
 }
 
-void PRSumArr::getEnum(size_t idx, Enumerator * e) const  {
+void PRValArr::getEnum(size_t idx, Enumerator * e) const  {
 	e->init(storetype);
 	if (storetype==1) {
 		sda.getEnum(idx, (e->e1));
@@ -137,13 +137,13 @@ void PRSumArr::getEnum(size_t idx, Enumerator * e) const  {
 	}
 }
 
-uint64_t PRSumArr::access(size_t p) {
+uint64_t PRValArr::access(size_t p) {
 	//TODO: finish
 	throw std::runtime_error("not implemented");
 	return 0;
 }
 
-void PRSumArr::save(mscds::OArchive& ar) const {
+void PRValArr::save(mscds::OArchive& ar) const {
 	ar.startclass("polymorphic_array", 1);
 	ar.var("length").save(len);
 	ar.var("method").save(storetype);
@@ -155,7 +155,7 @@ void PRSumArr::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void PRSumArr::load(mscds::IArchive& ar) {
+void PRValArr::load(mscds::IArchive& ar) {
 	ar.loadclass("polymorphic_array");
 	ar.var("length").load(len);
 	ar.var("method").load(storetype);
@@ -168,7 +168,7 @@ void PRSumArr::load(mscds::IArchive& ar) {
 	if (storetype == 0) throw std::runtime_error("unknown type");
 }
 
-void PRSumArr::clear() {
+void PRValArr::clear() {
 	len = 0;
 	rate = 0;
 	storetype = 0;

@@ -6,7 +6,7 @@
 #include "archive.h"
 
 #include "rlsum_int.h"
-#include "poly_sum.h"
+#include "poly_vals.h"
 
 #include "nintv.h"
 #include "valrange.h"
@@ -41,7 +41,7 @@ private:
 	PNIntvBuilder itvb;
 
 	mscds::SDArraySmlBuilder psbd, spsbd;
-	PRSumArrBuilder vals;
+	PRValArrBuilder vals;
 
 	std::deque<ValRange> svals, * ptr;
 	uint64_t psum, sqpsum;
@@ -68,7 +68,7 @@ public:
 
 	unsigned int range_start(unsigned int i) const;
 	
-	unsigned int range_len(unsigned int i) const;	
+	unsigned int range_len(unsigned int i) const;
 	double range_value(unsigned int i) const;
 	double range_psum(unsigned int i) const;
 	unsigned int last_position() const { return length() > 0 ? range_start(length()-1) + range_len(length() - 1) : 0; }
@@ -101,7 +101,7 @@ private:
 	int delta;
 
 	mscds::SDArraySml psum, sqrsum;
-	PRSumArr vals;
+	PRValArr vals;
 	friend class RunLenSumArrayBuilder6;
 };
 

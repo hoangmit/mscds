@@ -153,7 +153,7 @@ unsigned int RunLenSumArray6::range_len(unsigned int i) const { return itv.int_l
 double RunLenSumArray6::range_value(unsigned int i) const {
 	size_t r = i % VALUE_GROUP;
 	size_t p = i / VALUE_GROUP;
-	PRSumArr::Enumerator g;
+	PRValArr::Enumerator g;
 	vals.getEnum(p*VALUE_GROUP, &g);
 	double x;
 	for (size_t i = 0; i < r; ++i) g.next();
@@ -173,7 +173,7 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	size_t p = res.first / VALUE_GROUP;
 	int64_t cpsum = itv.int_psrlen(res.first - r) * delta;
 	cpsum = psum.prefixsum(p+1) - cpsum;
-	PRSumArr::Enumerator g;
+	PRValArr::Enumerator g;
 	PNIntv::Enum rle;
 	if (r > 0 || res.second > 0) {
 		vals.getEnum(p*VALUE_GROUP, &g);

@@ -10,23 +10,23 @@
 
 namespace app_ds {
 
-/*class PRSumArrInt: public mscds::SaveLoadInt {
+/*class PRValArrInt: public mscds::SaveLoadInt {
 public:
 	virtual uint64_t access(size_t p) const = 0;
 	virtual uint64_t sum(size_t p) const = 0;
 	virtual uint64_t sqsum(size_t p) const = 0;
 };*/
 
-class PRSumArr;
+class PRValArr;
 
-class PRSumArrBuilder {
+class PRValArrBuilder {
 public:
-	PRSumArrBuilder();
+	PRValArrBuilder();
 
 	void init(unsigned int _method, unsigned int rate);
 
 	void add(unsigned int v);
-	void build(PRSumArr* out);
+	void build(PRValArr* out);
 private:
 	static const unsigned int CHECK_THRESHOLD = 10000;
 	unsigned int method;
@@ -47,9 +47,9 @@ private:
 };
 
 
-class PRSumArr {
+class PRValArr {
 public:
-	PRSumArr(): len(0) {}
+	PRValArr(): len(0) {}
 	unsigned int sample_rate() { return rate; }
 	uint64_t access(size_t p);
 	void save(mscds::OArchive& ar) const;
@@ -69,7 +69,7 @@ public:
 		mscds::SDArraySml::Enum * e1;
 		mscds::DeltaCodeArr::Enumerator * e2;
 		mscds::DiffDeltaArr::Enumerator * e3;
-		friend class PRSumArr;
+		friend class PRValArr;
 	};
 	void getEnum(size_t idx, Enumerator * e) const;
 private:
@@ -81,7 +81,7 @@ private:
 	mscds::SDArraySml sda;
 	mscds::DeltaCodeArr dt1;
 	mscds::DiffDeltaArr dt2;
-	friend class PRSumArrBuilder;
+	friend class PRValArrBuilder;
 };
 
 }//namespace

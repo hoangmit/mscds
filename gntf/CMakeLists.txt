@@ -4,11 +4,11 @@ project(gntf)
 
 set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp
 RLSum6.cpp 
-poly_sum.cpp nintv.cpp)
+poly_vals.cpp nintv.cpp)
 
 set(HEADERS chrfmt.h gntf.h stringarr.h 
-RLSum6.h
-rlsum_int.h poly_sum.h nintv.h)
+RLSum6.h 
+rlsum_int.h poly_vals.h nintv.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
 #target_link_libraries(bedgraph2gnt mscdsa)

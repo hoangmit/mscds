@@ -4,10 +4,12 @@ project(gntf)
 
 set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp
 RLSum6.cpp 
+SampledSum.h
 poly_vals.cpp nintv.cpp)
 
 set(HEADERS chrfmt.h gntf.h stringarr.h 
 RLSum6.h 
+SampledSum.cpp
 rlsum_int.h poly_vals.h nintv.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})

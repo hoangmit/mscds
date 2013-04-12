@@ -1,4 +1,5 @@
 #include "SampledSum.h"
+#include <cmath>
 
 namespace app_ds {
 

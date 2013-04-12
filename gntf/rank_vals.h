@@ -21,6 +21,7 @@ namespace app_ds {
 		void add(unsigned int v) { vals.push_back(v);}
 		void build(RankValArr* out);
 		void build(mscds::OArchive& ar);
+		void clear() { vals.clear(); rbd.clear(); vbd.clear(); }
 	private:
 		std::deque<unsigned int> vals;
 		PRValArrBuilder rbd;

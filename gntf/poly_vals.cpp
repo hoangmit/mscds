@@ -25,6 +25,12 @@ void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	vals.clear();
 }
 
+
+void PRValArrBuilder::clear() {
+	cnt = 0; lastval = 0; vals.clear(); sdab.clear(); dt1.clear(); dt2.clear();
+	if (autoselect) method = 0; 
+}
+
 void PRValArrBuilder::add(unsigned int v) {
 	if (method == 0 && cnt <= CHECK_THRESHOLD) {
 		vals.push_back(v);

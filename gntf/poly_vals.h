@@ -28,6 +28,7 @@ public:
 	void add(unsigned int v);
 	void build(PRValArr* out);
 	void build(mscds::OArchive& ar);
+	void clear();
 private:
 	static const unsigned int CHECK_THRESHOLD = 10000;
 	unsigned int method;

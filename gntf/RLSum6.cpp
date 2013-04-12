@@ -12,71 +12,30 @@ using namespace std;
 namespace app_ds {
 using namespace mscds;
 
-static double floatval(double r) {return (r > 0.0) ? r - floor(r) : ceil(r) - r; }
-
-double roundn(double r) {
-	return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
-}
-
-unsigned int RunLenSumArrayBuilder6::precision(double d) {
-	return -floor(std::log10(fabs(d - roundn(d))));
-
-	unsigned int p = 0;
-	d = fabs(d);
-	d = d - floor(d);
-	while (d > 1e-5 && p < 6) {
-		d*=10;
-		d -= floor(d);
-		p++;
-	}
-	return p;
-}
-
 
 void RunLenSumArrayBuilder6::clear() {
 	itvb.clear();
-	psbd.clear();
-	spsbd.clear();
-	lastst = 0;
-	psum = 0;
-	lastv = 0;
+	vals.clear();
 	cnt = 0;
-	svals.clear();
-	ptr = &svals;
-	factor = 1;
-	delta = 0;
 }
 
-const unsigned int VALUE_GROUP = 32;
-
 void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
-	if (ed - st == 0) throw std::runtime_error("zero length range");
-	if (st < lastst) throw std::runtime_error("required sorted array");
-	
-	svals.push_back(ValRange(st, ed, v));
-	lastst = st;
+	cnt++;
+	itvb.add(st, ed);
+	vals.add(st, ed, v);
+}
+
+void RunLenSumArrayBuilder6::add_all(std::deque<ValRange> * vs) {
+	vals.add_all(vs);
+	for (auto it = vs->begin(); it != vs->end(); ++it) 
+		itvb.add(it->st, it->ed);
 }
 
 void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
-	comp_transform();
-	lastst = 0;
-	psum = 0;
-	lastv = 0;
-	cnt = 0;
-	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		addint(it->st, it->ed, it->val * factor + delta);
-	if (cnt % VALUE_GROUP == 0) {
-		psbd.add_inc(psum);
-		spsbd.add_inc(sqpsum);
-	}
-	out->len = ptr->size();
+	out->len = cnt;
 	itvb.build(&(out->itv));
-	psbd.build(&(out->psum));
-	spsbd.build(&(out->sqrsum));
 	vals.build(&(out->vals));
-	out->factor = factor;
-	out->delta = delta;
 	clear();
 }
 
@@ -86,51 +45,13 @@ void RunLenSumArrayBuilder6::build(OArchive& ar) {
 	a.save(ar);
 }
 
-void RunLenSumArrayBuilder6::comp_transform() {
-	unsigned int pc = 0;
-	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		pc = std::max<unsigned int>(precision(it->val), pc);
-	factor = 1;
-	if (factor > 4) factor = 4;
-	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
-	int minr = std::numeric_limits<int>::max();
-	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		minr = std::min<int>(minr, it->val*factor);
-	delta = 1 - minr;
-}
-
-void RunLenSumArrayBuilder6::addint(unsigned int st, unsigned int ed, unsigned int v) {
-	unsigned int llen = ed - st;
-	if (llen == 0) throw std::runtime_error("zero length range");
-	if (st < lastst) throw std::runtime_error("required sorted array");
-	//psbd.add(llen * v);
-	itvb.add(st, ed);
-	lastst = st;
-	if (cnt % VALUE_GROUP == 0) {
-		psbd.add_inc(psum);
-		spsbd.add_inc(sqpsum);
-		//
-	}
-	//
-	vals.add(v);
-	lastv = v;
-
-	psum += llen * v;
-	sqpsum += llen * (v*v);
-	cnt++;
-}
-
 //-----------------------------------------------------------------------------
 
 void RunLenSumArray6::save(OArchive& ar) const {
 	ar.startclass("run_length_sum_array3", 1);
 	ar.var("len").save(len);
-	ar.var("factor").save(factor);
-	ar.var("delta").save(delta);
 	itv.save(ar.var("intervals"));
 	vals.save(ar.var("vals"));
-	psum.save(ar.var("sampled_psum"));
-	sqrsum.save(ar.var("sampled_sqrsum"));
 	ar.endclass();
 }
 
@@ -138,12 +59,8 @@ void RunLenSumArray6::load(IArchive& ar) {
 	clear();
 	ar.loadclass("run_length_sum_array3");
 	ar.var("len").load(len);
-	ar.var("factor").load(factor);
-	ar.var("delta").load(delta);
 	itv.load(ar.var("intervals"));
-	vals.load(ar.var("vals"));
-	psum.load(ar.var("sampled_psum"));
-	sqrsum.load(ar.var("sampled_sqrsum"));
+	vals.load(ar.var("vals"), &itv);
 	ar.endclass();
 }
 
@@ -151,14 +68,7 @@ unsigned int RunLenSumArray6::range_start(unsigned int i) const { return itv.int
 unsigned int RunLenSumArray6::range_len(unsigned int i) const { return itv.int_len(i); }
 
 double RunLenSumArray6::range_value(unsigned int i) const {
-	size_t r = i % VALUE_GROUP;
-	size_t p = i / VALUE_GROUP;
-	PRValArr::Enumerator g;
-	vals.getEnum(p*VALUE_GROUP, &g);
-	double x;
-	for (size_t i = 0; i < r; ++i) g.next();
-	x = g.next();
-	return (x - delta) / (double) factor;
+	return vals.getValue(i);
 }
 
 double RunLenSumArray6::range_psum(unsigned int i) const {
@@ -169,22 +79,8 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	if (pos == 0) return 0;
 	auto res = itv.find_cover(pos - 1);
 	if (res.first == 0 && res.second == 0) return 0;
-	size_t r = res.first % VALUE_GROUP;
-	size_t p = res.first / VALUE_GROUP;
-	int64_t cpsum = itv.int_psrlen(res.first - r) * delta;
-	cpsum = psum.prefixsum(p+1) - cpsum;
-	PRValArr::Enumerator g;
-	PNIntv::Enum rle;
-	if (r > 0 || res.second > 0) {
-		vals.getEnum(p*VALUE_GROUP, &g);
-		//itv.getLenEnum(p*VALUE_GROUP, &rle);
-		for (size_t j = 0; j < r; ++j) {
-			// assert(rle.next() == range_len(p*VALUE_GROUP + j));
-			cpsum += (g.next() - delta) * range_len(p*VALUE_GROUP + j);
-		}
-	} 
-	if (res.second > 0) cpsum += (g.next() - delta) * res.second;
-	return cpsum/(double)factor;
+
+	return vals.sum(res.first);
 }
 
 unsigned int RunLenSumArray6::countnz(unsigned int pos) const {

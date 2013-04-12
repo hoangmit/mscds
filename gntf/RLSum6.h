@@ -7,6 +7,7 @@
 
 #include "rlsum_int.h"
 #include "poly_vals.h"
+#include "SampledSum.h"
 
 #include "nintv.h"
 #include "valrange.h"
@@ -21,7 +22,7 @@ class RunLenSumArray6;
 
 class RunLenSumArrayBuilder6 {
 public:
-	RunLenSumArrayBuilder6(): lastst(0), psum(0), sqpsum(0), lastv(0), cnt(0), ptr(&svals) {}
+	RunLenSumArrayBuilder6(): cnt(0) {}
 	void add(unsigned int st, unsigned int ed, double v);
 
 	void build(RunLenSumArray6* arr);
@@ -30,27 +31,12 @@ public:
 	typedef RunLenSumArray6 QueryTp;
 
 	/* only use the method if you know what you are doing (avoid doubling the input the data) */
-	void set_all(std::deque<ValRange> * vals) {ptr = vals;}
+	void add_all(std::deque<ValRange> * vs);
 private:
-	
-	void comp_transform();
-	void add_all_vals();
-
 	void addint(unsigned int st, unsigned int ed, unsigned int val);
-	unsigned int lastst, cnt;
+	unsigned int  cnt;
 	PNIntvBuilder itvb;
-
-	mscds::SDArraySmlBuilder psbd, spsbd;
-	PRValArrBuilder vals;
-
-	std::deque<ValRange> svals, * ptr;
-	uint64_t psum, sqpsum;
-	int64_t lastv;
-
-	unsigned int factor;
-	int delta;
-
-	static unsigned int precision(double d);
+	SampledSumBuilder vals;
 };
 
 class RunLenSumArray6 : public RunLenSumArrIt<double>  {
@@ -97,11 +83,7 @@ public:
 private:
 	unsigned int len;
 	PNIntv itv;
-	unsigned int factor;
-	int delta;
-
-	mscds::SDArraySml psum, sqrsum;
-	PRValArr vals;
+	SampledSumQuery vals;
 	friend class RunLenSumArrayBuilder6;
 };
 

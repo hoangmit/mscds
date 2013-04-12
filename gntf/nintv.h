@@ -12,6 +12,20 @@
 namespace app_ds {
 	class NIntv;
 
+	class NIntvQueryInt {
+	public:
+		typedef unsigned int PosType;
+
+		virtual PosType int_start(PosType i) const = 0;
+		virtual PosType int_len(PosType i) const = 0;
+		virtual PosType int_end(PosType i) const = 0;
+		virtual PosType int_psrlen(PosType i) const = 0;
+
+		virtual PosType length() const = 0;
+
+		virtual PosType rank_interval(PosType pos) const = 0;
+	};
+
 	class NIntvBuilder {
 	public:
 		typedef unsigned int PosType;
@@ -27,7 +41,7 @@ namespace app_ds {
 		mscds::SDArraySmlBuilder rlbd;
 	};
 
-	class NIntv {
+	class NIntv: public NIntvQueryInt {
 	public:
 		typedef unsigned int PosType;
 		NIntv(): len(0) {}
@@ -90,7 +104,7 @@ namespace app_ds {
 		bool first;
 	};
 
-	class NIntv2 {
+	class NIntv2: public NIntvQueryInt {
 	public:
 		typedef unsigned int PosType;
 		NIntv2(): len(0) {}
@@ -159,7 +173,7 @@ namespace app_ds {
 		bool autoselect;
 	};
 
-	class PNIntv {
+	class PNIntv: public NIntvQueryInt {
 	public:
 		typedef unsigned int PosType;
 		std::pair<PosType, PosType> find_cover(PosType pos) const;

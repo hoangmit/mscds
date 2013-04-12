@@ -29,7 +29,6 @@ void ChrNumThreadBuilder::build(mscds::OArchive& ar) {
 	t.save(ar);
 }
 
-
 void ChrNumThreadBuilder::build(ChrNumThread* out) {
 	out->clear();
 	if(!is_sorted(ranges.begin(), ranges.end()))
@@ -39,7 +38,7 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 	ChrNumValBuilderType bd;
 	for (auto it = ranges.begin(); it != ranges.end(); ++it)
 		minmaxr.push_back(it->val);
-	bd.set_all(&ranges);
+	bd.add_all(&ranges);
 	bd.build(&out->vals);
 	ranges.clear();
 

@@ -3,6 +3,7 @@
 #include <set>
 namespace app_ds {
 
+RankValArrBuilder::RankValArrBuilder() {}
 
 void RankValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	rbd.init(_method, rate);

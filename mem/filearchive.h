@@ -16,7 +16,7 @@ uint32_t FNV_hash24(const std::string& s);
 
 class OFileArchive: public OArchive {
 public:
-	OArchive& startclass(const std::string& name, unsigned char version);
+	OArchive& startclass(const std::string& name, unsigned char version=1);
 
 	OArchive& endclass();
 	OArchive& save_bin(const void* ptr, size_t size);
@@ -58,7 +58,7 @@ private:
 class OSizeEstArchive: public OArchive {
 public:
 	OSizeEstArchive(): pos(0) {}
-	OArchive& startclass(const std::string& name, unsigned char version) {return *this;}
+	OArchive& startclass(const std::string& name, unsigned char version=1) {return *this;}
 	OArchive& endclass() {return *this;}
 	OArchive& save_bin(const void* ptr, size_t size) { pos += size; return *this;}
 	size_t opos() const {return pos;}
@@ -73,7 +73,7 @@ public:
 	~OClassInfoArchive();
 	OArchive& var(const std::string& name);
 	OArchive& save_bin(const void* ptr, size_t size);
-	OArchive& startclass(const std::string& name, unsigned char version);
+	OArchive& startclass(const std::string& name, unsigned char version=1);
 	OArchive& endclass();
 	void close();
 	size_t opos() const {return pos;}

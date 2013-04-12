@@ -138,9 +138,9 @@ void PRValArr::getEnum(size_t idx, Enumerator * e) const  {
 }
 
 uint64_t PRValArr::access(size_t p) {
-	//TODO: finish
-	throw std::runtime_error("not implemented");
-	return 0;
+	if (storetype == 1) sda.lookup(p);
+	else
+		throw std::runtime_error("not implemented");
 }
 
 void PRValArr::save(mscds::OArchive& ar) const {

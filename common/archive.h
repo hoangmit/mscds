@@ -34,7 +34,7 @@ public:
 	virtual ~OArchive() {}
 	virtual OArchive& var(const std::string& name) { return * this; }
 	virtual OArchive& annotate(const std::string& name) { return * this; }
-	virtual OArchive& startclass(const std::string& name, unsigned char version) = 0;
+	virtual OArchive& startclass(const std::string& name, unsigned char version=1) = 0;
 	virtual OArchive& endclass() = 0;
 	
 	virtual OArchive& save(uint32_t v) { return save_bin(&v, sizeof(v)); }

@@ -205,7 +205,7 @@ TEST(Encode1,GolombCoder) {
 	}
 }
 
-TEST(estimate1,GolombAdpCoder) {
+TEST(DISABLE_estimate1,GolombAdpCoder) {
 	std::default_random_engine eng;
 	double p = 0.9;
 	std::geometric_distribution<int> geometric(p);

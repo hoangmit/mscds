@@ -153,6 +153,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		in = NULL;
 	}
 
+	bool IFileArchive::eof() const {
+		return in->eof();
+	}
+
 //----------------------------------------------------------------------------
 	void save_str(OArchive& ar, const std::string& st) {
 		if (st.length() > 0xFFFF) throw ioerror("string too long");

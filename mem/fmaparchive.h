@@ -21,6 +21,7 @@ public:
 
 	void open_read(const std::string& fname);
 	void close();
+	bool eof() const;
 private:
 	FileMapImpl * impl;
 };

@@ -96,4 +96,9 @@ size_t IFileMapArchive::ipos() const {
 	return ((FileMapImpl *) impl)->pos;
 }
 
+bool IFileMapArchive::eof() const {
+	FileMapImpl * fm = (FileMapImpl *) impl;
+	return fm->fi.eof();
+}
+
 }//namespace mscds 

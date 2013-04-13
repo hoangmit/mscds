@@ -49,6 +49,7 @@ public:
 	void open_read(const std::string& fname);
 	void assign_read(std::istream * i);
 	void close();
+	bool eof() const;
 private:
 	bool needclose;
 	size_t pos;

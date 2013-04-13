@@ -69,6 +69,7 @@ public:
 	virtual SharedPtr load_mem(int type, size_t size) = 0;
 	
 	virtual size_t ipos() const = 0;
+	virtual bool eof() const = 0;
 	//virtual ArchiveProp properties() = 0;
 };
 

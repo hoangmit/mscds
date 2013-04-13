@@ -4,6 +4,7 @@
 #include "mem/fmaparchive.h"
 #include "utils/utest.h"
 #include "utils/param.h"
+#include "utils/utils.h"
 
 using namespace std;
 using namespace app_ds;

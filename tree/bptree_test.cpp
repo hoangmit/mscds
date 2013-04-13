@@ -10,6 +10,7 @@
 #include "RMQ_sct.h"
 #include <cstdlib>
 #include "utils/utest.h"
+#include "utils/utils.h"
 
 using namespace std;
 using namespace utils;

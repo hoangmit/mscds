@@ -37,10 +37,10 @@ public:
 	void clear();
 	typedef DeltaCodeArrBuilder BuilderTp;
 
-	struct Enumerator: public EnumeratorInt<uint64_t> {
+	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
-		Enumerator() {}
-		Enumerator(const Enumerator& o): is(o.is), c(o.c) {}
+		Enum() {}
+		Enum(const Enum& o): is(o.is), c(o.c) {}
 		bool hasNext() const;
 		uint64_t next();
 	private:
@@ -49,7 +49,7 @@ public:
 		mutable coder::CodePr c;
 		friend class DeltaCodeArr;
 	};
-	void getEnum(uint64_t pos, Enumerator * e) const;
+	void getEnum(uint64_t pos, Enum * e) const;
 
 private:
 	uint64_t len;
@@ -92,19 +92,20 @@ public:
 	void save(OArchive& ar) const;
 	void clear();
 	typedef DiffDeltaArrBuilder BuilderTp;
-	struct Enumerator: public EnumeratorInt<uint64_t> {
+	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
-		Enumerator() {}
+		Enum() {}
 		bool hasNext() const;
 		uint64_t next();
-		Enumerator(const Enumerator& o): is(o.is), val(o.val) {}
+		Enum(const Enum& o): is(o.is), midx(o.midx), rate(o.rate), val(o.val) {}
 	private:
 		mscds::IWBitStream is;
 		coder::DeltaCoder dc;
-		mutable uint64_t val;
+		unsigned int midx, rate;
+		int64_t val;
 		friend class DiffDeltaArr;
 	};
-	void getEnum(uint64_t pos, Enumerator * e) const;
+	void getEnum(uint64_t pos, Enum * e) const;
 
 private:
 	uint64_t len;

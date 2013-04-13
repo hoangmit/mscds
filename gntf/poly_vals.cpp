@@ -20,6 +20,8 @@ void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 		}
 	}
 	autoselect = (method == 0);
+	dt1.init(rate);
+	dt2.init(rate);
 	cnt = 0;
 	lastval = 0;
 	vals.clear();
@@ -96,24 +98,24 @@ void PRValArrBuilder::addmethod(unsigned int val) {
 	else assert(false);
 }
 
-void PRValArr::Enumerator::init(int _etype) {
+void PRValArr::Enum::init(int _etype) {
 	this->etype = _etype;
 	if (etype == 1) {
 		if (e1 == NULL) e1 = new mscds::SDArraySml::Enum();
 	} else if (etype == 2) {
-		if (e2 == NULL) e2 = new mscds::DeltaCodeArr::Enumerator();
+		if (e2 == NULL) e2 = new mscds::DeltaCodeArr::Enum();
 	} else if (etype == 3) {
-		if (e3 == NULL) e3 = new mscds::DiffDeltaArr::Enumerator();
+		if (e3 == NULL) e3 = new mscds::DiffDeltaArr::Enum();
 	}
 }
 
-PRValArr::Enumerator::~Enumerator() {
+PRValArr::Enum::~Enum() {
 	if (e1 != NULL) delete e1;
 	if (e2 != NULL) delete e2;
 	if (e3 != NULL) delete e3;
 }
 
-bool PRValArr::Enumerator::hasNext() const {
+bool PRValArr::Enum::hasNext() const {
 	switch (etype) {
 	case 1: return e1->hasNext();
 	case 2: return e2->hasNext();
@@ -122,7 +124,7 @@ bool PRValArr::Enumerator::hasNext() const {
 	return false;
 }
 
-uint64_t PRValArr::Enumerator::next() {
+uint64_t PRValArr::Enum::next() {
 	switch (etype) {
 	case 1: return e1->next();
 	case 2: return e2->next();
@@ -131,7 +133,7 @@ uint64_t PRValArr::Enumerator::next() {
 	return 0;
 }
 
-void PRValArr::getEnum(size_t idx, Enumerator * e) const  {
+void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	e->init(storetype);
 	if (storetype==1) {
 		sda.getEnum(idx, (e->e1));
@@ -144,9 +146,23 @@ void PRValArr::getEnum(size_t idx, Enumerator * e) const  {
 }
 
 uint64_t PRValArr::access(size_t p) {
-	if (storetype == 1) sda.lookup(p);
+	if (storetype == 1) return sda.lookup(p);
+	else 
+	if (storetype == 2) {
+		mscds::DeltaCodeArr::Enum e;
+		dt1.getEnum(p, &e);
+		return e.next();
+	}
 	else
-		throw std::runtime_error("not implemented");
+	if (storetype==3) {
+		mscds::DiffDeltaArr::Enum e;
+		dt2.getEnum(p, &e);
+		return e.next();
+	}
+	else {
+		throw std::runtime_error("unknow type");
+		return 0;
+	}
 }
 
 void PRValArr::save(mscds::OArchive& ar) const {

@@ -38,7 +38,7 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	void DeltaCodeArr::getEnum(uint64_t pos, Enumerator * e) const {
+	void DeltaCodeArr::getEnum(uint64_t pos, Enum * e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
 		e->is.init(enc.data_ptr(), enc.length(), p);
@@ -46,18 +46,18 @@ namespace mscds {
 			e->next();
 	}
 
-	bool DeltaCodeArr::Enumerator::hasNext() const {
+	bool DeltaCodeArr::Enum::hasNext() const {
 		return !(is.empty());
 	}
 
-	uint64_t DeltaCodeArr::Enumerator::next() {
+	uint64_t DeltaCodeArr::Enum::next() {
 		c = dc.decode2(is.peek());
 		is.skipw(c.second);
 		return c.first;
 	}
 
 	uint64_t DeltaCodeArr::lookup(uint64_t pos) const {
-		Enumerator e;
+		Enum e;
 		getEnum(pos, &e);
 		return e.next();
 	}
@@ -133,32 +133,35 @@ namespace mscds {
 		ptrbd.build(&(out->ptr));
 	}
 
-	void DiffDeltaArr::getEnum(uint64_t pos, Enumerator *e) const {
+	void DiffDeltaArr::getEnum(uint64_t pos, Enum *e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
 		e->is.init(enc.data_ptr(), enc.length(), p);
-		coder::CodePr c = e->dc.decode2(e->is.peek());
-		e->val = c.first;
-		e->is.skipw(c.second);
+		e->midx = 0;
+		e->rate = sample_rate;
+		assert(sample_rate > 0);
 		for (unsigned int i = 0; i < r; ++i) e->next();
 	}
 
-	bool DiffDeltaArr::Enumerator::hasNext() const {
+	bool DiffDeltaArr::Enum::hasNext() const {
 		return !is.empty();
 	}
 
-	uint64_t DiffDeltaArr::Enumerator::next() {
+	uint64_t DiffDeltaArr::Enum::next() {
 		coder::CodePr c = dc.decode2(is.peek());
-		uint64_t oval = val;
-		if (hasNext()) {
+		is.skipw(c.second);
+		if (midx == 0) {
+			val = c.first;
+			midx = rate - 1;
+		} else {
 			val += coder::absunmap(c.first - 1);
-			is.skipw(c.second);
+			midx -= 1;
 		}
-		return oval;
+		return val;
 	}
 
 	uint64_t DiffDeltaArr::lookup(uint64_t pos) const {
-		Enumerator e;
+		Enum e;
 		getEnum(pos, &e);
 		return e.next();
 	}

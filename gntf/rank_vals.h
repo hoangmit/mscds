@@ -22,6 +22,7 @@ namespace app_ds {
 		void build(RankValArr* out);
 		void build(mscds::OArchive& ar);
 		void clear() { vals.clear(); rbd.clear(); vbd.clear(); }
+		typedef RankValArr QueryTp;
 	private:
 		std::deque<unsigned int> vals;
 		PRValArrBuilder rbd;
@@ -44,10 +45,11 @@ namespace app_ds {
 			uint64_t next();
 		private:
 			const mscds::SDArraySml * ptr;
-			PRValArr::Enumerator e;
+			PRValArr::Enum e;
 			friend class RankValArr;
 		};
 		void getEnum(size_t idx, Enum * e) const;
+		typedef RankValArrBuilder BuilderTp;
 	private:
 		friend class RankValArrBuilder;
 		PRValArr rankv;

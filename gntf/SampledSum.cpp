@@ -124,7 +124,7 @@ void SampledSumBuilder::addint(unsigned int st, unsigned int ed, unsigned int v)
 double SampledSumQuery::getValue(unsigned int idx) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
-	PRValArr::Enumerator g;
+	PRValArr::Enum g;
 	vals.getEnum(p*rate, &g);
 	double x;
 	for (size_t i = 0; i < r; ++i) g.next();
@@ -146,7 +146,7 @@ double SampledSumQuery::sum(unsigned int idx, unsigned int lefpos) const {
 	size_t p = idx / rate;
 	int64_t cpsum = pq->int_psrlen(idx - r) * delta;
 	cpsum = psum.prefixsum(p+1) - cpsum;
-	PRValArr::Enumerator g;
+	PRValArr::Enum g;
 	if (r > 0 || lefpos > 0) {
 		vals.getEnum(p*rate, &g);
 		//PNIntv::Enum rle;

@@ -44,7 +44,7 @@ private:
 class SampledSumQuery {
 public:
 	SampledSumQuery(): pq(NULL) {}
-	typedef PRValArr::Enumerator Enum;
+	typedef PRValArr::Enum Enum;
 	double getValue(unsigned int idx) const;
 	unsigned int getSampleRate() const { return rate; }
 

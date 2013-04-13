@@ -29,6 +29,7 @@ public:
 	void build(PRValArr* out);
 	void build(mscds::OArchive& ar);
 	void clear();
+	typedef PRValArr QueryTp;
 private:
 	static const unsigned int CHECK_THRESHOLD = 10000;
 	unsigned int method;
@@ -48,7 +49,6 @@ private:
 	void choosemethod();
 };
 
-
 class PRValArr {
 public:
 	PRValArr(): len(0) {}
@@ -58,10 +58,10 @@ public:
 	void load(mscds::IArchive& ar);
 	void clear();
 	size_t length() const { return len; }
-	class Enumerator : public mscds::EnumeratorInt<uint64_t> {
+	class Enum : public mscds::EnumeratorInt<uint64_t> {
 	public:
-		Enumerator(): e1(NULL), e2(NULL), e3(NULL) {}
-		~Enumerator();
+		Enum(): e1(NULL), e2(NULL), e3(NULL) {}
+		~Enum();
 
 		void init(int _etype);
 		bool hasNext() const;
@@ -69,11 +69,12 @@ public:
 	private:
 		int etype;
 		mscds::SDArraySml::Enum * e1;
-		mscds::DeltaCodeArr::Enumerator * e2;
-		mscds::DiffDeltaArr::Enumerator * e3;
+		mscds::DeltaCodeArr::Enum * e2;
+		mscds::DiffDeltaArr::Enum * e3;
 		friend class PRValArr;
 	};
-	void getEnum(size_t idx, Enumerator * e) const;
+	void getEnum(size_t idx, Enum * e) const;
+	typedef PRValArrBuilder BuilderTp;
 private:
 	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap
 

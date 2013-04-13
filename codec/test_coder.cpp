@@ -23,9 +23,9 @@ using namespace coder;
 using namespace utils;
 using namespace mscds;
 
-void test_codestream_all();
 
-void FibCoder_SmallNumbers() {
+
+TEST(SmallNumbers,FibCoder) {
 	ASSERT(binstr(FibCoder::encode(1)) == "11");
 	ASSERT(binstr(FibCoder::encode(2)) == "011");
 	ASSERT(binstr(FibCoder::encode(3)) == "0011");
@@ -43,7 +43,7 @@ void FibCoder_SmallNumbers() {
 	ASSERT(binstr(FibCoder::encode(65))  == "0100100011");
 }
 
-void FibCoder_DecodeEncode() {
+TEST(DecodeEncode, FibCoder) {
 	for (unsigned int i = 1; i < 1000000; ++i) {
 		ASSERT_EQ(i, FibCoder::decode2(FibCoder::encode(i).first).first);
 		ASSERT_EQ(FibCoder::encodelen(i), FibCoder::encode(i).second);
@@ -51,7 +51,7 @@ void FibCoder_DecodeEncode() {
 	}
 }
 //---------------------------------------------------------------------------
-void GammaCoder_SmallNumbers() {
+TEST(SmallNumbers,GammaCoder) {
 	ASSERT(binstr(GammaCoder::encode(1)) == "1");
 	ASSERT(binstr(GammaCoder::encode(2)) == "010");
 	ASSERT(binstr(GammaCoder::encode(3)) == "011");
@@ -66,7 +66,7 @@ void GammaCoder_SmallNumbers() {
 	ASSERT(binstr(GammaCoder::encode(10))== "0001010");
 }
 
-void GammaCoder_DecodeEncode() {
+TEST(DecodeEncode,GammaCoder) {
 	for (unsigned int i = 1; i < 1000000; ++i) {
 		ASSERT_EQ(i, GammaCoder::decode2(GammaCoder::encode(i).first).first);
 		ASSERT_EQ(GammaCoder::encodelen(i), GammaCoder::encode(i).second);
@@ -75,7 +75,7 @@ void GammaCoder_DecodeEncode() {
 }
 
 //---------------------------------------------------------------------------
-void DeltaCoder_SmallNumbers() {
+TEST(SmallNumbers,DeltaCoder) {
 	ASSERT(binstr(DeltaCoder::encode(1)) == "1");
 	ASSERT(binstr(DeltaCoder::encode(2)) == "0100");
 	ASSERT(binstr(DeltaCoder::encode(3)) == "0101");
@@ -95,7 +95,7 @@ void DeltaCoder_SmallNumbers() {
 	ASSERT(binstr(DeltaCoder::encode(15))== "00100111");
 }
 
-void DeltaCoder_DecodeEncode() {
+TEST(DecodeEncode,DeltaCoder) {
 	for (unsigned int i = 1; i < 1000000; ++i) {
 		ASSERT(i == DeltaCoder::decode2(DeltaCoder::encode(i).first).first);
 		ASSERT_EQ(DeltaCoder::encodelen(i), DeltaCoder::encode(i).second);
@@ -103,7 +103,7 @@ void DeltaCoder_DecodeEncode() {
 	}
 }
 
-void CeilLog_Simple() {
+TEST(CeilLog_Simple, Encode) {
 	ASSERT_EQ(0, ceillog2(0));
 	ASSERT_EQ(0, ceillog2(1));
 	ASSERT_EQ(1, ceillog2(2));
@@ -116,7 +116,7 @@ void CeilLog_Simple() {
 	ASSERT_EQ(4, ceillog2(9));
 }
 
-void RiceCoder_Encode1() {
+TEST(Encode1,RiceCoder) {
 	RiceCoder r0(0);
 	ASSERT_EQ("0", binstr(r0.encode(0)));
 	ASSERT_EQ("10", binstr(r0.encode(1)));
@@ -157,7 +157,7 @@ void RiceCoder_Encode1() {
 	}
 }
 
-void GolombCoder_Encode1() {
+TEST(Encode1,GolombCoder) {
 	GolombCoder g(10);
 	ASSERT_EQ(string("0")+"000", binstr(g.encode(0)));
 	ASSERT_EQ(string("0")+"100", binstr(g.encode(1)));
@@ -205,7 +205,7 @@ void GolombCoder_Encode1() {
 	}
 }
 
-void GolombAdpCoder_estimate1() {
+TEST(estimate1,GolombAdpCoder) {
 	std::default_random_engine eng;
 	double p = 0.9;
 	std::geometric_distribution<int> geometric(p);
@@ -223,7 +223,7 @@ void GolombAdpCoder_estimate1() {
 	ASSERT_EQ(med, agc.current_M());
 }
 
-void GolombAdpCoder_encode_decode1() {
+TEST(encode_decode1, GolombAdpCoder) {
 	std::default_random_engine eng;
 	double p = 0.9;
 	std::geometric_distribution<int> geometric(p);
@@ -243,7 +243,7 @@ void GolombAdpCoder_encode_decode1() {
 }
 
 
-void GolombAdpCoder_encode_decode2() {
+TEST(encode_decode2,GolombAdpCoder) {
 	std::mt19937 eng;
 	double p = 0.9;
 	std::geometric_distribution<int> geometric(p);
@@ -275,7 +275,7 @@ int main(int argc, char* argv[]) {
 	::testing::GTEST_FLAG(break_on_failure) = true;
 	::testing::InitGoogleTest(&argc, argv); 
 	return RUN_ALL_TESTS(); 
-}*/
+}
 
 int main(int argc, char* argv[]) {
 	test_codestream_all();
@@ -293,3 +293,4 @@ int main(int argc, char* argv[]) {
 	//GolombAdpCoder_encode_decode2();
 	return 0;
 }
+*/

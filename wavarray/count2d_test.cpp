@@ -15,7 +15,7 @@
 using namespace mscds;
 using namespace std;
 
-void test1() {
+TEST(test1, count2d) {
 	int px[10] = {0, 0, 1, 1, 4, 4, 3, 3, 5, 6};
 	int py[10] = {0, 1, 0, 1, 4, 3, 4, 3, 3, 4};
 	std::vector<Point> list;
@@ -40,7 +40,7 @@ void test1() {
 	cout << '.' << flush;
 }
 
-void test2(unsigned int n, double p) {
+void test2x(unsigned int n, double p) {
 	//const unsigned int n = 150;
 	vector<vector<bool> > matrix;
 	vector<vector<int> > count;
@@ -81,7 +81,7 @@ void test2(unsigned int n, double p) {
 }
 
 
-void test3() {
+TEST(test3, count2d) {
 	const unsigned int n = 150;
 	double p = 0.125;
 	vector<vector<bool> > matrix;
@@ -230,21 +230,14 @@ void test_performance() {
 	cout << '.' << flush;
 }
 
-void test_all() {
-	test1();
-	test2(150, 0.125);
+TEST(all_rnd, count2d) {
+	test2x(150, 0.125);
 	test_grid_query1(150, 0.125);
-	test3();
 	for (int i = 0; i < 100; ++i)
-		test2(100, (1.0+(rand() % 50))/100.0);
+		test2x(100, (1.0+(rand() % 50))/100.0);
 	for (int i = 0; i < 100; ++i)
 		test_grid_query1(100, (1.0+(rand() % 50))/100.0);
-	cout << endl;
 	test_performance();
-	cout << endl;
 }
 
-int main() {
-	test_all();
-	return 0;
-}
+

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace mscds;
 
-void test_map1() {
+TEST(map1, maptests) {
 	string fn = utils::get_temp_path() + "test_mapfile";
 	OFileArchive fa;
 	fa.open_write(fn);
@@ -44,7 +44,7 @@ void test_map1() {
 	fi.close();
 }
 
-void test_map2() {
+TEST(map2, maptests) {
 	string fn = utils::get_temp_path() + "test_mapfile";
 	OFileArchive fa;
 	fa.open_write(fn);
@@ -76,7 +76,7 @@ void test_map2() {
 	fi.close();
 }
 
-void test_map3() {
+TEST(map3, maptests) {
 	string fn = utils::get_temp_path() + "test_mapfile";
 	OFileArchive fa;
 	string str = "testing something";
@@ -92,6 +92,7 @@ void test_map3() {
 }
 
 
+/*
 void test_map_all() {
 	test_map1();
 	test_map2();
@@ -102,3 +103,4 @@ int main() {
 	test_map_all();
 	return 0;
 }
+*/

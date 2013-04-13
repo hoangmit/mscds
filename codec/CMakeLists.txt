@@ -17,7 +17,7 @@ huffman_code.hpp
 arithmetic_code.hpp
 )
 
-set(UNIT_TEST_SRC test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
+
 
 include(TestBigEndian)
 TEST_BIG_ENDIAN(BIGENDIAN)
@@ -29,8 +29,9 @@ endif(${BIGENDIAN})
 add_library(codec ${SRC} ${HEADER})
 target_link_libraries(codec ${LIBS})
 
-
-add_executable(t_codec ${UNIT_TEST_SRC} ${HEADER})
-target_link_libraries(t_codec codec utils)
+add_test_files(test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
+#set(UNIT_TEST_SRC test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
+#add_executable(t_codec ${UNIT_TEST_SRC} ${HEADER})
+#target_link_libraries(t_codec codec utils)
 
 

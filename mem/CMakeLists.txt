@@ -15,7 +15,7 @@ target_link_libraries(mem utils)
 
 
 
-
-add_executable(t_mem filemaptest.cpp)
-target_link_libraries(t_mem mem)
-set_target_properties(t_mem PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+add_test_files(filemaptest.cpp)
+#add_executable(t_mem filemaptest.cpp)
+#target_link_libraries(t_mem mem)
+#set_target_properties(t_mem PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

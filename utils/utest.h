@@ -3,17 +3,19 @@
 #define __UNIT_TEST_H_
 
 #define PRT(x) cout<< #x <<"="<<(x) << endl
+#include <ctime>
+#include <iostream>
 
+#if defined(_USE_OWN_TEST_LIB_)
 
 #ifndef ASSERT
 
-#include <iostream>
-#include <ctime>
 #include <type_traits>
 
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
 // http://stackoverflow.com/questions/37473/how-can-i-assert-without-using-abort
 // http://en.wikipedia.org/wiki/Assert.h
+
 
 
 
@@ -70,7 +72,18 @@ namespace has_insertion_operator_impl {
 //#define ASSERT_EQ(exp,val) ASSERT((exp)==(val))
 #define ASSERT_EQ(exp,val) has_insertion_operator_impl::_assert_cmp(exp, val, #exp, #val, __FILE__, __LINE__, __FUNCTION__)
 
-#endif
+#endif //ASSERT
+
+#define TEST(case, test) void test ## case () 
+
+#else //USE_OWN_TEST_LIB
+
+#include <gtest/gtest.h>
+#define ASSERT ASSERT_TRUE
+
+#endif //USE_OWN_TEST_LIB
+
+
 
 
 #include <stdint.h>

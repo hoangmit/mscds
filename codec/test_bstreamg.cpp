@@ -10,7 +10,7 @@ using namespace std;
 using namespace coder;
 using namespace mscds;
 
-void EncBStream_delta_EncodeSmall1(){
+TEST(delta_EncodeSmall1,EncBStream){
 	OBitStream os;
 	DeltaCoder dc;
 	for (int i = 1; i <= 10; ++i) {
@@ -22,7 +22,7 @@ void EncBStream_delta_EncodeSmall1(){
 	ASSERT_EQ(s, "10100010101100011100110101111001000000010010000100010");
 }
 
-void EncBStream_delta_EncodeSmall2() {
+TEST(delta_EncodeSmall2,EncBStream) {
 	OBitStream os;
 	DeltaCoder dc;
 	for (int i = 1; i <= 14; ++i) {
@@ -33,7 +33,7 @@ void EncBStream_delta_EncodeSmall2() {
 	ASSERT(os.to_str() == "1010001010110001110011010111100100000001001000010001000100110001000010010010100100011");
 }
 
-void EncBStream_delta_encodedecode_small1()  {
+TEST(delta_encodedecode_small1,EncBStream)  {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -55,7 +55,7 @@ void EncBStream_delta_encodedecode_small1()  {
 	ASSERT_EQ(10, c.first);
 }
 
-void EncBStream_delta_encodedecode_small2()  {
+TEST(delta_encodedecode_small2,EncBStream)  {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -77,7 +77,7 @@ void EncBStream_delta_encodedecode_small2()  {
 	ASSERT_EQ(14, c.first);
 }
 
-void EncBStream_delta_encodedecode_medium()  {
+TEST(delta_encodedecode_medium,EncBStream)  {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -124,7 +124,7 @@ void EncBStream_golomb_encodedecode_small2()  {
 }
 */
 
-void EncBStream_seek_decode1() {
+TEST(seek_decode1, EncBStream) {
 	size_t len = 100;
 	vector<size_t> stpos;
 	stpos.resize(len + 2);
@@ -148,11 +148,3 @@ void EncBStream_seek_decode1() {
 	}
 }
 
-void test_codestream_all() {
-	EncBStream_delta_EncodeSmall1();
-	EncBStream_delta_EncodeSmall2();
-	EncBStream_delta_encodedecode_small1();
-	EncBStream_delta_encodedecode_small2();
-	EncBStream_delta_encodedecode_medium();
-	EncBStream_seek_decode1();
-}

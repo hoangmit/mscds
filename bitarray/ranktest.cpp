@@ -172,7 +172,7 @@ void test_temp(int len) {
 	cout << '.';
 }
 
-void test_all_rank() {
+TEST(all_rank, ranktest) {
 	for (int i = 0; i < 100; i++) {
 		test_temp(4094 + rand() % 4);
 	}
@@ -195,10 +195,10 @@ void test_all_rank() {
 //void gridquerytest2();
 //void test_map_all();
 //void wat_test_all();
-
+/*
 int main() {
 	//test_map_all();
 	test_all_rank();
 	//wat_test_all();
 	return 0;
-}
+}*/

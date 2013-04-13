@@ -109,7 +109,7 @@ void test_ibitstream(int len, int idx) {
 	is.close();
 }
 
-void test_bit_all() {
+TEST(bit_all, bittest) {
 	for (int i = 0; i < 500; i++)
 		test_ibitstream(2048 + rand() % 64, i);
 
@@ -122,7 +122,9 @@ void test_bit_all() {
 		test_bitarr2(512 + rand() % 256);
 }
 
+/*
 int main() {
 	test_bit_all();
 	return 0;
 }
+*/

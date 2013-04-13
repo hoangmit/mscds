@@ -53,7 +53,7 @@ void DISABLED_arithmetic_code_test1() {
 }
 
 
-void huffman_test1() {
+TEST(test1,huffman) {
 	const int n = 5;
 	int arr[n] = {6,5,3,3,1};
 	vector<int> v;
@@ -64,7 +64,7 @@ void huffman_test1() {
 }
 
 
-void huffman_canonical_code1() {
+TEST(canonical_code1,huffman) {
 	const int n = 4;
 	int arr[n] = {2, 1, 3, 3};
 	vector<unsigned int> L;
@@ -76,7 +76,7 @@ void huffman_canonical_code1() {
 	assert(out[3] == 7);
 }
 
-void huffman_encode_decode1() {
+TEST(encode_decode1,huffman) {
 	const int n = 256;
 	adp_huffman_enc enc(n);
 	adp_huffman_dec dec(n);
@@ -89,7 +89,7 @@ void huffman_encode_decode1() {
 	}
 }
 
-void huffman_encode_decode2() {
+TEST(encode_decode2,huffman) {
 	const int n = 256;
 	adp_huffman_enc enc(n);
 	adp_huffman_dec dec(n);

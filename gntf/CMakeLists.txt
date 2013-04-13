@@ -21,11 +21,11 @@ add_library(gntf ${SRCS} ${HEADERS})
 target_link_libraries(gntf mscdsa)
 
 add_executable(t_gntf gntf_test.cpp)
-target_link_libraries(t_gntf gntf)
+target_link_libraries(t_gntf gntf utils)
 set_target_properties(t_gntf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(t_rlsum rlsum_test.cpp)
-target_link_libraries(t_rlsum intarray  gntf ${COMMON_LIBS})
+target_link_libraries(t_rlsum intarray gntf ${COMMON_LIBS})
 set_target_properties(t_rlsum PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 

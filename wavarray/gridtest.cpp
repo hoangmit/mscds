@@ -7,7 +7,7 @@
 using namespace std;
 using namespace mscds;
 
-void test_watarr() {
+TEST(watarr, watarr) {
 	vector<uint64_t> inp;
 	inp.push_back(1);
 	inp.push_back(2);
@@ -23,7 +23,7 @@ void test_watarr() {
 	ASSERT(5 == arr.rank(1, 8));
 }
 
-void test_wat_1() {
+TEST(wat_1, watarr) {
 	unsigned int arr[8] = {2, 7, 1, 7, 3, 0, 4, 4};
 	vector<uint64_t> v(arr, arr+8);
 	WatQuery wq;
@@ -43,7 +43,7 @@ void test_wat_1() {
 	ASSERT_EQ(7, wq.select(4, 1));
 }
 
-void test_wat_2() {
+TEST(wat_2, watarr){
 	vector<uint64_t> v;
 	const int range = 8;
 	const int len = 100;
@@ -73,7 +73,7 @@ void test_wat_2() {
 	}
 }
 
-void test_wat_access() {
+TEST(wat_access, watarr) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -95,8 +95,7 @@ void test_wat_access() {
 	}
 }
 
-
-void watarr_rank_access_bigrange() {
+TEST(rank_access_bigrange, watarr) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -118,7 +117,7 @@ void watarr_rank_access_bigrange() {
 	}
 }
 
-void watarr_rank_access_smallrange() {
+TEST(rank_access_smallrange, watarr) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -141,7 +140,7 @@ void watarr_rank_access_smallrange() {
 	}
 }
 
-void watarr_select_rank() {
+TEST(select_rank, watarr) {
 	vector<uint64_t> v;
 	int len = 1000, maxval=18;
 	vector<vector<unsigned int> > pos(maxval);
@@ -162,7 +161,7 @@ void watarr_select_rank() {
 	}
 }
 
-void watarr_minmax_handmade_test() {
+TEST(minmax_handmade_test, watarr) {
 	//WatBuilder wb;
 	uint64_t arr[8] = {2, 7, 1, 7, 3, 0, 4, 4};
 	vector<uint64_t> v;
@@ -198,7 +197,7 @@ void manuallist(int min_c, int max_c, int beg_pos, int end_pos, const vector<uin
 	}
 }
 
-void watarr_list() {
+TEST(listing, watarr) {
 	vector<uint64_t> v;
 	int len = 50, maxval=18;
 	for (int i = 0; i < len; ++i) {
@@ -233,7 +232,7 @@ void watarr_list() {
 
 //------------------------------------------------------------------------------
 
-void gridquerytest_x() {
+TEST(gridquerytest_x, grid) {
 	vector<uint64_t> inp;
 	for (int i = 0; i < 1000; i++)
 		inp.push_back(i);
@@ -257,7 +256,7 @@ void gridquerytest_x() {
 	}
 }
 
-void gridquerytest1() {
+TEST(querytest1, grid) {
 	vector<uint64_t> inp;
 	inp.push_back(0);
 	inp.push_back(1);
@@ -283,7 +282,7 @@ void gridquerytest1() {
 }
 
 
-void gridquerytest2() {
+TEST(querytest2, grid) {
 	vector<uint64_t> inp;
 	inp.push_back(1);
 	inp.push_back(2);
@@ -319,24 +318,4 @@ void gridquerytest2() {
 	cout << endl;
 }
 
-void test_watarr_all() {
-	test_wat_1();
-	test_wat_2();
-	test_watarr();
-	test_wat_access();
-	watarr_rank_access_bigrange();
-	watarr_rank_access_smallrange();
-	watarr_select_rank();
-	watarr_minmax_handmade_test();
-	watarr_list();
-}
 
-void wat_test_all() {
-	gridquerytest_x();
-}
-
-int main() {
-	test_watarr_all();
-	wat_test_all();
-	return 0;
-}

@@ -25,7 +25,7 @@ param.h
 
 #message(${Boost_LIBRARIES})
 add_library(utils ${SRCS} ${HEADERS})
-target_link_libraries(utils)
+target_link_libraries(utils ${GTEST_LIB})
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
 

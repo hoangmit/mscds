@@ -44,13 +44,13 @@ BitArray str2bits(const string& s) {
 }
 
 BitArray ui642bits(uint64_t v, int len) {
-	ASSERT(len > 0);
+	assert(len > 0);
 	BitArray inp = BitArray::create(len);
 	inp.word(0) = v;
 	return inp;
 }
 
-void test_find_pioneer1() {
+TEST(find_pioneer1, BP_tree) {
 	// ((()(()( )(()))(( (((()))) ()())()( ())))())
 	// 10001000 00000111 00000000 00001001 00110001
 	string bps = "((()(()()(()))(((((())))()())()(())))())";
@@ -59,11 +59,11 @@ void test_find_pioneer1() {
 
 	BitArray out = find_pioneers(inp,8);
 	for (int i = 0; i< bps.length(); ++i) {
-		ASSERT((exp[i] == '1') == out[i]);
+		ASSERT_EQ((exp[i] == '1'), out[i]);
 	}
 }
 
-void test_find_pioneer2() {
+TEST(test_find_pioneer2, BP_tree) {
 	// ()(()())-(())()()
 	string bps = "()(()())(())()()";
 	string exp = "0000000000000000";
@@ -75,7 +75,7 @@ void test_find_pioneer2() {
 	}
 }
 
-void test_blk1() {
+TEST(blk1, BP_tree) {
 	{
 		BitArray b = str2bits(")");
 		BP_block block(b, 8);
@@ -93,7 +93,7 @@ void test_blk1() {
 	}
 }
 
-void test_blk2() {
+TEST(blk2, BP_tree) {
 	for (int i = 0; i < 65536; ++i) {
 		BitArray b = ui642bits(i, 16);
 		BP_block block(b, 16);
@@ -109,7 +109,7 @@ void test_blk2() {
 	cout << '.';
 }
 
-void test_blk3() {
+TEST(blk3, BP_tree) {
 	for (int i = 0; i < 200000; i++) {
 		uint64_t v = rand64();
 		BitArray b = ui642bits(v, 64);
@@ -127,7 +127,7 @@ void test_blk3() {
 }
 
 BitArray generate_BPS(size_t len) {
-	ASSERT(len % 2 == 0);
+	assert(len % 2 == 0);
 	BitArray out = BitArray::create(len);
 	size_t ex = 0, op = len/2, cl = len/2;
 	
@@ -258,7 +258,7 @@ void test_bp2(const BitArray& b, int blksize) {
 }
 
 
-void test_bp1() {
+TEST(bp1, BP_tree) {
 	string bps = "((()(()()(()))(((((())))()())()(())))())";
 	string exp = "1000100000000111000000000000100100110001";
 	BitArray inp = str2bits(bps);
@@ -285,7 +285,7 @@ void test_rr_enclose() {
 	}
 }
 
-void test_rr_enclose1() {
+TEST(rr_enclose1, BP_tree) {
 	//((()))((-()))((()-())((())-))((()((-))(())()-(())))((-)())()((-)()())()
 	//      1     111     11     111   1   1            11     1  1       1
 	//()(()())-(())()()
@@ -319,7 +319,7 @@ void testsize() {
 }
 
 
-void test_cart() {
+TEST(cart, BP_tree) {
 	string bps = "(()(()(()))(()(()))())";
 	uint64_t seq[11] = {0, 3, 2, 4, 2, 3, 1, 3, 1, 2, 0};
 	vector<uint64_t> v(11);
@@ -334,7 +334,7 @@ void test_cart() {
 	//cout << rmq.m_idx(3,6) << endl;
 }
 
-void test_all() {
+TEST(random_long, BP_tree) {
 	for (int i = 0; i < 100; i++) {
 		test_bp2(generate_BPS(1000), 16);
 		if (i % 10 == 0) cout << '.';
@@ -344,20 +344,23 @@ void test_all() {
 		if (i % 1000 == 0) cout << '.';
 		test_rr_enclose();
 	}
-	test_rr_enclose1();
+	/*test_rr_enclose1();
 	test_find_pioneer1();
 	test_find_pioneer2();
 	test_blk1();
 	test_blk2();
 	test_blk3();
-	test_bp(str2bits("()(()())(())()()"), 8);
 	test_cart();
+	test_bp1();
+	*/
+	test_bp(str2bits("()(()())(())()()"), 8);
+	
 	
 	for (int i = 0; i < 20000; i++) {
 		test_near_bp();
 		if (i % 1000 == 0) cout << '.';
 	}
-	test_bp1();
+	
 	for (int i = 0; i < 10000; i++) {
 		test_bp(generate_BPS(100), 16);
 		if (i % 1000 == 0) cout << '.';
@@ -369,9 +372,10 @@ void test_all() {
 	cout << endl;
 }
 
+/*
 int main() {
 	testsize();
 	test_all();
 	//print_ex();
 	return 0;
-}
+}*/

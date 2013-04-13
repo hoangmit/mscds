@@ -10,10 +10,15 @@ add_library(tree ${SRCS} ${HEADERS})
 target_link_libraries(tree bitarray intarray)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
-add_executable(t_rmq rmq_test.cpp)
-target_link_libraries(t_rmq tree)
-set_target_properties(t_rmq PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
-add_executable(t_bptree bptree_test.cpp)
-target_link_libraries(t_bptree tree ${COMMON_LIBS})
-set_target_properties(t_bptree PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+add_test_files(rmq_test.cpp)
+
+
+#add_executable(t_rmq rmq_test.cpp)
+#target_link_libraries(t_rmq tree utils)
+#set_target_properties(t_rmq PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
+add_test_files(bptree_test.cpp)
+#add_executable(t_bptree bptree_test.cpp)
+#target_link_libraries(t_bptree tree utils ${COMMON_LIBS})
+#set_target_properties(t_bptree PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

@@ -8,7 +8,7 @@ using namespace std;
 using namespace mscds;
 
 
-void test_delta() {
+TEST(delta, codearr) {
 	const unsigned len = 10000;
 	DeltaCodeArrBuilder bd;
 	vector<unsigned> V;
@@ -28,7 +28,7 @@ void test_delta() {
 	}
 }
 
-void test_diffdelta() {
+TEST(diffdelta, codearr) {
 	const unsigned len = 10000;
 	DiffDeltaArrBuilder bd;
 	vector<unsigned> V;
@@ -48,7 +48,7 @@ void test_diffdelta() {
 	}
 }
 
-void test_sda1() {
+TEST(sda1, codearr) {
 	const unsigned len = 10000;
 	SDArraySmlBuilder bd;
 	vector<unsigned> V;
@@ -69,15 +69,16 @@ void test_sda1() {
 		uint64_t vz = e.next();
 		a.prefixsum(i+1);
 		psum += V[i];
-		ASSERT(psum == vz);
-		ASSERT(V[i] == e2.next());
+		ASSERT_EQ(psum, vz);
+		ASSERT_EQ(V[i], e2.next());
 	}
 }
 
 
+/*
 int main() {
 	test_delta();
 	test_diffdelta();
 	test_sda1();
 	return 0;
-}
+}*/

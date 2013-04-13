@@ -21,7 +21,7 @@ string get_tempdir() {
 	return utils::get_temp_path();
 };
 
-void test_sdarray_zeros(){
+TEST(sdarray_zeros, sdatest){
 	SDArrayBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i){
@@ -41,7 +41,7 @@ void test_sdarray_zeros(){
 	//ASSERT_EQ(SDArrayQuery::NOTFOUND, sda.find(0));
 }
 
-void test_sdarray_ones(){
+TEST(sdarray_ones, sdatest){
 	SDArrayBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i){
@@ -63,7 +63,7 @@ void test_sdarray_ones(){
 	}
 }
 
-void test_sdarray_increasing(){
+TEST(sdarray_increasing, sdatest){
 	SDArrayBuilder bd;
 	SDArrayQuery sda;
 	uint64_t N = 1000;
@@ -102,7 +102,7 @@ void test_sdarray_increasing(){
 
 
 
-void test_sdarray_random(){
+TEST(test_sdarray_random, sdatest){
 	SDArrayBuilder bd;
 	SDArrayQuery sda;
 	uint64_t N = 1000;
@@ -144,7 +144,7 @@ void test_sdarray_random(){
 
 
 
-void test_SDA1() {
+TEST(SDA1, sdatest) {
 	const int len = 1000;
 	const int range = 100;
 	vector<unsigned int> A(len), S(len);
@@ -176,7 +176,7 @@ void test_SDA1() {
 }
 
 
-void test_SDA2() {
+void test_SDA2_rnd() {
 	const int len = 10000;
 	const int range = 100;
 	vector<unsigned int> A(len), S(len);
@@ -261,18 +261,15 @@ void test_rank(int len) {
 	cout << ".";
 }
 
-void test_SDA_all() {
-	test_sdarray_zeros();
-	test_sdarray_ones();
-	test_sdarray_increasing();
-	test_sdarray_random();
+TEST(SDA_rnd_all, sdatest) {
 	for (int i = 0; i < 200; i++)
 		test_rank(1000);
-	test_SDA1();
+	
 	for (int i  = 0; i < 100; i++)
-		test_SDA2();
+		test_SDA2_rnd();
 	cout << endl;
 }
+
 BitArray randbit(unsigned int len, unsigned int & cnt) {
 	BitArray b = BitArray::create(len);
 	cnt = 0;
@@ -388,7 +385,7 @@ void test_sda2_rand2() {
 }
 
 
-void test_sda2_inc() {
+TEST(sda2_inc, sdatest) {
 	SDArraySmlBuilder bd;
 	uint64_t N = 1000;
 	vector<uint64_t> vals(N);
@@ -425,7 +422,7 @@ void test_sda2_inc() {
 }
 
 
-void test_sda2_ones() {
+TEST(sda2_ones, sdatest) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -450,7 +447,7 @@ void test_sda2_ones() {
 
 }
 
-void test_sda2_zeros() {
+TEST(sda2_zeros, sdatest) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -542,7 +539,7 @@ void test_rank3(int len) {
 	cout << ".";
 }
 
-void test_rank4() {
+TEST(rank4, sdatest) {
 	const size_t len = 160;
 	int inp[len]  = {1,18,25,32,56,63,70,105,108,139,147,151,153,156,163,177,184,195,196,200,202,225,256,272,274,303,311,326,338,345,348,
 		358,361,374,380,387,420,421,433,467,489,492,526,532,550,559,561,571,579,594,600,615,624,685,710,715,729,744,747,796,
@@ -578,23 +575,15 @@ void test_rank4() {
 
 }
 
-int main() {
-	test_rank4();
-	return 0;
-	//testspeed();
-	//return 0;
+TEST(test_sda2_rnd_all, sdatest) {
 	for (int i = 0; i < 200; i++) 
 		test_rank3(1020 + rand() % 8);
-	test_sda2_ones();
-	test_sda2_zeros();
-	test_sda2_inc();
 	for (int i = 0; i < 200; i++) 
 		test_rank2(1020 + rand() % 8);
 	for (int i = 0; i < 100; i++) {
 		test_sda2_rand();
 		test_sda2_rand2();
 	}
-	//return 0;
-	test_SDA_all();
-	return 0;
+
 }
+

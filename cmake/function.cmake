@@ -118,3 +118,26 @@ function(add_sources target)
 	# append to global property
 	set_property(GLOBAL APPEND PROPERTY "${target}_SRCS" "${SRCSX}")
 endfunction()
+
+
+macro (add_test_files)
+    file (RELATIVE_PATH _relPath "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    #foreach (_src ${ARGN})
+    #    if (_relPath)
+    #        list (APPEND TEST_FILES "${_relPath}/${_src}")
+    #    else()
+    #        list (APPEND TEST_FILES "${_src}")
+    #    endif()
+    #endforeach()
+	foreach(src ${ARGN})
+		if(NOT IS_ABSOLUTE "${src}")
+			get_filename_component(src "${src}" ABSOLUTE)
+		endif()
+		list(APPEND TEST_FILES "${src}")
+	endforeach()
+	
+    if (_relPath)
+        # propagate TEST_FILES to parent directory
+        set (TEST_FILES ${TEST_FILES} PARENT_SCOPE)
+    endif()
+endmacro()

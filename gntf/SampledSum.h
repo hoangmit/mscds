@@ -3,8 +3,8 @@
 
 #include "archive.h"
 #include "poly_vals.h"
+#include "rank_vals.h"
 #include "valrange.h"
-#include "poly_vals.h"
 #include "nintv.h"
 
 #include <deque>
@@ -19,13 +19,14 @@ public:
 	void init(unsigned int sample_rate = 64);
 	void add(unsigned int st, unsigned int ed, double val);
 	void add_all(std::deque<ValRange>* vals);
-	void build(SampledSumQuery * out);
+	void build(SampledSumQuery * out, NIntvQueryInt * posquery);
 	void build(mscds::OArchive& ar);
 	void clear();
 private:
 
 	mscds::SDArraySmlBuilder psbd, spsbd;
-	PRValArrBuilder vals;
+	PRValArrBuilder vdir;
+	RankValArrBuilder vrank;
 	std::deque<ValRange> svals, * ptr;
 	uint64_t psum, sqpsum;
 	int64_t lastv;
@@ -33,6 +34,7 @@ private:
 	unsigned int lastst, cnt;
 	unsigned int factor;
 	int delta;
+	unsigned int method;
 
 	static unsigned int precision(double d);
 
@@ -43,18 +45,34 @@ private:
 
 class SampledSumQuery {
 public:
-	SampledSumQuery(): pq(NULL) {}
-	typedef PRValArr::Enum Enum;
-	double getValue(unsigned int idx) const;
+	SampledSumQuery();
+
+	double access(unsigned int idx) const;
 	unsigned int getSampleRate() const { return rate; }
 
+	class Enum: public mscds::EnumeratorInt<double> {
+	public:
+		Enum(): e1(NULL), e2(NULL), type(0) {}
+		~Enum();
+		bool hasNext() const;
+		double next();
+		uint64_t next_int();
+	private:
+		friend class SampledSumQuery;
+		PRValArr::Enum * e1;
+		RankValArr::Enum * e2;
+		unsigned int factor;
+		int delta;
+		unsigned char type;
+	};
+
 	/* return the sampled position */
-	unsigned int getEnum(unsigned int idx, Enum * e) const;
+	void getEnum(unsigned int idx, Enum * e) const;
 	
 	/* return the sum value at the nearest previous sampled value */
 	double sum(unsigned int idx, unsigned int lefpos = 0) const;
 	 
-	double sqrSum(unsigned int pos, unsigned int lefpos = 0) const;
+	double sqrSum(unsigned int idx, unsigned int lefpos = 0) const;
 	
 	void load(mscds::IArchive& ar, NIntvQueryInt * posquery);
 	void save(mscds::OArchive& ar) const;
@@ -66,7 +84,10 @@ private:
 	unsigned int len, rate;
 	unsigned int factor;
 	int delta;
-	PRValArr vals;
+	unsigned int method; // 1--normal, 2--rank
+	PRValArr vdir;
+	RankValArr vrank;
+
 };
 
 

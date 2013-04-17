@@ -12,13 +12,6 @@ PRValArrBuilder::PRValArrBuilder() {
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
-	if (method == 0) {
-		auto cf = Config::getInst();
-		if (cf->hasPara("GNTF.VALUE_STORAGE")) {
-			method = cf->getIntPara("GNTF.VALUE_STORAGE");
-			if (method > 3) throw std::runtime_error("invalid method");
-		}
-	}
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
@@ -145,7 +138,7 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	}
 }
 
-uint64_t PRValArr::access(size_t p) {
+uint64_t PRValArr::access(size_t p) const {
 	if (storetype == 1) return sda.lookup(p);
 	else 
 	if (storetype == 2) {

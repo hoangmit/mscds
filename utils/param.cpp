@@ -35,14 +35,14 @@ Config::Config(const std::string& filename) {
 	loadFile(filename);
 }
 
-bool Config::hasPara(const std::string& pname) {
-	MapType::iterator itr;
+bool Config::hasPara(const std::string& pname) const {
+	MapType::const_iterator itr;
 	itr = variables.find(pname);
 	return  (itr != variables.end());
 }
 
-std::string Config::getPara(const std::string& pname) {
-	MapType::iterator itr;
+std::string Config::getPara(const std::string& pname) const {
+	MapType::const_iterator itr;
 	itr = variables.find(pname);
 	if (itr == variables.end())
 		throw  std::runtime_error(("Cannot find variable: "+pname).c_str());
@@ -53,12 +53,17 @@ void Config::addPara(const std::string& para, const std::string& value) {
 	variables[para] = value;
 }
 
+int Config::getIntPara(const std::string& pname, int defaultval) const {
+	if (hasPara(pname))
+		return std::atoi(getPara(pname).c_str());
+	else return defaultval;
+}
 
-int Config::getIntPara(const std::string& pname) {
+int Config::getIntPara(const std::string& pname) const {
 	return std::atoi(getPara(pname).c_str());
 }
 
-double Config::getDoublePara(const std::string& pname) {
+double Config::getDoublePara(const std::string& pname) const {
 	return std::atof(getPara(pname).c_str());
 }
 

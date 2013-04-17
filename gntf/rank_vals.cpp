@@ -48,7 +48,7 @@ void RankValArr::getEnum(size_t idx, Enum * e) const {
 	rankv.getEnum(idx, &(e->e));
 }
 
-uint64_t RankValArr::access( size_t p ) {
+uint64_t RankValArr::access( size_t p ) const {
 	return vals.prefixsum(rankv.access(p));
 }
 

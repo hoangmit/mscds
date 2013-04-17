@@ -256,10 +256,14 @@ void test_trivbin_all() {
 	for (int i = 0; i < 100; i++) {
 		test_rlsum_tb_rng<RunLenSumArray6>(i);
 	}
+	cout << endl;
+
 }
 
 
 int main() {
+	::testing::GTEST_FLAG(throw_on_failure) = true;
+
 	test_trivbin_all();
 	cout << endl;
 	return 0;

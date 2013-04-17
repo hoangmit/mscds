@@ -53,7 +53,7 @@ class PRValArr {
 public:
 	PRValArr(): len(0) {}
 	unsigned int sample_rate() { return rate; }
-	uint64_t access(size_t p);
+	uint64_t access(size_t p) const;
 	void save(mscds::OArchive& ar) const;
 	void load(mscds::IArchive& ar);
 	void clear();

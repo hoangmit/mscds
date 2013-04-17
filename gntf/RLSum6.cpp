@@ -35,7 +35,7 @@ void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
 	out->len = cnt;
 	itvb.build(&(out->itv));
-	vals.build(&(out->vals));
+	vals.build(&(out->vals), &(out->itv));
 	clear();
 }
 
@@ -68,7 +68,7 @@ unsigned int RunLenSumArray6::range_start(unsigned int i) const { return itv.int
 unsigned int RunLenSumArray6::range_len(unsigned int i) const { return itv.int_len(i); }
 
 double RunLenSumArray6::range_value(unsigned int i) const {
-	return vals.getValue(i);
+	return vals.access(i);
 }
 
 double RunLenSumArray6::range_psum(unsigned int i) const {
@@ -80,7 +80,7 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	auto res = itv.find_cover(pos - 1);
 	if (res.first == 0 && res.second == 0) return 0;
 
-	return vals.sum(res.first);
+	return vals.sum(res.first, res.second);
 }
 
 unsigned int RunLenSumArray6::countnz(unsigned int pos) const {

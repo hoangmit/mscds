@@ -149,12 +149,14 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 		clear();
 	}else {
 		data->clear();
-		//data->chrs.resize(numchr);
 		assert(chrid.size() == numchr);
+		data->chrs.resize(numchr);
+		unsigned int i = 0;
 		for (auto chrit = chrid.begin(); chrit != chrid.end(); ++chrit) {
 			if (list[chrit->second-1].size() > 0) {
-				data->chrs.push_back(ChrNumThread());
-				buildchr(chrit->first, list[chrit->second-1], &(data->chrs.back()));
+				data->chrs[i].clear();
+				buildchr(chrit->first, list[chrit->second-1], &(data->chrs[i]));
+				++i;
 			}
 		}
 		data->nchr = data->chrs.size();
@@ -219,9 +221,10 @@ void GenomeNumData::load(const std::string &input) {
 void GenomeNumData::load(mscds::IArchive &ar) {
 	ar.loadclass("genome_num_data");
 	ar.var("num_chr").load(nchr);
+	chrs.resize(nchr);
 	for (size_t i = 0; i < nchr; ++i) {
-		chrs.push_back(ChrNumThread());
-		chrs.back().load(ar);
+		chrs[i].clear();
+		chrs[i].load(ar);
 	}
 	ar.endclass();
 	loadinit();

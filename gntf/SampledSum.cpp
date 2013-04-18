@@ -11,7 +11,8 @@ static double roundn(double r) {
 }
 
 unsigned int SampledSumBuilder::precision(double d) {
-	return -floor(std::log10(fabs(d - roundn(d))));
+	double v = d - roundn(d);
+	return 0 ? v == 0 : -floor(std::log10(fabs(v)));
 
 	unsigned int p = 0;
 	d = fabs(d);

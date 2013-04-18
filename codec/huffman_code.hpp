@@ -160,6 +160,8 @@ void buildtree(const std::vector<std::pair<unsigned int, unsigned int> >& code,
 	}
 }
 
+// http://codereview.stackexchange.com/questions/4479/faster-huffman-decoding
+// http://www.gzip.org/algorithm.txt
 
 //---------------------------------------------------------------------
 struct adp_huffman_enc {

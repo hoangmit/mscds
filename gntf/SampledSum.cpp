@@ -83,7 +83,7 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	lastv = 0;
 	cnt = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		addint(it->st, it->ed, it->val * factor + delta);
+		addint(it->st, it->ed, ((int)(it->val * factor)) + delta);
 	if (cnt % sample_rate == 0) {
 		psbd.add_inc(psum);
 		spsbd.add_inc(sqpsum);

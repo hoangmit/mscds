@@ -455,7 +455,7 @@ void sortrun(unsigned int d, unsigned int bit_num, vector<uint64_t>& pos, vector
 		//std::sort(pos.begin(), pos.end());
 		assert(pos.back() <= wt->length());
 		//assert(num_lst.back() <= wt->alphabet_num());
-		assert(num_lst.back() < 1ULL << (wt->bitwidth));
+		assert(num_lst.back() <= 1ULL << (wt->bitwidth));
 		Query2 q;
 		q.beg_node = 0;
 		q.end_node = wt->length();

@@ -74,7 +74,7 @@ namespace has_insertion_operator_impl {
 
 #endif //ASSERT
 
-#define TEST(case, test) void test ## case () 
+#define TEST(tcase, test) void tcase ## test () 
 
 #else //USE_OWN_TEST_LIB
 

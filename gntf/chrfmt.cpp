@@ -36,8 +36,11 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 	out->minmax_opt = minmax_opt;
 	std::vector<double> minmaxr(ranges.size());
 	ChrNumValBuilderType bd;
-	for (auto it = ranges.begin(); it != ranges.end(); ++it)
-		minmaxr.push_back(it->val);
+	unsigned int i = 0;
+	for (auto it = ranges.begin(); it != ranges.end(); ++it) {
+		minmaxr[i] = it->val;
+		++i;
+	}
 	bd.add_all(&ranges);
 	bd.build(&out->vals);
 	ranges.clear();

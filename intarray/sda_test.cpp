@@ -21,7 +21,7 @@ string get_tempdir() {
 	return utils::get_temp_path();
 };
 
-TEST(sdarray_zeros, sdatest){
+TEST(sdatest, sdarray_zeros){
 	SDArrayBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i){
@@ -41,7 +41,7 @@ TEST(sdarray_zeros, sdatest){
 	//ASSERT_EQ(SDArrayQuery::NOTFOUND, sda.find(0));
 }
 
-TEST(sdarray_ones, sdatest){
+TEST(sdatest, sdarray_ones){
 	SDArrayBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i){
@@ -63,7 +63,7 @@ TEST(sdarray_ones, sdatest){
 	}
 }
 
-TEST(sdarray_increasing, sdatest){
+TEST(sdatest, sdarray_increasing){
 	SDArrayBuilder bd;
 	SDArrayQuery sda;
 	uint64_t N = 1000;
@@ -102,7 +102,7 @@ TEST(sdarray_increasing, sdatest){
 
 
 
-TEST(test_sdarray_random, sdatest){
+TEST(sdatest, sdarray_random){
 	SDArrayBuilder bd;
 	SDArrayQuery sda;
 	uint64_t N = 1000;
@@ -144,7 +144,7 @@ TEST(test_sdarray_random, sdatest){
 
 
 
-TEST(SDA1, sdatest) {
+TEST(sdatest, SDA1) {
 	const int len = 1000;
 	const int range = 100;
 	vector<unsigned int> A(len), S(len);
@@ -261,7 +261,7 @@ void test_rank(int len) {
 	cout << ".";
 }
 
-TEST(SDA_rnd_all, sdatest) {
+TEST(sdatest, SDA_rnd_all) {
 	for (int i = 0; i < 200; i++)
 		test_rank(1000);
 	
@@ -385,7 +385,7 @@ void test_sda2_rand2() {
 }
 
 
-TEST(sda2_inc, sdatest) {
+TEST(sdatest, sda2_inc) {
 	SDArraySmlBuilder bd;
 	uint64_t N = 1000;
 	vector<uint64_t> vals(N);
@@ -422,7 +422,7 @@ TEST(sda2_inc, sdatest) {
 }
 
 
-TEST(sda2_ones, sdatest) {
+TEST(sdatest, sda2_ones) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -447,7 +447,7 @@ TEST(sda2_ones, sdatest) {
 
 }
 
-TEST(sda2_zeros, sdatest) {
+TEST(sdatest, sda2_zeros) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -539,7 +539,7 @@ void test_rank3(int len) {
 	cout << ".";
 }
 
-TEST(rank4, sdatest) {
+TEST(sdatest, rank4) {
 	const size_t len = 160;
 	int inp[len]  = {1,18,25,32,56,63,70,105,108,139,147,151,153,156,163,177,184,195,196,200,202,225,256,272,274,303,311,326,338,345,348,
 		358,361,374,380,387,420,421,433,467,489,492,526,532,550,559,561,571,579,594,600,615,624,685,710,715,729,744,747,796,
@@ -575,7 +575,7 @@ TEST(rank4, sdatest) {
 
 }
 
-TEST(test_sda2_rnd_all, sdatest) {
+TEST(sdatest, test_sda2_rnd_all) {
 	for (int i = 0; i < 200; i++) 
 		test_rank3(1020 + rand() % 8);
 	for (int i = 0; i < 200; i++) 

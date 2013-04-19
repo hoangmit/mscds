@@ -60,6 +60,9 @@ public:
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_intervals(unsigned int i) const;
 
+	/** \brief returns the total number of intervals */
+	unsigned int count_intervals() const;
+
 	std::vector<unsigned int> count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */

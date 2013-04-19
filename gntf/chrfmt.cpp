@@ -208,4 +208,9 @@ std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int 
 	return ret;
 }
 
+unsigned int ChrNumThread::count_intervals() const {
+	return vals.length();
+}
+
+
 }//namespace

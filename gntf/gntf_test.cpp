@@ -133,6 +133,9 @@ void test_mix() {
 	GenomeNumData d;
 	bd.build(&d);
 	ASSERT_EQ(0.02* 300 + 0.5 * 100, d.getChr(1).sum(3900));
+	ASSERT_EQ(5, d.getChr(0).count_intervals());
+	ASSERT_EQ(3, d.getChr(1).count_intervals());
+	ASSERT_EQ(1, d.getChr(2).count_intervals());
 	cout << '.';
 }
 
@@ -250,6 +253,7 @@ void test_annotation() {
 	}
 	GenomeNumData d;
 	bd.build(&d);
+	ASSERT_EQ(9, d.getChr(0).count_intervals());
 	ASSERT_EQ(string(""), d.getChr(0).range_annotation(0));
 	ASSERT_EQ(string("abc"), d.getChr(0).range_annotation(1));
 	ASSERT_EQ(string(""), d.getChr(0).range_annotation(2));

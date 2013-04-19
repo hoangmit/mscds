@@ -234,8 +234,12 @@ void GenomeNumData::save(mscds::OArchive &ar) const {
 	ar.startclass("genome_num_data", 1);
 	assert(nchr == chrs.size());
 	ar.var("num_chr").save(nchr);
-	for (auto it = chrs.begin(); it != chrs.end(); ++it) 
-		it->save(ar);
+	for (auto it = chrs.begin(); it != chrs.end(); ++it) {
+		if (it->name.length() < 10)
+			it->save(ar.var(it->name));
+		else
+			it->save(ar);
+	}
 	ar.endclass();
 }
 

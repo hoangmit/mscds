@@ -6,7 +6,7 @@
 namespace mscds {
 	size_t RMQ_sct::m_idx(size_t st, size_t ed) const {
 		ed--;
-		assert(st <= ed && ed < bp.length());
+		assert(st <= ed && ed < length());
 		if (st == ed) return st;
 		size_t i = bp.select(st);
 		size_t j = bp.select(ed);
@@ -21,5 +21,10 @@ namespace mscds {
 				return ed;		
 		}
 	}
+
+	size_t RMQ_sct::length() const {
+		return bp.length() / 2;
+	}
+
 
 }//namespace

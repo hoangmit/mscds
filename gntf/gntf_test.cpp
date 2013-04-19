@@ -136,6 +136,10 @@ void test_mix() {
 	cout << '.';
 }
 
+void generate() {
+
+}
+
 void testbig() {
 	//string inp = "D:/temp/textBigwig.bed";
 	string inp = "D:/temp/groseq.bedGraph";

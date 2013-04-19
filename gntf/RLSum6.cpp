@@ -33,7 +33,6 @@ void RunLenSumArrayBuilder6::add_all(std::deque<ValRange> * vs) {
 
 void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
-	out->len = cnt;
 	itvb.build(&(out->itv));
 	vals.build(&(out->vals), &(out->itv));
 	clear();
@@ -49,7 +48,6 @@ void RunLenSumArrayBuilder6::build(OArchive& ar) {
 
 void RunLenSumArray6::save(OArchive& ar) const {
 	ar.startclass("run_length_sum_array6", 1);
-	ar.var("len").save(len);
 	itv.save(ar.var("intervals"));
 	vals.save(ar.var("vals"));
 	ar.endclass();
@@ -58,7 +56,6 @@ void RunLenSumArray6::save(OArchive& ar) const {
 void RunLenSumArray6::load(IArchive& ar) {
 	clear();
 	ar.loadclass("run_length_sum_array6");
-	ar.var("len").load(len);
 	itv.load(ar.var("intervals"));
 	vals.load(ar.var("vals"), &itv);
 	ar.endclass();
@@ -103,7 +100,7 @@ int RunLenSumArray6::prev(unsigned int pos) const {
 int RunLenSumArray6::next(unsigned int pos) const {
 	auto res = itv.find_cover(pos);
 	if (res.second > 0) return pos;
-	else if (res.first < len) return itv.int_start(res.first);
+	else if (res.first < length()) return itv.int_start(res.first);
 	else return -1;
 }
 
@@ -126,11 +123,10 @@ std::pair<int, int> RunLenSumArray6::find_intervals(unsigned int st, unsigned in
 
 
 unsigned int RunLenSumArray6::length() const {
-	return len;
+	return itv.length();
 }
 
 void RunLenSumArray6::clear() {
-	len = 0;
 	itv.clear();
 	vals.clear();
 }

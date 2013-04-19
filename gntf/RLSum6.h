@@ -41,7 +41,7 @@ private:
 
 class RunLenSumArray6 : public RunLenSumArrIt<double>  {
 public:
-	RunLenSumArray6(): len(0) {}
+	RunLenSumArray6() {}
 	~RunLenSumArray6() { clear(); }
 	size_t load(std::istream& fi);
 	void load(mscds::IArchive& ar);
@@ -81,7 +81,6 @@ public:
 
 	typedef RunLenSumArrayBuilder6 BuilderTp;
 private:
-	unsigned int len;
 	PNIntv itv;
 	SampledSumQuery vals;
 	friend class RunLenSumArrayBuilder6;

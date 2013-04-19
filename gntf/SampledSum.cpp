@@ -179,7 +179,7 @@ double SampledSumQuery::sum(unsigned int idx, unsigned int lefpos) const {
 }
 
 void SampledSumQuery::save(mscds::OArchive& ar) const {
-	ar.startclass("sampledsumquery");
+	ar.startclass("sampledsum");
 	ar.var("int_method_type").save(method);
 	ar.var("rate").save(rate);
 	ar.var("delta").save(delta);
@@ -197,7 +197,7 @@ void SampledSumQuery::save(mscds::OArchive& ar) const {
 
 void SampledSumQuery::load(mscds::IArchive& ar, NIntvQueryInt * posquery) {
 	this->pq = posquery;
-	ar.loadclass("sampledsumquery");
+	ar.loadclass("sampledsum");
 	ar.var("int_method_type").load(method);
 	ar.var("rate").load(rate);
 	ar.var("delta").load(delta);

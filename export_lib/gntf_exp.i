@@ -7,6 +7,7 @@
 %}
 %template(VecUI32) std::vector<unsigned int>;
 %template(VecI64) std::vector<long long>;
+%template(VecD) std::vector<double>;
 
 
 // see `gntf.h' for documentation

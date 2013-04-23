@@ -70,6 +70,7 @@ public:
 
 	/** \brief counts the number of non-zero position from 0 to i */
 	unsigned int coverage(unsigned int) const;
+	unsigned int coverage(unsigned int st, unsigned int ed) const;
 	std::vector<unsigned int> coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
@@ -165,6 +166,10 @@ inline unsigned int ChrNumThread::prev_nz(unsigned int p) const {
 
 inline unsigned int ChrNumThread::coverage(unsigned int p) const {
 	return vals.countnz(p);
+}
+
+inline unsigned int ChrNumThread::coverage(unsigned int st, unsigned int ed) const {
+	return coverage(ed) - coverage(st);
 }
 
 }//namespace

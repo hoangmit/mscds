@@ -48,6 +48,7 @@ public:
 	void save(mscds::OArchive& ar) const;
 
 	double sum(uint32_t pos) const;
+	double sqrsum(uint32_t pos) const;
 
 	unsigned int length() const;
 	void clear();

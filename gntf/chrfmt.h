@@ -47,16 +47,15 @@ public:
 	/** \brief returns the last position i.e. the length of the sequence */
 	unsigned int last_position() const { return vals.last_position(); }
 
-	unsigned int coverage(unsigned int st, unsigned int ed) const;
 
 	/** \brief return the sum of the position from 0 to p */
 	double sum(unsigned int p) const;
 
 	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
-	double avg(unsigned int p) const;
+	double avg(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> sum_avg(unsigned int st, unsigned int ed, unsigned int n) const;
+	std::vector<double> avg_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
 	std::pair<unsigned int, unsigned int> find_intervals(unsigned int st, unsigned int ed) const;
@@ -70,9 +69,8 @@ public:
 	std::vector<unsigned int> count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */
-	unsigned int count_nz(unsigned int) const;
-
-	std::vector<unsigned int> count_nz_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+	unsigned int coverage(unsigned int) const;
+	std::vector<unsigned int> coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
 	double min_value(unsigned int st, unsigned int ed) const;
@@ -110,6 +108,10 @@ namespace app_ds {
 
 inline double ChrNumThread::sum(unsigned int p) const {
 	return vals.sum(p);
+}
+
+inline double ChrNumThread::avg(unsigned int st, unsigned ed) const {
+	return (sum(ed) - sum(st)) / (coverage(ed) - coverage(st));
 }
 
 inline const std::string ChrNumThread::range_annotation(unsigned int i) const {
@@ -159,12 +161,8 @@ inline unsigned int ChrNumThread::prev_nz(unsigned int p) const {
 	return vals.prev(p);
 }
 
-inline unsigned int ChrNumThread::count_nz(unsigned int p) const {
+inline unsigned int ChrNumThread::coverage(unsigned int p) const {
 	return vals.countnz(p);
-}
-
-inline unsigned int ChrNumThread::coverage(unsigned int st, unsigned int ed) const {
-	return vals.countnz(ed) - vals.countnz(st);
 }
 
 }//namespace

@@ -47,31 +47,49 @@ public:
 	/** \brief returns the position of the previous non-zero value */
 	unsigned int prev_nz(unsigned int) const;
 
-	/** \brief return the sum of the position from 0 to p */
-	double sum(size_t p) const;
+	/** \brief returns the last position i.e. the length of the sequence */
+	unsigned int last_position() const;
 
-	std::vector<double> sum_batch(size_t st, size_t ed, size_t n) const;
+	/** \brief return the sum of the position from 0 to p */
+	double sum(unsigned int p) const;
+
+	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+
+	double avg(unsigned int st, unsigned int ed) const;
+
+	std::vector<double> avg_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+
+	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
+	std::pair<unsigned int, unsigned int> find_intervals(unsigned int st, unsigned int ed) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_intervals(unsigned int i) const;
 
-	std::vector<unsigned int> count_intervals_batch(size_t st, size_t ed, size_t n) const;
+	/** \brief returns the total number of intervals */
+	unsigned int count_intervals() const;
+
+	std::vector<unsigned int> count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief counts the number of non-zero position from 0 to i */
-	unsigned int count_nz(unsigned int) const;
-
-	std::vector<unsigned int> count_nz_batch(unsigned int st, size_t ed, size_t n) const;
+	unsigned int coverage(unsigned int) const;
+	std::vector<unsigned int> coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
 	double min_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> min_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the minimum value in [st..ed) */
 	double max_value(unsigned int st, unsigned int ed) const;
 
-	std::vector<double> max_value_batch(unsigned int st, size_t ed, size_t n) const;
+	std::vector<double> max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
+	/** \brief returns the standdard deviation of the values in [st..ed) */
+	double stdev(unsigned int st, unsigned int ed) const;
+	std::vector<double> stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+
+	void clear();
+	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 };
 

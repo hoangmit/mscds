@@ -45,7 +45,7 @@ public:
 	unsigned int prev_nz(unsigned int) const;
 
 	/** \brief returns the last position i.e. the length of the sequence */
-	unsigned int last_position() const { return vals.last_position(); }
+	unsigned int last_position() const;
 
 
 	/** \brief return the sum of the position from 0 to p */
@@ -119,6 +119,8 @@ inline const std::string ChrNumThread::range_annotation(unsigned int i) const {
 		return annotations.get(i);
 	else return "";
 }
+
+inline unsigned int ChrNumThread::last_position() const { return vals.last_position(); }
 
 inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
 	return vals.count_range(i);

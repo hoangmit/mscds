@@ -136,11 +136,15 @@ std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Fu
 	Tp lval = fx(st);
 	for (unsigned int i = 0; i < r; ++i) {
 		pos += d + 1;
-		ret[i] = fx(pos) - lval;
+		Tp rval = fx(pos);
+		ret[i] = rval - lval;
+		lval = rval;
 	}
 	for (unsigned int i = r; i < n; ++i) {
 		pos += d;
-		ret[i] = fx(pos) - lval;
+		Tp rval = fx(pos);
+		ret[i] = rval - lval;
+		lval = rval;
 	}
 	return ret;
 }

@@ -54,6 +54,10 @@ public:
 
 	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
+	double avg(unsigned int p) const;
+
+	std::vector<double> sum_avg(unsigned int st, unsigned int ed, unsigned int n) const;
+
 	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
 	std::pair<unsigned int, unsigned int> find_intervals(unsigned int st, unsigned int ed) const;
 
@@ -81,8 +85,8 @@ public:
 	std::vector<double> max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	/** \brief returns the standdard deviation of the values in [st..ed) */
-	double stddev(unsigned int st, unsigned int ed) const;
-	std::vector<double> stddev_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+	double stdev(unsigned int st, unsigned int ed) const;
+	std::vector<double> stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
 	void clear();
 	void load(mscds::IArchive& ar);

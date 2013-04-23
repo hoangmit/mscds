@@ -106,14 +106,61 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	for (size_t i = 0; i < vals.length(); ++i) {
 		unsigned int st = vals.range_start(i);
 		unsigned int ed = st + vals.range_len(i);
-		int val = vals.range_value(i);
 		fo << name << " " << st
-			<< ed << " " << (val);
+			<< ed << " " << vals.range_value(i);
 		if (has_annotation)
 			fo << " " << annotations.get(i);
 		fo << '\n';
 	}
 }
+
+unsigned int ChrNumThread::count_intervals() const {
+	return vals.length();
+}
+
+double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
+	return 0;
+}
+
+template<typename Tp, typename Func>
+std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	std::vector<Tp> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t pos = st;
+	Tp lval = fx(st);
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = fx(pos) - lval;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = fx(pos) - lval;
+	}
+	return ret;
+}
+
+template<typename Tp, typename Func>
+std::vector<Tp> batch_call2(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	std::vector<Tp> ret(n);
+	assert(ed - st >= n);
+	size_t d = (ed - st) / n;
+	size_t r = (ed - st) % n;
+	size_t lpos = st, pos = st;
+	for (size_t i = 0; i < r; ++i) {
+		pos += d + 1;
+		ret[i] = fx(lpos, pos);
+		lpos = pos;
+	}
+	for (size_t i = r; i < n; ++i) {
+		pos += d;
+		ret[i] = fx(lpos, pos);
+		lpos = pos;
+	}
+	return ret;
+}
+
 
 std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<double> ret(n);
@@ -152,65 +199,18 @@ std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, u
 }
 
 std::vector<unsigned int> ChrNumThread::count_nz_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	std::vector<unsigned int> ret(n);
-	assert(ed - st >= n);
-	size_t d = (ed - st) / n;
-	size_t r = (ed - st) % n;
-	size_t pos = st;
-	uint64_t lval = count_nz(st);
-	for (size_t i = 0; i < r; ++i) {
-		pos += d + 1;
-		ret[i] = count_nz(pos) - lval;
-	}
-	for (size_t i = r; i < n; ++i) {
-		pos += d;
-		ret[i] = count_nz(pos) - lval;
-	}
-	return ret;
+	return batch_call1<unsigned int>(st, ed, n, [&](size_t pos)->unsigned int {return this->count_nz(pos);});
 }
 
 
 std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	std::vector<double> ret(n);
-	assert(ed - st >= n);
-	size_t d = (ed - st) / n;
-	size_t r = (ed - st) % n;
-	size_t lpos = st, pos = st;
-	for (size_t i = 0; i < r; ++i) {
-		pos += d + 1;
-		ret[i] = min_value(lpos, pos);
-		lpos = pos;
-	}
-	for (size_t i = r; i < n; ++i) {
-		pos += d;
-		ret[i] = min_value(lpos, pos);
-		lpos = pos;
-	}
-	return ret;
+	return batch_call2<double>(st, ed, n, [&](size_t st, size_t ed)->double{ return this->min_value(st, ed); });
 }
 
 std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	std::vector<double> ret(n);
-	assert(ed - st >= n);
-	size_t d = (ed - st) / n;
-	size_t r = (ed - st) % n;
-	size_t lpos = st, pos = st;
-	for (size_t i = 0; i < r; ++i) {
-		pos += d + 1;
-		ret[i] = max_value(lpos, pos);
-		lpos = pos;
-	}
-	for (size_t i = r; i < n; ++i) {
-		pos += d;
-		ret[i] = max_value(lpos, pos);
-		lpos = pos;
-	}
-	return ret;
+	return batch_call2<double>(st, ed, n, [&](size_t st, size_t ed)->double{ return this->max_value(st, ed); });
 }
 
-unsigned int ChrNumThread::count_intervals() const {
-	return vals.length();
-}
 
 
 }//namespace

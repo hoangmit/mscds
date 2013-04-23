@@ -151,7 +151,6 @@ std::vector<unsigned int> Count2DQuery::heatmap(unsigned int x1, unsigned int x2
 	return result;
 }
 
-
 size_t Count2DQuery::size() {
 	return wq.length();
 }

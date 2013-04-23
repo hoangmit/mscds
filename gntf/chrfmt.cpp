@@ -103,7 +103,7 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 }
 
 void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
-	for (size_t i = 0; i < vals.length(); ++i) {
+	for (unsigned int i = 0; i < vals.length(); ++i) {
 		unsigned int st = vals.range_start(i);
 		unsigned int ed = st + vals.range_len(i);
 		fo << name << " " << st
@@ -191,11 +191,10 @@ std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int 
 
 std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n ) const {
 	std::vector<double> s(sum_batch(st, ed, n));
-	//std::vector<unsigned int> l(coverage_batch(st, ed, n));
+	std::vector<unsigned int> l(coverage_batch(st, ed, n));
 	unsigned int lr = (ed - st) / n;
 	for (unsigned int i = 0; i < s.size(); ++i)
-		s[i] = s[i] / lr;
-		//s[i] = s[i] / l[i];
+		s[i] = s[i] / l[i];
 	return s;
 }
 

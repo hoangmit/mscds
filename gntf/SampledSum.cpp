@@ -228,8 +228,6 @@ SampledSumQuery::SampledSumQuery() {
 	clear();
 }
 
-
-
 bool SampledSumQuery::Enum::hasNext() const {
 	if (type == 1) return e1->hasNext();
 	else if (type == 2) return e2->hasNext();

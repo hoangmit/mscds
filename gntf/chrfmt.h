@@ -112,7 +112,7 @@ inline double ChrNumThread::sum(unsigned int p) const {
 }
 
 inline double ChrNumThread::avg(unsigned int st, unsigned ed) const {
-	return (sum(ed) - sum(st)) / (coverage(ed) - coverage(st));
+	return (sum(ed) - sum(st)) / (ed - st);
 }
 
 inline const std::string ChrNumThread::range_annotation(unsigned int i) const {

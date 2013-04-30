@@ -682,7 +682,7 @@ namespace mscds {
 		uint64_t boundary = q.beg_node + ba.rankzero(q.end_node) - beg_node_zero;
 		unsigned int list_boundary = list_partition(q.depth, q.beg_plst, q.end_plst);
 		if (list_boundary > q.beg_plst){
-			output.push_back(Query2(q.beg_node + wt->slength, boundary + wt->slength, q.depth + 1, 
+			output.push_back(Query2(q.beg_node + wt->length(), boundary + wt->length(), q.depth + 1, 
 				q.beg_plst, list_boundary));
 			Query2 & zq = output.back();
 			uint64_t lastp = ~0ull;
@@ -690,7 +690,7 @@ namespace mscds {
 			zq.qpos.reserve(q.qpos.size());
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
-					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero + wt->slength;
+					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero + wt->length();
 					zq.qpos.push_back(PosInfo(npx, it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;
@@ -699,7 +699,7 @@ namespace mscds {
 			}
 		}
 		if (list_boundary < q.end_plst) {
-			output.push_back(Query2(boundary + wt->slength, q.end_node + wt->slength, q.depth + 1, 
+			output.push_back(Query2(boundary + wt->length(), q.end_node + wt->length(), q.depth + 1, 
 				list_boundary, q.end_plst));
 			Query2 & nq = output.back();
 			uint64_t lastp = ~0ull;
@@ -708,7 +708,7 @@ namespace mscds {
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
 					unsigned int rleq = ba.rankzero(it->pos) - beg_node_zero;
-					unsigned int npx = boundary + ba.rank(it->pos) - (q.beg_node - beg_node_zero) + wt->slength;
+					unsigned int npx = boundary + ba.rank(it->pos) - (q.beg_node - beg_node_zero) + wt->length();
 					nq.qpos.push_back(PosInfo(npx, rleq + it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;

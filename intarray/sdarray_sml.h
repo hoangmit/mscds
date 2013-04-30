@@ -3,6 +3,7 @@
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 #include "intarray.h"
+#include "bitarray/rankselect.h"
 #include <iostream>
 
 namespace mscds {
@@ -118,7 +119,7 @@ private:
 
 class SDRankSelectSml;
 
-class SDRankSelectBuilderSml {
+class SDRankSelectBuilderSml  {
 public:
 	SDRankSelectBuilderSml(): last(0) { }
 	void add(uint64_t delta) { assert(delta > 0); last += delta; add_inc(last); }
@@ -131,7 +132,7 @@ private:
 	uint64_t last;
 };
 
-class SDRankSelectSml {
+class SDRankSelectSml: public RankSelect {
 public:
 	SDRankSelectSml() {}
 	~SDRankSelectSml() { clear(); }
@@ -141,6 +142,10 @@ public:
 	void build(BitArray& ba);
 
 	uint64_t one_count() const { return qs.length(); }
+	uint64_t length() const { return select(one_count() - 1); }
+
+	bool bit(uint64_t p) const { throw "not implemented"; return false; }
+	uint64_t selectzero(uint64_t r) const { throw "not implemented"; return 0; }
 
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }

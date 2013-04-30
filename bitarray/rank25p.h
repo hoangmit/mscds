@@ -15,6 +15,7 @@ public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t p) const;
 	uint64_t one_count() const { return onecnt; }
+	uint64_t length() const { return bits.length(); }
 private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
 	friend class rank25p_builder;

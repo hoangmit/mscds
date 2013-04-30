@@ -610,9 +610,10 @@ namespace mscds {
 		q.depth = 0;
 		q.beg_plst = 0;
 		q.end_plst = num_lst.size();
+		typedef typename GridQueryGen<RankSelect>::Query2::PosInfo PosInfo;
 		//assert(wt->bit_array.size() == wt->bitwidth);
 		for (auto it = pos.begin(); it != pos.end(); it++) 
-			q.qpos.push_back(Query2::PosInfo(*it, 0));
+			q.qpos.push_back(PosInfo(*it, 0));
 
 		//results->resize(num.size());
 		//for (unsigned int i = 0; i < results->size(); i++)
@@ -676,6 +677,7 @@ namespace mscds {
 			return ;
 		}
 		const Rank6p& ba = wt->bit_array;
+		typedef typename GridQueryGen<RankSelect>::Query2::PosInfo PosInfo;
 		uint64_t beg_node_zero = ba.rankzero(q.beg_node);
 		uint64_t boundary = q.beg_node + ba.rankzero(q.end_node) - beg_node_zero;
 		unsigned int list_boundary = list_partition(q.depth, q.beg_plst, q.end_plst);
@@ -689,11 +691,11 @@ namespace mscds {
 			for (auto it = q.qpos.begin(); it != q.qpos.end(); ++it) {
 				if (it->pos != lastp) {
 					unsigned int npx = q.beg_node + ba.rankzero(it->pos) - beg_node_zero + wt->slength;
-					zq.qpos.push_back(Query2::PosInfo(npx, it->rank_lt));
+					zq.qpos.push_back(PosInfo(npx, it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;
 				}else
-					zq.qpos.push_back(Query2::PosInfo(lastnpx, it->rank_lt));
+					zq.qpos.push_back(PosInfo(lastnpx, it->rank_lt));
 			}
 		}
 		if (list_boundary < q.end_plst) {
@@ -707,12 +709,12 @@ namespace mscds {
 				if (it->pos != lastp) {
 					unsigned int rleq = ba.rankzero(it->pos) - beg_node_zero;
 					unsigned int npx = boundary + ba.rank(it->pos) - (q.beg_node - beg_node_zero) + wt->slength;
-					nq.qpos.push_back(Query2::PosInfo(npx, rleq + it->rank_lt));
+					nq.qpos.push_back(PosInfo(npx, rleq + it->rank_lt));
 					lastp = it->pos;
 					lastnpx = npx;
 					lastrlt = rleq;
 				}else
-					nq.qpos.push_back(Query2::PosInfo(lastnpx, lastrlt + it->rank_lt));
+					nq.qpos.push_back(PosInfo(lastnpx, lastrlt + it->rank_lt));
 			}
 		}
 	}

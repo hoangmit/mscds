@@ -32,6 +32,9 @@
 
 namespace mscds {
 
+template<typename T>
+struct RecListEnv;
+
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:
@@ -74,8 +77,7 @@ private:
 	uint64_t select_rec(uint64_t c, uint64_t r, size_t level, uint64_t beg_node, uint64_t end_node) const ;
 
 
-	template <typename>
-	friend struct RecListEnv;
+	friend struct RecListEnv<RankSelect>;
 	template <typename>
 	friend class GridQueryGen;
 	template <typename>

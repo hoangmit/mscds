@@ -251,7 +251,7 @@ namespace mscds {
 	void WatQueryGen<RankSelect>::load(IArchive& ar) {
 		clear();
 		unsigned char ver = ar.loadclass("wavelet_tree");
-		if (ver < 2) throw runtime_error("incompatible with version < 2");
+		if (ver < 2) throw std::runtime_error("incompatible with version < 2");
 		ar.var("length").load(slength);
 		ar.var("bitwidth").load(bitwidth);
 		ar.var("max_value").load(max_val);

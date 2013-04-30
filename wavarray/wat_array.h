@@ -571,7 +571,7 @@ namespace mscds {
 
 	template<typename RankSelect>
 	std::string WatQueryGen<RankSelect>::to_str() const {
-		ostringstream ss;
+		std::ostringstream ss;
 		ss << '{';
 		if (length() > 0)
 			ss << access(0);

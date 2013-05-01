@@ -25,7 +25,7 @@ set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -g -O2")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -O2 -g")
 else()
 	if(MSVC)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -86,6 +86,7 @@ MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 
 

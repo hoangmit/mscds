@@ -7,6 +7,7 @@
 #include "archive.h"
 #include "rankselect.h"
 #include <cstdint>
+#include <string>
 
 
 
@@ -27,11 +28,16 @@ public:
 	uint64_t selectzero(uint64_t r) const;
 	uint64_t one_count() const { return onecnt; }
 	uint64_t length() const { return bits.length(); }
+	bool access(uint64_t pos) const { return bits[pos]; }
 	void clear();
 	
 	bool bit(uint64_t p) const;
+	std::string to_str() const { return bits.to_str(); }
 
-	void load(IArchive& ar, BitArray& b);
+	void loadp(IArchive& ar, BitArray& b);
+	void savep(OArchive& ar) const;
+
+	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	const BitArray& getBitArray() const { return bits; }
 	typedef Rank6pBuilder BuilderTp;

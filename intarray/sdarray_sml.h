@@ -146,6 +146,7 @@ public:
 
 	bool bit(uint64_t p) const { throw "not implemented"; return false; }
 	uint64_t selectzero(uint64_t r) const { throw "not implemented"; return 0; }
+	bool access(uint64_t pos) const { throw "not implemented"; return false; }
 
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }

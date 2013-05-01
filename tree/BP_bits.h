@@ -105,7 +105,7 @@ public:
 	void clear();
 private:
 	BP_block blk;
-	BitArray bp_bits;
+	//BitArray bp_bits;
 	Rank6p bprank;
 	std::shared_ptr<BP_aux> lowerlvl;
 	SDRankSelectSml pioneer_map;
@@ -118,8 +118,8 @@ public:
 		{ return (int64_t)bprank.rank(i) * 2 - i; }
 	uint64_t find_match(uint64_t p) const
 		{ return (bit(p)?find_close(p):find_open(p)); }
-	bool bit(uint64_t p) const { return bp_bits[p]; }
-	size_t length() const { return bp_bits.length(); }
+	bool bit(uint64_t p) const { return bprank.access(p); }
+	size_t length() const { return bprank.length(); }
 	std::string to_str() const;
 
 	uint64_t find_close(uint64_t p) const;

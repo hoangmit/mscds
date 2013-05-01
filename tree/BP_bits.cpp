@@ -348,7 +348,7 @@ uint64_t BP_block::min_excess_pos_slow(uint64_t l, uint64_t r) const {
 unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 	assert(blksize >= 4);
 	this->blksize = blksize;
-	bp_bits = bp;
+	//bp_bits = bp;
 	blk.init(bp, blksize);
 	Rank6pBuilder::build(bp, &bprank);
 	if (bp.length() > blksize) {
@@ -372,7 +372,6 @@ void BP_aux::clear() {
 	if (blksize > 0) {
 		blk.clear();
 		bprank.clear();
-		bp_bits.clear();
 		pioneer_map.clear();
 		lowerlvl.reset();
 		blksize = 0;
@@ -389,11 +388,11 @@ uint64_t BP_aux::find_close(uint64_t p) const {
 	uint64_t pio_rank = pioneer_map.rank(p+1) - 1;
 	uint64_t pio = pioneer_map.select(pio_rank);
 	uint64_t pio_close = pioneer_map.select(lowerlvl->find_close(pio_rank));
-	assert(!bp_bits[pio_close]);
+	assert(!bit(pio_close));
 	if (pio == p) return pio_close; //(not necessary but this skips the scanning)
 	int64_t diff = excess(p) - excess((pio_close/blksize)*blksize);
 	uint64_t ret = blk.forward_scan((pio_close/blksize) * blksize, diff);
-	assert(!bp_bits[ret]);
+	assert(!bit(ret));
 	return ret;
 }
 
@@ -407,7 +406,7 @@ uint64_t BP_aux::find_open(uint64_t p) const {
 	uint64_t pio_rank = pioneer_map.rank(p);
 	uint64_t pio = pioneer_map.select(pio_rank);
 	uint64_t open_pio = pioneer_map.select(lowerlvl->find_open(pio_rank));
-	assert(bp_bits[open_pio]);
+	assert(bit(open_pio));
 	if (pio == p) return open_pio;
 	int64_t diff = excess((open_pio/blksize + 1)*blksize) - excess(p + 1);
 	uint64_t ret = blk.backward_scan((open_pio/blksize + 1) * blksize - 1, diff);
@@ -427,7 +426,7 @@ uint64_t BP_aux::enclose(uint64_t p) const {
 	uint64_t open_pio_rank = lowerlvl->enclose(pio_rank);
 	if (open_pio_rank == BP_block::NOTFOUND) return BP_block::NOTFOUND;
 	uint64_t open_pio = pioneer_map.select(open_pio_rank);
-	assert(bp_bits[open_pio]);
+	assert(bit(open_pio));
 	if (excess(open_pio) + 1 == excess(p)) return open_pio;
 	int64_t diff = excess((open_pio/blksize + 1)*blksize) - excess(p) + 1;
 	uint64_t ret = blk.backward_scan((open_pio/blksize + 1) * blksize - 1, diff);
@@ -497,8 +496,7 @@ std::string BP_aux::to_str() const {
 OArchive &BP_aux::save(OArchive &ar) const {
 	ar.startclass("BP_aux", 1);
 	ar.var("blksize").save(blksize);
-	bp_bits.save(ar.var("bp"));
-	bprank.save(ar.var("rank"));
+	bprank.save(ar.var("bps"));
 	pioneer_map.save(ar.var("pioneers"));
 	blk.save(ar);
 	if (lowerlvl != NULL) {
@@ -516,11 +514,10 @@ OArchive &BP_aux::save(OArchive &ar) const {
 IArchive &BP_aux::load(IArchive &ar) {
 	ar.loadclass("BP_aux");
 	ar.var("blksize").load(blksize);
-	bp_bits.load(ar.var("bp"));
-	bprank.load(ar.var("rank"), bp_bits);
+	bprank.load(ar.var("bps"));
 	pioneer_map.load(ar.var("pioneers"));
 	blk.load(ar);
-	blk.init(bp_bits, blksize);
+	blk.init(bprank.getBitArray(), blksize);
 	uint32_t nextlvl;
 	ar.var("nextlvl").load(nextlvl);
 	if (nextlvl != 0) {

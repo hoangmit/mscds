@@ -17,6 +17,7 @@ class RankSelect {
 	virtual bool bit(uint64_t p) const = 0;
 	virtual uint64_t one_count() const = 0;
 	virtual uint64_t zero_count() { return length() - one_count(); }
+	virtual bool access(uint64_t pos) const = 0;
 	virtual uint64_t length() const = 0;
 };
 

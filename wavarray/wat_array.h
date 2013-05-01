@@ -50,7 +50,7 @@ public:
 	void clear();
 	std::string to_str() const;
 
-	const BitArray& bit_layers();
+	const RankSelect& bit_layers();
 private:
 	uint64_t slength;
 	uint64_t bitwidth;
@@ -242,10 +242,7 @@ namespace mscds {
 		ar.var("bitwidth").load(bitwidth);
 		ar.var("max_value").load(max_val);
 		ar.var("bits");
-		BitArray b;
-		b.load(ar);
-		ar.var("rank");
-		bit_array.load(ar, b);
+		bit_array.load(ar);
 		ar.endclass();
 	}
 
@@ -256,15 +253,13 @@ namespace mscds {
 		ar.var("bitwidth").save(bitwidth);
 		ar.var("max_value").save(max_val);
 		ar.var("bits");
-		bit_array.getBitArray().save(ar);
-		ar.var("rank");
 		bit_array.save(ar);
 		ar.endclass();
 	}
 
 	template<typename RankSelect>
-	const BitArray& WatQueryGen<RankSelect>::bit_layers() {
-		return bit_array.getBitArray();
+	const RankSelect& WatQueryGen<RankSelect>::bit_layers() {
+		return bit_array;
 	}
 
 	template<typename RankSelect>

@@ -78,8 +78,8 @@ void Rank6pBuilder::build(const BitArray &b, OArchive &ar) {
 	ar.endclass();
 }
 
-void Rank6p::save(OArchive &ar) const {
-	ar.startclass("Rank6p", 1);
+void Rank6p::savep(OArchive &ar) const {
+	ar.startclass("Rank6p_rankonly", 1);
 	ar.var("bit_len").save(length());
 	ar.var("inventory");
 	inv.save(ar);
@@ -87,8 +87,8 @@ void Rank6p::save(OArchive &ar) const {
 	ar.endclass();
 }
 
-void Rank6p::load(IArchive &ar, BitArray &b) {
-	ar.loadclass("Rank6p");
+void Rank6p::loadp(IArchive &ar, BitArray &b) {
+	ar.loadclass("Rank6p_rankonly");
 	size_t blen;
 	ar.var("bit_len").load(blen);
 	if (b.length() != blen) throw std::runtime_error("length mismatch");
@@ -98,6 +98,29 @@ void Rank6p::load(IArchive &ar, BitArray &b) {
 	ar.var("onecnt").load(onecnt);
 	ar.endclass();
 }
+
+void Rank6p::save(OArchive &ar) const {
+	ar.startclass("Rank6p", 1);
+	ar.var("bit_len").save(length());
+	ar.var("inventory");
+	inv.save(ar);
+	ar.var("onecnt").save(onecnt);
+	bits.save(ar.var("bits"));
+	ar.endclass();
+}
+
+void Rank6p::load(IArchive &ar) {
+	ar.loadclass("Rank6p");
+	size_t blen;
+	ar.var("bit_len").load(blen);
+	inv.load(ar);
+	ar.var("onecnt").load(onecnt);
+	bits.load(ar.var("bits"));
+	ar.endclass();
+	if (bits.length() != blen) throw std::runtime_error("length mismatch");
+}
+
+
 
 bool Rank6p::bit(uint64_t p) const {
 	return bits.bit(p);

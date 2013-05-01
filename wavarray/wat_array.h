@@ -32,9 +32,6 @@
 
 namespace mscds {
 
-template<typename T>
-struct RecListEnv;
-
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:
@@ -77,7 +74,8 @@ private:
 	uint64_t select_rec(uint64_t c, uint64_t r, size_t level, uint64_t beg_node, uint64_t end_node) const ;
 
 
-	friend struct RecListEnv<RankSelect>;
+	template<typename>
+	friend struct RecListEnv;
 	template <typename>
 	friend class GridQueryGen;
 	template <typename>
@@ -94,15 +92,15 @@ private:
 };
 
 
-template<typename RankSelect>
+template<typename WavTree>
 class GridQueryGen {
 private:
-	const WatQueryGen<RankSelect>* wt;
+	const WavTree* wt;
 	std::vector<unsigned int> num_lst;
 public:
 	GridQueryGen(): wt(NULL) {}
 
-	void process(const WatQueryGen<RankSelect>* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
+	void process(const WavTree* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
 	void clear();
 private:
 	uint64_t poslen;
@@ -134,7 +132,7 @@ private:
 
 typedef WatQueryGen<Rank6p> WatQuery;
 typedef WatBuilderGen<Rank6p> WatBuilder;
-typedef GridQueryGen<Rank6p> GridQuery;
+typedef GridQueryGen<WatQuery> GridQuery;
 
 } //namespace
 
@@ -406,14 +404,14 @@ namespace mscds {
 		else return false;
 	}
 
-	template<typename RankSelect>
+	template<typename WatTree>
 	struct RecListEnv {
-		RecListEnv(const WatQuery* p): ptr(p) { bitwidth = ptr->bitwidth; }
+		RecListEnv(const WatTree* p): ptr(p) { bitwidth = ptr->bitwidth; }
 
-		const WatQuery * ptr;
+		const WatTree * ptr;
 		unsigned int bitwidth;
 		void * context;
-		typename WatQueryGen<RankSelect>::ListCallback cb;
+		typename WatTree::ListCallback cb;
 
 		uint64_t min_c, max_c;
 		unsigned int cur_level;
@@ -434,7 +432,7 @@ namespace mscds {
 		};
 
 		std::vector<NodeInfo> stack;
-		void query(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, typename WatQueryGen<RankSelect>::ListCallback cb, void* context) {
+		void query(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, typename WatTree::ListCallback cb, void* context) {
 			this->context = context;
 			this->min_c = min_c;
 			this->max_c = max_c;
@@ -505,7 +503,7 @@ namespace mscds {
 	template<typename RankSelect>
 	void WatQueryGen<RankSelect>::list_each(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, typename WatQueryGen<RankSelect>::ListCallback cb, void* context) const {
 		if (min_c >= max_c || beg_pos >= end_pos) return ;
-		RecListEnv<RankSelect> rc(this);
+		RecListEnv<WatQueryGen<RankSelect> > rc(this);
 		rc.query(min_c, max_c, beg_pos, end_pos, cb, context);
 	}
 
@@ -593,8 +591,9 @@ namespace mscds {
 	}
 
 	//----------------------------------------------------------------------------
-	template<typename RankSelect>
-	void GridQueryGen<RankSelect>::process(WatQueryGen<RankSelect> const * wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int> * result) {
+	template<typename WavTree>
+	void GridQueryGen<WavTree>::process(WavTree const * wt, const std::vector<unsigned int>& pos, 
+			const std::vector<unsigned int>& num, std::vector<unsigned int> * result) {
 		this->results = result;
 		this->wt = wt;
 		this->poslen = pos.size();
@@ -612,7 +611,7 @@ namespace mscds {
 		q.depth = 0;
 		q.beg_plst = 0;
 		q.end_plst = num_lst.size();
-		typedef typename GridQueryGen<RankSelect>::Query2::PosInfo PosInfo;
+		typedef typename GridQueryGen<WavTree>::Query2::PosInfo PosInfo;
 		//assert(wt->bit_array.size() == wt->bitwidth);
 		for (auto it = pos.begin(); it != pos.end(); it++) 
 			q.qpos.push_back(PosInfo(*it, 0));
@@ -638,13 +637,13 @@ namespace mscds {
 		this->wt = NULL;
 	}
 
-	template<typename RankSelect>
-	void GridQueryGen<RankSelect>::clear() {
+	template<typename WavTree>
+	void GridQueryGen<WavTree>::clear() {
 		results->clear();
 	}
 
-	template<typename RankSelect>
-	void GridQueryGen<RankSelect>::collect(const Query2& q) {
+	template<typename WavTree>
+	void GridQueryGen<WavTree>::collect(const Query2& q) {
 		assert(q.qpos.size() == poslen);
 		for (unsigned int i = q.beg_plst; i < q.end_plst; ++i) {
 			unsigned int j = 0, st = i*poslen;
@@ -655,8 +654,8 @@ namespace mscds {
 		}
 	}
 
-	template<typename RankSelect>
-	unsigned int GridQueryGen<RankSelect>::list_partition(unsigned int depth, unsigned int beg_list, unsigned int end_list) const {
+	template<typename WavTree>
+	unsigned int GridQueryGen<WavTree>::list_partition(unsigned int depth, unsigned int beg_list, unsigned int end_list) const {
 		unsigned int count, step, it;
 		unsigned int first = beg_list;
 		count = end_list - beg_list;
@@ -672,14 +671,14 @@ namespace mscds {
 		return first;
 	}
 
-	template<typename RankSelect>
-	void GridQueryGen<RankSelect>::expandQ(const Query2& q, std::deque<Query2>& output) {
+	template<typename WavTree>
+	void GridQueryGen<WavTree>::expandQ(const Query2& q, std::deque<Query2>& output) {
 		if (q.beg_node >= q.end_node) {
 			collect(q);
 			return ;
 		}
 		const Rank6p& ba = wt->bit_array;
-		typedef typename GridQueryGen<RankSelect>::Query2::PosInfo PosInfo;
+		typedef typename GridQueryGen<WavTree>::Query2::PosInfo PosInfo;
 		uint64_t beg_node_zero = ba.rankzero(q.beg_node);
 		uint64_t boundary = q.beg_node + ba.rankzero(q.end_node) - beg_node_zero;
 		unsigned int list_boundary = list_partition(q.depth, q.beg_plst, q.end_plst);

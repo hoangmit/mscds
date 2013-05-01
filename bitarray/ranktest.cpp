@@ -90,6 +90,7 @@ std::vector<bool> bits_imbal(int len) {
 
 //--------------------------------------------------------------------------
 
+template<typename RankSelect>
 void test_rank(const std::vector<bool>& vec) {
 	vector<int> ranks(vec.size() + 1);
 	ranks[0] = 0;
@@ -98,7 +99,7 @@ void test_rank(const std::vector<bool>& vec) {
 		else ranks[i] = ranks[i-1];
 	BitArray v;
 	v = BitArray::create(vec.size());
-	v.fillzero();
+	//v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		v.setbit(i, vec[i]);
 	}
@@ -107,9 +108,11 @@ void test_rank(const std::vector<bool>& vec) {
 		ASSERT(vec[i] == v.bit(i));
 	}
 
-	Rank6p r;
+	RankSelect r;
 	//Rank6pBuilder bd;
-	Rank6pBuilder::build(v, &r);
+	RankSelect::BuilderTp::build(v, &r);
+	for (unsigned int i = 0; i < vec.size(); ++i)
+		ASSERT_EQ(vec[i], r.access(i));
 	for (int i = 0; i <= vec.size(); ++i) {
 		if (ranks[i] != r.rank(i)) {
 			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
@@ -125,7 +128,7 @@ void test_rank(const std::vector<bool>& vec) {
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
 			cout << "select " << i << "  " << r.select(i) << endl;
 			if (i > 0) r.select(i-1);
-			ASSERT(vec[pos] == true);
+			ASSERT_EQ(vec[pos], true);
 		}
 		ASSERT(pos > last);
 		last = pos;
@@ -177,18 +180,18 @@ TEST(all_rank, ranktest) {
 		test_temp(4094 + rand() % 4);
 	}
 	return ;
-	test_rank(bits_one());
-	test_rank(bits_zero());
-	test_rank(bits_onezero());
-	test_rank(bits_oneonezero());
-	test_rank(bits_zerozeroone());
+	test_rank<Rank6p>(bits_one());
+	test_rank<Rank6p>(bits_zero());
+	test_rank<Rank6p>(bits_onezero());
+	test_rank<Rank6p>(bits_oneonezero());
+	test_rank<Rank6p>(bits_zerozeroone());
 	for (int i = 0; i < 100; i++) {
-		test_rank(bits_dense(2046 + rand() % 4));
-		test_rank(bits_sparse(2046 + rand() % 4));
-		test_rank(bits_sparse(2046 + rand() % 4));
+		test_rank<Rank6p>(bits_dense(2046 + rand() % 4));
+		test_rank<Rank6p>(bits_sparse(2046 + rand() % 4));
+		test_rank<Rank6p>(bits_sparse(2046 + rand() % 4));
 	}
-	test_rank(bits_dense(100000));
-	test_rank(bits_sparse(100000));
+	test_rank<Rank6p>(bits_dense(100000));
+	test_rank<Rank6p>(bits_sparse(100000));
 	cout << endl;
 }
 

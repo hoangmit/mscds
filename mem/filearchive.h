@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <memory>
 
 namespace mscds {
@@ -56,6 +57,18 @@ private:
 	std::istream * in;
 };
 
+class IMemArchive: public IArchive {
+public:
+private:
+	std::stringstream ss;
+};
+
+class OMemArchive: public OArchive {
+public:
+private:
+	std::stringstream ss;
+};
+
 class OSizeEstArchive: public OArchive {
 public:
 	OSizeEstArchive(): pos(0) {}
@@ -87,6 +100,22 @@ private:
 
 void save_str(OArchive& ar, const std::string& st);
 std::string load_str(IArchive& ar);
+
+template<typename T>
+inline void save_to_file(const T& a, const std::string& name) {
+	OFileArchive ar;
+	ar.open_write(name);
+	a.save(ar);
+	ar.close();
+}
+
+template<typename T>
+inline size_t estimate_size(const T& a, const std::string& name) {
+	OSizeEstArchive ar;
+	a.save(ar);
+	ar.close();
+	return ar.opos();
+}
 
 }//namespace
 

@@ -94,7 +94,7 @@ void test_chrbychr3() {
 	}
 	GenomeNumData d;
 	mscds::OFileArchive fo;
-	std::stringstream ss;
+	std::stringstream ss(std::ios::binary|std::ios::in|std::ios::out);
 	fo.assign_write(&ss);
 	bd.build(fo);
 

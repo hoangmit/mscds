@@ -25,7 +25,7 @@ set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -O2 -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -g -O2")
 else()
 	if(MSVC)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)

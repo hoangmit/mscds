@@ -32,6 +32,10 @@
 
 namespace mscds {
 
+
+template<typename>
+struct RecListEnv;
+
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:

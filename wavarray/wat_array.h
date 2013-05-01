@@ -21,6 +21,7 @@ struct RecListEnv;
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:
+	typedef RankSelect RankSelectTp;
 	static const uint64_t NOTFOUND = 0xFFFFFFFFFFFFFFFFULL;
 
 	uint64_t access(uint64_t pos) const;
@@ -270,7 +271,7 @@ namespace mscds {
 		uint64_t en = slength;
 		uint64_t c = 0;
 		for (size_t i = 0; i < bitwidth; ++i){
-			const Rank6p & ba = bit_array;
+			const RankSelect & ba = bit_array;
 			const uint64_t boundary = st - ba.rankzero(st) + ba.rankzero(en);
 			c <<= 1;
 			if (ba.bit(st + pos)){
@@ -325,7 +326,7 @@ namespace mscds {
 			rank_less_than = 0;
 			rank_more_than = 0;
 			for (size_t i = 0; i < bitwidth && beg_node < end_node; ++i) {
-				const Rank6p& ba = bit_array;
+				const RankSelect& ba = bit_array;
 				const uint64_t beg_node_zero = ba.rankzero(beg_node);
 				const uint64_t boundary = beg_node + ba.rankzero(end_node) - beg_node_zero;
 				if (_getMSB(c, i, bitwidth) == 0){
@@ -354,7 +355,7 @@ namespace mscds {
 		if (r + beg_node >= end_node) return NOTFOUND; 
 		if (level == bitwidth)
 			return r;
-		const Rank6p& ba = bit_array;
+		const RankSelect& ba = bit_array;
 		const uint64_t beg_node_zero = ba.rankzero(beg_node);
 		const uint64_t boundary = beg_node + ba.rankzero(end_node) - beg_node_zero;
 		uint64_t rs = NOTFOUND;
@@ -424,10 +425,11 @@ namespace mscds {
 			expand_rec(0);
 			stack.clear();
 		}
+		typedef typename WatTree::RankSelectTp RankSelect;
 
 		uint64_t tracepos(unsigned int r) {
 			for (size_t i = bitwidth; i > 0; --i) {
-				const Rank6p& ba = (ptr->bit_array);
+				const RankSelect& ba = (ptr->bit_array);
 				if (!stack[i].bit)
 					r = ba.selectzero(stack[i - 1].beg_node_zero + r) - stack[i - 1].beg_node;
 				else
@@ -445,7 +447,7 @@ namespace mscds {
 				}
 				return ;
 			}
-			const Rank6p& ba = (ptr->bit_array);
+			const RankSelect& ba = (ptr->bit_array);
 			const uint64_t slength = ptr->slength;
 			cur.beg_node_zero = ba.rankzero(cur.beg_node);
 			cur.beg_node_one  = cur.beg_node - cur.beg_node_zero;
@@ -503,7 +505,7 @@ namespace mscds {
 		uint64_t beg_node = 0;
 		uint64_t end_node = slength;
 		for (size_t i = 0; i < bitwidth; ++i) {
-			const Rank6p& ba = (bit_array);
+			const RankSelect& ba = (bit_array);
 			const uint64_t beg_node_zero = ba.rankzero(beg_node);
 			const uint64_t beg_zero  = ba.rankzero(begin_pos);
 			const uint64_t end_zero  = ba.rankzero(end_pos);
@@ -659,7 +661,7 @@ namespace mscds {
 			collect(q);
 			return ;
 		}
-		const Rank6p& ba = wt->bit_array;
+		const typename WavTree::RankSelectTp& ba = wt->bit_array;
 		typedef typename GridQueryGen<WavTree>::Query2::PosInfo PosInfo;
 		uint64_t beg_node_zero = ba.rankzero(q.beg_node);
 		uint64_t boundary = q.beg_node + ba.rankzero(q.end_node) - beg_node_zero;

@@ -34,6 +34,7 @@ public:
 	uint64_t kthValue(uint64_t begin_pos, uint64_t end_pos, uint64_t k, uint64_t & pos) const;
 	uint64_t maxValue(uint64_t begin_pos, uint64_t end_pos, uint64_t & pos) const;
 	uint64_t minValue(uint64_t begin_pos, uint64_t end_pos, uint64_t & pos) const;
+	uint64_t operator[](uint64_t pos) const { return access(pos); }
 
 	uint64_t length() const;
 

@@ -18,6 +18,9 @@ namespace mscds {
 template<typename>
 struct RecListEnv;
 
+template<typename>
+class WatBuilderGen;
+
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:
@@ -53,6 +56,7 @@ public:
 	std::string to_str() const;
 
 	const RankSelect& bit_layers();
+	typedef class WatBuilderGen<RankSelect> BuilderTp;
 private:
 	uint64_t slength;
 	uint64_t bitwidth;
@@ -74,8 +78,8 @@ template<typename RankSelect = Rank6p>
 class WatBuilderGen {
 public:
 	//static std::vector<uint64_t> convert(const std::vector<unsigned int>& list);
-	void build(const std::vector<uint64_t>& list, WatQueryGen<RankSelect> * out);
-	void build(const std::vector<uint64_t>& list, OArchive & ar);
+	static void build(const std::vector<uint64_t>& list, WatQueryGen<RankSelect> * out);
+	static void build(const std::vector<uint64_t>& list, OArchive & ar);
 private:
 };
 

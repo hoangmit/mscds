@@ -110,7 +110,7 @@ inline void save_to_file(const T& a, const std::string& name) {
 }
 
 template<typename T>
-inline size_t estimate_size(const T& a) {
+inline size_t estimate_data_size(const T& a) {
 	OSizeEstArchive ar;
 	a.save(ar);
 	ar.close();

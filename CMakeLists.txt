@@ -86,6 +86,7 @@ MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gntf)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 

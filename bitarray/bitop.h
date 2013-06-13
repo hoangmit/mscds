@@ -177,6 +177,17 @@ namespace mscds {
 		return (c * 0x0202020202ULL & 0x010884422010ULL) % 1023;
 	}
 
+	inline uint32_t revbits(uint32_t v) {
+		uint32_t c;
+		unsigned char * p = (unsigned char *) &v;
+		unsigned char * q = (unsigned char *) &c;
+		q[3] = revbits(p[0]);
+		q[2] = revbits(p[1]);
+		q[1] = revbits(p[2]);
+		q[0] = revbits(p[3]);
+		return c;
+	}
+
 	inline unsigned int popcnt_comp(uint64_t x) {
 		x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
 		x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
@@ -186,6 +197,7 @@ namespace mscds {
 	
 	unsigned int lsb_table(uint64_t number);
 	unsigned int msb_table(uint64_t number);
+
 	
 }//namespace
 

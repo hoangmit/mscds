@@ -108,21 +108,12 @@ public:
 	IWBitStream(){ clear(); }
 
 	void init(const uint64_t * _ptr, size_t blen, size_t idx = 0);
+	IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx = 0);
 
-	IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx = 0) {
-		init(_ptr, blen, idx);
-	}
-
-	IWBitStream(SharedPtr p, size_t idx, size_t blen) {
-		uint64_t * ptr = (uint64_t*) p.get();
-		handle = p;
-		init(ptr, blen, idx);
-	}
+	IWBitStream(SharedPtr p, size_t idx, size_t blen);
 
 	void clear();
-
 	void skipw(uint16_t len);
-
 	bool getb();
 	uint64_t get(uint16_t len);
 	uint64_t get();
@@ -135,12 +126,20 @@ private:
 	uint64_t cur, nxt;
 	size_t blen;
 	uint16_t j;
-
 	SharedPtr handle;
 	const uint64_t *ptr;
-
 	void init_(const uint64_t * _ptr, size_t blen);
 };
+
+inline IWBitStream::IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx) {
+	init(_ptr, blen, idx);
+}
+
+inline IWBitStream::IWBitStream(SharedPtr p, size_t idx, size_t blen) {
+	uint64_t * ptr = (uint64_t*) p.get();
+	handle = p;
+	init(ptr, blen, idx);
+}
 
 
 inline void IWBitStream::init(const uint64_t * _ptr, size_t blen, size_t idx) {

@@ -46,13 +46,13 @@ class HuffmanArray;
 
 class HuffmanArrBuilder {
 public:
-	void init(unsigned int rate = 32, unsigned int secondrate=512) {
-		rate1 = rate; rate2 = secondrate;
-		cnt = 0;
-	}
+	HuffmanArrBuilder();
+	void init(unsigned int rate = 32, unsigned int secondrate=512);
 	void add(uint32_t val);
+	void build(OArchive& ar);
 	void build(HuffmanArray * out);
-	void clear() { buf.clear(); bd.clear(); rate1 = 0; rate2 = 0; opos.clear(); }
+	void clear();
+	typedef HuffmanArray QueryTp;
 private:
 	unsigned int rate1, rate2, cnt;
 	HuffmanBlk blk;
@@ -73,24 +73,25 @@ public:
 	uint32_t lookup(unsigned int i) const;
 	uint32_t operator[](unsigned int pos) { return lookup(pos); }
 
-	struct Enum: public EnumeratorInt<uint32_t> {
+	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
 		Enum() {}
 		Enum(const Enum& o): is(o.is) {}
-		bool hasNext() const;
-		uint32_t next();
+		bool hasNext() const { return false;}
+		uint64_t next() { return 0; }
 	private:
 		mscds::IWBitStream is;
 		friend class HuffmanArray;
 	};
 	void getEnum(uint32_t pos, Enum * e) const;
-
+	typedef HuffmanArrBuilder BuilderTp;
 private:
 	mutable HuffmanBlk blk;
 	mutable int curblk;
+
+	unsigned int len, rate1, rate2;
 	SDArraySml ptr;
 	BitArray bits;
-	unsigned int len, rate1, rate2;
 	
 	friend class HuffmanArrBuilder;
 };

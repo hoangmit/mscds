@@ -12,6 +12,8 @@ PRValArrBuilder::PRValArrBuilder() {
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
+	if(method == 0 || method > 4)
+		throw std::runtime_error("unknown method");
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
@@ -47,6 +49,7 @@ void PRValArrBuilder::build(PRValArr* out) {
 	if (method == 1) sdab.build(&(out->sda));
 	else if(method == 2) dt1.build(&(out->dt1));
 	else if(method == 3) dt2.build(&(out->dt2));
+	else if(method == 4) hf1.build(&(out->hf1));
 }
 
 void PRValArrBuilder::choosemethod() {
@@ -66,11 +69,14 @@ void PRValArrBuilder::choosemethod() {
 	size_t s2 = ar.opos() - s1;
 	dt2.build(ar);
 	size_t s3 = ar.opos() - s1 - s2;
+	hf1.build(ar);
+	size_t s4 = ar.opos() - s1 - s2 - s3;
 	ar.close();
 	size_t sx = s1;
 	method = 1;
 	if (s1 > s2) { method = 2; sx = s2; }
 	if (s2 > s3) { method = 3; sx = s3; }
+	if (s4 > s3) { method = 4; sx = s4; }
 	resetbd();
 	for (size_t i = 0; i < vals.size(); ++i)
 		addmethod(vals[i]);
@@ -82,12 +88,14 @@ void PRValArrBuilder::resetbd() {
 	lastval = 0;
 	dt1.init(rate);
 	dt2.init(rate);
+	hf1.init(rate);
 }
 
 void PRValArrBuilder::addmethod(unsigned int val) {
 	if (method==1) sdab.add(val);
-	else if (method==2) dt1.add(val);
-	else if (method ==3) dt2.add(val);
+	else if (method == 2) dt1.add(val);
+	else if (method == 3) dt2.add(val);
+	else if (method == 4) hf1.add(val);
 	else assert(false);
 }
 
@@ -113,6 +121,7 @@ bool PRValArr::Enum::hasNext() const {
 	case 1: return e1->hasNext();
 	case 2: return e2->hasNext();
 	case 3: return e3->hasNext();
+	case 4: return 0;
 	}
 	return false;
 }
@@ -134,6 +143,8 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 		dt1.getEnum(idx, (e->e2));
 	} else if (storetype ==3) {
 		dt2.getEnum(idx, e->e3);
+	} else if (storetype == 4) {
+
 	} else { throw std::runtime_error("wrong type");
 	}
 }
@@ -152,7 +163,11 @@ uint64_t PRValArr::access(size_t p) const {
 		dt2.getEnum(p, &e);
 		return e.next();
 	}
-	else {
+	else 
+	if (storetype == 4) {
+		return hf1.lookup(p);
+	}else
+	{
 		throw std::runtime_error("unknow type");
 		return 0;
 	}
@@ -165,8 +180,12 @@ void PRValArr::save(mscds::OArchive& ar) const {
 	ar.var("rate").save(rate);
 	ar.var("autoselect").save(autoselect);
 	if (storetype == 1) sda.save(ar.var("sda"));
+	else
 	if (storetype == 2) dt1.save(ar.var("delta"));
+	else
 	if (storetype == 3) dt2.save(ar.var("diff_delta"));
+	else
+	if (storetype == 4) hf1.save(ar.var("huffman"));
 	ar.endclass();
 }
 
@@ -177,8 +196,12 @@ void PRValArr::load(mscds::IArchive& ar) {
 	ar.var("rate").load(rate);
 	ar.var("autoselect").load(autoselect);
 	if (storetype == 1) sda.load(ar.var("sda"));
+	else
 	if (storetype == 2) dt1.load(ar.var("delta"));
+	else
 	if (storetype == 3) dt2.load(ar.var("diff_delta"));
+	else
+	if (storetype == 4) hf1.load(ar.var("huffman"));
 	ar.endclass();
 	if (storetype == 0) throw std::runtime_error("unknown type");
 }
@@ -190,6 +213,7 @@ void PRValArr::clear() {
 	sda.clear();
 	dt1.clear();
 	dt2.clear();
+	hf1.clear();
 }
 
 

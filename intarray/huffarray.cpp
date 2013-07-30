@@ -20,6 +20,11 @@ void HuffmanArrBuilder::build(HuffmanArray * outds) {
 	outds->rate2 = rate2;
 }
 
+void HuffmanArrBuilder::build( OArchive& ar ) {
+	HuffmanArray tmp;
+	tmp.save(ar);
+}
+
 void HuffmanArrBuilder::build_huffman(HuffmanArray * out) {
 
 }
@@ -35,6 +40,19 @@ void HuffmanArrBuilder::add(uint32_t val) {
 		buf.clear();
 		opos.clear();
 	}
+}
+
+void HuffmanArrBuilder::clear() {
+	buf.clear(); bd.clear(); rate1 = 0; rate2 = 0; opos.clear();
+}
+
+void HuffmanArrBuilder::init(unsigned int rate /*= 32*/, unsigned int secondrate/*=512*/) {
+	rate1 = rate; rate2 = secondrate;
+	cnt = 0;
+}
+
+HuffmanArrBuilder::HuffmanArrBuilder() {
+	init(32, 512);
 }
 
 const unsigned int MIN_RATE = 32;
@@ -204,6 +222,36 @@ uint32_t HuffmanArray::lookup(unsigned int i) const {
 		curblk = b;
 	}
 	return blk.lookup(r);
+}
+
+void HuffmanArray::save(OArchive& ar) const {
+	ar.startclass("huffman_code", 1);
+	ar.var("length").save(len);
+	ar.var("sample_rate").save(rate1);
+	ar.var("bigblock_rate").save(rate2);
+	ptr.save(ar.var("pointers"));
+	bits.save(ar.var("bits"));
+	ar.endclass();
+}
+
+void HuffmanArray::load(IArchive& ar) {
+	ar.loadclass("huffman_code");
+	ar.var("length").load(len);
+	ar.var("sample_rate").load(rate1);
+	ar.var("bigblock_rate").load(rate2);
+	ptr.load(ar.var("pointers"));
+	bits.load(ar.var("bits"));
+	ar.endclass();
+	curblk = -1;
+}
+
+void HuffmanArray::clear() {
+	curblk = -1;
+	bits.clear();
+	ptr.clear();
+	len = 0;
+	rate1 = 0;
+	rate2 = 0;
 }
 
 

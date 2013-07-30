@@ -7,6 +7,8 @@
 #include "intarray/codearray.h"
 #include "intarray/sdarray_sml.h"
 
+#include "intarray/huffarray.h"
+
 
 namespace app_ds {
 
@@ -41,6 +43,8 @@ private:
 	mscds::SDArraySmlBuilder sdab;
 	mscds::DeltaCodeArrBuilder dt1;
 	mscds::DiffDeltaArrBuilder dt2;
+
+	mscds::HuffmanArrBuilder hf1;
 	bool autoselect;
 
 	void resetbd();
@@ -76,7 +80,7 @@ public:
 	void getEnum(size_t idx, Enum * e) const;
 	typedef PRValArrBuilder BuilderTp;
 private:
-	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap
+	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap, 4-HuffArray
 
 	uint64_t len;
 	unsigned int rate;
@@ -84,6 +88,9 @@ private:
 	mscds::SDArraySml sda;
 	mscds::DeltaCodeArr dt1;
 	mscds::DiffDeltaArr dt2;
+
+	mscds::HuffmanArray hf1;
+
 	friend class PRValArrBuilder;
 };
 

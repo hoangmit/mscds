@@ -23,6 +23,8 @@ public:
 	const CodePr& operator[](unsigned int i) const { return output_code[i]; }
 	CodePr encode(unsigned int i) const { return output_code[i]; }
 	unsigned int size() const { return output_code.size(); }
+	void clear() { output_code.clear(); }
+	void loadCode(size_t n, const std::vector<uint16_t>& L);
 
 	// input : number of symbol,  vector of code len for each symbol
 	// output : vector of code word
@@ -44,6 +46,7 @@ public:
 	void build(const std::vector<HuffmanCode::WeightTp>& W);
 	CodePr decode2(NumTp n) const;
 	unsigned int size() const { return _size; }
+	void clear() { _size = 0; tree.clear(); }
 private:
 	unsigned int _size;
 	std::vector<std::pair<int, int> > tree;

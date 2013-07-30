@@ -1,6 +1,6 @@
 #pragma once
 
-#include "huffman.h"
+#include "huffman_code.h"
 #include "deltacoder.h"
 
 namespace coder {

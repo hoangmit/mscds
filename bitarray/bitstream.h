@@ -110,7 +110,7 @@ public:
 	void init(const uint64_t * _ptr, size_t blen, size_t idx = 0);
 	IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx = 0);
 
-	IWBitStream(SharedPtr p, size_t idx, size_t blen);
+	IWBitStream(SharedPtr p, size_t blen, size_t idx = 0);
 
 	void clear();
 	void skipw(uint16_t len);
@@ -135,18 +135,16 @@ inline IWBitStream::IWBitStream(const uint64_t * _ptr, size_t blen, size_t idx) 
 	init(_ptr, blen, idx);
 }
 
-inline IWBitStream::IWBitStream(SharedPtr p, size_t idx, size_t blen) {
+inline IWBitStream::IWBitStream(SharedPtr p, size_t blen, size_t idx) {
 	uint64_t * ptr = (uint64_t*) p.get();
 	handle = p;
 	init(ptr, blen, idx);
 }
 
-
 inline void IWBitStream::init(const uint64_t * _ptr, size_t blen, size_t idx) {
 	init_(_ptr + (idx / WORDLEN), blen - idx + (idx % WORDLEN));
 	skipw(idx % WORDLEN);
 }
-
 
 inline void IWBitStream::init_(const uint64_t * _ptr, size_t blen) {
 	this->ptr = _ptr;

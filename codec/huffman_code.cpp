@@ -1,4 +1,4 @@
-#include "huffman.h"
+#include "huffman_code.h"
 
 namespace coder {
 
@@ -81,14 +81,19 @@ HuffmanCode::WeightSum HuffmanCode::build(const std::vector<HuffmanCode::WeightT
 		L[i] = 1 + L[parent[i]];
 		if ((unsigned int) i <  n) total += ((WeightSum)W[i]) * L[i];
 	}
-	output_code.resize(W.size());
-	std::vector<unsigned int> code = canonical_code(W.size(), L);
-	for (unsigned int i = 0; i < W.size(); ++i) {
+	loadCode(W.size(), L);
+	return total;
+}
+
+void HuffmanCode::loadCode(size_t n, const std::vector<uint16_t>& L ) {
+	output_code.resize(n);
+	std::vector<unsigned int> code = canonical_code(n, L);
+	for (unsigned int i = 0; i < n; ++i) {
 		output_code[i].first = code[i];
 		output_code[i].second = L[i];
 	}
-	return total;
 }
+
 
 
 void HuffmanTree::build(const HuffmanCode& code) {

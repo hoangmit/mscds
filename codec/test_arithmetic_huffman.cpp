@@ -1,7 +1,7 @@
 #include "utils/utest.h"
 #include <vector>
 #include "arithmetic_code.hpp"
-#include "huffman.h"
+#include "huffman_code.h"
 #include "huffman_adp.hpp"
 
 using namespace std;

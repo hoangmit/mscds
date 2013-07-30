@@ -37,6 +37,6 @@ add_test_files(test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
 #target_link_libraries(t_codec codec utils)
 
 add_executable(t_compression_fw test_compression_framework.cpp ${HEADER})
-target_link_libraries(t_compression_fw codec utils)
+target_link_libraries(t_compression_fw codec utils intarray)
 
 

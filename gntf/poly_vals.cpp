@@ -12,11 +12,13 @@ PRValArrBuilder::PRValArrBuilder() {
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
-	if(method == 0 || method > 6)
-		throw std::runtime_error("unknown method");
+	if(method > 6)
+		throw std::runtime_error("unknown value method");
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
+	hf1.init(rate);
+	hd1.init(rate);
 	cnt = 0;
 	lastval = 0;
 	vals.clear();

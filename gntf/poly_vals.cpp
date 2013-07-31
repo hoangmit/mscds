@@ -12,7 +12,7 @@ PRValArrBuilder::PRValArrBuilder() {
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
-	if(method == 0 || method > 4)
+	if(method == 0 || method > 6)
 		throw std::runtime_error("unknown method");
 	autoselect = (method == 0);
 	dt1.init(rate);
@@ -200,6 +200,8 @@ void PRValArr::save(mscds::OArchive& ar) const {
 	if (storetype == 4) hf1.save(ar.var("huffman"));
 	else
 	if (storetype == 5) hd1.save(ar.var("huff_diff"));
+	else
+		throw std::runtime_error("unknown type");
 	ar.endclass();
 }
 
@@ -218,8 +220,9 @@ void PRValArr::load(mscds::IArchive& ar) {
 	if (storetype == 4) hf1.load(ar.var("huffman"));
 	else
 	if (storetype == 5) hd1.load(ar.var("huff_diff"));
+	else
+		throw std::runtime_error("unknown type");
 	ar.endclass();
-	if (storetype == 0) throw std::runtime_error("unknown type");
 }
 
 void PRValArr::clear() {

@@ -8,6 +8,7 @@
 #include "intarray/sdarray_sml.h"
 
 #include "intarray/huffarray.h"
+#include "intarray/huffdiffarr.h"
 
 
 namespace app_ds {
@@ -45,6 +46,7 @@ private:
 	mscds::DiffDeltaArrBuilder dt2;
 
 	mscds::HuffmanArrBuilder hf1;
+	mscds::HuffDiffArrBuilder hd1;
 	bool autoselect;
 
 	void resetbd();
@@ -90,6 +92,7 @@ private:
 	mscds::DiffDeltaArr dt2;
 
 	mscds::HuffmanArray hf1;
+	mscds::HuffDiffArray hd1;
 
 	friend class PRValArrBuilder;
 };

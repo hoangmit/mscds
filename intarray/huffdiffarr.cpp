@@ -1,10 +1,10 @@
 
-#include "huffarray.h"
+#include "huffdiffarr.h"
 #include "codec/deltacoder.h"
 
 namespace mscds {
 
-void HuffmanArrBuilder::build(HuffmanArray * outds) {
+void HuffDiffArrBuilder::build(HuffDiffArray * outds) {
 	if (buf.size() > 0) {
 		blk.build(&buf, rate1, &out, &opos);
 		for (unsigned int i = 0; i < opos.size(); ++i) 
@@ -20,18 +20,18 @@ void HuffmanArrBuilder::build(HuffmanArray * outds) {
 	outds->rate2 = rate2;
 }
 
-void HuffmanArrBuilder::build( OArchive& ar ) {
-	HuffmanArray tmp;
+void HuffDiffArrBuilder::build( OArchive& ar ) {
+	HuffDiffArray tmp;
 	tmp.save(ar);
 }
 
-void HuffmanArrBuilder::build_huffman(HuffmanArray * out) {
+void HuffDiffArrBuilder::build_huffman(HuffDiffArray * out) {
 
 }
 
-void HuffmanArrBuilder::add(uint32_t val) {
+void HuffDiffArrBuilder::add(uint32_t val) {
 	assert(rate1 > 0 && rate2 > 0);
-	buf.push_back(val);
+	buf.push_back(coder::absmap(((uint64_t)val) - last));
 	cnt++;
 	if (buf.size() % (rate1 * rate2) == 0) {
 		blk.build(&buf, rate1, &out, &opos);
@@ -42,22 +42,23 @@ void HuffmanArrBuilder::add(uint32_t val) {
 	}
 }
 
-void HuffmanArrBuilder::clear() {
+void HuffDiffArrBuilder::clear() {
 	buf.clear(); bd.clear(); rate1 = 0; rate2 = 0; opos.clear();
+	last = 0;
 }
 
-void HuffmanArrBuilder::init(unsigned int rate /*= 32*/, unsigned int secondrate/*=512*/) {
+void HuffDiffArrBuilder::init(unsigned int rate /*= 32*/, unsigned int secondrate/*=512*/) {
 	rate1 = rate; rate2 = secondrate;
-	cnt = 0;
+	cnt = 0; last = 0;
 }
 
-HuffmanArrBuilder::HuffmanArrBuilder() {
+HuffDiffArrBuilder::HuffDiffArrBuilder() {
 	init(32, 512);
 }
 
 static const unsigned int MIN_RATE = 32;
 
-void HuffmanBlk::buildModel(std::vector<uint32_t> * data) {
+void HuffDiffBlk::buildModel(std::vector<uint32_t> * data) {
 	std::map<uint32_t, unsigned int> cnt;
 	for (unsigned int i = 0; i < data->size(); ++i)
 		++cnt[(*data)[i]];
@@ -87,7 +88,7 @@ void HuffmanBlk::buildModel(std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanBlk::saveModel(OBitStream * out) {
+void HuffDiffBlk::saveModel(OBitStream * out) {
 	out->puts(freq.size(), 32);
 	if (freq.size() > 0) {
 		for (int i = 0; i < freq.size(); ++i)
@@ -97,7 +98,7 @@ void HuffmanBlk::saveModel(OBitStream * out) {
 	}
 }
 
-void HuffmanBlk::encode(uint32_t val, OBitStream * out) {
+void HuffDiffBlk::encode(uint32_t val, OBitStream * out) {
 	coder::DeltaCoder dc;
 	if (freq.size() > 0) {
 		auto it = freqset.find(val);
@@ -115,7 +116,7 @@ void HuffmanBlk::encode(uint32_t val, OBitStream * out) {
 	}
 }
 
-void HuffmanBlk::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos) {
+void HuffDiffBlk::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos) {
 	clear();
 	buildModel(data);
 	auto cpos = out->length();
@@ -136,7 +137,7 @@ void HuffmanBlk::build(std::vector<uint32_t> * data, unsigned int subsize, OBitS
 		opos->push_back(out->length() - cpos);
 }
 //------------------------------------------------
-void HuffmanBlk::loadModel(IWBitStream & is) {
+void HuffDiffBlk::loadModel(IWBitStream & is) {
 	unsigned int m = is.get(32);
 	freq.clear();
 	freqset.clear();
@@ -155,7 +156,7 @@ void HuffmanBlk::loadModel(IWBitStream & is) {
 	}
 }
 
-void HuffmanBlk::mload(const BitArray * enc, const SDArraySml * ptr, unsigned pos) {
+void HuffDiffBlk::mload(const BitArray * enc, const SDArraySml * ptr, unsigned pos) {
 	auto st = ptr->prefixsum(pos);
 	IWBitStream is(enc->data_ptr(), enc->length(), st);
 	loadModel(is);
@@ -166,7 +167,7 @@ void HuffmanBlk::mload(const BitArray * enc, const SDArraySml * ptr, unsigned po
 	this->pos = pos;
 }
 
-uint32_t HuffmanBlk::decode(IWBitStream * is) const {
+uint32_t HuffDiffBlk::decode(IWBitStream * is) const {
 	coder::DeltaCoder dc;
 	unsigned int val = 0;
 	if (freq.size() > 0) {
@@ -187,7 +188,7 @@ uint32_t HuffmanBlk::decode(IWBitStream * is) const {
 	return val;
 }
 
-uint32_t HuffmanBlk::lookup(unsigned int i) const {
+uint32_t HuffDiffBlk::lookup(unsigned int i) const {
 	assert(i < len);
 	auto r = i % subsize;
 	auto p = i / subsize;
@@ -201,7 +202,7 @@ uint32_t HuffmanBlk::lookup(unsigned int i) const {
 	return val;
 }
 
-void HuffmanBlk::clear() {
+void HuffDiffBlk::clear() {
 	enc = NULL;
 	ptr = NULL;
 	subsize = 0;
@@ -213,7 +214,7 @@ void HuffmanBlk::clear() {
 	tc.clear();
 }
 
-uint32_t HuffmanArray::lookup(unsigned int i) const {
+uint32_t HuffDiffArray::lookup(unsigned int i) const {
 	assert(i < len);
 	auto r = i % (rate1 * rate2);
 	auto b = i / (rate1*rate2);
@@ -224,7 +225,7 @@ uint32_t HuffmanArray::lookup(unsigned int i) const {
 	return blk.lookup(r);
 }
 
-void HuffmanArray::save(OArchive& ar) const {
+void HuffDiffArray::save(OArchive& ar) const {
 	ar.startclass("huffman_code", 1);
 	ar.var("length").save(len);
 	ar.var("sample_rate").save(rate1);
@@ -234,7 +235,7 @@ void HuffmanArray::save(OArchive& ar) const {
 	ar.endclass();
 }
 
-void HuffmanArray::load(IArchive& ar) {
+void HuffDiffArray::load(IArchive& ar) {
 	ar.loadclass("huffman_code");
 	ar.var("length").load(len);
 	ar.var("sample_rate").load(rate1);
@@ -245,7 +246,7 @@ void HuffmanArray::load(IArchive& ar) {
 	curblk = -1;
 }
 
-void HuffmanArray::clear() {
+void HuffDiffArray::clear() {
 	curblk = -1;
 	bits.clear();
 	ptr.clear();

@@ -46,16 +46,16 @@ void HuffmanArrBuilder::clear() {
 	buf.clear(); bd.clear(); rate1 = 0; rate2 = 0; opos.clear();
 }
 
-void HuffmanArrBuilder::init(unsigned int rate /*= 32*/, unsigned int secondrate/*=512*/) {
+void HuffmanArrBuilder::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=512*/) {
 	rate1 = rate; rate2 = secondrate;
 	cnt = 0;
 }
 
 HuffmanArrBuilder::HuffmanArrBuilder() {
-	init(32, 512);
+	init(64, 512);
 }
 
-static const unsigned int MIN_RATE = 32;
+static const unsigned int MIN_RATE = 64;
 
 void HuffmanBlk::buildModel(std::vector<uint32_t> * data) {
 	std::map<uint32_t, unsigned int> cnt;

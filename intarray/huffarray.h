@@ -47,7 +47,7 @@ class HuffmanArray;
 class HuffmanArrBuilder {
 public:
 	HuffmanArrBuilder();
-	void init(unsigned int rate = 32, unsigned int secondrate=512);
+	void init(unsigned int rate = 64, unsigned int secondrate=512);
 	void add(uint32_t val);
 	void build(OArchive& ar);
 	void build(HuffmanArray * out);

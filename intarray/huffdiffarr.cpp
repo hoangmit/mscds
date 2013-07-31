@@ -47,16 +47,16 @@ void HuffDiffArrBuilder::clear() {
 	last = 0;
 }
 
-void HuffDiffArrBuilder::init(unsigned int rate /*= 32*/, unsigned int secondrate/*=512*/) {
+void HuffDiffArrBuilder::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=512*/) {
 	rate1 = rate; rate2 = secondrate;
 	cnt = 0; last = 0;
 }
 
 HuffDiffArrBuilder::HuffDiffArrBuilder() {
-	init(32, 512);
+	init(64, 512);
 }
 
-static const unsigned int MIN_RATE = 32;
+static const unsigned int MIN_RATE = 64;
 
 void HuffDiffBlk::buildModel(std::vector<uint32_t> * data) {
 	std::map<uint32_t, unsigned int> cnt;

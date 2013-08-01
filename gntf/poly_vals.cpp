@@ -12,13 +12,14 @@ PRValArrBuilder::PRValArrBuilder() {
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
-	if(method > 6)
+	if(method > 7)
 		throw std::runtime_error("unknown value method");
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
 	hf1.init(rate);
 	hd1.init(rate);
+	
 	cnt = 0;
 	lastval = 0;
 	vals.clear();
@@ -53,6 +54,7 @@ void PRValArrBuilder::build(PRValArr* out) {
 	else if(method == 3) dt2.build(&(out->dt2));
 	else if(method == 4) hf1.build(&(out->hf1));
 	else if(method == 5) hd1.build(&(out->hd1));
+	else if(method == 6) gm1.build(&(out->gm1));
 }
 
 void PRValArrBuilder::choosemethod() {
@@ -76,13 +78,16 @@ void PRValArrBuilder::choosemethod() {
 	size_t s4 = ar.opos() - s1 - s2 - s3;
 	hf1.build(ar);
 	size_t s5 = ar.opos() - s1 - s2 - s3 - s4;
+	gm1.build(ar);
+	size_t s6 = ar.opos() - s1 - s2 - s3 - s4 - s5;
 	ar.close();
 	size_t sx = s1;
 	method = 1;
 	if (s2 > sx) { method = 2; sx = s2; }
 	if (s3 > sx) { method = 3; sx = s3; }
 	if (s4 > sx) { method = 4; sx = s4; }
-	if (s5 > sx) { method = 4; sx = s5; }
+	if (s5 > sx) { method = 5; sx = s5; }
+	if (s6 > sx) { method = 6; sx = s6; }
 	resetbd();
 	for (size_t i = 0; i < vals.size(); ++i)
 		addmethod(vals[i]);
@@ -96,6 +101,7 @@ void PRValArrBuilder::resetbd() {
 	dt2.init(rate);
 	hf1.init(rate);
 	hd1.init(rate);
+	//gm1
 }
 
 void PRValArrBuilder::addmethod(unsigned int val) {
@@ -104,6 +110,7 @@ void PRValArrBuilder::addmethod(unsigned int val) {
 	else if (method == 3) dt2.add(val);
 	else if (method == 4) hf1.add(val);
 	else if (method == 5) hd1.add(val);
+	else if (method == 6) gm1.add(val);
 	else assert(false);
 }
 
@@ -155,8 +162,10 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	} else if (storetype == 4) {
 
 	} else if (storetype == 5) {
-
-	} else { throw std::runtime_error("wrong type");
+	} else if (storetype == 6) {
+		
+	}
+	else { throw std::runtime_error("wrong type");
 	}
 }
 
@@ -203,6 +212,8 @@ void PRValArr::save(mscds::OArchive& ar) const {
 	else
 	if (storetype == 5) hd1.save(ar.var("huff_diff"));
 	else
+	if (storetype == 6) gm1.save(ar.var("gamma_sda"));
+	else
 		throw std::runtime_error("unknown type");
 	ar.endclass();
 }
@@ -223,6 +234,8 @@ void PRValArr::load(mscds::IArchive& ar) {
 	else
 	if (storetype == 5) hd1.load(ar.var("huff_diff"));
 	else
+	if (storetype == 6) gm1.load(ar.var("gamma_sda"));
+	else
 		throw std::runtime_error("unknown type");
 	ar.endclass();
 }
@@ -236,6 +249,7 @@ void PRValArr::clear() {
 	dt2.clear();
 	hf1.clear();
 	hd1.clear();
+	gm1.clear();
 }
 
 

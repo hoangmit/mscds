@@ -7,6 +7,8 @@
 #include "intarray/codearray.h"
 #include "intarray/sdarray_sml.h"
 
+#include "intarray/gamma_arr.h"
+
 #include "intarray/huffarray.h"
 #include "intarray/huffdiffarr.h"
 
@@ -47,6 +49,7 @@ private:
 
 	mscds::HuffmanArrBuilder hf1;
 	mscds::HuffDiffArrBuilder hd1;
+	mscds::GammaArrayBuilder gm1;
 	bool autoselect;
 
 	void resetbd();
@@ -93,6 +96,7 @@ private:
 
 	mscds::HuffmanArray hf1;
 	mscds::HuffDiffArray hd1;
+	mscds::GammaArray gm1;
 
 	friend class PRValArrBuilder;
 };

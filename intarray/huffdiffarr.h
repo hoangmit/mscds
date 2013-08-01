@@ -51,6 +51,7 @@ public:
 	void add(uint32_t val);
 	void build(OArchive& ar);
 	void build(HuffDiffArray * out);
+	
 	void clear();
 	typedef HuffDiffArray QueryTp;
 private:
@@ -71,6 +72,7 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
+	uint64_t length() const;
 	uint32_t lookup(unsigned int i) const;
 	uint32_t operator[](unsigned int pos) { return lookup(pos); }
 

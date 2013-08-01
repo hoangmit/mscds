@@ -254,6 +254,11 @@ void HuffmanArray::clear() {
 	rate2 = 0;
 }
 
+uint64_t HuffmanArray::length() const {
+	return len;
+}
+
+
 
 
 }

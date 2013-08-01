@@ -70,6 +70,7 @@ public:
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
+	uint64_t length() const;
 	uint32_t lookup(unsigned int i) const;
 	uint32_t operator[](unsigned int pos) { return lookup(pos); }
 
@@ -81,9 +82,10 @@ public:
 		uint64_t next() { return 0; }
 	private:
 		mscds::IWBitStream is;
+		const HuffmanArray * data;
 		friend class HuffmanArray;
 	};
-	void getEnum(uint32_t pos, Enum * e) const;
+	void getEnum(unsigned int pos, Enum * e) const;
 	typedef HuffmanArrBuilder BuilderTp;
 private:
 	mutable HuffmanBlk blk;

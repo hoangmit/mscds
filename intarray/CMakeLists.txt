@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(intarray)
 
-set(SRCS sdarray.cpp sdarray_sml.cpp codearray.cpp huffarray.cpp huffdiffarr.cpp)
-set(HEADERS sdarray.h sdarray_sml.h codearray.h intarray.h huffarray.h huffdiffarr.h)
+set(SRCS sdarray.cpp sdarray_sml.cpp codearray.cpp huffarray.cpp huffdiffarr.cpp gamma_arr.cpp)
+set(HEADERS sdarray.h sdarray_sml.h codearray.h intarray.h huffarray.h huffdiffarr.h gamma_arr.h)
 
 add_library(intarray ${SRCS} ${HEADERS})
 target_link_libraries(intarray bitarray codec)
@@ -18,3 +18,8 @@ add_test_files(codearr_test.cpp)
 #add_executable(t_codearr codearr_test.cpp)
 #target_link_libraries(t_codearr intarray ${COMMON_LIBS})
 #set_target_properties(t_codearr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
+
+add_executable(t_intarray intarr_test.cpp)
+target_link_libraries(t_intarray intarray ${COMMON_LIBS})
+set_target_properties(t_intarray PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

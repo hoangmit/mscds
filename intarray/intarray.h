@@ -13,6 +13,12 @@ public:
 };
 
 template<typename T>
+class IntArr {
+	virtual T lookup(uint64_t p) const;
+	virtual uint64_t length() const;
+};
+
+template<typename T>
 class EnumeratorInt {
 public:
 	virtual bool hasNext() const = 0;

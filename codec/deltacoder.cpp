@@ -52,6 +52,16 @@ namespace coder {
 		return CodePr((((n - (1ull << len)) << 1) | 1) << len, bitlen);
 	}
 
+	coder::CodePr GammaCoder::encode_raw(NumTp n) {
+		LenTp  bitlen;
+		if (n == 0) throw std::runtime_error("cannot encode 0"); 
+		int len;
+		if (n == 1) { return CodePr(1,0); }
+		else len = msb_intr(n);
+		return CodePr(n - (1ull << len), len);
+	}
+
+
 	CodePr GammaCoder::decode2(CodeTp n) {
 		unsigned int l = lsb_intr(n);
 		return CodePr(((n >> (l + 1)) & ~(~0ull << l)) | (1ull << l), 2*l + 1);

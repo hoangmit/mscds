@@ -255,6 +255,11 @@ void HuffDiffArray::clear() {
 	rate2 = 0;
 }
 
+uint64_t HuffDiffArray::length() const {
+	return len;
+}
+
+
 
 
 }

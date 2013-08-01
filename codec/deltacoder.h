@@ -11,6 +11,8 @@ namespace coder {
 		static LenTp encodelen(CodeTp n);
 		static CodePr encode(NumTp n);
 		static CodePr decode2(CodeTp n);
+
+		static CodePr encode_raw(NumTp n);
 	};
 
 	class DeltaCoder: public Coder {

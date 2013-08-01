@@ -15,29 +15,36 @@
 
 namespace mscds {
 
+class HuffmanModel {
+public:
+	void buildModel(std::vector<uint32_t> * data);
+	void saveModel(OBitStream * out) const;
+	void loadModel(IWBitStream & is, bool decode_only = false);
+
+	void clear();
+
+	void encode(uint32_t val, OBitStream * out) const;
+	uint32_t decode(IWBitStream * is) const;
+private:
+	coder::HuffmanCode hc;
+	coder::HuffmanTree tc;
+	std::vector<uint32_t> freq;
+	std::map<uint32_t, uint32_t> freqset; //unordered_
+};
+
 class HuffmanBlk {
 public:
 	void clear();
 	void mload(const BitArray * enc, const SDArraySml * ptr, unsigned startpos);
 	void build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos);
 	uint32_t lookup(unsigned int i) const;
-	
+
+	const HuffmanModel& getModel() const;
 private:
-	coder::HuffmanCode hc;
-	coder::HuffmanTree tc;
-	std::vector<uint32_t> freq;
-	std::map<uint32_t, uint32_t> freqset; //unordered_
-
-	void buildModel(std::vector<uint32_t> * data);
-	void saveModel(OBitStream * out);
-	void loadModel(IWBitStream & is);
-
-	void encode(uint32_t val, OBitStream * out);
-	uint32_t decode(IWBitStream * is) const;
-
+	HuffmanModel model;
 	const BitArray * enc;
 	const SDArraySml * ptr;
-	unsigned int subsize, len, pos;
+	unsigned int subsize, len, blkpos;
 };
 
 //------------------------------------------------------------------------------
@@ -58,7 +65,6 @@ private:
 	HuffmanBlk blk;
 	OBitStream out;
 	std::vector<uint32_t> opos;
-	void build_huffman(HuffmanArray * out);
 	std::vector<uint32_t> buf;
 	SDArraySmlBuilder bd;
 };
@@ -76,12 +82,14 @@ public:
 
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
-		Enum() {}
-		Enum(const Enum& o): is(o.is) {}
-		bool hasNext() const { return false;}
-		uint64_t next() { return 0; }
+		Enum(): curblk(-1) {}
+		bool hasNext() const { return pos < data->len;}
+		uint64_t next();
 	private:
-		mscds::IWBitStream is;
+		unsigned int pos;
+		IWBitStream is;
+		HuffmanBlk blk;
+		int curblk;
 		const HuffmanArray * data;
 		friend class HuffmanArray;
 	};
@@ -96,6 +104,7 @@ private:
 	BitArray bits;
 	
 	friend class HuffmanArrBuilder;
+	friend class Enum;
 };
 
 }//namespace

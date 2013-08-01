@@ -31,6 +31,7 @@ class DeltaCodeArr {
 public:
 	uint64_t lookup(uint64_t pos) const;
 	uint64_t operator[](uint64_t pos) const { return lookup(pos); }
+	uint64_t length() const { return len; }
 	
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;

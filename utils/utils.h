@@ -9,6 +9,12 @@
 #include <ctime>
 
 
+template<typename T>
+struct TypeParseTraits;
+
+#define REGISTER_PARSE_TYPE(X) template <> struct TypeParseTraits<X> \
+{ static const char* name() { return #X ; } }
+
 /** \brief ultility functions
 
 provides commonly used functions. There are 3 major groups of functions provided

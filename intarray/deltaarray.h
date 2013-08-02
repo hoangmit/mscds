@@ -2,10 +2,14 @@
 
 #include <stdint.h>
 #include "archive.h"
+
+#include "codec/deltacoder.h"
 #include "bitarray/bitstream.h"
+
+
 #include "intarray/sdarray.h"
 #include "intarray/intarray.h"
-#include "codec/deltacoder.h"
+#include "intarray/diffarray.hpp"
 
 namespace mscds {
 
@@ -61,60 +65,8 @@ private:
 };
 
 
-
-//-----------------------------------------------------------------
-
-class DiffDeltaArr;
-
-class DiffDeltaArrBuilder {
-public:
-	DiffDeltaArrBuilder();
-	void init(unsigned int rate);
-	void add(uint64_t val);
-	void build(OArchive& ar);
-	void build(DiffDeltaArr * out);
-	void clear();
-	typedef DiffDeltaArr QueryTp;
-private:
-	coder::DeltaCoder dc;
-	OBitStream enc;
-	SDArrayBuilder ptrbd;
-	unsigned int sample_rate, i;
-	int64_t lastval;
-};
-
-
-class DiffDeltaArr {
-public:
-	uint64_t lookup(uint64_t pos) const;
-	uint64_t operator[](uint64_t pos) const { return lookup(pos); }
-	
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
-	void clear();
-	typedef DiffDeltaArrBuilder BuilderTp;
-	struct Enum: public EnumeratorInt<uint64_t> {
-	public:
-		Enum() {}
-		bool hasNext() const;
-		uint64_t next();
-		Enum(const Enum& o): is(o.is), midx(o.midx), rate(o.rate), val(o.val) {}
-	private:
-		mscds::IWBitStream is;
-		coder::DeltaCoder dc;
-		unsigned int midx, rate;
-		int64_t val;
-		friend class DiffDeltaArr;
-	};
-	void getEnum(uint64_t pos, Enum * e) const;
-
-private:
-	uint64_t len;
-	unsigned int sample_rate;
-	SDArrayQuery ptr;
-	BitArray enc;
-	friend class DiffDeltaArrBuilder;
-};
+typedef DiffArray<DeltaCodeArr> DiffDeltaArr;
+typedef DiffArrayBuilder<DeltaCodeArr> DiffDeltaArrBuilder;
 
 
 }

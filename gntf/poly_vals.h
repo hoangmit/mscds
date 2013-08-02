@@ -4,7 +4,7 @@
 #include <vector>
 #include "archive.h"
 #include "intarray/intarray.h"
-#include "intarray/codearray.h"
+#include "intarray/deltaarray.h"
 #include "intarray/sdarray_sml.h"
 
 #include "intarray/gamma_arr.h"

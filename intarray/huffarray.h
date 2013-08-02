@@ -11,6 +11,7 @@
 
 #include "codec/huffman_code.h"
 #include "blkarray.hpp"
+#include "utils/utils.h"
 
 namespace mscds {
 
@@ -30,7 +31,11 @@ private:
 	std::vector<uint32_t> freq;
 	std::map<uint32_t, uint32_t> freqset; //unordered_
 };
+}
 
+REGISTER_PARSE_TYPE(mscds::HuffmanModel);
+
+namespace mscds {
 
 typedef CodeModelArray<HuffmanModel> HuffmanArray;
 typedef CodeModelBuilder<HuffmanModel> HuffmanArrBuilder;

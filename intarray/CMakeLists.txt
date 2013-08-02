@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 
 project(intarray)
 
-set(SRCS sdarray.cpp sdarray_sml.cpp codearray.cpp huffarray.cpp huffdiffarr.cpp gamma_arr.cpp)
+set(SRCS sdarray.cpp sdarray_sml.cpp deltaarray.cpp huffarray.cpp 
+huffdiffarr.cpp gamma_arr.cpp)
 
-set(HEADERS sdarray.h sdarray_sml.h codearray.h intarray.h 
+set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 
 huffarray.h huffdiffarr.h gamma_arr.h
-blkarray.hpp)
+blkarray.hpp diffarray.hpp)
 
 add_library(intarray ${SRCS} ${HEADERS})
 target_link_libraries(intarray bitarray codec)

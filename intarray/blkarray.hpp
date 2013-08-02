@@ -10,6 +10,7 @@
 #include "sdarray_sml.h"
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
+#include "utils/utils.h"
 
 namespace mscds {
 
@@ -265,7 +266,7 @@ const Model& CodeModelBlk<Model>::getModel() const {
 
 template<typename Model>
 void CodeModelArray<Model>::save(OArchive& ar) const {
-	ar.startclass("huffman_code", 1);
+	ar.startclass(std::string("code_") + TypeParseTraits<Model>::name(), 1);
 	ar.var("length").save(len);
 	ar.var("sample_rate").save(rate1);
 	ar.var("bigblock_rate").save(rate2);
@@ -276,7 +277,7 @@ void CodeModelArray<Model>::save(OArchive& ar) const {
 
 template<typename Model>
 void CodeModelArray<Model>::load(IArchive& ar) {
-	ar.loadclass("huffman_code");
+	ar.loadclass(std::string("code_") + TypeParseTraits<Model>::name());
 	ar.var("length").load(len);
 	ar.var("sample_rate").load(rate1);
 	ar.var("bigblock_rate").load(rate2);

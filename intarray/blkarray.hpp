@@ -147,7 +147,7 @@ void CodeModelBuilder<Model>::init(unsigned int rate /*= 64*/, unsigned int seco
 }
 
 template<typename Model>
-CodeModelBuilder<Model>::CodeModelBuilder<Model>() {
+CodeModelBuilder<Model>::CodeModelBuilder() {
 	init(64, 511);
 }
 

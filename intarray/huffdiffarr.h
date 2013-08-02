@@ -84,7 +84,7 @@ public:
 		uint64_t next() { return 0; }
 	private:
 		mscds::IWBitStream is;
-		friend class HuffmanArray;
+		friend class HuffDiffArray;
 	};
 	void getEnum(uint32_t pos, Enum * e) const;
 	typedef HuffDiffArrBuilder BuilderTp;

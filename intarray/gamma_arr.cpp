@@ -6,7 +6,7 @@ namespace mscds {
 
 void GammaArrayBuilder::add(uint64_t val) {
 	coder::GammaCoder gc;
-	auto c = gc.encode_raw(val); // +1
+	auto c = gc.encode_raw(val + 1);
 	upper.add(c.second);
 	lower.puts(c.first, c.second);
 }
@@ -27,7 +27,7 @@ uint64_t GammaArray::lookup(uint64_t p) const {
 	uint64_t ps = 0;
 	uint16_t len = upper.lookup(p, ps);
 	uint64_t val = lower.bits(ps, len);
-	return (val | (1ULL << len)); //-1
+	return (val | (1ULL << len)) - 1;
 }
 
 void GammaArray::save(OArchive& ar) const {
@@ -63,7 +63,7 @@ uint64_t GammaArray::Enum::next()
 	unsigned int len = e.next();
 	uint64_t val = lower->bits(lpos, len);
 	lpos += len;
-	return (val | (1ULL << len)); // -1
+	return (val | (1ULL << len)) - 1;
 }
 
 bool GammaArray::Enum::hasNext() const {

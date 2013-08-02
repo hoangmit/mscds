@@ -134,7 +134,6 @@ void HuffmanArrBuilder::build( OArchive& ar ) {
 	tmp.save(ar);
 }
 
-
 void HuffmanArrBuilder::add(uint32_t val) {
 	assert(rate1 > 0 && rate2 > 0);
 	buf.push_back(val);
@@ -158,10 +157,8 @@ void HuffmanArrBuilder::init(unsigned int rate /*= 64*/, unsigned int secondrate
 }
 
 HuffmanArrBuilder::HuffmanArrBuilder() {
-	init(64, 512);
+	init(64, 511);
 }
-
-
 
 void HuffmanBlk::mload(const BitArray * enc, const SDArraySml * ptr, unsigned pos) {
 	auto st = ptr->prefixsum(pos);
@@ -213,9 +210,10 @@ uint32_t HuffmanBlk::lookup(unsigned int i) const {
 uint32_t HuffmanArray::lookup(unsigned int i) const {
 	assert(i < len);
 	auto r = i % (rate1 * rate2);
-	auto b = i / (rate1*rate2);
+	auto b = i / (rate1 * rate2);
 	if (curblk != b) {
-		blk.mload(&bits, &ptr, i/rate1 + b);
+		auto blkst = (i / rate1)  - ((i / rate1) % rate2) + b;
+		blk.mload(&bits, &ptr, blkst);
 		curblk = b;
 	}
 	return blk.lookup(r);
@@ -225,14 +223,15 @@ void HuffmanArray::getEnum(unsigned int pos, Enum * e) const {
 	assert(pos < len);
 	e->pos = pos;
 	auto r = pos % (rate1 * rate2);
-	auto b = pos / (rate1*rate2);
-	auto blkst = pos/rate1 + b;
+	auto b = pos / (rate1 * rate2);
+	auto blkst = (pos / rate1)  - ((pos / rate1) % rate2) + b;
 	blk.mload(&bits, &ptr, blkst);
 	auto i = r;
 	r = i % rate1;
 	auto p = i / rate1;
 	auto epos = ptr.prefixsum(p + 1 + blkst);
 	e->is.init(bits.data_ptr(), bits.length(), epos);
+	e->data = this;
 	for (unsigned int j = 0; j < r; ++j)
 		blk.getModel().decode(&(e->is));
 }
@@ -252,7 +251,6 @@ uint64_t HuffmanArray::Enum::next() {
 	}
 	return val;
 }
-
 
 void HuffmanBlk::clear() {
 	enc = NULL;

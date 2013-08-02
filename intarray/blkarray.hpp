@@ -6,55 +6,36 @@
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
-#include <stdexcept>
-#include <stdint.h>
-#include "codec/huffman_code.h"
+
 #include "sdarray_sml.h"
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 
 namespace mscds {
 
-class HuffmanModel {
-public:
-	void buildModel(std::vector<uint32_t> * data);
-	void saveModel(OBitStream * out) const;
-	void loadModel(IWBitStream & is, bool decode_only = false);
-
-	void clear();
-
-	void encode(uint32_t val, OBitStream * out) const;
-	uint32_t decode(IWBitStream * is) const;
-private:
-	coder::HuffmanCode hc;
-	coder::HuffmanTree tc;
-	std::vector<uint32_t> freq;
-	std::map<uint32_t, uint32_t> freqset; //unordered_
-};
-
-//------------------------------------------------------------------------------
-
-
-class HuffmanBlk {
+template<typename Model>
+class CodeModelBlk {
 public:
 	void clear();
 	void mload(const BitArray * enc, const SDArraySml * ptr, unsigned startpos);
 	void build(std::vector<uint32_t> * data, unsigned int subsize, 
-				OBitStream * out, std::vector<uint32_t> * opos);
+		OBitStream * out, std::vector<uint32_t> * opos);
 	uint32_t lookup(unsigned int i) const;
 
-	const HuffmanModel& getModel() const;
+	const Model& getModel() const;
 private:
-	HuffmanModel model;
+	Model model;
 	const BitArray * enc;
 	const SDArraySml * ptr;
 	unsigned int subsize, len, blkpos;
 };
 
 
-class HuffmanArray;
+template<typename Model>
+class CodeModelArray;
 
-class HuffmanArrBuilder {
+template<typename Model>
+class CodeModelBuilder {
 public:
 	HuffmanArrBuilder();
 	void init(unsigned int rate = 64, unsigned int secondrate=512);
@@ -62,18 +43,18 @@ public:
 	void build(OArchive& ar);
 	void build(HuffmanArray * out);
 	void clear();
-	typedef HuffmanArray QueryTp;
+	typedef CodeModelArray<Model> QueryTp;
 private:
 	unsigned int rate1, rate2, cnt;
-	HuffmanBlk blk;
+	CodeModelArray<Model> blk;
 	OBitStream out;
 	std::vector<uint32_t> opos;
 	std::vector<uint32_t> buf;
 	SDArraySmlBuilder bd;
 };
 
-
-class HuffmanArray {
+template<typename Model>
+class CodeModelArray {
 public:
 	HuffmanArray(): curblk(-1) {}
 	void load(IArchive& ar);
@@ -94,10 +75,10 @@ public:
 		HuffmanBlk blk;
 		int curblk;
 		const HuffmanArray * data;
-		friend class HuffmanArray;
+		friend class CodeModelArray<Model>;
 	};
 	void getEnum(unsigned int pos, Enum * e) const;
-	typedef HuffmanArrBuilder BuilderTp;
+	typedef CodeModelBuilder<Model> BuilderTp;
 private:
 	mutable HuffmanBlk blk;
 	mutable int curblk;
@@ -105,9 +86,11 @@ private:
 	unsigned int len, rate1, rate2;
 	SDArraySml ptr;
 	BitArray bits;
-	
-	friend class HuffmanArrBuilder;
+
+	friend class CodeModelBuilder<Model>;
 	friend class Enum;
 };
 
 }//namespace
+
+

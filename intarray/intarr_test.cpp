@@ -1,6 +1,8 @@
 #include "gamma_arr.h"
 #include "huffarray.h"
 #include "codearray.h"
+#include "sdarray.h"
+#include "sdarray_sml.h"
 #include "utils/utest.h"
 #include <vector>
 
@@ -41,7 +43,8 @@ std::vector<unsigned int> gen_dec(unsigned int n) {
 	return ret;
 }
 
-std::vector<unsigned int> gen_rand(unsigned int n, unsigned int lower = 0, unsigned int higher = 100) {
+std::vector<unsigned int> gen_rand(unsigned int n, unsigned int lower = 0, 
+								   unsigned int higher = 100) {
 	std::vector<unsigned int> ret;
 	for (unsigned int i = 0; i < n; ++i) 
 		ret.push_back(lower +  rand() % (higher - lower));
@@ -74,6 +77,10 @@ void check(const std::vector<unsigned int>& exp, bool testenum = false) {
 	for (unsigned int i = 0; i < exp.size(); ++i) {
 		ASSERT_EQ(exp[i], qs.lookup(i));
 	}
+	for (int k = 0; k < 200; k++) {
+		auto i = rand() % exp.size();
+		ASSERT_EQ(exp[i], qs.lookup(i));
+	}
 	if (testenum) {
 		testEnum(exp, qs);
 	}
@@ -98,12 +105,14 @@ TEST(GammaArray, testsuite) {
 	vec = gen_dec(100);
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_rand(10000, 0, 100);
-	check<QueryTp, BuilderTp>(vec, true);
-	vec = gen_rand(10000, 0, 1000);
-	check<QueryTp, BuilderTp>(vec, true);
+	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(10000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
 }
 
-TEST(DeltaArray, DISABLED_testsuite) {
+TEST(DeltaArray, testsuite) {
 	typedef DeltaCodeArr QueryTp;
 	typedef DeltaCodeArrBuilder BuilderTp;
 	std::vector<unsigned int> vec;
@@ -121,11 +130,38 @@ TEST(DeltaArray, DISABLED_testsuite) {
 	vec = gen_dec(100);
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_rand(10000, 0, 100);
-	check<QueryTp, BuilderTp>(vec);
-	vec = gen_rand(10000, 0, 1000);
-	check<QueryTp, BuilderTp>(vec);
+	check<QueryTp, BuilderTp>(vec, true);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(10000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
 }
 
+TEST(SDArraySml, testsuite) {
+	typedef SDArraySml QueryTp;
+	typedef SDArraySmlBuilder BuilderTp;
+	std::vector<unsigned int> vec;
+	vec = gen_zeros(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zeros(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
+	vec = gen_inc(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_dec(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_rand(10000, 0, 100);
+	check<QueryTp, BuilderTp>(vec, true);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(10000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
+
+}
 
 TEST(HuffArray, testsuite) {
 	typedef HuffmanArray QueryTp;
@@ -146,11 +182,14 @@ TEST(HuffArray, testsuite) {
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_rand(10000, 0, 100);
 	check<QueryTp, BuilderTp>(vec);
-	vec = gen_rand(10000, 0, 1000);
-	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(50000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
 }
 
 int main(int argc, char* argv[]) {
+	::testing::GTEST_FLAG(filter) = "HuffArray.*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;

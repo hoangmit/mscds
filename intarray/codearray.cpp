@@ -20,7 +20,7 @@ namespace mscds {
 	void DeltaCodeArrBuilder::add(uint64_t val) {
 		if (i % sample_rate == 0)
 			ptrbd.add_inc(enc.length());
-		enc.puts(dc.encode(val));
+		enc.puts(dc.encode(val + 1));
 		++i;
 	}
 
@@ -53,7 +53,7 @@ namespace mscds {
 	uint64_t DeltaCodeArr::Enum::next() {
 		c = dc.decode2(is.peek());
 		is.skipw(c.second);
-		return c.first;
+		return c.first - 1;
 	}
 
 	uint64_t DeltaCodeArr::lookup(uint64_t pos) const {

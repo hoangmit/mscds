@@ -127,9 +127,9 @@ void PRValArrBuilder::addmethod(unsigned int val) {
 	else if (method == 4) hf1.add(val);
 	else if (method == 5) hd1.add(val);
 	else if (method == 6) gm1.add(val);
-	else if (method == 6) gd1.add(val);
-	else if (method == 6) ra1.add(val);
-	else if (method == 6) rd1.add(val);
+	else if (method == 7) gd1.add(val);
+	else if (method == 8) ra1.add(val);
+	else if (method == 9) rd1.add(val);
 	else assert(false);
 }
 

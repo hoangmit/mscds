@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "archive.h"
 
+#include "codec/deltacoder.h"
 #include "intarray.h"
 
 namespace mscds {

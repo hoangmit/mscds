@@ -221,7 +221,7 @@ void CodeModelArray<Model>::getEnum(unsigned int pos, Enum * e) const {
 	auto r = pos % (rate1 * rate2);
 	auto b = pos / (rate1 * rate2);
 	auto blkst = (pos / rate1)  - ((pos / rate1) % rate2) + b;
-	blk.mload(&bits, &ptr, blkst);
+	e->blk.mload(&bits, &ptr, blkst);
 	auto i = r;
 	r = i % rate1;
 	auto p = i / rate1;

@@ -10,7 +10,7 @@
 #include "intarray/gamma_arr.h"
 
 #include "intarray/huffarray.h"
-#include "intarray/huffdiffarr.h"
+
 
 
 namespace app_ds {

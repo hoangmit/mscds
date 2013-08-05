@@ -99,6 +99,11 @@ TEST(GammaArray, testsuite) {
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_ones(10000);
 	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
 
 	vec = gen_inc(100);
 	check<QueryTp, BuilderTp>(vec);
@@ -123,6 +128,10 @@ TEST(DeltaArray, testsuite) {
 	vec = gen_ones(50);
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
 	check<QueryTp, BuilderTp>(vec);
 
 	vec = gen_inc(100);
@@ -149,6 +158,11 @@ TEST(DiffDeltaArray, testsuite) {
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_ones(10000);
 	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
 
 	vec = gen_inc(100);
 	check<QueryTp, BuilderTp>(vec);
@@ -173,6 +187,10 @@ TEST(SDArraySml, testsuite) {
 	vec = gen_ones(50);
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
 	check<QueryTp, BuilderTp>(vec);
 
 	vec = gen_inc(100);
@@ -200,6 +218,40 @@ TEST(HuffArray, testsuite) {
 	check<QueryTp, BuilderTp>(vec);
 	vec = gen_ones(10000);
 	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
+	vec = gen_inc(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_dec(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_rand(10000, 0, 100);
+	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(50000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
+}
+
+
+TEST(HuffDiffArray, testsuite) {
+	typedef HuffDiffArray QueryTp;
+	typedef HuffDiffArrBuilder BuilderTp;
+	std::vector<unsigned int> vec;
+	vec = gen_zeros(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zeros(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
 
 	vec = gen_inc(100);
 	check<QueryTp, BuilderTp>(vec);
@@ -214,7 +266,7 @@ TEST(HuffArray, testsuite) {
 }
 
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(filter) = "DiffDeltaArray.*";
+	//::testing::GTEST_FLAG(filter) = "HuffDiffArray.*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;

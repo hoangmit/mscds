@@ -12,6 +12,7 @@
 #include "codec/huffman_code.h"
 #include "blkarray.hpp"
 #include "utils/utils.h"
+#include "diffarray.hpp"
 
 namespace mscds {
 
@@ -39,5 +40,9 @@ namespace mscds {
 
 typedef CodeModelArray<HuffmanModel> HuffmanArray;
 typedef CodeModelBuilder<HuffmanModel> HuffmanArrBuilder;
+
+
+typedef DiffArray<HuffmanArray> HuffDiffArray;
+typedef DiffArrayBuilder<HuffmanArray> HuffDiffArrBuilder;
 
 }//namespace

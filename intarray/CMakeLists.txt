@@ -3,10 +3,13 @@ cmake_minimum_required(VERSION 2.6)
 project(intarray)
 
 set(SRCS sdarray.cpp sdarray_sml.cpp deltaarray.cpp huffarray.cpp 
-huffdiffarr.cpp gamma_arr.cpp)
+gamma_arr.cpp
+remap_dt.cpp
+)
 
 set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 
-huffarray.h huffdiffarr.h gamma_arr.h
+huffarray.h gamma_arr.h
+remap_dt.h
 blkarray.hpp diffarray.hpp)
 
 add_library(intarray ${SRCS} ${HEADERS})

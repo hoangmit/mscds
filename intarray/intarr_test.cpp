@@ -1,6 +1,7 @@
 #include "gamma_arr.h"
 #include "huffarray.h"
 #include "deltaarray.h"
+#include "remap_dt.h"
 #include "sdarray.h"
 #include "sdarray_sml.h"
 #include "utils/utest.h"
@@ -265,8 +266,39 @@ TEST(HuffDiffArray, testsuite) {
 	}
 }
 
+
+TEST(RemapDtArray, testsuite) {
+	typedef RemapDtArray QueryTp;
+	typedef RemapDtArrayBuilder BuilderTp;
+	std::vector<unsigned int> vec;
+	vec = gen_zeros(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zeros(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
+	vec = gen_inc(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_dec(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_rand(10000, 0, 100);
+	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(50000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
+}
+
+
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(filter) = "HuffDiffArray.*";
+	//::testing::GTEST_FLAG(filter) = "RemapDtArray.*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;

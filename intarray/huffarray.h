@@ -30,7 +30,7 @@ private:
 	coder::HuffmanCode hc;
 	coder::HuffmanTree tc;
 	std::vector<uint32_t> freq;
-	std::map<uint32_t, uint32_t> freqset; //unordered_
+	std::unordered_map<uint32_t, uint32_t> freqset; //unordered_
 };
 }
 

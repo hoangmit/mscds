@@ -7,7 +7,7 @@ namespace mscds {
 static const unsigned int MIN_RATE = 64;
 
 void HuffmanModel::buildModel(std::vector<uint32_t> * data) {
-	std::map<uint32_t, unsigned int> cnt;
+	std::unordered_map<uint32_t, unsigned int> cnt;
 	for (unsigned int i = 0; i < data->size(); ++i)
 		++cnt[(*data)[i]];
 

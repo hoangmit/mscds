@@ -10,6 +10,7 @@
 #include "intarray/gamma_arr.h"
 
 #include "intarray/huffarray.h"
+#include "intarray/remap_dt.h"
 
 
 
@@ -44,12 +45,19 @@ private:
 	std::vector<unsigned int> vals;
 
 	mscds::SDArraySmlBuilder sdab;
+	
 	mscds::DeltaCodeArrBuilder dt1;
 	mscds::DiffDeltaArrBuilder dt2;
 
 	mscds::HuffmanArrBuilder hf1;
 	mscds::HuffDiffArrBuilder hd1;
+
 	mscds::GammaArrayBuilder gm1;
+	mscds::GammaDiffArrBuilder gd1;
+
+	mscds::RemapDtArrayBuilder ra1;
+	mscds::RemapDiffArrBuilder rd1;
+	
 	bool autoselect;
 
 	void resetbd();
@@ -96,7 +104,12 @@ private:
 
 	mscds::HuffmanArray hf1;
 	mscds::HuffDiffArray hd1;
+
 	mscds::GammaArray gm1;
+	mscds::GammaDiffDtArray gd1;
+
+	mscds::RemapDtArray ra1;
+	mscds::RemapDiffDtArray rd1;
 
 	friend class PRValArrBuilder;
 };

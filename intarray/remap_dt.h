@@ -36,7 +36,7 @@ namespace mscds {
 typedef CodeModelArray<RemapDtModel> RemapDtArray;
 typedef CodeModelBuilder<RemapDtModel> RemapDtArrayBuilder;
 
-typedef DiffArray<RemapDtArray> DiffRemapDtArray;
-typedef DiffArrayBuilder<RemapDtArrayBuilder> DiffRemapArrBuilder;
+typedef DiffArray<RemapDtArray> RemapDiffDtArray;
+typedef DiffArrayBuilder<RemapDtArray> RemapDiffArrBuilder;
 
 }

@@ -6,20 +6,26 @@
 namespace app_ds {
 
 PRValArrBuilder::PRValArrBuilder() {
-	init(0, 32);
+	init(0, 64);
 }
 
 void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	this->rate = rate;
 	this->method = _method;
-	if(method > 7)
+	if(method > 9)
 		throw std::runtime_error("unknown value method");
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
 	hf1.init(rate);
 	hd1.init(rate);
-	
+
+	gm1.init(rate);
+	gd1.init(rate);
+
+	ra1.init(rate);
+	rd1.init(rate);
+
 	cnt = 0;
 	lastval = 0;
 	vals.clear();
@@ -27,7 +33,10 @@ void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 
 
 void PRValArrBuilder::clear() {
-	cnt = 0; lastval = 0; vals.clear(); sdab.clear(); dt1.clear(); dt2.clear();
+	cnt = 0; lastval = 0; vals.clear(); sdab.clear();
+	dt1.clear(); dt2.clear();
+	gm1.clear(); gd1.clear();
+	ra1.clear(); rd1.clear();
 	if (autoselect) method = 0; 
 }
 
@@ -55,9 +64,13 @@ void PRValArrBuilder::build(PRValArr* out) {
 	else if(method == 4) hf1.build(&(out->hf1));
 	else if(method == 5) hd1.build(&(out->hd1));
 	else if(method == 6) gm1.build(&(out->gm1));
+	else if(method == 7) gd1.build(&(out->gd1));
+	else if(method == 8) ra1.build(&(out->ra1));
+	else if(method == 9) rd1.build(&(out->rd1));
 }
 
 void PRValArrBuilder::choosemethod() {
+	throw std::runtime_error("unimplemented");
 	sdab.clear();
 	dt1.clear();
 	dt2.clear();
@@ -101,7 +114,10 @@ void PRValArrBuilder::resetbd() {
 	dt2.init(rate);
 	hf1.init(rate);
 	hd1.init(rate);
-	//gm1
+	gm1.init(rate);
+	gd1.init(rate);
+	ra1.init(rate);
+	rd1.init(rate);
 }
 
 void PRValArrBuilder::addmethod(unsigned int val) {
@@ -111,6 +127,9 @@ void PRValArrBuilder::addmethod(unsigned int val) {
 	else if (method == 4) hf1.add(val);
 	else if (method == 5) hd1.add(val);
 	else if (method == 6) gm1.add(val);
+	else if (method == 6) gd1.add(val);
+	else if (method == 6) ra1.add(val);
+	else if (method == 6) rd1.add(val);
 	else assert(false);
 }
 
@@ -214,6 +233,12 @@ void PRValArr::save(mscds::OArchive& ar) const {
 	else
 	if (storetype == 6) gm1.save(ar.var("gamma_sda"));
 	else
+	if (storetype == 7) gd1.save(ar.var("gamma_diff"));
+	else
+	if (storetype == 8) ra1.save(ar.var("remap"));
+	else
+	if (storetype == 9) rd1.save(ar.var("remap_diff"));
+	else
 		throw std::runtime_error("unknown type");
 	ar.endclass();
 }
@@ -236,6 +261,12 @@ void PRValArr::load(mscds::IArchive& ar) {
 	else
 	if (storetype == 6) gm1.load(ar.var("gamma_sda"));
 	else
+	if (storetype == 7) gd1.load(ar.var("gamma_diff"));
+	else
+	if (storetype == 8) ra1.load(ar.var("remap"));
+	else
+	if (storetype == 9) rd1.load(ar.var("remap_diff"));
+	else
 		throw std::runtime_error("unknown type");
 	ar.endclass();
 }
@@ -250,6 +281,9 @@ void PRValArr::clear() {
 	hf1.clear();
 	hd1.clear();
 	gm1.clear();
+	gd1.clear();
+	ra1.clear();
+	rd1.clear();
 }
 
 

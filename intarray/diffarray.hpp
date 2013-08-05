@@ -59,7 +59,7 @@ private:
 	IntArray arr;
 	uint64_t len;
 	unsigned int sample_rate;
-	friend class BuilderTp;
+	friend class DiffArrayBuilder<IntArray>;
 };
 
 }//namespace

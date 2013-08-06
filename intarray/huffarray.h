@@ -18,6 +18,7 @@ namespace mscds {
 
 class HuffmanModel {
 public:
+	void buildModel2(std::vector<uint32_t> * data);
 	void buildModel(std::vector<uint32_t> * data);
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
@@ -31,6 +32,10 @@ private:
 	coder::HuffmanTree tc;
 	std::vector<uint32_t> freq;
 	std::unordered_map<uint32_t, uint32_t> freqset; //unordered_
+
+	void choosesyml_prob(std::vector<uint32_t> * data);
+	void choosesyml_fixsize(std::vector<uint32_t> * data);
+	void build_symmodel(std::vector<uint32_t> * data);
 };
 }
 

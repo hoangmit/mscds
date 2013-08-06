@@ -5,7 +5,7 @@
 namespace mscds {
 
 static const unsigned int MIN_RATE = 64;
-static const unsigned int MAX_REMAP = 64;
+static const unsigned int MAX_REMAP = 128;
 
 void HuffmanModel::buildModel2(std::vector<uint32_t> * data) {
 	freq.clear();

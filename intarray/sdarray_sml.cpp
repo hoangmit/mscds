@@ -476,6 +476,12 @@ void SDArraySml::getEnum(size_t idx, Enum* e) const {
 	}
 }
 
+void SDArraySml::inspect(const std::string& cmd, std::ostream& out) const
+{
+
+}
+
+
 //---------------------------------------------------------------------------------------
 
 void SDRankSelectSml::build(const std::vector<uint64_t>& inc_pos) {

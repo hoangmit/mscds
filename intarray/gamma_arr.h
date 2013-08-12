@@ -42,7 +42,7 @@ public:
 		const BitArray * lower;
 	};
 	void getEnum(unsigned int pos, Enum * e) const;
-
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	friend class GammaArrayBuilder;
 	SDArraySml upper;

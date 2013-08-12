@@ -98,6 +98,11 @@ void RemapDtModel::buildRev() {
 	}
 }
 
+void RemapDtModel::inspect( const std::string& cmd, std::ostream& out ) const {
+
+}
+
+
 
 }//namespace
 

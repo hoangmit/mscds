@@ -50,6 +50,7 @@ namespace app_ds {
 		};
 		void getEnum(size_t idx, Enum * e) const;
 		typedef RankValArrBuilder BuilderTp;
+		void inspect(const std::string& cmd, std::ostream& out) const;
 	private:
 		friend class RankValArrBuilder;
 		PRValArr rankv;

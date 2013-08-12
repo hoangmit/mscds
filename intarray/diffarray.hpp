@@ -55,13 +55,15 @@ public:
 		friend class DiffArray<IntArray>;
 	};
 	void getEnum(uint64_t pos, Enum * e) const;
-
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	IntArray arr;
 	uint64_t len;
 	unsigned int sample_rate;
 	friend class DiffArrayBuilder<IntArray>;
 };
+
+
 
 }//namespace
 
@@ -181,6 +183,12 @@ void DiffArray<IntArray>::load(IArchive &ar) {
 	ar.var("sample_rate").load(sample_rate);
 	arr.load(ar.var("array"));
 	ar.endclass();
+}
+
+template<typename IntArray>
+void mscds::DiffArray<IntArray>::inspect(const std::string& cmd, std::ostream& out) const
+{
+
 }
 
 }//namespace

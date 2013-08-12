@@ -286,5 +286,27 @@ void PRValArr::clear() {
 	rd1.clear();
 }
 
+void PRValArr::inspect(const std::string& cmd, std::ostream& out) const {
+	if (storetype == 1) sda.inspect(cmd, out);
+	else
+	if (storetype == 2) dt1.inspect(cmd, out);
+	else
+	if (storetype == 3) dt2.inspect(cmd, out);
+	else
+	if (storetype == 4) hf1.inspect(cmd, out);
+	else
+	if (storetype == 5) hd1.inspect(cmd, out);
+	else
+	if (storetype == 6) gm1.inspect(cmd, out);
+	else
+	if (storetype == 7) gd1.inspect(cmd, out);
+	else
+	if (storetype == 8) ra1.inspect(cmd, out);
+	else
+	if (storetype == 9) rd1.inspect(cmd, out);
+	else
+		throw std::runtime_error("unknown type");	
+}
+
 
 }//namespace

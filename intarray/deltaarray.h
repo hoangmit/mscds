@@ -55,7 +55,7 @@ public:
 		friend class DeltaCodeArr;
 	};
 	void getEnum(uint64_t pos, Enum * e) const;
-
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	uint64_t len;
 	unsigned int sample_rate;

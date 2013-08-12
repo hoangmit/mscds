@@ -52,6 +52,10 @@ uint64_t RankValArr::access( size_t p ) const {
 	return vals.prefixsum(rankv.access(p));
 }
 
+void RankValArr::inspect(const std::string& cmd, std::ostream& out) const {
+	rankv.inspect(cmd, out);
+}
+
 
 bool RankValArr::Enum::hasNext() const {
 	return e.hasNext();

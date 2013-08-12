@@ -92,6 +92,7 @@ public:
 	};
 	void getEnum(size_t idx, Enum * e) const;
 	typedef PRValArrBuilder BuilderTp;
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap, 4-HuffArray
 

@@ -22,6 +22,7 @@ namespace mscds {
 
 		void encode(uint32_t val, OBitStream * out) const;
 		uint32_t decode(IWBitStream * is) const;
+		void inspect(const std::string& cmd, std::ostream& out) const;
 	private:
 		std::unordered_map<uint32_t, uint32_t> remap, rev;
 		void buildRev();

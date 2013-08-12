@@ -52,11 +52,17 @@ uint64_t GammaArray::length() const {
 	return upper.length();
 }
 
-void GammaArray::getEnum( unsigned int pos, Enum * e ) const {
+void GammaArray::getEnum(unsigned int pos, Enum * e) const {
 	e->lpos = upper.prefixsum(pos);
 	upper.getEnum(pos, &(e->e));
 	e->lower = &lower;
 }
+
+void GammaArray::inspect(const std::string& cmd, std::ostream& out) const
+{
+
+}
+
 
 uint64_t GammaArray::Enum::next()
 {

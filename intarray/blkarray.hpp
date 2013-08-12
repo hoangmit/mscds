@@ -24,6 +24,7 @@ public:
 	uint32_t lookup(unsigned int i) const;
 
 	const Model& getModel() const;
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	Model model;
 	const BitArray * enc;
@@ -41,7 +42,7 @@ public:
 	typedef CodeModelArray<Model> QueryTp;
 
 	CodeModelBuilder();
-	void init(unsigned int rate = 64, unsigned int secondrate=512);
+	void init(unsigned int rate = 64, unsigned int secondrate=511);
 	void add(uint32_t val);
 	void build(OArchive& ar);
 	void build(QueryTp * out);
@@ -81,6 +82,7 @@ public:
 	};
 	void getEnum(unsigned int pos, Enum * e) const;
 	typedef CodeModelBuilder<Model> BuilderTp;
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	mutable CodeModelBlk<Model> blk;
 	mutable int curblk;
@@ -142,7 +144,7 @@ void CodeModelBuilder<Model>::clear() {
 }
 
 template<typename Model>
-void CodeModelBuilder<Model>::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=512*/) {
+void CodeModelBuilder<Model>::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=511*/) {
 	rate1 = rate; rate2 = secondrate;
 	cnt = 0;
 }
@@ -151,6 +153,12 @@ template<typename Model>
 CodeModelBuilder<Model>::CodeModelBuilder() {
 	init(64, 511);
 }
+
+template<typename Model>
+void mscds::CodeModelBlk<Model>::inspect(const std::string& cmd, std::ostream& out) const {
+	model.inspect(cmd, out);
+}
+
 
 template<typename Model>
 void CodeModelBlk<Model>::mload(const BitArray * enc, const SDArraySml * ptr, unsigned pos) {
@@ -250,6 +258,19 @@ uint64_t CodeModelArray<Model>::Enum::next() {
 }
 
 template<typename Model>
+void mscds::CodeModelArray<Model>::inspect(const std::string& cmd, std::ostream& out) const {
+	unsigned int i = 0, p = 0;
+	while (i < len) {
+		blk.mload(&bits, &ptr, p);
+		i += rate1 * rate2;
+		p += rate2 + 1;
+		curblk = -1;
+		blk.getModel().inspect(cmd, out);
+	}
+}
+
+
+template<typename Model>
 void CodeModelBlk<Model>::clear() {
 	enc = NULL;
 	ptr = NULL;
@@ -301,5 +322,7 @@ template<typename Model>
 uint64_t CodeModelArray<Model>::length() const {
 	return len;
 }
+
+
 
 } // namespace

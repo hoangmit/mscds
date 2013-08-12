@@ -88,6 +88,7 @@ public:
 	};
 	void getEnum(size_t idx, Enum * e) const;
 	void getPSEnum(size_t idx, PSEnum * e) const;
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	uint64_t rank(uint64_t val, uint64_t lo, uint64_t hi) const;
 

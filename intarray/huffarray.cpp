@@ -78,15 +78,6 @@ void HuffmanModel::buildModel(std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanModel::choosesyml_prob(std::vector<uint32_t> * data) {
-}
-
-void HuffmanModel::choosesyml_fixsize(std::vector<uint32_t> * data) {
-}
-
-void HuffmanModel::build_symmodel(std::vector<uint32_t> * data) {
-}
-
 
 void HuffmanModel::saveModel(OBitStream * out) const {
 	out->puts(freq.size(), 32);
@@ -162,6 +153,15 @@ void HuffmanModel::clear() {
 	hc.clear();
 	tc.clear();
 }
+
+void HuffmanModel::inspect(const std::string& cmd, std::ostream& out) const {
+	out << "huffman model" << '\n';
+	out << "size = " << freq.size() << '\n';
+	for (unsigned int i = 0; i < freq.size(); ++i) {
+		out << i << " " << freq[i] << '\n';
+	}
+}
+
 
 
 

@@ -87,5 +87,11 @@ namespace mscds {
 		ar.endclass();
 	}
 
+	void DeltaCodeArr::inspect(const std::string& cmd, std::ostream& out) const
+	{
+
+	}
+
+
 
 }

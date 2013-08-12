@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <stdexcept>
 #include <stdint.h>
+#include <string>
 
 #include "codec/huffman_code.h"
 #include "blkarray.hpp"
@@ -18,7 +19,6 @@ namespace mscds {
 
 class HuffmanModel {
 public:
-	void buildModel2(std::vector<uint32_t> * data);
 	void buildModel(std::vector<uint32_t> * data);
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
@@ -27,17 +27,15 @@ public:
 
 	void encode(uint32_t val, OBitStream * out) const;
 	uint32_t decode(IWBitStream * is) const;
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
+	void buildModel2(std::vector<uint32_t> * data);
 	coder::HuffmanCode hc;
 	coder::HuffmanTree tc;
 	std::vector<uint32_t> freq;
 	std::unordered_map<uint32_t, uint32_t> freqset; //unordered_
-
-	void choosesyml_prob(std::vector<uint32_t> * data);
-	void choosesyml_fixsize(std::vector<uint32_t> * data);
-	void build_symmodel(std::vector<uint32_t> * data);
 };
-}
+}//namespace
 
 REGISTER_PARSE_TYPE(mscds::HuffmanModel);
 

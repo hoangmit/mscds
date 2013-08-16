@@ -68,7 +68,7 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	out->pq = posquery;
 	auto cf = Config::getInst();
 	unsigned int storemed = cf->getIntPara("GNTF.VALUE_STORAGE", 0);
-	if (storemed > 3) throw std::runtime_error("invalid method");
+	if (storemed > 9) throw std::runtime_error("invalid method");
 
 	if (method == 0) {
 		method = cf->getIntPara("GNTF.INT_STORAGE", 0);

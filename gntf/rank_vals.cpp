@@ -11,12 +11,12 @@ void RankValArrBuilder::init(unsigned int _method, unsigned int rate) {
 
 void RankValArrBuilder::build(RankValArr* out) {
 	std::set<unsigned int> dist;
-	for (auto it = vals.begin(); it != vals.end(); ++it) 
+	for (auto it = vals.begin(); it != vals.end(); ++it)
 		dist.insert(*it);
-	for (auto it = dist.begin(); it != dist.end(); ++it) 
+	for (auto it = dist.begin(); it != dist.end(); ++it)
 		vbd.add_inc(*it);
 	vbd.build(&(out->vals));
-	for (auto it = vals.begin(); it != vals.end(); ++it) 
+	for (auto it = vals.begin(); it != vals.end(); ++it)
 		rbd.add(out->vals.rank(*it));
 	rbd.build(&(out->rankv));
 	vals.clear();

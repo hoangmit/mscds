@@ -112,7 +112,7 @@ void SampledSumBuilder::comp_transform() {
 	int minr = std::numeric_limits<int>::max();
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
 		minr = std::min<int>(minr, it->val*factor);
-	delta = minr; // 1 - minr
+	delta = - minr; // 1 - minr
 	if (method == 0) {
 		if (factor == 1) method = 1;
 		else method = 2;

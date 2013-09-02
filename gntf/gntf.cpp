@@ -10,8 +10,6 @@ using namespace std;
 
 namespace app_ds {
 
-
-
 void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 										  bool minmax_query, bool annotation) {
 	clear();

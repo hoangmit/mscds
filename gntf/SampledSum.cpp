@@ -107,7 +107,7 @@ void SampledSumBuilder::comp_transform() {
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
 		pc = std::max<unsigned int>(precision(it->val), pc);
 	factor = 1;
-	if (pc > 4) pc = 4;
+	if (pc > 5) pc = 5;
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
 	int minr = std::numeric_limits<int>::max();
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)

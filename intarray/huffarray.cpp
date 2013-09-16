@@ -5,7 +5,6 @@
 namespace mscds {
 
 static const unsigned int MIN_RATE = 127;
-static const unsigned int MAX_REMAP = 127;
 
 void HuffmanModel::buildModel2(std::vector<uint32_t> * data) {
 	freq.clear();
@@ -39,7 +38,7 @@ void HuffmanModel::buildModel2(std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanModel::buildModel(std::vector<uint32_t> * data) {
+void HuffmanModel::buildModel(std::vector<uint32_t> * data, unsigned int max_symbol_size /* = 127 */) {
 	freq.clear();
 	freqset.clear();
 	std::unordered_map<uint32_t, unsigned int> cnt;
@@ -54,7 +53,8 @@ void HuffmanModel::buildModel(std::vector<uint32_t> * data) {
 	std::sort(sfreq.begin(), sfreq.end(), std::greater<std::pair<unsigned int, uint32_t> >());
 
 	std::map<uint32_t, uint32_t> remapt;
-	unsigned rmsize = std::min<unsigned int>(MAX_REMAP, sfreq.size());
+	max_symbol_size = std::max(max_symbol_size, 8u);
+	unsigned rmsize = std::min<unsigned int>(max_symbol_size, sfreq.size());
 	for (unsigned int i = 0; i < rmsize; ++i) {
 		auto val = sfreq[i].second;
 		freq.push_back(val);
@@ -161,11 +161,6 @@ void HuffmanModel::inspect(const std::string& cmd, std::ostream& out) const {
 		out << i << " " << freq[i] << '\n';
 	}
 }
-
-
-
-
-
 
 
 

@@ -9,6 +9,7 @@
 #include <utility>
 #include <functional>
 #include "coder.h"
+#include "bitarray/bitop.h"
 
 namespace coder {
 
@@ -16,6 +17,13 @@ class HuffmanCode {
 public:
 	typedef unsigned int WeightTp;
 	typedef unsigned long long WeightSum;
+
+	template<typename Itr>
+	static std::vector<WeightTp> comp_weight(unsigned int sz, Itr bg, Itr end) {
+		std::vector<WeightTp> ret(sz, 0);
+		for (Itr it = bg; it != end; ++it) ret[*it]++;
+		return ret;
+	}
 
 	WeightSum build(const std::vector<WeightTp>& W);
 	uint16_t codelen(unsigned int i) const { return output_code[i].second; }
@@ -36,9 +44,6 @@ private:
 };
 
 
-// http://codereview.stackexchange.com/questions/4479/faster-huffman-decoding
-// http://www.gzip.org/algorithm.txt
-
 class HuffmanTree {
 public:
 	HuffmanTree(): _size(0) {}
@@ -52,6 +57,37 @@ private:
 	std::vector<std::pair<int, int> > tree;
 };
 
+// http://codereview.stackexchange.com/questions/4479/faster-huffman-decoding
+// http://www.gzip.org/algorithm.txt
 
+class HuffmanByteDec {
+public:
+	HuffmanByteDec();
+	void build(const HuffmanCode& code);
+	void build(const std::vector<HuffmanCode::WeightTp>& W);
+	CodePr decode2(NumTp n) const;
+	unsigned int size() const;
+	void clear();
+private:
+	unsigned int _size;
+
+	//maximum 2^12 = 4096 symbols, max 256 per decode table
+	//code: highest bit:
+	//  0 --> terminal symbol, 3 bit for value of (length - 1), the rest 12-bits are the symbols
+	//  1 --> link to other table ( = - table_id)
+	std::vector<int16_t> code;
+	// <start, prefix_len>
+	typedef std::pair<uint16_t, uint16_t> Entry;
+	std::vector< Entry > tbl_info;
+	struct CodeInfo {
+		uint64_t code;
+		uint16_t len;
+		unsigned int sym;
+		CodeInfo() {}
+		CodeInfo(CodePr c, unsigned int s): code(c.first), len(c.second), sym(s) {}
+		bool operator< (const CodeInfo& b) const;
+	};
+	void create(std::vector<CodeInfo>& code, unsigned int st, unsigned int ed, int & table_id);
+};
 
 }//namespace

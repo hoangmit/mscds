@@ -19,7 +19,7 @@ namespace mscds {
 
 class HuffmanModel {
 public:
-	void buildModel(std::vector<uint32_t> * data);
+	void buildModel(std::vector<uint32_t> * data, unsigned int max_symbol_size = 127);
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
 
@@ -31,7 +31,7 @@ public:
 private:
 	void buildModel2(std::vector<uint32_t> * data);
 	coder::HuffmanCode hc;
-	coder::HuffmanTree tc;
+	coder::HuffmanByteDec tc;
 	std::vector<uint32_t> freq;
 	std::unordered_map<uint32_t, uint32_t> freqset; //unordered_
 };
@@ -43,7 +43,6 @@ namespace mscds {
 
 typedef CodeModelArray<HuffmanModel> HuffmanArray;
 typedef CodeModelBuilder<HuffmanModel> HuffmanArrBuilder;
-
 
 typedef DiffArray<HuffmanArray> HuffDiffArray;
 typedef DiffArrayBuilder<HuffmanArray> HuffDiffArrBuilder;

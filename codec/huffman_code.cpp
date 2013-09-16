@@ -1,4 +1,5 @@
 #include "huffman_code.h"
+#include <algorithm>
 
 namespace coder {
 
@@ -14,6 +15,15 @@ inline uint32_t reverse32b(uint32_t v) {
 	q[2] = reverse8b(p[1]);
 	q[1] = reverse8b(p[2]);
 	q[0] = reverse8b(p[3]);
+	return c;
+}
+
+inline uint64_t reverse64b(uint64_t v) {
+	uint64_t c;
+	uint32_t * p = (uint32_t *) &v;
+	uint32_t * q = (uint32_t *) &c;
+	q[1] = reverse32b(p[0]);
+	q[0] = reverse32b(p[1]);
 	return c;
 }
 
@@ -145,7 +155,6 @@ void HuffmanTree::build(const std::vector<HuffmanCode::WeightTp>& W) {
 	build(code);
 }
 
-
 CodePr HuffmanTree::decode2(NumTp n) const {
 	int node = 0;
 	uint16_t len = 0;
@@ -160,5 +169,96 @@ CodePr HuffmanTree::decode2(NumTp n) const {
 	return CodePr(-1 - node, len);
 }
 
+void HuffmanByteDec::build(const std::vector<HuffmanCode::WeightTp>& W) {
+	HuffmanCode code;
+	code.build(W);
+	build(code);
+}
+
+void HuffmanByteDec::build(const HuffmanCode& hcode) {
+	std::vector<CodeInfo> pcode(hcode.size());
+	for (unsigned int i = 0; i < hcode.size(); ++i)
+		pcode[i] = CodeInfo(hcode[i], i);
+	sort(pcode.begin(), pcode.end());
+	_size = hcode.size();
+	int tb = 0;
+	create(pcode, 0, pcode.size(), tb);
+}
+
+void HuffmanByteDec::create(std::vector<CodeInfo>& xc, unsigned int st, unsigned int ed, int & table_id) {
+	unsigned int maxlen = 0;
+	for (unsigned int k = st; k < ed; ++k)
+		maxlen = std::max<unsigned int>(maxlen, xc[k].len);
+	unsigned int cutlen = std::min(maxlen, 8u);
+	unsigned int stpos = code.size();
+	tbl_info.push_back(std::make_pair(stpos, cutlen));
+	for (unsigned int k = 0; k < (1u << cutlen); ++k) {
+		code.push_back(0);
+	}
+	unsigned int i = st;
+	while (i < ed) {
+		assert(xc[i].len > 0);
+		if (xc[i].len > cutlen) {
+			auto mask = ((1u << cutlen) - 1);
+			auto v = xc[i].code & mask;
+			unsigned int j = i;
+			while (j < ed && xc[j].len > cutlen && ((xc[j].code & mask) == v)) {
+				xc[j].len -= cutlen;
+				xc[j].code >>= cutlen;
+				j++;
+			}
+			assert(j - i > 1);
+			table_id += 1;
+			code[stpos + v] = -table_id;
+			create(xc, i, j, table_id);
+			i = j;
+			continue;
+		}else {
+			const CodeInfo& cur = xc[i];
+			assert(cur.len > 0);
+			unsigned int t = ((cur.len - 1) << 12) | cur.sym;
+			auto s = cutlen - cur.len;
+			for (unsigned int j = 0; j < (1 << s); ++j) {
+				auto p = (j << cur.len) | cur.code;
+				code[stpos + p] = t;
+			}
+			xc[i].len = 0;
+			xc[i].code = 0;
+		}
+		++i;
+	}
+}
+
+
+coder::CodePr HuffmanByteDec::decode2(NumTp n) const {
+	unsigned int tb = 0, tblen = tbl_info[0].second, tb_start = 0;
+	unsigned int prefix = 0; 
+	while (prefix < 64) {
+		NumTp x = n & ((1ULL << tblen) - 1);
+		n = n >> tblen;
+		int16_t val = code[tb_start + x];
+		if (val >= 0) {
+			return CodePr(val & 0x0FFF, prefix + (val >> 12) + 1);
+		} else {
+			tb = -val;
+			prefix += tblen;
+			tb_start = tbl_info[tb].first;
+			tblen = tbl_info[tb].second;
+		}
+	}
+	assert(false);//cannot reach here
+}
+
+HuffmanByteDec::HuffmanByteDec(): _size(0) {}
+
+void HuffmanByteDec::clear() {
+	_size = 0;
+	code.clear();
+	tbl_info.clear();
+}
+
+bool HuffmanByteDec::CodeInfo::operator<(const CodeInfo& b) const {
+	return reverse64b(code) < reverse64b(b.code);
+}
 
 }//namespace

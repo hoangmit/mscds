@@ -20,7 +20,7 @@ public:
 	void clear();
 	void mload(const BitArray * enc, const SDArraySml * ptr, unsigned startpos);
 	void build(std::vector<uint32_t> * data, unsigned int subsize, 
-		OBitStream * out, std::vector<uint32_t> * opos);
+		OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional);
 	uint32_t lookup(unsigned int i) const;
 
 	const Model& getModel() const;
@@ -42,7 +42,7 @@ public:
 	typedef CodeModelArray<Model> QueryTp;
 
 	CodeModelBuilder();
-	void init(unsigned int rate = 64, unsigned int secondrate=511);
+	void init(unsigned int rate = 64, unsigned int secondrate=511, unsigned int optional = 0);
 	void add(uint32_t val);
 	void build(OArchive& ar);
 	void build(QueryTp * out);
@@ -54,6 +54,7 @@ private:
 	std::vector<uint32_t> opos;
 	std::vector<uint32_t> buf;
 	SDArraySmlBuilder bd;
+	unsigned int optional; /* model specific param */
 };
 
 template<typename Model>
@@ -104,7 +105,7 @@ namespace mscds {
 template<typename Model>
 void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outds) {
 	if (buf.size() > 0) {
-		blk.build(&buf, rate1, &out, &opos);
+		blk.build(&buf, rate1, &out, &opos, this->optional);
 		for (unsigned int i = 0; i < opos.size(); ++i) 
 			bd.add(opos[i]);
 		buf.clear();
@@ -119,7 +120,7 @@ void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outds) {
 }
 
 template<typename Model>
-void CodeModelBuilder<Model>::build(OArchive& ar ) {
+void CodeModelBuilder<Model>::build(OArchive& ar) {
 	CodeModelArray<Model> tmp;
 	tmp.save(ar);
 }
@@ -130,7 +131,7 @@ void CodeModelBuilder<Model>::add(uint32_t val) {
 	buf.push_back(val);
 	cnt++;
 	if (buf.size() % (rate1 * rate2) == 0) {
-		blk.build(&buf, rate1, &out, &opos);
+		blk.build(&buf, rate1, &out, &opos, this->optional);
 		for (unsigned int i = 0; i < opos.size(); ++i) 
 			bd.add(opos[i]);
 		buf.clear();
@@ -144,14 +145,16 @@ void CodeModelBuilder<Model>::clear() {
 }
 
 template<typename Model>
-void CodeModelBuilder<Model>::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=511*/) {
+void CodeModelBuilder<Model>::init(unsigned int rate /*= 64*/, unsigned int secondrate/*=511*/, unsigned int optional/*=0*/) {
 	rate1 = rate; rate2 = secondrate;
 	cnt = 0;
+	this->optional = optional;
 }
 
 template<typename Model>
 CodeModelBuilder<Model>::CodeModelBuilder() {
 	init(64, 511);
+	optional = 0;
 }
 
 template<typename Model>
@@ -173,9 +176,9 @@ void CodeModelBlk<Model>::mload(const BitArray * enc, const SDArraySml * ptr, un
 }
 
 template<typename Model>
-void CodeModelBlk<Model>::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos) {
+void CodeModelBlk<Model>::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional) {
 	clear();
-	model.buildModel(data);
+	model.buildModel(data, optional);
 	auto cpos = out->length();
 	model.saveModel(out);
 	this->subsize = subsize;

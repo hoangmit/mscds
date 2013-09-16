@@ -7,7 +7,7 @@ namespace mscds {
 
 static const unsigned int MAX_REMAP = 64;
 
-void RemapDtModel::buildModel( std::vector<uint32_t> * data ) {
+void RemapDtModel::buildModel(std::vector<uint32_t> * data, unsigned int optional) {
 	std::unordered_map<uint32_t, unsigned int> cnt;
 	for (unsigned int i = 0; i < data->size(); ++i)
 		++cnt[(*data)[i]];

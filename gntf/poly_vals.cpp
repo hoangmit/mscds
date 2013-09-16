@@ -17,6 +17,7 @@ void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	autoselect = (method == 0);
 	dt1.init(rate);
 	dt2.init(rate);
+
 	hf1.init(rate);
 	hd1.init(rate);
 

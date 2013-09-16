@@ -138,3 +138,63 @@ TEST(huffman, canonical_code3) {
 	ASSERT_EQ(31, out[7]); // 11111
 }
 
+
+template<typename HuffmanDec>
+void test_huffdec(unsigned int n, unsigned int syncnt) {
+	vector<unsigned int> vals;
+	for (unsigned int i = 0; i < n; ++i) {
+		vals.push_back(rand() % syncnt);
+	}
+	HuffmanCode hc;
+	HuffmanDec dec;
+	hc.build(HuffmanCode::comp_weight(syncnt, vals.begin(), vals.end()));
+	dec.build(hc);
+	for (unsigned int i = 0; i < n; ++i) {
+		auto v = vals[i];
+		auto x = hc.encode(v);
+		auto y = dec.decode2(x.first);
+		if (v != y.first) {
+			cout << v << endl;
+			cout << i << endl;
+			dec.decode2(x.first);
+		}
+		ASSERT_EQ(v, y.first);
+		ASSERT_EQ(x.second, y.second);
+	}
+}
+
+TEST(huffman, fastdecode1) {
+	const unsigned int SYMCNT = 128;
+	unsigned int n = 10000;
+	test_huffdec<HuffmanByteDec>(n, SYMCNT);
+}
+
+TEST(huffman, fastdecode2) {
+	const unsigned int SYMCNT = 512;
+	unsigned int n = 10000;
+	test_huffdec<HuffmanByteDec>(n, SYMCNT);
+}
+
+TEST(huffman, fastdecode3) {
+	for (unsigned int i = 128; i < 512; ++i) {
+		test_huffdec<HuffmanByteDec>(10000, i);
+	}
+}
+
+TEST(huffman, decode4) {
+	for (unsigned int i = 128; i < 512; ++i) {
+		test_huffdec<HuffmanTree>(10000, i);
+	}
+}
+
+TEST(huffman, fastdecode4) {
+	for (unsigned int i = 128; i < 512; ++i) {
+		test_huffdec<HuffmanByteDec>(10000, 64);
+	}
+}
+
+TEST(huffman, decode5) {
+	for (unsigned int i = 128; i < 512; ++i) {
+		test_huffdec<HuffmanTree>(10000, 64);
+	}
+}

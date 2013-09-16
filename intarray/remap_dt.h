@@ -14,7 +14,7 @@ namespace mscds {
 
 	class RemapDtModel {
 	public:
-		void buildModel(std::vector<uint32_t> * data);
+		void buildModel(std::vector<uint32_t> * data, unsigned int optional = 0);
 		void saveModel(OBitStream * out) const;
 		void loadModel(IWBitStream & is, bool decode_only = false);
 

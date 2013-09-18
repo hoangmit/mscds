@@ -6,35 +6,71 @@
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
+#include <memory>
 
 #include "sdarray_sml.h"
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 #include "utils/utils.h"
+#include "utils/mm/cache_map.hpp"
 
 namespace mscds {
+
+
+template<typename Model>
+class CodeModelArray;
+
+struct PointerModel {
+	inline unsigned int p0(unsigned int pos) const { return pos / (rate1 * rate2); }
+	inline unsigned int p1(unsigned int pos) const { 
+		return (pos % (rate1 * rate2)) / rate1;
+	}
+	inline unsigned int p3(unsigned int pos) const { return pos % rate1; }
+
+	unsigned int blkptr(unsigned int blk) const {
+		return ptr.prefixsum(blk * (rate2 + 1));
+	}
+
+	unsigned int subblkptr(unsigned int blk, unsigned int subblk) const {
+		//auto p = pos / rate1;
+		return ptr.prefixsum(subblk + blk*(rate2 + 1) + 1);
+	}
+
+	unsigned int subblkptr(unsigned int pos) const {
+		auto subblk = pos / rate1;
+		return ptr.prefixsum(subblk + p0(pos) + 1);
+	}
+	const BitArray& data() const { return bits; }
+	void clear() {
+		bits.clear();
+		len = 0;
+		rate1 = 0;
+		rate2 = 0;
+	}
+	unsigned int rate1, rate2;
+	unsigned int len;
+	SDArraySml ptr;
+	BitArray bits;
+};
 
 template<typename Model>
 class CodeModelBlk {
 public:
 	void clear();
-	void mload(const BitArray * enc, const SDArraySml * ptr, unsigned startpos);
+	void mload(const PointerModel * ptr, unsigned int blk);
 	void build(std::vector<uint32_t> * data, unsigned int subsize, 
 		OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional);
-	uint32_t lookup(unsigned int i) const;
 
+	void set_stream(unsigned int pos, IWBitStream& is) const;
 	const Model& getModel() const;
 	void inspect(const std::string& cmd, std::ostream& out) const;
+	unsigned int get_blkid() const { return blk; }
 private:
 	Model model;
-	const BitArray * enc;
-	const SDArraySml * ptr;
-	unsigned int subsize, len, blkpos;
+	const PointerModel * ptr;
+	unsigned int blk, len;
 };
 
-
-template<typename Model>
-class CodeModelArray;
 
 template<typename Model>
 class CodeModelBuilder {
@@ -60,7 +96,9 @@ private:
 template<typename Model>
 class CodeModelArray {
 public:
-	CodeModelArray(): curblk(-1) {}
+	typedef std::shared_ptr<const CodeModelBlk<Model> > BlkPtr; 
+
+	CodeModelArray() {}
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
 	void clear();
@@ -70,14 +108,13 @@ public:
 
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
-		Enum(): curblk(-1) {}
-		bool hasNext() const { return pos < data->len;}
+		Enum() {}
+		bool hasNext() const { return pos < data->ptr.len;}
 		uint64_t next();
 	private:
 		unsigned int pos;
 		IWBitStream is;
-		CodeModelBlk<Model> blk;
-		int curblk;
+		BlkPtr blk;
 		const CodeModelArray<Model> * data;
 		friend class CodeModelArray<Model>;
 	};
@@ -85,16 +122,16 @@ public:
 	typedef CodeModelBuilder<Model> BuilderTp;
 	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
-	mutable CodeModelBlk<Model> blk;
-	mutable int curblk;
+	mutable std::unordered_map<unsigned int, BlkPtr > blkcache;
 
-	unsigned int len, rate1, rate2;
-	SDArraySml ptr;
-	BitArray bits;
+	BlkPtr getBlk(unsigned int blk) const;
+
+	PointerModel ptr;
 
 	friend class CodeModelBuilder<Model>;
-	friend class Enum;
+	friend struct Enum;
 };
+
 
 }//namespace
 
@@ -103,7 +140,58 @@ private:
 namespace mscds {
 
 template<typename Model>
-void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outds) {
+void CodeModelBlk<Model>::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional) {
+	clear();
+	model.buildModel(data, optional);
+	auto cpos = out->length();
+	model.saveModel(out);
+	//this->subsize = subsize;
+	out->puts(subsize, 32);
+	out->puts(data->size(), 32);
+
+	for (int i = 0; i < data->size(); ++i) {
+		if (i % subsize == 0) {
+			opos->push_back(out->length() - cpos);
+			cpos = out->length();
+		}
+		uint32_t val = (*data)[i];
+		model.encode(val, out);
+	}
+	if (cpos != out->length())
+		opos->push_back(out->length() - cpos);
+}
+
+template<typename Model>
+void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
+	this->ptr = ptr;
+	IWBitStream is(ptr->bits.data_ptr(), ptr->bits.length(), ptr->blkptr(blk));
+	model.loadModel(is);
+	unsigned int subsize = is.get(32);
+	this->len = is.get(32);
+	this->blk = blk;
+}
+
+template<typename Model>
+void CodeModelBlk<Model>::set_stream(unsigned int i, IWBitStream& is) const {
+	assert(ptr->p0(i) == this->blk);
+	is.init(ptr->bits.data_ptr(), ptr->bits.length(), ptr->subblkptr(blk, ptr->p1(i)));
+	auto r = ptr->p3(i);
+
+	unsigned int val = 0;
+	for (unsigned int j = 0; j < r; ++j)
+		model.decode(&is);
+}
+
+
+template<typename Model>
+void mscds::CodeModelBlk<Model>::inspect(const std::string& cmd, std::ostream& out) const {
+	model.inspect(cmd, out);
+}
+
+//------------------------------------------------
+
+template<typename Model>
+void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outx) {
 	if (buf.size() > 0) {
 		blk.build(&buf, rate1, &out, &opos, this->optional);
 		for (unsigned int i = 0; i < opos.size(); ++i) 
@@ -112,11 +200,12 @@ void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outds) {
 		opos.clear();
 	}
 	out.close();
-	bd.build(&(outds->ptr));
-	outds->bits = BitArray::create(out.data_ptr(), out.length());
-	outds->len = cnt;
-	outds->rate1 = rate1;
-	outds->rate2 = rate2;
+	auto& outds = outx->ptr;
+	bd.build(&(outds.ptr));
+	outds.bits = BitArray::create(out.data_ptr(), out.length());
+	outds.len = cnt;
+	outds.rate1 = rate1;
+	outds.rate2 = rate2;
 }
 
 template<typename Model>
@@ -158,103 +247,43 @@ CodeModelBuilder<Model>::CodeModelBuilder() {
 }
 
 template<typename Model>
-void mscds::CodeModelBlk<Model>::inspect(const std::string& cmd, std::ostream& out) const {
-	model.inspect(cmd, out);
-}
-
-
-template<typename Model>
-void CodeModelBlk<Model>::mload(const BitArray * enc, const SDArraySml * ptr, unsigned pos) {
-	auto st = ptr->prefixsum(pos);
-	IWBitStream is(enc->data_ptr(), enc->length(), st);
-	model.loadModel(is);
-	subsize = is.get(32);
-	len = is.get(32);
-	this->enc = enc;
-	this->ptr = ptr;
-	this->blkpos = pos;
-}
-
-template<typename Model>
-void CodeModelBlk<Model>::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional) {
-	clear();
-	model.buildModel(data, optional);
-	auto cpos = out->length();
-	model.saveModel(out);
-	this->subsize = subsize;
-	out->puts(subsize, 32);
-	out->puts(data->size(), 32);
-
-	for (int i = 0; i < data->size(); ++i) {
-		if (i % subsize == 0) {
-			opos->push_back(out->length() - cpos);
-			cpos = out->length();
-		}
-		uint32_t val = (*data)[i];
-		model.encode(val, out);
+typename CodeModelArray<Model>::BlkPtr CodeModelArray<Model>::getBlk(unsigned int b) const {
+	auto it = blkcache.find(b);
+	if (it != blkcache.end()) {
+		return it->second;
+	}else {
+		CodeModelBlk<Model> * bx = new CodeModelBlk<Model>();
+		bx->mload(&ptr, b);
+		BlkPtr blk = BlkPtr(bx);
+		blkcache.insert(make_pair(b, blk));
+		return blk;
 	}
-	if (cpos != out->length())
-		opos->push_back(out->length() - cpos);
-}
-
-template<typename Model>
-uint32_t CodeModelBlk<Model>::lookup(unsigned int i) const {
-	assert(i < len);
-	auto r = i % subsize;
-	auto p = i / subsize;
-	auto epos = ptr->prefixsum(p + 1 + blkpos);
-	IWBitStream is(enc->data_ptr(), enc->length(), epos);
-
-	unsigned int val = 0;
-	for (unsigned int j = 0; j <= r; ++j) {
-		val = model.decode(&is);
-	}
-	return val;
 }
 
 template<typename Model>
 uint32_t CodeModelArray<Model>::lookup(unsigned int i) const {
-	assert(i < len);
-	auto r = i % (rate1 * rate2);
-	auto b = i / (rate1 * rate2);
-	if (curblk != b) {
-		auto blkst = (i / rate1)  - ((i / rate1) % rate2) + b;
-		blk.mload(&bits, &ptr, blkst);
-		curblk = b;
-	}
-	return blk.lookup(r);
+	Enum e;
+	getEnum(i, &e);
+	return e.next();
 }
 
 template<typename Model>
 void CodeModelArray<Model>::getEnum(unsigned int pos, Enum * e) const {
-	assert(pos < len);
-	e->pos = pos;
-	auto r = pos % (rate1 * rate2);
-	auto b = pos / (rate1 * rate2);
-	auto blkst = (pos / rate1)  - ((pos / rate1) % rate2) + b;
-	e->blk.mload(&bits, &ptr, blkst);
-	auto i = r;
-	r = i % rate1;
-	auto p = i / rate1;
-	auto epos = ptr.prefixsum(p + 1 + blkst);
-	e->is.init(bits.data_ptr(), bits.length(), epos);
 	e->data = this;
-	for (unsigned int j = 0; j < r; ++j)
-		blk.getModel().decode(&(e->is));
+	e->pos = pos;
+	e->blk = getBlk(ptr.p0(pos));
+	e->blk->set_stream(pos, e->is);
 }
 
 template<typename Model>
 uint64_t CodeModelArray<Model>::Enum::next() {
-	auto val = blk.getModel().decode(&is);
+	auto val = blk->getModel().decode(&is);
 	++pos;
-	if (pos < data->len) {
-		auto bs = data->rate1 * data->rate2;
+	if (pos < data->ptr.len) {
+		auto bs = data->ptr.rate1 * data->ptr.rate2;
 		if (pos % bs == 0) {
-			auto b = pos / bs;
-			auto blkst = pos/data->rate1 + b;
-			blk.mload(&(data->bits), &(data->ptr), blkst);
-			auto epos = data->ptr.prefixsum(1 + blkst);
-			is.init(data->bits.data_ptr(), data->bits.length(), epos);
+			blk = data->getBlk(pos / bs);
+			blk->set_stream(pos, is);
 		}
 	}
 	return val;
@@ -263,23 +292,17 @@ uint64_t CodeModelArray<Model>::Enum::next() {
 template<typename Model>
 void mscds::CodeModelArray<Model>::inspect(const std::string& cmd, std::ostream& out) const {
 	unsigned int i = 0, p = 0;
-	while (i < len) {
-		blk.mload(&bits, &ptr, p);
-		i += rate1 * rate2;
-		p += rate2 + 1;
-		curblk = -1;
-		blk.getModel().inspect(cmd, out);
+	while (i < ptr.len) {
+		getBlk(p)->getModel().inspect(cmd, out);
+		i += ptr.rate1 * ptr.rate2;
+		p += 1;
 	}
 }
 
-
 template<typename Model>
 void CodeModelBlk<Model>::clear() {
-	enc = NULL;
 	ptr = NULL;
-	subsize = 0;
 	len = 0;
-	blkpos = 0;
 	model.clear();
 }
 
@@ -291,39 +314,35 @@ const Model& CodeModelBlk<Model>::getModel() const {
 template<typename Model>
 void CodeModelArray<Model>::save(OArchive& ar) const {
 	ar.startclass(std::string("code_") + TypeParseTraits<Model>::name(), 1);
-	ar.var("length").save(len);
-	ar.var("sample_rate").save(rate1);
-	ar.var("bigblock_rate").save(rate2);
-	ptr.save(ar.var("pointers"));
-	bits.save(ar.var("bits"));
+	ar.var("length").save(ptr.len);
+	ar.var("sample_rate").save(ptr.rate1);
+	ar.var("bigblock_rate").save(ptr.rate2);
+	ptr.ptr.save(ar.var("pointers"));
+	ptr.bits.save(ar.var("bits"));
 	ar.endclass();
 }
 
 template<typename Model>
 void CodeModelArray<Model>::load(IArchive& ar) {
 	ar.loadclass(std::string("code_") + TypeParseTraits<Model>::name());
-	ar.var("length").load(len);
-	ar.var("sample_rate").load(rate1);
-	ar.var("bigblock_rate").load(rate2);
-	ptr.load(ar.var("pointers"));
-	bits.load(ar.var("bits"));
+	ar.var("length").load(ptr.len);
+	ar.var("sample_rate").load(ptr.rate1);
+	ar.var("bigblock_rate").load(ptr.rate2);
+	ptr.ptr.load(ar.var("pointers"));
+	ptr.bits.load(ar.var("bits"));
 	ar.endclass();
-	curblk = -1;
+	blkcache.clear();
 }
 
 template<typename Model>
 void CodeModelArray<Model>::clear() {
-	curblk = -1;
-	bits.clear();
 	ptr.clear();
-	len = 0;
-	rate1 = 0;
-	rate2 = 0;
+	blkcache.clear();
 }
 
 template<typename Model>
 uint64_t CodeModelArray<Model>::length() const {
-	return len;
+	return ptr.len;
 }
 
 

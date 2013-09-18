@@ -20,6 +20,8 @@ utils.h
 debug.h
 utest.h
 param.h
+mm/cache_map.hpp
+mm/cache_set.hpp
 )
 
 

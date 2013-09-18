@@ -76,7 +76,7 @@ void check(const std::vector<unsigned int>& exp, bool testenum = false) {
 	bd.build(&qs);
 	ASSERT_EQ(exp.size(), qs.length());
 	for (unsigned int i = 0; i < exp.size(); ++i) {
-		ASSERT_EQ(exp[i], qs.lookup(i));
+		ASSERT_EQ(exp[i], qs.lookup(i)) << "i = " << i << endl;
 	}
 	for (int k = 0; k < 200; k++) {
 		auto i = rand() % exp.size();
@@ -298,7 +298,7 @@ TEST(RemapDtArray, testsuite) {
 
 
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(filter) = "RemapDtArray.*";
+	//::testing::GTEST_FLAG(filter) = "HuffArray.*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;

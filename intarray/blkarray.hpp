@@ -12,7 +12,7 @@
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 #include "utils/utils.h"
-#include "utils/mm/cache_map.hpp"
+//#include "utils/mm/cache_map.hpp"
 
 namespace mscds {
 

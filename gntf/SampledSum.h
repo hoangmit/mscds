@@ -15,7 +15,7 @@ class SampledSumQuery;
 
 class SampledSumBuilder {
 public:
-	SampledSumBuilder() { init(); }
+	SampledSumBuilder();
 	void init(unsigned int sample_rate = 64);
 	void add(unsigned int st, unsigned int ed, double val);
 	void add_all(std::deque<ValRange>* vals);

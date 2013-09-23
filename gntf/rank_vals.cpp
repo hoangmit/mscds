@@ -28,7 +28,6 @@ void RankValArrBuilder::build(mscds::OArchive& ar) {
 	out.save(ar);
 }
 
-
 void RankValArr::save(mscds::OArchive& ar) const {
 	ar.startclass("rank_array_values", 1);
 	rankv.save(ar.var("rank_values"));

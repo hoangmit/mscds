@@ -58,7 +58,7 @@ class CodeModelBlk {
 public:
 	void clear();
 	void mload(const PointerModel * ptr, unsigned int blk);
-	void build(std::vector<uint32_t> * data, unsigned int subsize, 
+	void build(const std::vector<uint32_t> * data, unsigned int subsize, 
 		OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional);
 
 	void set_stream(unsigned int pos, IWBitStream& is) const;
@@ -140,7 +140,7 @@ private:
 namespace mscds {
 
 template<typename Model>
-void CodeModelBlk<Model>::build(std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional) {
+void CodeModelBlk<Model>::build(const std::vector<uint32_t> * data, unsigned int subsize, OBitStream * out, std::vector<uint32_t> * opos, unsigned int optional) {
 	clear();
 	model.buildModel(data, optional);
 	auto cpos = out->length();

@@ -7,7 +7,7 @@ namespace mscds {
 
 static const unsigned int MAX_REMAP = 64;
 
-void RemapDtModel::buildModel(std::vector<uint32_t> * data, unsigned int optional) {
+void RemapTransform::buildModel(const std::vector<uint32_t> * data, unsigned int optional) {
 	std::unordered_map<uint32_t, unsigned int> cnt;
 	for (unsigned int i = 0; i < data->size(); ++i)
 		++cnt[(*data)[i]];
@@ -45,7 +45,7 @@ void RemapDtModel::buildModel(std::vector<uint32_t> * data, unsigned int optiona
 	buildRev();
 }
 
-void RemapDtModel::saveModel( OBitStream * out ) const {
+void RemapTransform::saveModel(OBitStream * out) const {
 	out->puts(remap.size(), 32);
 	for (auto & p : remap) {
 		out->puts(p.first, 32);
@@ -53,7 +53,7 @@ void RemapDtModel::saveModel( OBitStream * out ) const {
 	}
 }
 
-void RemapDtModel::loadModel( IWBitStream & is, bool decode_only /*= false*/ ) {
+void RemapTransform::loadModel( IWBitStream & is, bool decode_only /*= false*/ ) {
 	unsigned int m = is.get(32);
 	remap.clear();
 	for (int i = 0; i < m; ++i) {
@@ -64,41 +64,34 @@ void RemapDtModel::loadModel( IWBitStream & is, bool decode_only /*= false*/ ) {
 	buildRev();
 }
 
-void RemapDtModel::clear() {
+void RemapTransform::clear() {
 	remap.clear();
 	rev.clear();
 }
 
-void RemapDtModel::encode(uint32_t val, OBitStream * out) const {
+uint32_t RemapTransform::map(uint32_t val) const {
 	coder::DeltaCoder dc;
 	uint32_t v;
 	auto it = remap.find(val);
 	if (it != remap.end())
-		v = it->second;
-	else v = val;
-	auto cd = dc.encode(v+1);
-	out->puts(cd);
+		return it->second;
+	else return val;
 }
 
-uint32_t RemapDtModel::decode(IWBitStream * is) const {
-	coder::DeltaCoder dc;
-	unsigned int val = 0;
-	auto a = dc.decode2(is->peek());
-	is->skipw(a.second);
-	val = a.first - 1;
+uint32_t RemapTransform::unmap(uint32_t val) const {
 	auto it = rev.find(val);
 	if (it != rev.end()) return it->second;
 	else return val;
 }
 
-void RemapDtModel::buildRev() {
+void RemapTransform::buildRev() {
 	rev.clear();
 	for (auto& p: remap) {
 		rev[p.second] = p.first;
 	}
 }
 
-void RemapDtModel::inspect( const std::string& cmd, std::ostream& out ) const {
+void RemapTransform::inspect(const std::string& cmd, std::ostream& out) const {
 
 }
 

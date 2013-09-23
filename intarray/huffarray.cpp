@@ -6,7 +6,7 @@ namespace mscds {
 
 static const unsigned int MIN_RATE = 95;
 
-void HuffmanModel::buildModel2(std::vector<uint32_t> * data) {
+void HuffmanModel::buildModel2(const std::vector<uint32_t> * data) {
 	freq.clear();
 	freqset.clear();
 	std::unordered_map<uint32_t, unsigned int> cnt;
@@ -38,7 +38,7 @@ void HuffmanModel::buildModel2(std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanModel::buildModel(std::vector<uint32_t> * data, unsigned int max_symbol_size /* = 127 */) {
+void HuffmanModel::buildModel(const std::vector<uint32_t> * data, unsigned int max_symbol_size /* = 127 */) {
 	freq.clear();
 	freqset.clear();
 	std::unordered_map<uint32_t, unsigned int> cnt;

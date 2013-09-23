@@ -10,7 +10,10 @@ remap_dt.cpp
 set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 
 huffarray.h gamma_arr.h
 remap_dt.h
-blkarray.hpp diffarray.hpp)
+blkarray.hpp diffarray.hpp
+transform_utils.hpp
+contextfree_models.hpp
+)
 
 add_library(intarray ${SRCS} ${HEADERS})
 target_link_libraries(intarray bitarray codec)

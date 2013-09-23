@@ -140,6 +140,11 @@ void SampledSumBuilder::addint(unsigned int st, unsigned int ed, unsigned int v)
 	cnt++;
 }
 
+SampledSumBuilder::SampledSumBuilder() {
+	auto cf = Config::getInst();
+	unsigned int blksize = cf->getIntPara("GNTF.VALUE_SMALLBLOCK_SIZE", 64);
+	init(blksize);
+}
 
 double SampledSumQuery::access(unsigned int idx) const {
 	double x = 0;

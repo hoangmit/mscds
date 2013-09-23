@@ -10,23 +10,33 @@
 #include "diffarray.hpp"
 #include "utils/utils.h"
 
+#include "transform_utils.hpp"
+#include "contextfree_models.hpp"
+
 namespace mscds {
 
-	class RemapDtModel {
-	public:
-		void buildModel(std::vector<uint32_t> * data, unsigned int optional = 0);
-		void saveModel(OBitStream * out) const;
-		void loadModel(IWBitStream & is, bool decode_only = false);
 
-		void clear();
+class RemapTransform {
+public:
+	typedef uint32_t InputTp;
+	typedef uint32_t OutputTp;
 
-		void encode(uint32_t val, OBitStream * out) const;
-		uint32_t decode(IWBitStream * is) const;
-		void inspect(const std::string& cmd, std::ostream& out) const;
-	private:
-		std::unordered_map<uint32_t, uint32_t> remap, rev;
-		void buildRev();
-	};
+	void buildModel(const std::vector<InputTp> * data, unsigned int optional = 0);
+	void saveModel(OBitStream * out) const;
+	void loadModel(IWBitStream & is, bool decode_only = false);
+
+	void clear();
+
+	OutputTp map(InputTp val) const;
+	InputTp unmap(OutputTp) const;
+	void inspect(const std::string& cmd, std::ostream& out) const;
+private:
+	std::unordered_map<uint32_t, uint32_t> remap, rev;
+	void buildRev();
+};
+
+typedef BindModel<RemapTransform, DeltaModel> RemapDtModel;
+
 }
 
 REGISTER_PARSE_TYPE(mscds::RemapDtModel);

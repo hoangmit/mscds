@@ -182,8 +182,10 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	} else if (storetype == 4) {
 
 	} else if (storetype == 5) {
-	} else if (storetype == 6) {
-		
+	} else if (storetype == 6) {	
+	} else if (storetype == 7) {
+	} else if (storetype == 8) {
+	} else if (storetype == 9) {
 	}
 	else { throw std::runtime_error("wrong type");
 	}
@@ -210,6 +212,14 @@ uint64_t PRValArr::access(size_t p) const {
 	if (storetype == 5) {
 		return hd1.lookup(p);
 	}else
+	if (storetype == 6) {
+	} else
+	if (storetype == 7) {
+	} else
+	if (storetype == 8) {
+	} else
+	if (storetype == 9) {
+	} else
 	{
 		throw std::runtime_error("unknow type");
 		return 0;

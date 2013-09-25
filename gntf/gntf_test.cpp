@@ -3,7 +3,7 @@
 #include "mem/filearchive.h"
 #include "utils/utest.h"
 #include "intarray/sdarray_sml.h"
-
+#include "utils/param.h"
 #include "gntf/stringarr.h"
 
 #include <cstring>
@@ -334,9 +334,27 @@ void run_real() {
 	//test_real();
 }
 
+void build(const string& input, const string& output) {
+	GenomeNumDataBuilder bd;
+	//try {
+		bd.build_bedgraph(input, output);
+	//}catch(std::exception& e) {
+	//	std::cerr << e.what() << endl;
+	//}
+}
+
+void testx() {
+	Config * c = Config::getInst();
+	c->addPara("GNTF.POSITION_STORAGE", "2");
+	c->addPara("GNTF.INT_STORAGE", "2");
+	c->addPara("GNTF.VALUE_STORAGE", "5");
+	build("D:/temp/groseq.bedGraph", "D:/temp/groseq.gnt");
+}
+
 int main() {
 	//run_real();
 	//return 0;
+	testx();
 	test_avg_batch();
 	test_strarr1();
 	test_annotation();

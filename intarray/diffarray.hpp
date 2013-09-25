@@ -18,7 +18,8 @@ class DiffArrayBuilder {
 public:
 	typedef DiffArray<IntArray> QueryTp;
 	DiffArrayBuilder();
-	void init(unsigned int rate, unsigned int optional = 0);
+	void init(unsigned int rate);
+	void init(unsigned int rate, unsigned int optional);
 	void add(uint64_t val);
 	void build(OArchive& ar);
 	void build(QueryTp * out);
@@ -82,6 +83,13 @@ void DiffArrayBuilder<IntArray>::init(unsigned int rate, unsigned int optional) 
 	clear();
 	sample_rate = rate;
 	bd.init(rate, optional);
+}
+
+template<typename IntArray>
+void DiffArrayBuilder<IntArray>::init(unsigned int rate) {
+	clear();
+	sample_rate = rate;
+	bd.init(rate);
 }
 
 template<typename IntArray>

@@ -158,6 +158,10 @@ bool PRValArr::Enum::hasNext() const {
 	case 3: return e3->hasNext();
 	case 4: return 0;
 	case 5: return 0;
+	case 6: return 0;
+	case 7: return 0;
+	case 8: return 0;
+	case 9: return 0;
 	}
 	return false;
 }
@@ -167,6 +171,12 @@ uint64_t PRValArr::Enum::next() {
 	case 1: return e1->next();
 	case 2: return e2->next();
 	case 3: return e3->next();
+	case 4: return 0;
+	case 5: return 0;
+	case 6: return 0;
+	case 7: return 0;
+	case 8: return 0;
+	case 9: return 0;
 	}
 	return 0;
 }
@@ -180,7 +190,7 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	} else if (storetype ==3) {
 		dt2.getEnum(idx, e->e3);
 	} else if (storetype == 4) {
-
+		//hd1.getEnum(idx, e->)
 	} else if (storetype == 5) {
 	} else if (storetype == 6) {	
 	} else if (storetype == 7) {
@@ -213,12 +223,16 @@ uint64_t PRValArr::access(size_t p) const {
 		return hd1.lookup(p);
 	}else
 	if (storetype == 6) {
+		return gm1.lookup(p);
 	} else
 	if (storetype == 7) {
+		return gd1.lookup(p);
 	} else
 	if (storetype == 8) {
+		return ra1.lookup(p);
 	} else
 	if (storetype == 9) {
+		return rd1.lookup(p);
 	} else
 	{
 		throw std::runtime_error("unknow type");

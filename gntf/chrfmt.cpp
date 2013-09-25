@@ -106,8 +106,8 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	for (unsigned int i = 0; i < vals.length(); ++i) {
 		unsigned int st = vals.range_start(i);
 		unsigned int ed = st + vals.range_len(i);
-		fo << name << " " << st
-			<< ed << " " << vals.range_value(i);
+		fo << name << '\t' << st << '\t'
+			<< ed << '\t' << vals.range_value(i);
 		if (has_annotation)
 			fo << " " << annotations.get(i);
 		fo << '\n';

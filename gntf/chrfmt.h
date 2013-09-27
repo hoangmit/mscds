@@ -92,6 +92,7 @@ public:
 	void save(mscds::OArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
+
 private:
 	ChrNumValType vals;
 	StringArr annotations;

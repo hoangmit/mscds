@@ -208,6 +208,7 @@ public:
 	size_t length() const { return b.length() / width; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
+	std::string to_str() const;
 };
 
 
@@ -222,7 +223,8 @@ FixedWArray bsearch_hints(Iterator start, size_t arrlen, size_t rangelen, unsign
 		++i;  j += (1ULL<<lrate);
 		while (p < arrlen && *start < j) { ++p; ++start; }
 	} while (j < rangelen);
-	hints.set(hints.length() - 1, arrlen);
+	for (unsigned int k = i; k < hints.length(); k++)
+		hints.set(k, arrlen);
 	return hints;
 }
 

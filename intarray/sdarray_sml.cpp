@@ -450,7 +450,7 @@ uint64_t SDArraySml::PSEnum::next() {
 	hiptr += 1;
 	loptr += blkwidth;
 	idx++;
-	if (idx % BLKSIZE == 0) {
+	if (idx % BLKSIZE == 0 && hasNext()) {
 		moveblk(idx / BLKSIZE);
 	}
 	return val;
@@ -476,10 +476,7 @@ void SDArraySml::getEnum(size_t idx, Enum* e) const {
 	}
 }
 
-void SDArraySml::inspect(const std::string& cmd, std::ostream& out) const
-{
-
-}
+void SDArraySml::inspect(const std::string& cmd, std::ostream& out) const {}
 
 
 //---------------------------------------------------------------------------------------

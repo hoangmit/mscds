@@ -103,6 +103,27 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 }
 
 void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
+
+	ChrNumValType::Enum e;
+	vals.getEnum(0, &e);
+	unsigned int i = 0;
+	if (!has_annotation) {
+		while (e.hasNext()) {
+			auto x = e.next();
+			fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val << '\n';
+			++i;
+		}
+	}else {
+		while (e.hasNext()) {
+			auto x = e.next();
+			fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val;
+			fo << '\t' <<  vals.range_value(i) << '\n';
+			++i;
+		}
+	}
+	assert(i == vals.length());
+
+	/*
 	for (unsigned int i = 0; i < vals.length(); ++i) {
 		unsigned int st = vals.range_start(i);
 		unsigned int ed = st + vals.range_len(i);
@@ -111,7 +132,8 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 		if (has_annotation)
 			fo << " " << annotations.get(i);
 		fo << '\n';
-	}
+	}*/
+
 }
 
 unsigned int ChrNumThread::count_intervals() const {

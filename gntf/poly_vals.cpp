@@ -3,7 +3,10 @@
 #include <stdexcept>
 #include "utils/param.h"
 
+
 namespace app_ds {
+
+using namespace mscds;
 
 PRValArrBuilder::PRValArrBuilder() {
 	init(0, 64);
@@ -71,6 +74,13 @@ void PRValArrBuilder::build(PRValArr* out) {
 }
 
 void PRValArrBuilder::choosemethod() {
+	method = 5;
+	resetbd();
+	for (size_t i = 0; i < vals.size(); ++i)
+		addmethod(vals[i]);
+	vals.clear();
+	return ;
+	//-----------
 	throw std::runtime_error("unimplemented");
 	sdab.clear();
 	dt1.clear();
@@ -134,109 +144,80 @@ void PRValArrBuilder::addmethod(unsigned int val) {
 	else assert(false);
 }
 
-void PRValArr::Enum::init(int _etype) {
-	this->etype = _etype;
-	if (etype == 1) {
-		if (e1 == NULL) e1 = new mscds::SDArraySml::Enum();
-	} else if (etype == 2) {
-		if (e2 == NULL) e2 = new mscds::DeltaCodeArr::Enum();
-	} else if (etype == 3) {
-		if (e3 == NULL) e3 = new mscds::DiffDeltaArr::Enum();
-	}
-}
-
 PRValArr::Enum::~Enum() {
-	if (e1 != NULL) delete e1;
-	if (e2 != NULL) delete e2;
-	if (e3 != NULL) delete e3;
+	if (ex != NULL) {
+		delete ex;
+		ex = NULL;
+	}
 }
 
 bool PRValArr::Enum::hasNext() const {
-	switch (etype) {
-	case 1: return e1->hasNext();
-	case 2: return e2->hasNext();
-	case 3: return e3->hasNext();
-	case 4: return 0;
-	case 5: return 0;
-	case 6: return 0;
-	case 7: return 0;
-	case 8: return 0;
-	case 9: return 0;
-	}
-	return false;
+	return ex->hasNext();
 }
 
 uint64_t PRValArr::Enum::next() {
-	switch (etype) {
-	case 1: return e1->next();
-	case 2: return e2->next();
-	case 3: return e3->next();
-	case 4: return 0;
-	case 5: return 0;
-	case 6: return 0;
-	case 7: return 0;
-	case 8: return 0;
-	case 9: return 0;
+	return ex->next();
+}
+
+void PRValArr::Enum::init(int etype) {
+	if (this->etype != etype || ex == NULL) {
+		if (ex != NULL) delete ex;
+		this->etype = etype;
+		switch (etype) {
+		case 1: ex = new SDArraySml::Enum(); break;
+		case 2: ex = new DeltaCodeArr::Enum(); break;
+		case 3: ex = new DiffDeltaArr::Enum(); break;
+		case 4: ex = new HuffmanArray::Enum(); break;
+		case 5: ex = new HuffDiffArray::Enum(); break;
+		case 6: ex = new GammaArray::Enum(); break;
+		case 7: ex = new GammaDiffDtArray::Enum(); break;
+		case 8: ex = new RemapDtArray::Enum(); break;
+		case 9: ex = new RemapDiffDtArray::Enum(); break;
+		default:
+			throw std::runtime_error("wrong type");
+		}
 	}
-	return 0;
 }
 
 void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	e->init(storetype);
+	assert(e->etype == storetype);
 	if (storetype==1) {
-		sda.getEnum(idx, (e->e1));
+		SDArraySml::Enum * et;
+		sda.getEnum(idx, (SDArraySml::Enum*) (e->ex));
 	} else if (storetype==2) {
-		dt1.getEnum(idx, (e->e2));
+		dt1.getEnum(idx, (DeltaCodeArr::Enum*) (e->ex));
 	} else if (storetype ==3) {
-		dt2.getEnum(idx, e->e3);
+		dt2.getEnum(idx, (DiffDeltaArr::Enum*) (e->ex));
 	} else if (storetype == 4) {
-		//hd1.getEnum(idx, e->)
+		hf1.getEnum(idx, (HuffmanArray::Enum*) (e->ex));
 	} else if (storetype == 5) {
-	} else if (storetype == 6) {	
+		hd1.getEnum(idx, (HuffDiffArray::Enum*) (e->ex));
+	} else if (storetype == 6) {
+		gm1.getEnum(idx, (GammaArray::Enum*) (e->ex));
 	} else if (storetype == 7) {
+		gd1.getEnum(idx, (GammaDiffDtArray::Enum*) (e->ex));
 	} else if (storetype == 8) {
+		ra1.getEnum(idx, (RemapDtArray::Enum*) (e->ex));
 	} else if (storetype == 9) {
+		rd1.getEnum(idx, (RemapDiffDtArray::Enum*)(e->ex));
 	}
 	else { throw std::runtime_error("wrong type");
 	}
 }
 
 uint64_t PRValArr::access(size_t p) const {
-	if (storetype == 1) return sda.lookup(p);
-	else 
-	if (storetype == 2) {
-		mscds::DeltaCodeArr::Enum e;
-		dt1.getEnum(p, &e);
-		return e.next();
-	}
-	else
-	if (storetype==3) {
-		mscds::DiffDeltaArr::Enum e;
-		dt2.getEnum(p, &e);
-		return e.next();
-	}
-	else 
-	if (storetype == 4) {
-		return hf1.lookup(p);
-	}else
-	if (storetype == 5) {
-		return hd1.lookup(p);
-	}else
-	if (storetype == 6) {
-		return gm1.lookup(p);
-	} else
-	if (storetype == 7) {
-		return gd1.lookup(p);
-	} else
-	if (storetype == 8) {
-		return ra1.lookup(p);
-	} else
-	if (storetype == 9) {
-		return rd1.lookup(p);
-	} else
-	{
-		throw std::runtime_error("unknow type");
-		return 0;
+	switch (storetype) {
+	case 1: return sda.lookup(p);
+	case 2: return dt1.lookup(p);
+	case 3:	return dt2.lookup(p);
+	case 4: return hf1.lookup(p);
+	case 5: return hd1.lookup(p);
+	case 6: return gm1.lookup(p);
+	case 7: return gd1.lookup(p);
+	case 8: return ra1.lookup(p);
+	case 9: return rd1.lookup(p);
+	default: throw std::runtime_error("unknow type"); return 0;
 	}
 }
 

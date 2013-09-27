@@ -80,6 +80,24 @@ public:
 	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
 	std::pair<int, int> find_intervals(unsigned int st, unsigned int ed) const;
 
+	struct IntervalInfo {
+		IntervalInfo() {}
+		IntervalInfo(unsigned int s, unsigned int e, double v): st(s), ed(e), val(v) {}
+		unsigned int st, ed;
+		double val;
+	};
+
+	class Enum {
+	public:
+		bool hasNext();
+		IntervalInfo next();
+	private:
+		PNIntv::Enum pos;
+		SampledSumQuery::Enum val;
+		friend class RunLenSumArray6;
+	};
+	void getEnum(unsigned int idx, Enum* e) const;
+
 	typedef RunLenSumArrayBuilder6 BuilderTp;
 private:
 	PNIntv itv;

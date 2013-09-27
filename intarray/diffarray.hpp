@@ -58,7 +58,7 @@ public:
 	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	IntArray arr;
-	uint64_t len;
+	//uint64_t len;
 	unsigned int sample_rate;
 	friend class DiffArrayBuilder<IntArray>;
 };
@@ -122,7 +122,7 @@ template<typename IntArray>
 void DiffArrayBuilder<IntArray>::build(DiffArray<IntArray> *out) {
 	out->clear();
 	out->sample_rate = sample_rate;
-	out->len = i;
+	//out->len = i;
 	bd.build(&(out->arr));
 }
 //-----------------------------------------
@@ -137,7 +137,7 @@ void DiffArray<IntArray>::getEnum(uint64_t pos, typename DiffArray<IntArray>::En
 		e->val += coder::absunmap(e->e.next());
 
 	e->midx = pos;
-	e->len = this->len;
+	e->len = length();
 	e->rate = sample_rate;
 }
 
@@ -171,7 +171,6 @@ uint64_t DiffArray<IntArray>::length() const { return arr.length(); }
 
 template<typename IntArray>
 void DiffArray<IntArray>::clear() {
-	len = 0;
 	sample_rate = 0;
 	arr.clear();
 }

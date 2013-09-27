@@ -1,5 +1,7 @@
 #include "bitarray.h"
 #include <algorithm>
+#include <sstream>
+
 
 namespace mscds {
 	void BitArray::fillzero() {
@@ -72,5 +74,16 @@ namespace mscds {
 		ar.endclass();
 		return ar;
 	}
+
+	std::string FixedWArray::to_str() const {
+		std::ostringstream ss;
+		ss << '{';
+		if (length() > 0) ss << (*this)[0];
+		for (unsigned int i = 1; i < length(); ++i)
+			ss << ',' << (*this)[i];
+		ss << '}';
+		return ss.str();
+	}
+
 
 }//namespace

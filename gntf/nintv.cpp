@@ -115,6 +115,12 @@ NIntv::PosType NIntv::int_psrlen(PosType i) const {
 	return rlen.prefixsum(i);
 }
 
+void NIntv::getEnum(PosType idx, Enum * e) const {
+	rlen.getEnum(idx, &(e->re));
+	start.getEnum(idx, &(e->st));
+}
+
+
 //------------------------------------------------------------------------
 
 NIntv2Builder::NIntv2Builder() { clear(); }
@@ -144,7 +150,7 @@ void NIntv2Builder::add(PosType st, PosType ed) {
 		if (st > last_ed) {
 			gstbd.add_inc(st);
 			gcbd.add_inc(g_pos);
-		}else assert(st == last_ed);
+		}else { assert(st == last_ed); }
 		++g_pos;
 		last_ed = ed;
 	}
@@ -153,7 +159,7 @@ void NIntv2Builder::add(PosType st, PosType ed) {
 }
 
 void NIntv2Builder::build(NIntv2 *out) {
-	gcbd.add(g_pos);
+	gcbd.add_inc(g_pos);
 	out->len = cnt;
 	out->maxpos = last_ed;
 	gstbd.build(&(out->gstart));
@@ -255,6 +261,38 @@ NIntv2::PosType NIntv2::find_rlen(PosType val) const {
 NIntv2::PosType NIntv2::int_psrlen(PosType i) const {
 	return ilen.select(i);
 }
+
+void NIntv2::getEnum(PosType idx, Enum *e) const {
+	ilen.getDisEnum(idx+1, &(e->rl));
+	auto j = gcnt.rank(idx+1);
+	gcnt.getDisEnum(j, &(e->gc));
+	e->gi = e->gc.next() + gcnt.select(j-1) - idx;
+	e->cp = int_start(idx);
+	gstart.getEnum(j, &(e->gs));
+}
+
+void NIntv2::inspect(const std::string& cmd, std::ostream& out) const {
+	out << gcnt.to_str() << "\n";
+}
+
+
+std::pair<NIntv2::PosType, NIntv2::PosType> NIntv2::Enum::next() {
+	NIntv2::PosType xp = cp;
+	NIntv2::PosType xxp = cp + rl.next();
+	gi--;
+	if (gi == 0 && gc.hasNext()) {
+		gi = gc.next();
+		cp = gs.next();
+	}else
+		cp = xxp;
+	return std::pair<NIntv2::PosType, NIntv2::PosType>(xp, xxp);
+}
+
+bool NIntv2::Enum::hasNext() const {
+	return rl.hasNext();
+}
+
+
 
 //------------------------------------------------------------------------
 
@@ -433,12 +471,25 @@ PNIntv::PosType PNIntv::length() const {
 	return 0;
 }
 
-void PNIntv::getLenEnum( PosType idx, Enum *e ) const {
+void PNIntv::getEnum( PosType idx, Enum *e ) const {
 	e->method = method;
-	if (method == 1) m1.getLenEnum(idx, &(e->e1));
+	if (method == 1) m1.getEnum(idx, &(e->e1));
 	else
-		if (method == 2) m2.getLenEnum(idx, &(e->e2));
+		if (method == 2) m2.getEnum(idx, &(e->e2));
 		else throw std::runtime_error("not initilized");
 }
+
+void PNIntv::inspect( const std::string& cmd, std::ostream& out ) const {
+	if (method == 1) m1.inspect(cmd, out);
+	else if (method == 2) m2.inspect(cmd, out);
+}
+
+
+
+std::pair<NIntv::PosType, NIntv::PosType> NIntv::Enum::next() {
+	auto stx = st.next();
+	return std::pair<PosType, PosType>(stx, stx + re.next());
+}
+
 
 } // namespace

@@ -135,5 +135,19 @@ double RunLenSumArray6::sqrsum(uint32_t pos) const {
 	return 0;
 }
 
+void RunLenSumArray6::getEnum( unsigned int idx, Enum* e ) const {
+	itv.getEnum(idx, &(e->pos));
+	vals.getEnum(idx, &(e->val));
+}
+
+
+RunLenSumArray6::IntervalInfo RunLenSumArray6::Enum::next() {
+	auto x = pos.next(); return IntervalInfo(x.first, x.second, val.next());
+}
+
+bool RunLenSumArray6::Enum::hasNext() {
+	return pos.hasNext();
+}
+
 
 }//namespace

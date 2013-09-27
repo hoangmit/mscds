@@ -77,7 +77,7 @@ public:
 	size_t length() const { return len; }
 	class Enum : public mscds::EnumeratorInt<uint64_t> {
 	public:
-		Enum(): e1(NULL), e2(NULL), e3(NULL) {}
+		Enum(): ex(NULL), etype(0) {}
 		~Enum();
 
 		void init(int _etype);
@@ -85,9 +85,7 @@ public:
 		uint64_t next();
 	private:
 		int etype;
-		mscds::SDArraySml::Enum * e1;
-		mscds::DeltaCodeArr::Enum * e2;
-		mscds::DiffDeltaArr::Enum * e3;
+		EnumeratorInt<uint64_t> * ex;
 		friend class PRValArr;
 	};
 	void getEnum(size_t idx, Enum * e) const;

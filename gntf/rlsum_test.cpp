@@ -114,9 +114,11 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 	}
 	for (size_t i = 0; i < rng.size() - 3; ++i) {
 		typename StructTp::Enum e;
-		r.getLenEnum(i, &e);
+		r.getEnum(i, &e);
 		for (size_t j = 0; j < 3; ++j) {
-			ASSERT_EQ(rng[i+j].ed - rng[i+j].st, e.next());
+			auto p = e.next();
+			ASSERT_EQ(rng[i+j].st, p.first);
+			ASSERT_EQ(rng[i+j].ed, p.second);
 		}
 	}
 	size_t mlen = rng.back().ed;
@@ -197,14 +199,14 @@ vector<int> generate(int len) {
 }
 
 
-void test_intv_start_end1() {
+TEST(intv, start_end1) {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
 	test_intervals<NIntv>(genInp(Av));
 }
 
-void test_intv_start_end2() {
+TEST(intv, start_end2) {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
@@ -213,7 +215,7 @@ void test_intv_start_end2() {
 	}
 }
 
-void test_intv_start_end3() {
+TEST(intv, start_end3) {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
@@ -221,7 +223,7 @@ void test_intv_start_end3() {
 	test_intervals<NIntv2>(iv);
 }
 
-void test_intv_start_end4() {
+TEST(intv, start_end4) {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
@@ -242,29 +244,24 @@ void test_rlsum_tb_rng(int test_num) {
 }
 
 
-void test_trivbin_all() {
-	test_intv_start_end1();
-	test_intv_start_end2();
-
-	test_intv_start_end3();
-	test_intv_start_end4();
-	cout << endl;
-
-	test_rlsum_tb_2<RunLenSumArray6>();
+TEST(rlsum, tb_1) {
 	test_rlsum_tb_1<RunLenSumArray6>();
+}
 
+TEST(rlsum, tb_2) {
+	test_rlsum_tb_2<RunLenSumArray6>();
+}
+
+TEST(rlsum, tb_rng) {
 	for (int i = 0; i < 100; i++) {
 		test_rlsum_tb_rng<RunLenSumArray6>(i);
 	}
-	cout << endl;
-
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
 	::testing::GTEST_FLAG(throw_on_failure) = true;
-
-	test_trivbin_all();
-	cout << endl;
-	return 0;
+	::testing::InitGoogleTest(&argc, argv); 
+	int rs = RUN_ALL_TESTS();
+	return rs;
 }

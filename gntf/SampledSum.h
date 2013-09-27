@@ -52,15 +52,15 @@ public:
 
 	class Enum: public mscds::EnumeratorInt<double> {
 	public:
-		Enum(): e1(NULL), e2(NULL), type(0) {}
+		Enum(): ex(NULL), type(0) {}
 		~Enum();
 		bool hasNext() const;
 		double next();
 		uint64_t next_int();
+		void init(unsigned char etype);
 	private:
 		friend class SampledSumQuery;
-		PRValArr::Enum * e1;
-		RankValArr::Enum * e2;
+		mscds::EnumeratorInt<uint64_t> * ex;
 		unsigned int factor;
 		int delta;
 		unsigned char type;

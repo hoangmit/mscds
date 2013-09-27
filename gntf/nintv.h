@@ -66,18 +66,19 @@ namespace app_ds {
 		void save(mscds::OArchive& ar) const;
 		void load(mscds::IArchive& ar);
 		typedef NIntvBuilder BuilderTp;
-		class Enum : public mscds::EnumeratorInt<PosType> {
+		class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
 		public:
 			Enum() {}
-			Enum(const Enum& o): re(o.re) {}
 
 			bool hasNext() const {return re.hasNext(); }
-			PosType next() { return re.next(); }
+			std::pair<PosType, PosType> next();
 		private:
 			mscds::SDArraySml::Enum re;
+			mscds::SDRankSelectSml::Enum st;
 			friend class NIntv;
 		};
-		void getLenEnum(PosType idx, Enum * e) const { rlen.getEnum(idx, &(e->re)); }
+		void getEnum(PosType idx, Enum * e) const;
+		void inspect(const std::string& cmd, std::ostream& out) const {}
 	private:
 		size_t len;
 		mscds::SDRankSelectSml start;
@@ -129,18 +130,19 @@ namespace app_ds {
 		void load(mscds::IArchive& ar);
 		typedef NIntv2Builder BuilderTp;
 
-		class Enum : public mscds::EnumeratorInt<PosType> {
+		class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
 		public:
 			Enum() {}
-			Enum(const Enum& o): re(o.re) {}
-			bool hasNext() const {return re.hasNext(); }
-			PosType next() { return re.next(); }
+			bool hasNext() const;
+			std::pair<PosType, PosType> next();
 		private:
-			mscds::SDRankSelectSml::Enum re;
+			mscds::SDRankSelectSml::Enum gs;
+			mscds::SDRankSelectSml::DEnum rl, gc;
+			unsigned int gi, cp;
 			friend class NIntv2;
 		};
-		void getLenEnum(PosType idx, Enum *e) const { ilen.getDisEnum(idx+1, &(e->re)); }
-
+		void getEnum(PosType idx, Enum *e) const;
+		void inspect(const std::string& cmd, std::ostream& out) const;
 	private:
 		size_t len, maxpos, ngrp;
 		mscds::SDRankSelectSml gstart, ilen;
@@ -194,19 +196,20 @@ namespace app_ds {
 		void load(mscds::IArchive& ar);
 		typedef PNIntvBuilder BuilderTp;
 		friend class PNIntvBuilder;
-		class Enum : public mscds::EnumeratorInt<PosType> {
+		class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
 		public:
 			Enum() {}
 			Enum(const Enum& o): e1(o.e1), e2(o.e2), method(o.method) {}
 			bool hasNext() const { if (method == 1) return e1.hasNext(); else if (method == 2) return e2.hasNext(); else throw std::runtime_error("not initilized"); }
-			PosType next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else throw std::runtime_error("not initilized"); }
+			std::pair<PosType, PosType> next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else throw std::runtime_error("not initilized"); }
 		private:
 			NIntv::Enum e1;
 			NIntv2::Enum e2;
 			unsigned int method;
 			friend class PNIntv;
 		};
-		void getLenEnum(PosType idx, Enum *e) const;
+		void getEnum(PosType idx, Enum *e) const;
+		void inspect(const std::string& cmd, std::ostream& out) const;
 	private:
 		unsigned int method;
 		unsigned int autoselect;

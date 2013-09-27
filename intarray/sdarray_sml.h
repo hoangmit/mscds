@@ -157,6 +157,17 @@ public:
 
 	void clear() { qs.clear(); rankhints.clear(); }
 	std::string to_str() const;
+	struct DEnum: public EnumeratorInt<uint64_t> {
+	public:
+		DEnum() {}
+		DEnum(const DEnum& o): re(o.re){}
+		bool hasNext() const { return re.hasNext(); }
+		uint64_t next() { return re.next(); }
+	private:
+		SDArraySml::Enum re;
+		friend class SDRankSelectSml;
+	};
+
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
 		Enum() {}
@@ -164,11 +175,15 @@ public:
 		bool hasNext() const { return re.hasNext(); }
 		uint64_t next() { return re.next(); }
 	private:
-		SDArraySml::Enum re;
+		SDArraySml::PSEnum re;
 		friend class SDRankSelectSml;
 	};
-	void getDisEnum(size_t idx, Enum * e) const { return qs.getEnum(idx, &(e->re));}
 
+	void getDisEnum(size_t idx, DEnum * e) const { return qs.getEnum(idx, &(e->re));}
+	void getEnum(size_t idx, Enum * e) const { return qs.getPSEnum(idx, &(e->re));}
+	
+	const SDArraySml& getArray() const { return qs; }
+	void inspect(const std::string& cmd, std::ostream& out) const {}
 private:
 	SDArraySml qs;
 	void initrank();

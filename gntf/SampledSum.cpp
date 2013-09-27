@@ -153,21 +153,33 @@ double SampledSumQuery::access(unsigned int idx) const {
 	return (x - delta) / (double) factor;
 }
 
+
+void SampledSumQuery::Enum::init(unsigned char etype) {
+	if (type != etype || ex == NULL) {
+		type = etype;
+		if (ex != NULL) delete ex;
+		if (etype == 1) ex = new PRValArr::Enum();
+		else if (etype = 2) ex =  new RankValArr::Enum();
+		else throw std::runtime_error("unknown type");
+	}
+}
+
+
 void SampledSumQuery::getEnum(unsigned int idx, Enum * e) const {
-	e->type = method;
+	e->init(method);
+	assert(e->type == method);
 	if (method == 1) {
-		if (e->e1 == NULL) e->e1 = new PRValArr::Enum();
-		vdir.getEnum(idx, e->e1);
+		vdir.getEnum(idx, (PRValArr::Enum*)(e->ex));
 	} else if (method == 2) {
-		if (e->e2 == NULL) e->e2 = new RankValArr::Enum();
-		vrank.getEnum(idx, e->e2);
+		vrank.getEnum(idx, (RankValArr::Enum*)(e->ex));
 	}
 }
 
 double SampledSumQuery::sum(unsigned int idx, unsigned int lefpos) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
-	int64_t cpsum = pq->int_psrlen(idx - r) * delta;
+	int64_t cpsum = pq->int_psrlen(idx - r);
+	cpsum *= delta;
 	cpsum = psum.prefixsum(p+1) - cpsum;
 	Enum g;
 	if (r > 0 || lefpos > 0) {
@@ -194,9 +206,9 @@ void SampledSumQuery::save(mscds::OArchive& ar) const {
 	if (method == 1) {
 		vdir.save(ar.var("direct_values"));
 	}else 
-		if (method == 2) {
-			vrank.save(ar.var("rank_values"));
-		}else throw mscds::ioerror("wrong method range");
+	if (method == 2) {
+		vrank.save(ar.var("rank_values"));
+	}else throw mscds::ioerror("wrong method range");
 	ar.endclass();
 }
 
@@ -234,14 +246,14 @@ SampledSumQuery::SampledSumQuery() {
 }
 
 bool SampledSumQuery::Enum::hasNext() const {
-	if (type == 1) return e1->hasNext();
-	else if (type == 2) return e2->hasNext();
-	else return false;
+	return ex->hasNext();
 }
 
 SampledSumQuery::Enum::~Enum() {
-	if (e1 != NULL) delete e1;
-	if (e2 != NULL) delete e2;
+	if (ex != NULL) {
+		delete ex;
+		ex = NULL;
+	}
 }
 
 double SampledSumQuery::Enum::next() {
@@ -249,9 +261,7 @@ double SampledSumQuery::Enum::next() {
 }
 
 uint64_t SampledSumQuery::Enum::next_int() {
-	if (type == 1) return e1->next();
-	else if (type == 2) return e2->next();
-	else return 0;
+	return ex->next();
 }
 
 

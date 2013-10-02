@@ -177,6 +177,22 @@ uint64_t SDArraySml::scan_hi_bits(uint64_t start, uint32_t res) const {
 	} while(true);
 }
 
+uint64_t SDArraySml::scan_hi_next(uint64_t start) const {
+	uint64_t wpos = start >> 6;
+	if ((start & 63) != 0) {
+		uint64_t word = bits.word(wpos) >> (start & 63);
+		if (word != 0) return lsb_intr(word);// selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	}
+	do {
+		uint64_t word = bits.word(wpos);
+		if (word != 0) return (wpos << 6) - start + lsb_intr(word); //selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	} while(true);
+}
+
 uint64_t SDArraySml::lookup(const uint64_t p) const {
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
@@ -191,7 +207,8 @@ uint64_t SDArraySml::lookup(const uint64_t p) const {
 		prev = ((prehi << width) | prelo);
 	}
 	uint64_t lo = bits.bits(blkptr + width * off, width);
-	uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
+	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
+	uint64_t hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
 	uint64_t cur = ((hi << width) | lo);
 	return cur - prev;
 	//return sum + prev;
@@ -211,7 +228,8 @@ uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
 		prev = ((prehi << width) | prelo);
 	}
 	uint64_t lo = bits.bits(blkptr + width * off, width);
-	uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
+	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
+	uint64_t hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
 	uint64_t cur = ((hi << width) | lo);
 	uint64_t sum  = table.word(bpos * 3);
 	prev_sum = sum + prev;
@@ -440,7 +458,8 @@ bool SDArraySml::PSEnum::hasNext() const {
 }
 
 uint64_t SDArraySml::PSEnum::next() {
-	uint64_t d = ptr->scan_hi_bits(baseptr + hiptr, 0);
+	//uint64_t d = ptr->scan_hi_bits(baseptr + hiptr, 0);
+	uint64_t d = ptr->scan_hi_next(baseptr + hiptr);
 	hiptr += d;
 	// extract here
 	uint64_t lo = ptr->bits.bits(loptr, blkwidth);

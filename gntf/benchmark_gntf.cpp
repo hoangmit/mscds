@@ -94,6 +94,17 @@ void random_query(const string& name) {
 	qs.clear();
 }
 
+void extract(const string& inp, const string& out) {
+	GenomeNumData qs;
+	IFileMapArchive fi;
+	fi.open_read(inp);
+	cout << "Loading ... " << endl;
+	qs.load(fi);
+	cout << qs.chromosome_count() << " chromosomes " << endl;
+	qs.dump_bedgraph(out);
+}
+
+
 int run(int argc, const char* argv[]) {
 	Config * c = Config::getInst();
 	c->parse(argc, argv);
@@ -107,18 +118,24 @@ int run(int argc, const char* argv[]) {
 		if (argc < 4) throw runtime_error("wrong");
 		build(argv[2], argv[3]);
 	}else
+	if (argv[1][0] == 'e') {
+		if (argc < 4) throw runtime_error("wrong");
+		extract(argv[2], argv[3]);
+	}else 
 	if (argv[1][0] == 'r') {
 		random_query(argv[2]);
 	}
 	return 0;
 }
 
+
 int main(int argc, const char* argv[]) {
 	cout << "running.." << endl;
-	const char* testv[] = {"", "r", "groseq.gntf"};
+	//const char* testv[] = {"", "r", "groseq.gntf"};
 	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gntf"};
-	//return run(argc, argv);
-	return run(3, testv);
+	const char* testv[] = {"", "e", "D:/temp/groseq.gntf", "a.out"};
+	return run(4, testv);
+	//return run(3, testv);
 }
 
 

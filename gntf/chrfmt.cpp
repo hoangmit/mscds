@@ -103,7 +103,6 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 }
 
 void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
-
 	ChrNumValType::Enum e;
 	vals.getEnum(0, &e);
 	unsigned int i = 0;

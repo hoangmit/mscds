@@ -182,13 +182,11 @@ uint64_t SDArraySml::scan_hi_next(uint64_t start) const {
 	if ((start & 63) != 0) {
 		uint64_t word = bits.word(wpos) >> (start & 63);
 		if (word != 0) return lsb_intr(word);// selectword(word, res);
-		res -= bitcnt;
 		++wpos;
 	}
 	do {
 		uint64_t word = bits.word(wpos);
 		if (word != 0) return (wpos << 6) - start + lsb_intr(word); //selectword(word, res);
-		res -= bitcnt;
 		++wpos;
 	} while(true);
 }

@@ -9,6 +9,7 @@ file_utils.cpp
 utils.cpp
 debug.cpp
 param.cpp
+modp_numtoa.cpp
 )
 
 
@@ -20,8 +21,7 @@ utils.h
 debug.h
 utest.h
 param.h
-mm/cache_map.hpp
-mm/cache_set.hpp
+modp_numtoa.h
 )
 
 

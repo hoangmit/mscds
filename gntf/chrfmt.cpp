@@ -1,8 +1,11 @@
 #include "chrfmt.h"
 #include "mem/filearchive.h"
+#include "utils/modp_numtoa.h"
 
+#include <cstdio>
 #include <stdexcept>
 #include <cstring>
+
 using namespace std;
 using namespace mscds;
 
@@ -107,13 +110,14 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	ChrNumValType::Enum e;
 	vals.getEnum(0, &e);
 	unsigned int i = 0;
-	unsigned int BUFSIZE = 4096;
+	const unsigned int BUFSIZE = 4096;
 	char buffer[BUFSIZE];
 	if (!has_annotation) {
 		while (e.hasNext()) {
 			auto x = e.next();
-			unsigned len = snprintf(buffer, BUFSIZE, "%s\t%d\t%d\t%f", name.c_str(), x.st, x.ed, x.val);
-			fo.write(buffer, len + 1);
+			unsigned len = sprintf(buffer, "%s\t%d\t%d\t", name.c_str(), x.st, x.ed);
+			unsigned l2 = utils::modp_dtoa(x.ed, buffer + len, 6);
+			fo.write(buffer, len + l2 + 1);
 			//fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val << '\n';
 			++i;
 		}

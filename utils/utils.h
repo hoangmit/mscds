@@ -22,7 +22,7 @@ provides commonly used functions. There are 3 major groups of functions provided
 (2) group of functions to manipulate string
 (3) group of function to handle file
  */
-namespace utils {	
+namespace utils {
 	/** \brief returns the ceiling of "a" over "b" */
 	inline uint64_t ceildiv(uint64_t a, uint64_t b) {
 		return (a + b - 1) / b;

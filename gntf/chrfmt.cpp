@@ -116,7 +116,7 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 		while (e.hasNext()) {
 			auto x = e.next();
 			unsigned len = sprintf(buffer, "%s\t%d\t%d\t", name.c_str(), x.st, x.ed);
-			unsigned l2 = utils::modp_dtoa(x.ed, buffer + len, 6);
+			unsigned l2 = utils::modp_dtoa2(x.val, buffer + len, 6);
 			buffer[len + l2] = '\n';
 			fo.write(buffer, len + l2 + 1);
 			//fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val << '\n';

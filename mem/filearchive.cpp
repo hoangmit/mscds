@@ -60,6 +60,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		close();
 		std::ofstream * fout = (new std::ofstream(fname.c_str(), std::ios::binary));
 		if (!fout->is_open()) throw ioerror("cannot open file to write: " + fname);
+		const unsigned int BUFSIZE = 512 * 1024;
+		if (buffer == NULL)
+			buffer = new char[BUFSIZE];
+		fout->rdbuf()->pubsetbuf(buffer, BUFSIZE);
 		out = fout;
 		needclose = true;
 		pos = 0;
@@ -82,6 +86,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		if (out != NULL && needclose) {
 			delete out;
 			needclose = false;
+		}
+		if (buffer != NULL) {
+			delete[] buffer;
+			buffer = NULL;
 		}
 		out = NULL;
 	}
@@ -134,6 +142,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		close();
 		std::ifstream * fin = new std::ifstream(fname.c_str(), std::ios::binary);
 		if (!fin->is_open()) throw ioerror("cannot open file to read: " + fname);
+		const unsigned int BUFSIZE = 256 * 1024;
+		if (buffer == NULL)
+			buffer = new char[BUFSIZE];
+		fin->rdbuf()->pubsetbuf(buffer, BUFSIZE);
 		in = fin;
 		needclose = true;
 		pos = 0;
@@ -149,6 +161,10 @@ uint32_t FNV_hash24(const std::string& s) {
 		if (in != NULL && needclose) {
 			delete in;
 			needclose = false;
+		}
+		if (buffer != NULL) {
+			delete[] buffer;
+			buffer = NULL;
 		}
 		in = NULL;
 	}

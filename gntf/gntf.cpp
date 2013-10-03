@@ -36,6 +36,10 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 
 void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output,
 										  bool minmax_query, bool annotation) {
+	const unsigned int BUFSIZE = 512 * 1024;
+	char buffer[BUFSIZE];
+	std::ifstream fi(input.c_str());
+	fi.rdbuf()->pubsetbuf(buffer, BUFSIZE);
 	std::ifstream fi(input.c_str());
 	mscds::OFileArchive fo;
 	fo.open_write(output);

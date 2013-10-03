@@ -25,7 +25,7 @@ public:
 
 	void open_write(const std::string& fname);
 	void assign_write(std::ostream * o);
-	OFileArchive(): out(NULL), needclose(false),  openclass(0), closeclass(0) {}
+	OFileArchive(): out(NULL), needclose(false),  openclass(0), closeclass(0), buffer(NULL) {}
 	~OFileArchive() {close();}
 	void close();
 private:
@@ -33,11 +33,12 @@ private:
 	std::ostream * out;
 	size_t pos;
 	bool needclose;
+	char * buffer;
 };
 
 class IFileArchive: public IArchive {
 public:
-	IFileArchive(): in(NULL), needclose(false), pos(0) {}
+	IFileArchive(): in(NULL), needclose(false), pos(0), buffer(NULL) {}
 	~IFileArchive() {close();}
 
 	unsigned char loadclass(const std::string& name);
@@ -55,6 +56,7 @@ private:
 	bool needclose;
 	size_t pos;
 	std::istream * in;
+	char * buffer;
 };
 
 class IMemArchive: public IArchive {

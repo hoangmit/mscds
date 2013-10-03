@@ -10,8 +10,8 @@ using namespace std;
 using namespace app_ds;
 using namespace mscds;
 
-string outpath = "D:/temp/";
-string inpath = "D:/temp/";
+string outpath = "C:/temp/";
+string inpath = "C:/temp/";
 
 void build(const string& inpname, const string& outfile) {
 	string inp = inpath + inpname;
@@ -131,9 +131,9 @@ int run(int argc, const char* argv[]) {
 
 int main(int argc, const char* argv[]) {
 	cout << "running.." << endl;
-	//const char* testv[] = {"", "r", "groseq.gntf"};
-	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gntf"};
-	const char* testv[] = {"", "e", "D:/temp/groseq.gntf", "a.out"};
+	//const char* testv[] = {"", "r", "groseq.gnt"};
+	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gnt"};
+	const char* testv[] = {"", "e", "C:/temp/groseq.gnt", "C:/temp/a.txt"};
 	return run(4, testv);
 	//return run(3, testv);
 }

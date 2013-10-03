@@ -348,7 +348,7 @@ void testx() {
 	c->addPara("GNTF.POSITION_STORAGE", "2");
 	c->addPara("GNTF.INT_STORAGE", "2");
 	c->addPara("GNTF.VALUE_STORAGE", "5");
-	build("D:/temp/groseq.bedGraph", "D:/temp/groseq.gnt");
+	build("C:/temp/groseq.bedGraph", "C:/temp/groseq.gnt");
 }
 
 int main() {

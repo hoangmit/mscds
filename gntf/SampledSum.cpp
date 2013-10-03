@@ -168,6 +168,8 @@ void SampledSumQuery::Enum::init(unsigned char etype) {
 void SampledSumQuery::getEnum(unsigned int idx, Enum * e) const {
 	e->init(method);
 	assert(e->type == method);
+	e->factor = this->factor;
+	e->delta = this->delta;
 	if (method == 1) {
 		vdir.getEnum(idx, (PRValArr::Enum*)(e->ex));
 	} else if (method == 2) {

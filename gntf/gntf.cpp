@@ -248,7 +248,10 @@ void GenomeNumData::dump_bedgraph(std::ostream& fo) {
 }
 
 void GenomeNumData::dump_bedgraph(const std::string &output) {
+	const unsigned int BUFSIZE = 1024 * 1024;
+	char buffer[BUFSIZE];
 	std::ofstream fo(output.c_str());
+	fo.rdbuf()->pubsetbuf(buffer, BUFSIZE);
 	if (!fo.is_open()) throw std::runtime_error("cannot open file");
 	dump_bedgraph(fo);
 	fo.close();

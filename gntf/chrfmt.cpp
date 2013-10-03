@@ -2,6 +2,7 @@
 #include "mem/filearchive.h"
 
 #include <stdexcept>
+#include <cstring>
 using namespace std;
 using namespace mscds;
 
@@ -106,10 +107,14 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	ChrNumValType::Enum e;
 	vals.getEnum(0, &e);
 	unsigned int i = 0;
+	unsigned int BUFSIZE = 4096;
+	char buffer[BUFSIZE];
 	if (!has_annotation) {
 		while (e.hasNext()) {
 			auto x = e.next();
-			fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val << '\n';
+			unsigned len = snprintf(buffer, BUFSIZE, "%s\t%d\t%d\t%f", name.c_str(), x.st, x.ed, x.val);
+			fo.write(buffer, len + 1);
+			//fo << name << '\t' << x.st << '\t' << x.ed << '\t' << x.val << '\n';
 			++i;
 		}
 	}else {

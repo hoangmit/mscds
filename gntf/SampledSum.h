@@ -56,7 +56,7 @@ public:
 		~Enum();
 		bool hasNext() const;
 		double next();
-		uint64_t next_int();
+		int64_t next_int();
 		void init(unsigned char etype);
 	private:
 		friend class SampledSumQuery;

@@ -259,11 +259,11 @@ SampledSumQuery::Enum::~Enum() {
 }
 
 double SampledSumQuery::Enum::next() {
-	return (((double)next_int()) - delta) / factor;
+	return (double)(next_int() - delta) / factor;
 }
 
-uint64_t SampledSumQuery::Enum::next_int() {
-	return ex->next();
+int64_t SampledSumQuery::Enum::next_int() {
+	return (int64_t) ex->next();
 }
 
 

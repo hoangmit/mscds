@@ -112,6 +112,7 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 	unsigned int i = 0;
 	const unsigned int BUFSIZE = 4096;
 	char buffer[BUFSIZE];
+	if (name.length() > BUFSIZE / 2) throw std::runtime_error("chromosome name too long");
 	if (!has_annotation) {
 		while (e.hasNext()) {
 			auto x = e.next();

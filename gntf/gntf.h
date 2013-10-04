@@ -19,21 +19,8 @@ struct BED_Entry {
 	unsigned int st, ed;
 	double val;
 	std::string annotation;
-	void parse_ann(const std::string& s) {
-		std::istringstream ss(s);
-		ss >> chrname >> st >> ed >> val;
-		if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
-		
-		annotation.clear();
-		getline(ss, annotation);
-		annotation = utils::trim(annotation);
-	}
-
-	void parse(const std::string& s) {
-		std::istringstream ss(s);
-		ss >> chrname >> st >> ed >> val;
-		if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
-	}
+	void parse_ann(const std::string& s);
+	void parse(const std::string& s);
 };
 
 class GenomeNumDataBuilder {

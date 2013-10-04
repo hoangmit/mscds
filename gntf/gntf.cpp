@@ -5,10 +5,30 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
 namespace app_ds {
+
+void BED_Entry::parse_ann(const std::string& s) {
+	std::istringstream ss(s);
+	ss >> chrname >> st >> ed >> val;
+	if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
+		
+	annotation.clear();
+	getline(ss, annotation);
+	annotation = utils::trim(annotation);
+}
+
+void BED_Entry::parse(const std::string& s) {
+	//std::istringstream ss(s);
+	//ss >> chrname >> st >> ed >> val;
+	//if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
+	char str[256];
+	sscanf(s.c_str(), "%s %u %u %f", str, &st, &ed, &val);
+	chrname = str;
+}
 
 void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 										  bool minmax_query, bool annotation) {

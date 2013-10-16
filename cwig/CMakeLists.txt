@@ -35,4 +35,4 @@ set_target_properties(t_val_arr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPU
 
 
 add_executable(tbm_cwig benchmark_cwig.cpp)
-target_link_libraries(tbm_gntf cwig)
+target_link_libraries(tbm_cwig cwig)

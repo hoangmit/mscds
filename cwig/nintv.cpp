@@ -306,8 +306,8 @@ void PNIntvBuilder::init(unsigned int _method /*= 0*/) {
 	this->method = _method;
 	if (method == 0) {
 		auto cf = Config::getInst();
-		if (cf->hasPara("GNTF.POSITION_STORAGE")) {
-			method = cf->getIntPara("GNTF.POSITION_STORAGE");
+		if (cf->hasPara("CWIG.POSITION_STORAGE")) {
+			method = cf->getIntPara("CWIG.POSITION_STORAGE");
 			if (method > 2) throw std::runtime_error("invalid method");
 		}
 	}

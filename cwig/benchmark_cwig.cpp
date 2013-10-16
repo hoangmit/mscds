@@ -108,8 +108,8 @@ void extract(const string& inp, const string& out) {
 int run(int argc, const char* argv[]) {
 	Config * c = Config::getInst();
 	c->parse(argc, argv);
-	if (c->hasPara("INPUT_DIR")) inpath = c->getPara("INPUT_DIR");
-	if (c->hasPara("OUTPUT_DIR")) outpath = c->getPara("OUTPUT_DIR");
+	if (c->check("INPUT_DIR")) inpath = c->get("INPUT_DIR");
+	if (c->check("OUTPUT_DIR")) outpath = c->get("OUTPUT_DIR");
 	cout << "params: " << endl;
 	c->dump();
 	cout << endl;

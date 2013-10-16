@@ -4,7 +4,7 @@
 
 namespace app_ds {
 
-static double floatval(double r) {return (r > 0.0) ? r - floor(r) : ceil(r) - r; }
+static double floatval(double r) { return (r > 0.0) ? r - floor(r) : ceil(r) - r; }
 
 static double roundn(double r) {
 	return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
@@ -67,11 +67,11 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	out->clear();
 	out->pq = posquery;
 	auto cf = Config::getInst();
-	unsigned int storemed = cf->getIntPara("CWIG.VALUE_STORAGE", 0);
+	unsigned int storemed = cf->getInt("CWIG.VALUE_STORAGE", 0);
 	if (storemed > 9) throw std::runtime_error("invalid method");
 
 	if (method == 0) {
-		method = cf->getIntPara("CWIG.INT_STORAGE", 0);
+		method = cf->getInt("CWIG.INT_STORAGE", 0);
 		if (method > 2) throw std::runtime_error("invalid method");
 	}
 	comp_transform();
@@ -142,7 +142,7 @@ void SampledSumBuilder::addint(unsigned int st, unsigned int ed, unsigned int v)
 
 SampledSumBuilder::SampledSumBuilder() {
 	auto cf = Config::getInst();
-	unsigned int blksize = cf->getIntPara("GNTF.VALUE_SMALLBLOCK_SIZE", 64);
+	unsigned int blksize = cf->getInt("CWIG.VALUE_SMALLBLOCK_SIZE", 64);
 	init(blksize);
 }
 

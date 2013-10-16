@@ -391,9 +391,9 @@ void build(const string& input, const string& output) {
 
 void testx() {
 	Config * c = Config::getInst();
-	c->addPara("GNTF.POSITION_STORAGE", "2");
-	c->addPara("GNTF.INT_STORAGE", "2");
-	c->addPara("GNTF.VALUE_STORAGE", "5");
+	c->add("GNTF.POSITION_STORAGE", "2");
+	c->add("GNTF.INT_STORAGE", "2");
+	c->add("GNTF.VALUE_STORAGE", "5");
 	build("C:/temp/groseq.bedGraph", "C:/temp/groseq.gnt");
 }
 

@@ -16,17 +16,19 @@ public:
 	void parse(int argc, const char* argv[]);
 	void parse(int argc, char* argv[]);
 	void loadFile(const std::string& filename);
-	void loadFromStream(std::istream& input);
+	void loadStream(std::istream& input);
 
 	std::ostream* getLogger() { return _logger; }
 	void reset();
 
-	bool hasPara(const std::string& name) const;
-	void addPara(const std::string& para, const std::string& value);
-	std::string getPara(const std::string& pname) const;
-	int getIntPara(const std::string& pname) const;
-	int getIntPara(const std::string& pname, int defaultval) const;
-	double getDoublePara(const std::string& pname) const;
+	bool check(const std::string& name) const;
+	void add(const std::string& para, const std::string& value);
+	std::string get(const std::string& pname) const;
+	std::string get(const std::string& pname, const std::string& defaultval) const;
+	int getInt(const std::string& pname) const;
+	int getInt(const std::string& pname, int defaultval) const;
+	double getDouble(const std::string& pname) const;
+	double getDouble(const std::string& pname, double defaultval) const;
 
 	static Config* getInst() {
 		if(!instanceFlag) {
@@ -36,7 +38,7 @@ public:
 		return _instance;
 	}
 
-	void log(std::string msg) { *_logger << msg << std::endl; }
+	void log(const std::string& msg) { *_logger << msg << std::endl; }
 	void dump(std::ostream& out = std::cout);
 
 	Config();

@@ -25,7 +25,7 @@ void Config::reset() {
 }
 
 Config::Config(std::istream& stream) {
-	loadFromStream(stream);
+	loadStream(stream);
 	//_logger = new ofstream("ras_set.log");
 	_instance = this;
 	instanceFlag = true;
@@ -35,13 +35,13 @@ Config::Config(const std::string& filename) {
 	loadFile(filename);
 }
 
-bool Config::hasPara(const std::string& pname) const {
+bool Config::check(const std::string& pname) const {
 	MapType::const_iterator itr;
 	itr = variables.find(pname);
 	return  (itr != variables.end());
 }
 
-std::string Config::getPara(const std::string& pname) const {
+std::string Config::get(const std::string& pname) const {
 	MapType::const_iterator itr;
 	itr = variables.find(pname);
 	if (itr == variables.end())
@@ -49,23 +49,39 @@ std::string Config::getPara(const std::string& pname) const {
 	return (*itr).second;
 }
 
-void Config::addPara(const std::string& para, const std::string& value) {
+std::string Config::get(const std::string& pname, const std::string& defaultval) const {
+	MapType::const_iterator itr;
+	itr = variables.find(pname);
+	if (itr == variables.end())
+		return defaultval;
+	else
+		return (*itr).second;
+}
+
+void Config::add(const std::string& para, const std::string& value) {
 	variables[para] = value;
 }
 
-int Config::getIntPara(const std::string& pname, int defaultval) const {
-	if (hasPara(pname))
-		return std::atoi(getPara(pname).c_str());
+int Config::getInt(const std::string& pname, int defaultval) const {
+	if (check(pname))
+		return getInt(pname);
 	else return defaultval;
 }
 
-int Config::getIntPara(const std::string& pname) const {
-	return std::atoi(getPara(pname).c_str());
+int Config::getInt(const std::string& pname) const {
+	return std::atoi(get(pname).c_str());
 }
 
-double Config::getDoublePara(const std::string& pname) const {
-	return std::atof(getPara(pname).c_str());
+double Config::getDouble(const std::string& pname) const {
+	return std::atof(get(pname).c_str());
 }
+
+double Config::getDouble(const std::string& pname, double defaultval) const {
+	if (check(pname))
+		return getDouble(pname);
+	else return defaultval;
+}
+
 
 void Config::dump(std::ostream& out /* = std::cout */) {
 	MapType::iterator it;
@@ -101,15 +117,15 @@ void Config::loadFile(const std::string& filename) {
 	}
 	string line;
 	getline(input, line);
-	if (extractVar(line) && hasPara("INCLUDE_FILE")) {
+	if (extractVar(line) && check("INCLUDE_FILE")) {
 		string exf = variables["INCLUDE_FILE"];
 		ifstream input2(exf.c_str());
 		if (!input2.is_open())
 			throw std::runtime_error(("Cannot open external include file: " + exf).c_str());
-		loadFromStream(input2);
+		loadStream(input2);
 		input2.close();
 	}
-	loadFromStream(input);
+	loadStream(input);
 	//_logger = new ofstream("mscds.log");
 	input.close();
 	_instance = this;
@@ -136,7 +152,7 @@ bool Config::extractVar(const std::string& line) {
 	return false;
 }
 
-void Config::loadFromStream(std::istream& input) {
+void Config::loadStream(std::istream& input) {
 	string line;
 	while (input.good()) {
 		getline(input, line);

@@ -4,7 +4,7 @@
 #include "utils/utest.h"
 #include "intarray/sdarray_sml.h"
 #include "utils/param.h"
-#include "gntf/stringarr.h"
+#include "cwig/stringarr.h"
 
 #include <cstring>
 #include <tuple>

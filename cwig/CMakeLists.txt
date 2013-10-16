@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(gntf)
+project(cwig)
 
 set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp
 RLSum6.cpp 
@@ -17,22 +17,22 @@ rlsum_int.h poly_vals.h nintv.h)
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
 #target_link_libraries(bedgraph2gnt mscdsa)
 
-add_library(gntf ${SRCS} ${HEADERS})
-target_link_libraries(gntf mscdsa)
+add_library(cwig ${SRCS} ${HEADERS})
+target_link_libraries(cwig mscdsa)
 
-add_executable(t_gntf gntf_test.cpp)
-target_link_libraries(t_gntf gntf utils)
-set_target_properties(t_gntf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+add_executable(t_cwig gntf_test.cpp)
+target_link_libraries(t_cwig cwig utils)
+set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(t_rlsum rlsum_test.cpp)
-target_link_libraries(t_rlsum intarray gntf ${COMMON_LIBS})
+target_link_libraries(t_rlsum intarray cwig ${COMMON_LIBS})
 set_target_properties(t_rlsum PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 
 add_executable(t_val_arr val_arr_test.cpp)
-target_link_libraries(t_val_arr intarray  gntf ${COMMON_LIBS})
+target_link_libraries(t_val_arr intarray  cwig ${COMMON_LIBS})
 set_target_properties(t_val_arr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 
 add_executable(tbm_gntf benchmark_gntf.cpp)
-target_link_libraries(tbm_gntf gntf)
+target_link_libraries(tbm_gntf cwig)

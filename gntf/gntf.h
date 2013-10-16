@@ -21,6 +21,7 @@ struct BED_Entry {
 	std::string annotation;
 	void parse_ann(const std::string& s);
 	void parse(const std::string& s);
+	void quick_parse(std::string& s, const std::string& pre_chr);
 };
 
 class GenomeNumDataBuilder {

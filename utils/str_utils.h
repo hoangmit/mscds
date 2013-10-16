@@ -80,6 +80,11 @@ namespace utils {
 		return ret;
 	}
 
+	/*! \brief fast string to integer convertion */
+	int atoi2(const char *p);
+	double atof2(const char *p);
+	double atof3(const char *p);
+
 	/*! \brief checks if the input string has the given suffix */
 	bool suffixstreq(const std::string& str, const std::string& suf);
 
@@ -146,6 +151,6 @@ namespace utils {
 		virtual std::string do_grouping() const { return "\03"; }
 	};
 	//locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
-}
+}//namespace
 
 #endif //__STR_UTILS_H_

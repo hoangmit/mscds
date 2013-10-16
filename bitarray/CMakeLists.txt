@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(bitarray)
 
-set(SRCS rank6p.cpp bitop.cpp bitarray.cpp)
-set(HEADERS bitarray.h rank6p.h rank25p.h rankselect.h bitop.h bitstream.h)
+set(SRCS rank6p.cpp rank3p.cpp bitop.cpp bitarray.cpp)
+set(HEADERS bitarray.h rank6p.h rank3p.h rank25p.h rankselect.h bitop.h bitstream.h)
 
 add_library(bitarray ${SRCS} ${HEADERS})
 target_link_libraries(bitarray)

@@ -2,6 +2,7 @@
 #include "utils/file_utils.h"
 #include "mem/filearchive.h"
 #include "mem/fmaparchive.h"
+#include "utils/str_utils.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -22,12 +23,44 @@ void BED_Entry::parse_ann(const std::string& s) {
 }
 
 void BED_Entry::parse(const std::string& s) {
-	//std::istringstream ss(s);
-	//ss >> chrname >> st >> ed >> val;
-	//if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
-	char str[256];
-	sscanf(s.c_str(), "%s %u %u %f", str, &st, &ed, &val);
-	chrname = str;
+	std::istringstream ss(s);
+	ss >> chrname >> st >> ed >> val;
+	if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
+}
+
+void BED_Entry::quick_parse(std::string& s, const std::string& pre_chr) {
+	const char * p = s.c_str();
+	unsigned int i = 0;
+	while (*p != '\0' && i < pre_chr.length() && *p == pre_chr[i]) {
+		++p;
+		++i;
+	}
+	// same chrom name
+	if (i == pre_chr.length() && pre_chr.length() > 0) {
+		this->chrname = pre_chr;
+	} else {
+		while (*p != ' ' && *p != '\t' && *p) ++p;
+		this->chrname = std::string(s.c_str(), p);
+	}
+	if (*p == ' ' || *p == '\t') ++p;
+	else throw std::runtime_error(std::string("error parsing line: ") + s);
+	unsigned int st = 0;
+	while (*p >= '0' && *p <= '9') {
+		st = (st*10) + (*p - '0');
+		++p;
+	}
+	this->st = st;
+	if (*p == ' ' || *p == '\t') ++p;
+	else throw std::runtime_error(std::string("error parsing line: ") + s);
+	unsigned int ed = 0;
+	while (*p >= '0' && *p <= '9') {
+		ed = (ed*10) + (*p - '0');
+		++p;
+	}
+	this->ed = ed;
+	if (*p == ' ' || *p == '\t') ++p;
+	else throw std::runtime_error(std::string("error parsing line: ") + s);
+	this->val = utils::atof2(p);
 }
 
 void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
@@ -44,7 +77,7 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 		if (line[0] == '#') continue;
 		BED_Entry b;
 		if (annotation) b.parse_ann(line);
-		else b.parse(line);
+		else b.quick_parse(line, curchr);
 		if (b.chrname != curchr) {
 			changechr(b.chrname);
 			curchr = b.chrname;

@@ -1,4 +1,4 @@
-#include "gntf.h"
+#include "cwig.h"
 #include "utils/str_utils.h"
 #include "mem/filearchive.h"
 #include "utils/utest.h"

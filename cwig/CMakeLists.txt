@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 2.6)
 
 project(cwig)
 
-set(SRCS chrfmt.cpp gntf.cpp stringarr.cpp
+set(SRCS chrfmt.cpp cwig.cpp stringarr.cpp
 RLSum6.cpp 
 SampledSum.h
 rank_vals.h
 poly_vals.cpp nintv.cpp)
 
-set(HEADERS chrfmt.h gntf.h stringarr.h 
+set(HEADERS chrfmt.h cwig.h stringarr.h 
 RLSum6.h 
 SampledSum.cpp
 rank_vals.cpp

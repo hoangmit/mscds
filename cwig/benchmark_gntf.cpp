@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "gntf.h"
+#include "cwig.h"
 #include "mem/fmaparchive.h"
 #include "utils/utest.h"
 #include "utils/param.h"

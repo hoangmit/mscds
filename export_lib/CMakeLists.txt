@@ -8,7 +8,7 @@ if((NOT WIN32) AND UNIX)
 	swig_java_init()
 
 	add_python_module(count2d_exp mscdsa)
-	add_python_module(gntf_exp gntf mscdsa)
+	add_python_module(cwig_exp cwig mscdsa)
 
-	add_java_module(gntf_exp gntf mscdsa)
+	add_java_module(cwig_exp cwig mscdsa)
 endif()

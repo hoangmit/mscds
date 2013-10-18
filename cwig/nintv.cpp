@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
 #include "mem/filearchive.h"
 #include "utils/param.h"
 
@@ -317,21 +318,13 @@ void PNIntvBuilder::init(unsigned int _method /*= 0*/) {
 }
 
 void PNIntvBuilder::choosemethod() {
-	bd1.clear();
-	bd2.clear();
-	for (PosType i = 0; i < vals.size(); ++i) {
-		bd1.add(vals[i].first, vals[i].second);
-		bd2.add(vals[i].first, vals[i].second);
+	unsigned int contcnt = 0;
+	for (PosType i = 1; i < vals.size(); ++i) {
+		if (vals[i - 1].second == vals[i].first)
+			++contcnt;
 	}
-	mscds::OSizeEstArchive ar;
-	bd1.build(ar);
-	PosType s1 = ar.opos();
-	bd2.build(ar);
-	PosType s2 = ar.opos() - s1;
-	ar.close();
-	PosType sx = s1;
-	method = 1;
-	if (s1 > s2) { method = 2; sx = s2; }
+	if (2 * contcnt > vals.size()) method = 2;
+	else method = 1;
 	for (PosType i = 0; i < vals.size(); ++i)
 		addmethod(vals[i].first, vals[i].second);
 }
@@ -363,8 +356,10 @@ void PNIntvBuilder::build(PNIntv* out) {
 	out->autoselect = (int) autoselect;
 	if (method == 1)
 		bd1.build(&(out->m1));
+	else
 	if (method == 2)
 		bd2.build(&(out->m2));
+	else assert(false);
 }
 
 void PNIntvBuilder::clear() {

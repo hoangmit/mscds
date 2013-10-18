@@ -247,6 +247,7 @@ coder::CodePr HuffmanByteDec::decode2(NumTp n) const {
 		}
 	}
 	assert(false);//cannot reach here
+	return CodePr();
 }
 
 HuffmanByteDec::HuffmanByteDec(): _size(0) {}

@@ -7,6 +7,7 @@
 #include <stack>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 

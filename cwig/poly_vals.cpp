@@ -183,7 +183,6 @@ void PRValArr::getEnum(size_t idx, Enum * e) const  {
 	e->init(storetype);
 	assert(e->etype == storetype);
 	if (storetype==1) {
-		SDArraySml::Enum * et;
 		sda.getEnum(idx, (SDArraySml::Enum*) (e->ex));
 	} else if (storetype==2) {
 		dt1.getEnum(idx, (DeltaCodeArr::Enum*) (e->ex));

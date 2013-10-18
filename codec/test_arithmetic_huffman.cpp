@@ -63,6 +63,20 @@ TEST(huffman,test1) {
 	ASSERT_EQ(tt, 6*2 + 5*2 + 3*2 + 3*3 + 1*3);
 }
 
+TEST(huffman,test2) {
+	const int n = 4;
+	int arr[n] = {1,2,1,4};//
+	vector<unsigned int> v;
+	for (int i = 0; i < n; i++) v.push_back(arr[i]);
+	HuffmanCode code;
+	int tt = code.build(v);
+	ASSERT_EQ(tt, 14);
+	ASSERT_EQ(1, code[3].second);
+	ASSERT_EQ(2, code[1].second);
+	ASSERT_EQ(3, code[0].second);
+	ASSERT_EQ(3, code[2].second);
+}
+
 TEST(huffman, encode_decode1) {
 	const int n = 256;
 	adp_huffman_enc enc(n);

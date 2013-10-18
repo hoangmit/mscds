@@ -53,9 +53,8 @@ namespace coder {
 	}
 
 	coder::CodePr GammaCoder::encode_raw(NumTp n) {
-		LenTp  bitlen;
 		if (n == 0) throw std::runtime_error("cannot encode 0"); 
-		int len;
+		LenTp len;
 		if (n == 1) { return CodePr(1,0); }
 		else len = msb_intr(n);
 		return CodePr(n - (1ull << len), len);

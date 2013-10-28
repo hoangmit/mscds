@@ -36,7 +36,7 @@ void BED_Entry::quick_parse(std::string& s, const std::string& pre_chr) {
 		++i;
 	}
 	// same chrom name
-	if (i == pre_chr.length() && pre_chr.length() > 0) {
+	if (i == pre_chr.length() && pre_chr.length() > 0 && (*p == ' ' || *p == '\t')) {
 		this->chrname = pre_chr;
 	} else {
 		while (*p != ' ' && *p != '\t' && *p) ++p;

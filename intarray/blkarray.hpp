@@ -20,7 +20,22 @@ namespace mscds {
 template<typename Model>
 class CodeModelArray;
 
-struct PointerModel;
+/* two layers pointer model */
+struct PointerModel {
+	inline unsigned int p0(unsigned int pos) const { return pos / (rate1 * rate2); }
+	inline unsigned int p1(unsigned int pos) const { return (pos % (rate1 * rate2)) / rate1; }
+	inline unsigned int p3(unsigned int pos) const { return pos % rate1; }
+
+	unsigned int blkptr(unsigned int blk) const { return ptr.prefixsum(blk * (rate2 + 1)); }
+	unsigned int subblkptr(unsigned int blk, unsigned int subblk) const { return ptr.prefixsum(subblk + blk*(rate2 + 1) + 1); }
+	unsigned int subblkptr(unsigned int pos) const { return ptr.prefixsum(pos / rate1 + p0(pos) + 1); }
+	const BitArray& data() const { return bits; }
+	void clear() { bits.clear(); len = 0; rate1 = 0; rate2 = 0; }
+	unsigned int rate1, rate2;
+	unsigned int len;
+	SDArraySml ptr;
+	BitArray bits;
+};
 
 template<typename Model>
 class CodeModelBlk {
@@ -106,40 +121,6 @@ private:
 //------------------------------------------------------------------------------
 
 namespace mscds {
-
-/* two layers pointer model */
-struct PointerModel {
-	inline unsigned int p0(unsigned int pos) const { return pos / (rate1 * rate2); }
-	inline unsigned int p1(unsigned int pos) const {
-		return (pos % (rate1 * rate2)) / rate1;
-	}
-	inline unsigned int p3(unsigned int pos) const { return pos % rate1; }
-
-	unsigned int blkptr(unsigned int blk) const {
-		return ptr.prefixsum(blk * (rate2 + 1));
-	}
-
-	unsigned int subblkptr(unsigned int blk, unsigned int subblk) const {
-		//auto p = pos / rate1;
-		return ptr.prefixsum(subblk + blk*(rate2 + 1) + 1);
-	}
-
-	unsigned int subblkptr(unsigned int pos) const {
-		auto subblk = pos / rate1;
-		return ptr.prefixsum(subblk + p0(pos) + 1);
-	}
-	const BitArray& data() const { return bits; }
-	void clear() {
-		bits.clear();
-		len = 0;
-		rate1 = 0;
-		rate2 = 0;
-	}
-	unsigned int rate1, rate2;
-	unsigned int len;
-	SDArraySml ptr;
-	BitArray bits;
-};
 
 
 template<typename Model>
@@ -351,7 +332,5 @@ template<typename Model>
 uint64_t CodeModelArray<Model>::length() const {
 	return ptr.len;
 }
-
-
 
 } // namespace

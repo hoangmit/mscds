@@ -133,7 +133,7 @@ inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MIN_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
 		if (ls.first < ls.second) {
-			unsigned int i = min.m_idx(ls.first, ls.second);
+			unsigned int i = min.m_idx(ls.first, ls.second - 1);
 			return vals.range_value(i);
 		}else return 0;
 	}else return 0;
@@ -143,19 +143,14 @@ inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
 	if (minmax_opt & MAX_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
 		if (ls.first < ls.second) {
-			unsigned int i = max.m_idx(ls.first, ls.second);
+			unsigned int i = max.m_idx(ls.first, ls.second - 1);
 			return vals.range_value(i);
 		}else return 0;
 	}else return 0;
 }
 
 inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsigned int st, unsigned int ed) const {
-	auto r = vals.find_intervals(st, ed);
-	std::pair<unsigned int, unsigned int> ret(1,0);
-	if (r.first <= r.second) {
-		ret = r;
-		return ret;
-	} return ret;
+	return vals.find_intervals(st, ed);
 }
 
 inline unsigned int ChrNumThread::next_nz(unsigned int p) const {

@@ -115,8 +115,8 @@ std::pair<int, int> RunLenSumArray6::find_intervals(unsigned int st, unsigned in
 	auto r2 = itv.find_cover(ed);
 	if (r1.second > 0) ret.first = r1.first;
 	else ret.first = r1.first + 1;
-	if (r2.second > 0) ret.second = r2.first;
-	else r2.first = r2.first - 1;
+	if (r2.second > 0) ret.second = r2.first + 1;
+	else ret.second = r2.first;
 	return ret;
 }
 

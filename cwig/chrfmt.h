@@ -59,6 +59,7 @@ public:
 
 	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
 	std::pair<unsigned int, unsigned int> find_intervals(unsigned int st, unsigned int ed) const;
+	void getEnum(unsigned int i, ChrNumValType::Enum* e) const;
 
 	/** \brief counts the number of non-zero ranges that start from 0 to i (inclusive) */
 	unsigned int count_intervals(unsigned int i) const;

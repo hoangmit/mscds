@@ -18,7 +18,8 @@ class DeltaCodeArr;
 class DeltaCodeArrBuilder {
 public:
 	DeltaCodeArrBuilder();
-	void init(unsigned int rate, unsigned int optional = 0);
+	/* parameters: SAMPLE_RATE = 32 */
+	void init(const Config* conf = NULL);
 	void add(uint64_t val);
 	void build(OArchive& ar);
 	void build(DeltaCodeArr * out);

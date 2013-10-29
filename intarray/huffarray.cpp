@@ -38,7 +38,7 @@ void HuffmanModel::buildModel2(const std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanModel::buildModel(const std::vector<uint32_t> * data, unsigned int max_symbol_size /* = 127 */) {
+void HuffmanModel::buildModel(const std::vector<uint32_t> * data, const Config* conf /* = NULL */) {
 	freq.clear();
 	freqset.clear();
 	std::unordered_map<uint32_t, unsigned int> cnt;
@@ -53,6 +53,8 @@ void HuffmanModel::buildModel(const std::vector<uint32_t> * data, unsigned int m
 	std::sort(sfreq.begin(), sfreq.end(), std::greater<std::pair<unsigned int, uint32_t> >());
 
 	std::map<uint32_t, uint32_t> remapt;
+	unsigned int max_symbol_size = 127;
+	if (conf != NULL) max_symbol_size = conf->getInt("HUFFDT_MAX_SYM", 127);
 	max_symbol_size = std::max(max_symbol_size, 8u);
 	unsigned rmsize = std::min<unsigned int>(max_symbol_size, sfreq.size());
 	for (unsigned int i = 0; i < rmsize; ++i) {

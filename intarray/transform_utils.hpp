@@ -3,13 +3,14 @@
 #include "bitarray/bitarray.h"
 #include <stdint.h>
 #include <vector>
+#include "utils/param.h"
 
 namespace mscds {
 
 template<typename TransformModel, typename EncodeModel, typename DataTp=uint32_t>
 struct BindModel {
 public:
-	void buildModel(const std::vector<DataTp> * data, unsigned int opt=0);
+	void buildModel(const std::vector<DataTp> * data, const Config* conf = NULL);
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
 
@@ -47,9 +48,9 @@ inline void mscds::BindModel<TransformModel, EncodeModel, DataTp>::loadModel( IW
 }
 
 template<typename TransformModel, typename EncodeModel, typename DataTp/*=uint32_t*/>
-inline void mscds::BindModel<TransformModel, EncodeModel, DataTp>::buildModel(const std::vector<DataTp> * data, unsigned int opt){
-	tr.buildModel(data, opt);
-	enc.buildModel(data, opt);
+inline void mscds::BindModel<TransformModel, EncodeModel, DataTp>::buildModel(const std::vector<DataTp> * data, const Config* conf){
+	tr.buildModel(data, conf);
+	enc.buildModel(data, conf);
 }
 
 template<typename TransformModel, typename EncodeModel, typename DataTp/*=uint32_t*/>

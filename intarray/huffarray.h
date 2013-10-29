@@ -19,7 +19,8 @@ namespace mscds {
 
 class HuffmanModel {
 public:
-	void buildModel(const std::vector<uint32_t> * data, unsigned int max_symbol_size = 127);
+	/* parameters: HUFFDT_MAX_SYM = 127 */
+	void buildModel(const std::vector<uint32_t> * data, const Config* conf = NULL); //unsigned int max_symbol_size = 127
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
 

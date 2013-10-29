@@ -5,9 +5,9 @@
 
 namespace mscds {
 
-static const unsigned int MAX_REMAP = 64;
+static const unsigned int MAX_REMAP = 127;
 
-void RemapTransform::buildModel(const std::vector<uint32_t> * data, unsigned int optional) {
+void RemapTransform::buildModel(const std::vector<uint32_t> * data, const Config* conf) {
 	std::unordered_map<uint32_t, unsigned int> cnt;
 	for (unsigned int i = 0; i < data->size(); ++i)
 		++cnt[(*data)[i]];
@@ -70,8 +70,6 @@ void RemapTransform::clear() {
 }
 
 uint32_t RemapTransform::map(uint32_t val) const {
-	coder::DeltaCoder dc;
-	uint32_t v;
 	auto it = remap.find(val);
 	if (it != remap.end())
 		return it->second;

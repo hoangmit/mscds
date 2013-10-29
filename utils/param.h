@@ -22,7 +22,7 @@ public:
 	void reset();
 
 	bool check(const std::string& name) const;
-	void add(const std::string& para, const std::string& value);
+	Config& add(const std::string& para, const std::string& value);
 	std::string get(const std::string& pname) const;
 	std::string get(const std::string& pname, const std::string& defaultval) const;
 	int getInt(const std::string& pname) const;

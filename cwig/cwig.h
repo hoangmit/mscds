@@ -42,7 +42,7 @@ public:
 	  *
 	  * \param input  input file name
 	  * \param output output file name
-	  * \param factor the multiply factor (default is 100)
+	  * \param factor the multiply factor
 	  * \param minmax_query sets to true if you want to ask min/max query (default is true)
 	  * \param annotation   sets to true if you want to add text annotations (default is false)
 	  *

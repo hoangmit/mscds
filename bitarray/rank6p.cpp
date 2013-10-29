@@ -100,13 +100,13 @@ void Rank6p::loadp(IArchive &ar, BitArray &b) {
 }
 
 void Rank6p::save(OArchive &ar) const {
-	ar.startclass("Rank6p", 1);
-	ar.var("bit_len").save(length());
-	ar.var("inventory");
-	inv.save(ar);
-	ar.var("onecnt").save(onecnt);
-	bits.save(ar.var("bits"));
-	ar.endclass();
+	ar.startclass("Rank6p", 1);       // declare a new data structure class (for error checking)
+	ar.var("bit_len").save(length()); // save integer variable
+	ar.var("inventory");              // declare the name of a sub-data-structure
+	inv.save(ar);                     // save the sub-data-structure. The sub-data-structure needs to implement "save"
+	ar.var("onecnt").save(onecnt);    // another way of saving a integer variable
+	bits.save(ar.var("bits"));        // another way of saving a sub-data-structure
+	ar.endclass();                    // end data structure class (for error checking)
 }
 
 void Rank6p::load(IArchive &ar) {

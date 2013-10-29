@@ -10,7 +10,7 @@ class GammaArray;
 
 class GammaArrayBuilder {
 public:
-	void init(unsigned int rate, unsigned int optional = 0) {}
+	void init(const Config* conf = NULL) {}
 	void add(uint64_t val);
 	void build(GammaArray * out);
 	void build(OArchive& ar);

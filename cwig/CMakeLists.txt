@@ -33,6 +33,6 @@ add_executable(t_val_arr val_arr_test.cpp)
 target_link_libraries(t_val_arr intarray  cwig ${COMMON_LIBS})
 set_target_properties(t_val_arr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
-
 add_executable(tbm_cwig benchmark_cwig.cpp)
 target_link_libraries(tbm_cwig cwig)
+set_target_properties(tbm_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

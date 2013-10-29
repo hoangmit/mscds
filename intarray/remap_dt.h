@@ -12,6 +12,7 @@
 
 #include "transform_utils.hpp"
 #include "contextfree_models.hpp"
+#include "utils/param.h"
 
 namespace mscds {
 
@@ -21,7 +22,7 @@ public:
 	typedef uint32_t InputTp;
 	typedef uint32_t OutputTp;
 
-	void buildModel(const std::vector<InputTp> * data, unsigned int optional = 0);
+	void buildModel(const std::vector<InputTp> * data, const Config* conf = NULL);
 	void saveModel(OBitStream * out) const;
 	void loadModel(IWBitStream & is, bool decode_only = false);
 

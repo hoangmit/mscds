@@ -7,6 +7,7 @@
 
 #include "codec/deltacoder.h"
 #include "intarray.h"
+#include "utils/param.h"
 
 namespace mscds {
 
@@ -18,8 +19,7 @@ class DiffArrayBuilder {
 public:
 	typedef DiffArray<IntArray> QueryTp;
 	DiffArrayBuilder();
-	void init(unsigned int rate);
-	void init(unsigned int rate, unsigned int optional);
+	void init(const Config * conf = NULL);
 	void add(uint64_t val);
 	void build(OArchive& ar);
 	void build(QueryTp * out);
@@ -75,21 +75,22 @@ mscds::DiffArrayBuilder<IntArray>::DiffArrayBuilder() {
 	i = 0;
 	lastval = 0;
 	sample_rate = 64;
-	bd.init(sample_rate);
+	Config conf;
+	conf.add("SAMPLE_RATE", "64");
+	bd.init(&conf);
 }
 
 template<typename IntArray>
-void DiffArrayBuilder<IntArray>::init(unsigned int rate, unsigned int optional) {
+void DiffArrayBuilder<IntArray>::init(const Config* conf) {
 	clear();
-	sample_rate = rate;
-	bd.init(rate, optional);
-}
-
-template<typename IntArray>
-void DiffArrayBuilder<IntArray>::init(unsigned int rate) {
-	clear();
-	sample_rate = rate;
-	bd.init(rate);
+	if (conf == NULL) {
+		sample_rate = 64;
+		Config conf;
+		conf.add("SAMPLE_RATE", "64");
+		bd.init(&conf);
+	}
+	else sample_rate = conf->getInt("SAMPLE_RATE", 64);
+	bd.init(conf);
 }
 
 template<typename IntArray>

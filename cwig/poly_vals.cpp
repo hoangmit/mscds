@@ -2,6 +2,7 @@
 #include "mem/filearchive.h"
 #include <stdexcept>
 #include "utils/param.h"
+#include "utils/str_utils.h"
 
 
 namespace app_ds {
@@ -18,17 +19,19 @@ void PRValArrBuilder::init(unsigned int _method, unsigned int rate) {
 	if(method > 9)
 		throw std::runtime_error("unknown value method");
 	autoselect = (method == 0);
-	dt1.init(rate);
-	dt2.init(rate);
+	Config conf;
+	conf.add("SAMPLE_RATE", utils::tostr(rate));
+	dt1.init(&conf);
+	dt2.init(&conf);
 
-	hf1.init(rate);
-	hd1.init(rate);
+	hf1.init(&conf);
+	hd1.init(&conf);
 
-	gm1.init(rate);
-	gd1.init(rate);
+	gm1.init(&conf);
+	gd1.init(&conf);
 
-	ra1.init(rate);
-	rd1.init(rate);
+	ra1.init(&conf);
+	rd1.init(&conf);
 
 	cnt = 0;
 	lastval = 0;
@@ -121,14 +124,16 @@ void PRValArrBuilder::choosemethod() {
 void PRValArrBuilder::resetbd() {
 	sdab.clear();
 	lastval = 0;
-	dt1.init(rate);
-	dt2.init(rate);
-	hf1.init(rate);
-	hd1.init(rate);
-	gm1.init(rate);
-	gd1.init(rate);
-	ra1.init(rate);
-	rd1.init(rate);
+	Config conf;
+	conf.add("SAMPLE_RATE", utils::tostr(rate));
+	dt1.init(&conf);
+	dt2.init(&conf);
+	hf1.init(&conf);
+	hd1.init(&conf);
+	gm1.init(&conf);
+	gd1.init(&conf);
+	ra1.init(&conf);
+	rd1.init(&conf);
 }
 
 void PRValArrBuilder::addmethod(unsigned int val) {

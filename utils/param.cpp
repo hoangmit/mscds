@@ -58,8 +58,9 @@ std::string Config::get(const std::string& pname, const std::string& defaultval)
 		return (*itr).second;
 }
 
-void Config::add(const std::string& para, const std::string& value) {
+Config& Config::add(const std::string& para, const std::string& value) {
 	variables[para] = value;
+	return *this;
 }
 
 int Config::getInt(const std::string& pname, int defaultval) const {

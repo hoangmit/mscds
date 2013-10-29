@@ -1,12 +1,14 @@
 #pragma once
 
 #include "archive.h"
+#include "utils/param.h"
 
 namespace mscds {
 
 template<typename T, typename Query>
 class BuilderInt {
 public:
+	virtual void init(const Config * conf = NULL) {}
 	virtual void add(T v) = 0;
 	virtual void build(Query* q) = 0;
 	virtual void build(OArchive& ar) = 0;

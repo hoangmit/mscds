@@ -369,7 +369,7 @@ void PNIntvBuilder::clear() {
 	method = 0;
 }
 
-//---
+//-------------------------------------------------------
 
 void PNIntv::save(mscds::OArchive& ar) const {
 	ar.startclass("poly_non_overlap_intervals", 1);
@@ -390,8 +390,7 @@ void PNIntv::load( mscds::IArchive& ar ) {
 	ar.var("autoselect").load(autoselect);
 	if (method == 1) {
 		m1.load(ar.var("method1"));
-	}
-	else if (method == 2) {
+	} else if (method == 2) {
 		m2.load(ar.var("method2"));
 	}
 	ar.endclass();

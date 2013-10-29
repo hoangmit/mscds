@@ -5,9 +5,12 @@ namespace mscds {
 		clear();
 	}
 
-	void DeltaCodeArrBuilder::init(unsigned int rate, unsigned int optional) {
+	void DeltaCodeArrBuilder::init(const Config* conf) {
 		clear();
-		sample_rate = rate;
+		if (conf == NULL)
+			sample_rate = 32;
+		else
+			sample_rate = conf->getInt("SAMPLE_RATE", 32);
 	}
 
 	void DeltaCodeArrBuilder::clear() {

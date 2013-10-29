@@ -16,7 +16,7 @@ contextfree_models.hpp
 )
 
 add_library(intarray ${SRCS} ${HEADERS})
-target_link_libraries(intarray bitarray codec)
+target_link_libraries(intarray bitarray codec utils)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
 add_test_files(sda_test.cpp)

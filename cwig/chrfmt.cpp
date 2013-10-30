@@ -209,8 +209,8 @@ void endpoints(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 
 template<typename Tp, typename Func>
 std::vector<Tp> mapValue(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	vector<double> out(n);
-	unsigned int last = st;
+	vector<double> out(n, std::numeric_limits<double>::quiet_NaN());
+	unsigned int last = 0;
 	endpoints(0, n, ed - st, [&](unsigned int i, unsigned pos) {
 		for (unsigned int j = last; j < pos; ++j) out[j] = fx(i);
 		last = pos;

@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <limits>
+#include <cmath>
 
 using namespace std;
 using namespace mscds;
@@ -204,6 +205,19 @@ void endpoints(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	assert(ed == pos);
 }
 
+
+
+template<typename Tp, typename Func>
+std::vector<Tp> mapValue(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	vector<double> out(n);
+	unsigned int last = st;
+	endpoints(0, n, ed - st, [&](unsigned int i, unsigned pos) {
+		for (unsigned int j = last; j < pos; ++j) out[j] = fx(i);
+		last = pos;
+	});
+	return out;
+}
+
 template<typename Tp, typename Func>
 inline std::vector<Tp> diff_func(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	vector<Tp> out(n);
@@ -213,7 +227,11 @@ inline std::vector<Tp> diff_func(unsigned int st, unsigned int ed, unsigned int 
 }
 
 std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{return this->sum(pos); });
+	if (ed - st > n) return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{return this->sum(pos); });
+	else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
+	}
 }
 
 std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
@@ -233,11 +251,19 @@ inline std::vector<Tp> range_summary(unsigned int st, unsigned int ed, unsigned 
 }
 
 std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->min_value(st, ed); });
+	if (ed - st > n) return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->min_value(st, ed); });
+	else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
+	}
 }
 
 std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->max_value(st, ed); });
+	if (ed - st > n) return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->max_value(st, ed); });
+	else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
+	}
 }
 
 std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n) const {

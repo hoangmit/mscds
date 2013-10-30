@@ -163,18 +163,16 @@ std::vector<double> ChrNumThread::stdev_batch( unsigned int st, unsigned int ed,
 	return std::vector<double>();
 }
 
-template<typename Tp, typename Func>
-std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	assert(ed - st >= n);
-	if (st >= ed) throw runtime_error("invalid input interval");
+template<typename Func>
+void endpoints(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	//assert(ed - st >= n);
+	if (ed - st >= n) throw runtime_error("wrong inputs");
 	//assert(n > 0);
 	if (n == 0) throw runtime_error("zero length window size");
-	std::vector<Tp> ret(n);
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
 	int A = n - r, B = r;
 	int sl = 0;
 	unsigned int pos = st;
-	Tp lval = fx(pos);
 	for (int i = 0; i < n; ++i) {
 		if (sl + A <= B) {
 			sl += 2 * A;
@@ -183,59 +181,45 @@ std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Fu
 			sl -= 2 * B;
 			pos += dt;
 		}
-		Tp cval = fx(pos);
-		ret[i] = cval - lval;
-		lval = cval;
+		fx(i, pos);
 	}
 	assert(ed == pos);
-	return ret;
 }
 
 template<typename Tp, typename Func>
-std::vector<Tp> batch_call2(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	assert(ed - st >= n);
-	assert(st < ed);
-	//assert(n > 0);
-	if (n == 0) throw runtime_error("zero length input interval");
-	std::vector<Tp> ret(n);
-	unsigned int l = (ed - st), dt = l / n, r = l % n;
-	int A = n - r, B = r;
-	int sl = 0;
-	unsigned int lpos = st, pos = st;
-	for (int i = 0; i < n; ++i) {
-		if (sl + A <= B) {
-			sl += 2 * A;
-			pos += dt + 1;
-		}
-		else {
-			sl -= 2 * B;
-			pos += dt;
-		}
-		ret[i] = fx(lpos, pos);
-		lpos = pos;
-	}
-	assert(pos == ed);
-	return ret;
+inline std::vector<Tp> diff_func(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	vector<Tp> out(n);
+	Tp lastval = fx(st);
+	endpoints(st, ed, n, [&](unsigned int i, unsigned pos) { Tp cv = fx(pos); out[i] = cv - lastval; lastval = cv; });
+	return out;
 }
 
 std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return batch_call1<double>(st, ed, n, [&](size_t pos)->double {return this->sum(pos);});
+	return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{return this->sum(pos); });
 }
 
 std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return batch_call1<unsigned int>(st, ed, n, [&](size_t pos)->unsigned int {return this->count_intervals(pos);});
+	return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->count_intervals(pos); });
 }
 
 std::vector<unsigned int> ChrNumThread::coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return batch_call1<unsigned int>(st, ed, n, [&](size_t pos)->unsigned int {return this->coverage(pos);});
+	return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->coverage(pos); });
+}
+
+template<typename Tp, typename Func>
+inline std::vector<Tp> range_summary(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
+	unsigned int last = st;
+	vector<Tp> out(n);
+	endpoints(st, ed, n, [&](unsigned int i, unsigned pos) { out[i] = fx(last, pos); last = pos; });
+	return out;
 }
 
 std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return batch_call2<double>(st, ed, n, [&](size_t st, size_t ed)->double{ return this->min_value(st, ed); });
+	return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->min_value(st, ed); });
 }
 
 std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return batch_call2<double>(st, ed, n, [&](size_t st, size_t ed)->double{ return this->max_value(st, ed); });
+	return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->max_value(st, ed); });
 }
 
 std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n) const {

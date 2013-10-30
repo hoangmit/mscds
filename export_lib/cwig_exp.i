@@ -110,6 +110,8 @@ public:
 	double max_value(unsigned int st, unsigned int ed) const;
 
 	std::vector<double> max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const;
+	
+	std::vector<double> base_value_map(unsigned int st, unsigned int ed) const;
 
 	/** \brief returns the standdard deviation of the values in [st..ed) */
 	double stdev(unsigned int st, unsigned int ed) const;

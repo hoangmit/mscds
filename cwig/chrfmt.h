@@ -89,6 +89,9 @@ public:
 	double stdev(unsigned int st, unsigned int ed) const;
 	std::vector<double> stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
+	/** \brief returns the values of bases from st to ed */
+	std::vector<double> base_value_map(unsigned int st, unsigned int ed) const;
+
 	void clear();
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;

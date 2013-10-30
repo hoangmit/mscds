@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <stdexcept>
 #include <cstring>
+#include <limits>
 
 using namespace std;
 using namespace mscds;
@@ -163,12 +164,29 @@ std::vector<double> ChrNumThread::stdev_batch( unsigned int st, unsigned int ed,
 	return std::vector<double>();
 }
 
+std::vector<double> ChrNumThread::base_value_map(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw runtime_error("wrong function inputs");
+	vector<double> out(ed - st, std::numeric_limits<double>::quiet_NaN());
+	auto rng = find_intervals(st, ed);
+	if (rng.first < rng.second) {
+		app_ds::ChrNumValType::Enum e;
+		getEnum(rng.first, &e);
+		for (unsigned int i = rng.first; i < rng.second; ++i) {
+			auto intv = e.next();
+			unsigned int pst = (intv.st >= st) ? intv.st - st : 0;
+			unsigned int ped = (intv.ed <= ed) ? intv.ed - st : ed - st;
+			for (unsigned int j = pst; j < ped; ++j)
+				out[j] = intv.val;
+		}
+	}
+	return out;
+}
+
 template<typename Func>
 void endpoints(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	//assert(ed - st >= n);
-	if (ed - st >= n) throw runtime_error("wrong inputs");
 	//assert(n > 0);
-	if (n == 0) throw runtime_error("zero length window size");
+	if (n == 0 || st >= ed) throw runtime_error("wrong function inputs");
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
 	int A = n - r, B = r;
 	int sl = 0;
@@ -230,9 +248,6 @@ std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, u
 		s[i] = s[i] / l[i];
 	return s;
 }
-
-
-
 
 
 

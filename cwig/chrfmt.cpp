@@ -171,7 +171,7 @@ std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Fu
 	if (n == 0) throw runtime_error("zero length window size");
 	std::vector<Tp> ret(n);
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
-	int A = r, B = n - r;
+	int A = n - r, B = r;
 	int sl = 0;
 	unsigned int pos = st;
 	Tp lval = fx(pos);
@@ -199,7 +199,7 @@ std::vector<Tp> batch_call2(unsigned int st, unsigned int ed, unsigned int n, Fu
 	if (n == 0) throw runtime_error("zero length input interval");
 	std::vector<Tp> ret(n);
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
-	int A = r, B = n - r;
+	int A = n - r, B = r;
 	int sl = 0;
 	unsigned int lpos = st, pos = st;
 	for (int i = 0; i < n; ++i) {

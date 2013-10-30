@@ -164,44 +164,52 @@ std::vector<double> ChrNumThread::stdev_batch( unsigned int st, unsigned int ed,
 
 template<typename Tp, typename Func>
 std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	std::vector<Tp> ret(n);
 	assert(ed - st >= n);
-	size_t d = (ed - st) / n;
-	size_t r = (ed - st) % n;
-	size_t pos = st;
-	Tp lval = fx(st);
-	for (unsigned int i = 0; i < r; ++i) {
-		pos += d + 1;
-		Tp rval = fx(pos);
-		ret[i] = rval - lval;
-		lval = rval;
+	assert(n > 0);
+	std::vector<Tp> ret(n);
+	unsigned int l = (ed - st), dt = l / n, r = l % n;
+	int A = r, B = n - r;
+	int sl = 0;
+	unsigned int pos = st;
+	Tp lval = fx(pos);
+	for (int i = 0; i < n; ++i) {
+		if (sl + A <= B) {
+			sl += 2 * A;
+			pos += dt + 1;
+		} else {
+			sl -= 2 * B;
+			pos += dt;
+		}
+		Tp cval = fx(pos);
+		ret[i] = cval - lval;
+		lval = cval;
 	}
-	for (unsigned int i = r; i < n; ++i) {
-		pos += d;
-		Tp rval = fx(pos);
-		ret[i] = rval - lval;
-		lval = rval;
-	}
+	assert(ed == pos);
 	return ret;
 }
 
 template<typename Tp, typename Func>
 std::vector<Tp> batch_call2(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	std::vector<Tp> ret(n);
 	assert(ed - st >= n);
-	size_t d = (ed - st) / n;
-	size_t r = (ed - st) % n;
-	size_t lpos = st, pos = st;
-	for (unsigned int i = 0; i < r; ++i) {
-		pos += d + 1;
+	assert(n > 0);
+	std::vector<Tp> ret(n);
+	unsigned int l = (ed - st), dt = l / n, r = l % n;
+	int A = r, B = n - r;
+	int sl = 0;
+	unsigned int lpos = st, pos = st;
+	for (int i = 0; i < n; ++i) {
+		if (sl + A <= B) {
+			sl += 2 * A;
+			pos += dt + 1;
+		}
+		else {
+			sl -= 2 * B;
+			pos += dt;
+		}
 		ret[i] = fx(lpos, pos);
 		lpos = pos;
 	}
-	for (unsigned int i = r; i < n; ++i) {
-		pos += d;
-		ret[i] = fx(lpos, pos);
-		lpos = pos;
-	}
+	assert(pos == ed);
 	return ret;
 }
 
@@ -225,7 +233,7 @@ std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int 
 	return batch_call2<double>(st, ed, n, [&](size_t st, size_t ed)->double{ return this->max_value(st, ed); });
 }
 
-std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n ) const {
+std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n) const {
 	std::vector<double> s(sum_batch(st, ed, n));
 	std::vector<unsigned int> l(coverage_batch(st, ed, n));
 	unsigned int lr = (ed - st) / n;

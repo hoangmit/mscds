@@ -110,9 +110,12 @@ unsigned int RunLenSumArray6::count_range(unsigned int pos) const {
 }
 
 std::pair<int, int> RunLenSumArray6::find_intervals(unsigned int st, unsigned int ed) const {
+	assert(st < ed);
 	std::pair<unsigned int, unsigned int> ret;
 	auto r1 = itv.find_cover(st);
-	auto r2 = itv.find_cover(ed);
+	decltype(r1) r2;
+	if (st + 1 < ed) r2 = itv.find_cover(ed - 1);
+	else r2 = r1; // one position
 	if (r1.second > 0) ret.first = r1.first;
 	else ret.first = r1.first + 1;
 	if (r2.second > 0) ret.second = r2.first + 1;

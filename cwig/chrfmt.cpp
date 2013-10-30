@@ -155,6 +155,7 @@ unsigned int ChrNumThread::count_intervals() const {
 }
 
 double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw runtime_error("invalid input interval");
 	return 0;
 }
 
@@ -165,7 +166,9 @@ std::vector<double> ChrNumThread::stdev_batch( unsigned int st, unsigned int ed,
 template<typename Tp, typename Func>
 std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	assert(ed - st >= n);
-	assert(n > 0);
+	if (st >= ed) throw runtime_error("invalid input interval");
+	//assert(n > 0);
+	if (n == 0) throw runtime_error("zero length window size");
 	std::vector<Tp> ret(n);
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
 	int A = r, B = n - r;
@@ -191,7 +194,9 @@ std::vector<Tp> batch_call1(unsigned int st, unsigned int ed, unsigned int n, Fu
 template<typename Tp, typename Func>
 std::vector<Tp> batch_call2(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	assert(ed - st >= n);
-	assert(n > 0);
+	assert(st < ed);
+	//assert(n > 0);
+	if (n == 0) throw runtime_error("zero length input interval");
 	std::vector<Tp> ret(n);
 	unsigned int l = (ed - st), dt = l / n, r = l % n;
 	int A = r, B = n - r;

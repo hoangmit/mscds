@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 #include "RLSum6.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
@@ -114,6 +115,7 @@ inline double ChrNumThread::sum(unsigned int p) const {
 }
 
 inline double ChrNumThread::avg(unsigned int st, unsigned ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
 	return (sum(ed) - sum(st)) / coverage(st, ed);
 }
 
@@ -130,6 +132,7 @@ inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
 }
 
 inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
 	if (minmax_opt & MIN_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
 		if (ls.first < ls.second) {
@@ -140,6 +143,7 @@ inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 }
 
 inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
 	if (minmax_opt & MAX_OP) {
 		auto ls = vals.find_intervals(st, ed - 1);
 		if (ls.first < ls.second) {
@@ -150,6 +154,7 @@ inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
 }
 
 inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
 	return vals.find_intervals(st, ed);
 }
 

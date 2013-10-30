@@ -1,11 +1,34 @@
 %module cwig_exp
+
+// Handle standard exceptions.
+// NOTE: needs to be before the %import!
+%include "exception.i"
+%exception
+{
+ try
+ {
+   $action
+ }
+ catch (const std::runtime_error& e) {
+   SWIG_exception(SWIG_RuntimeError, e.what());
+ } 
+ catch (const std::invalid_argument& e) {
+   SWIG_exception(SWIG_ValueError, e.what());
+ }
+ catch (const std::out_of_range& e) {
+   SWIG_exception(SWIG_IndexError, e.what());
+ }
+ catch (...) { 
+   SWIG_exception(SWIG_RuntimeError, "unknown exception");
+ } 
+}
+
 %{
 #include <stddef.h>
 %}
 %include "std_string.i"
 %include "std_vector.i"
 %include "stdint.i"
-%include "exception.i"
 %{
 #include "../cwig/cwig.h"
 %}
@@ -118,16 +141,3 @@ public:
 };
 
 } //namespace
-
-
-%exception { 
-    try {
-        $action
-    } catch (std::runtime_error &e) {
-        std::string s("C++ runtime error: "), s2(e.what());
-        s = s + s2;
-        SWIG_exception(SWIG_RuntimeError, s.c_str());
-    } catch (...) {
-        SWIG_exception(SWIG_RuntimeError, "unknown exception");
-    }
-}

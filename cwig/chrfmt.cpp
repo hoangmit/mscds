@@ -7,6 +7,7 @@
 #include <cstring>
 #include <limits>
 #include <cmath>
+#include <boost/math/special_functions/fpclassify.hpp>
 
 using namespace std;
 using namespace mscds;
@@ -205,11 +206,9 @@ void endpoints(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	assert(ed == pos);
 }
 
-
-
 template<typename Tp, typename Func>
 std::vector<Tp> mapValue(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
-	vector<double> out(n, std::numeric_limits<double>::quiet_NaN());
+	vector<Tp> out(n);
 	unsigned int last = 0;
 	endpoints(0, n, ed - st, [&](unsigned int i, unsigned pos) {
 		for (unsigned int j = last; j < pos; ++j) out[j] = fx(i);
@@ -235,7 +234,11 @@ std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, un
 }
 
 std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->count_intervals(pos); });
+	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->count_intervals(pos); });
+	else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<unsigned int>(st, ed, n, [&](double i)->unsigned int{return boost::math::isnan(arr[i]) ? 0 : 1 ; });
+	}
 }
 
 std::vector<unsigned int> ChrNumThread::coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const {

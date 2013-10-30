@@ -5,6 +5,7 @@
 %include "std_string.i"
 %include "std_vector.i"
 %include "stdint.i"
+%include "exception.i"
 %{
 #include "../cwig/cwig.h"
 %}
@@ -116,4 +117,17 @@ public:
 	int getChrId(const std::string& chrname) const;	
 };
 
+} //namespace
+
+
+%exception { 
+    try {
+        $action
+    } catch (std::runtime_error &e) {
+        std::string s("C++ runtime error: "), s2(e.what());
+        s = s + s2;
+        SWIG_exception(SWIG_RuntimeError, s.c_str());
+    } catch (...) {
+        SWIG_exception(SWIG_RuntimeError, "unknown exception");
+    }
 }

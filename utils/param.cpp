@@ -16,8 +16,8 @@ bool Config::instanceFlag = false;
 
 Config::Config() {
 	//_logger = new ofstream("mscds.log");
-	_instance = this;
-	instanceFlag = true;
+	//_instance = this;
+	//instanceFlag = true;
 }
 
 void Config::reset() {
@@ -27,8 +27,8 @@ void Config::reset() {
 Config::Config(std::istream& stream) {
 	loadStream(stream);
 	//_logger = new ofstream("ras_set.log");
-	_instance = this;
-	instanceFlag = true;
+	//_instance = this;
+	//instanceFlag = true;
 }
 
 Config::Config(const std::string& filename) {

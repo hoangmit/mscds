@@ -22,7 +22,7 @@ void NIntvBuilder::clear() {
 void NIntvBuilder::add(PosType st, PosType ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	PosType llen = ed - st;
-	if (lasted > st) throw std::runtime_error("required sorted array");
+	if (lasted > st) throw std::runtime_error("overlapping intervals");
 	stbd.add_inc(st);
 	rlbd.add(llen);
 	lasted = ed;
@@ -147,7 +147,7 @@ void NIntv2Builder::add(PosType st, PosType ed) {
 		g_pos = 1;
 		last_ed = ed;
 	}else {
-		if (last_ed > st) throw std::runtime_error("required sorted array");
+		if (last_ed > st) throw std::runtime_error("overlapping intervals");
 		if (st > last_ed) {
 			gstbd.add_inc(st);
 			gcbd.add_inc(g_pos);

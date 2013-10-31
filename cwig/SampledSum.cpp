@@ -46,7 +46,7 @@ void SampledSumBuilder::clear() {
 
 void SampledSumBuilder::add(unsigned int st, unsigned int ed, double val) {
 	if (ed - st == 0) throw std::runtime_error("zero length range");
-	if (st < lastst) throw std::runtime_error("required sorted array");
+	if (st < lastst) throw std::runtime_error("overlapping intervals");
 
 	svals.push_back(ValRange(st, ed, val));
 	lastst = st;
@@ -121,7 +121,7 @@ void SampledSumBuilder::comp_transform() {
 
 void SampledSumBuilder::addint(unsigned int st, unsigned int ed, unsigned int v) {
 	unsigned int llen = ed - st;
-	if (st < lastst) throw std::runtime_error("required sorted array");
+	if (st < lastst) throw std::runtime_error("overlapping intervals");
 	//psbd.add(llen * v);
 	
 	lastst = st;

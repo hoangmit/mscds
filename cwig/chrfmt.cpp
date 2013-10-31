@@ -40,6 +40,9 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 	out->clear();
 	if(!is_sorted(ranges.begin(), ranges.end()))
 		std::sort(ranges.begin(), ranges.end());
+	for (unsigned int i = 1; i < ranges.size(); ++i)
+	if (ranges[i - 1].ed > ranges[i].st)
+		throw std::runtime_error("input contains overlapping intervals");
 	out->minmax_opt = minmax_opt;
 	std::vector<double> minmaxr(ranges.size());
 	ChrNumValBuilderType bd;

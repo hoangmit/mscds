@@ -14,7 +14,7 @@
 using namespace std;
 using namespace app_ds;
 
-void test_chrbychr1() {
+TEST(cwig, chrbychr1) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75",
@@ -41,7 +41,7 @@ void test_chrbychr1() {
 	cout << '.';
 }
 
-void test_chrbychr2() {
+TEST(cwig, chrbychr2) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75",
@@ -70,7 +70,7 @@ void test_chrbychr2() {
 	cout << '.';
 }
 
-void test_chrbychr3() {
+TEST(cwig, chrbychr3) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75",
@@ -97,7 +97,7 @@ void test_chrbychr3() {
 	cout << '.';
 }
 
-void test_bedgraph1() {
+TEST(cwig, bedgraph1) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75",
@@ -127,7 +127,7 @@ void test_bedgraph1() {
 }
 
 
-void test_mix() {
+TEST(cwig, mix) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75",
@@ -152,12 +152,9 @@ void test_mix() {
 	cout << '.';
 }
 
-void generate() {
-
-}
 
 
-void test_strarr1() {
+TEST(cwig, strarr1) {
 	const char* A[10] = { "", "", "abc", "defx", "", "eg", "", "", "xagtg", ""};
 	StringArrBuilder bd;
 	for (int i = 0; i < 10; ++i) 
@@ -170,7 +167,7 @@ void test_strarr1() {
 	}
 }
 
-void test_annotation() {
+TEST(cwig, annotation) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75 abc",
@@ -206,7 +203,7 @@ void test_annotation() {
 	ASSERT_EQ(2, d.getChr(0).count_intervals(2300));
 }
 
-void test_minmax() {
+TEST(cwig, minmax) {
 	const char* input[9] =
 	{"chr19 2000 2300 -1.0",
 	"chr19 2300 2600 -0.75",
@@ -226,7 +223,7 @@ void test_minmax() {
 	bd.build(&d);
 }
 
-void test_avg_batch() {
+TEST(cwig, avg_batch) {
 	const int len = 3;
 	const char* input[len] =
 	{"chr1 14769 14776 -1.0",
@@ -247,7 +244,7 @@ void test_avg_batch() {
 	ASSERT(fabs(-2.2 - arr[1]) < 1e-6);
 }
 
-void test_stdev() {
+TEST(cwig, stdev) {
 	const int len = 5;
 	const char* input[len] =
 	{
@@ -275,133 +272,8 @@ void test_stdev() {
 	ASSERT_DOUBLE_EQ(2, v);
 }
 
-void test_units() {
-	test_avg_batch();
-	test_strarr1();
-	test_annotation();
-	
-	test_chrbychr1();
-	test_chrbychr2();
-	test_chrbychr3();
-	test_bedgraph1();
-	test_mix();
-	test_minmax();
-	test_stdev();
-
-	/*int argc = 1;
-	const char* argv[] = { "aaa" };
-
+int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
-	return rs;*/
-}
-
-//--------------------------------------------------------------------------
-
-void testbig() {
-	//string inp = "D:/temp/textBigwig.bed";
-	string inp = "D:/temp/groseq.bedGraph";
-	ifstream fi(inp.c_str());
-	GenomeNumDataBuilder bd;
-	bd.init(true);
-	string lastchr = "";
-	while (fi) {
-		string line;
-		getline(fi,line);
-		if (line.empty()) break;
-		BED_Entry e;
-		e.parse(line);
-		if (e.chrname != lastchr) {
-			//if (lastchr.length() > 0) break;
-			cout << e.chrname << endl;
-			lastchr = e.chrname;
-			bd.changechr(lastchr);
-		}
-		bd.add(e.st, e.ed, e.val);
-	}
-	GenomeNumData out;
-	mscds::OClassInfoArchive fo;
-	bd.build(&out);
-	out.save(fo);
-	fo.close();
-	ofstream fox("D:/temp/groseq.xml");
-	fox << fo.printxml() << endl;
-	fox.close();
-
-	mscds::OSizeEstArchive fo2;
-	out.save(fo2);
-	cout << " estimate_size " << fo2.opos() << endl;
-	fo2.close();
-
-	mscds::OFileArchive fo3;
-	fo3.open_write("D:/temp/groseq.gntf");
-	out.save(fo3);
-	fo3.close();
-
-	fi.close();
-}
-
-void test_real() {
-	GenomeNumDataBuilder bd;
-	try {//wg2V3
-		bd.build_bedgraph("D:/temp/wg2V3.bedGraph", "D:/temp/x.gntf");
-	}catch(std::exception& e) {
-		std::cerr << e.what() << endl;
-	}
-}
-
-void testsize2() {
-	ifstream fi("D:/temp/dump_psum_chr1.txt");
-	//ifstream fi("D:/temp/dump_chr1_rlen.txt");
-	uint64_t len;
-	fi >> len;
-	cout.imbue(std::locale(cout.getloc(), new utils::comma_numpunct()));
-	mscds::SDArraySmlBuilder bd;
-	for (size_t i = 0; i < len; ++i) {
-		uint64_t n;
-		fi >> n;
-		assert(fi);
-		bd.add(n);
-	}
-	//cout << bd.build() << endl;
-	
-	fi.close();
-}
-
-
-void run_real() {
-	try {
-		testbig();
-	}catch(std::exception& e) {
-		std::cerr << e.what() << endl;
-	}
-	//test_real();
-}
-
-void build(const string& input, const string& output) {
-	GenomeNumDataBuilder bd;
-	//try {
-		bd.build_bedgraph(input, output);
-	//}catch(std::exception& e) {
-	//	std::cerr << e.what() << endl;
-	//}
-}
-
-void testx() {
-	Config * c = Config::getInst();
-	c->add("CWIG.POSITION_STORAGE", "2");
-	c->add("CWIG.INT_STORAGE", "2");
-	c->add("CWIG.VALUE_STORAGE", "5");
-	build("C:/temp/groseq.bedGraph", "C:/temp/groseq.gnt");
-}
-
-
-int main() {
-	//run_real();
-	//return 0;
-	//testx();
-
-	test_units();
-	
-	return 0;
+	return rs;
 }

@@ -83,7 +83,7 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	lastv = 0;
 	cnt = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		addint(it->st, it->ed, ((int)(it->val * factor)) + delta);
+		addint(it->st, it->ed, ((int)(it->val * factor)) - delta);
 	if (cnt % sample_rate == 0) {
 		psbd.add_inc(psum);
 		spsbd.add_inc(sqpsum);
@@ -91,7 +91,7 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	out->len = ptr->size();
 	
 	psbd.build(&(out->psum));
-	spsbd.build(&(out->sqrsum));
+	spsbd.build(&(out->psqrsum));
 	if (method == 1) vdir.build(&(out->vdir));
 	else vrank.build(&(out->vrank));
 	out->factor = factor;
@@ -112,7 +112,7 @@ void SampledSumBuilder::comp_transform() {
 	int minr = std::numeric_limits<int>::max();
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
 		minr = std::min<int>(minr, it->val*factor);
-	delta = - minr; // 1 - minr
+	delta = minr; // 1 - minr
 	if (method == 0) {
 		if (factor == 1) method = 1;
 		else method = 2;
@@ -150,7 +150,7 @@ double SampledSumQuery::access(unsigned int idx) const {
 	double x = 0;
 	if (method == 1) x = vdir.access(idx);
 	else x = vrank.access(idx);
-	return (x - delta) / (double) factor;
+	return (x + delta) / (double) factor;
 }
 
 
@@ -163,7 +163,6 @@ void SampledSumQuery::Enum::init(unsigned char etype) {
 		else throw std::runtime_error("unknown type");
 	}
 }
-
 
 void SampledSumQuery::getEnum(unsigned int idx, Enum * e) const {
 	e->init(method);
@@ -180,21 +179,40 @@ void SampledSumQuery::getEnum(unsigned int idx, Enum * e) const {
 double SampledSumQuery::sum(unsigned int idx, unsigned int lefpos) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
-	int64_t cpsum = pq->int_psrlen(idx - r);
-	cpsum *= delta;
-	cpsum = psum.prefixsum(p+1) - cpsum;
+	int64_t tlen = pq->int_psrlen(idx - r);
+	int64_t cpsum = psum.prefixsum(p + 1) + tlen * delta;
 	Enum g;
 	if (r > 0 || lefpos > 0) {
 		getEnum(p*rate, &g);
-		//PNIntv::Enum rle;
-		//itv.getLenEnum(p*rate, &rle);
-		for (size_t j = 0; j < r; ++j) {
-			// assert(rle.next() == range_len(p*rate + j));
-			cpsum += (g.next_int() - delta) * pq->int_len(p*rate + j);
-		}
+		for (size_t j = 0; j < r; ++j)
+			cpsum += (g.next_int() + delta) * pq->int_len(p*rate + j);
 	} 
-	if (lefpos > 0) cpsum += (g.next_int() - delta) * lefpos;
+	if (lefpos > 0) cpsum += (g.next_int() + delta) * lefpos;
 	return cpsum/(double)factor;
+}
+
+double SampledSumQuery::sqrSum(unsigned int idx, unsigned int lefpos) const {
+	size_t r = idx % rate;
+	size_t p = idx / rate;
+	int64_t tlen = pq->int_psrlen(idx - r) ;
+	double sqrps = psqrsum.prefixsum(p + 1);
+	sqrps += 2*delta*psum.prefixsum(p + 1);;
+	sqrps += tlen * (delta * delta);
+
+	Enum g;
+	if (r > 0 || lefpos > 0) {
+		getEnum(p*rate, &g);
+		for (size_t j = 0; j < r; ++j) {
+			int64_t v = (g.next_int() + delta);
+			sqrps += v*v * pq->int_len(p*rate + j);
+		}
+	}
+	if (lefpos > 0) {
+		int64_t v = (g.next_int() + delta);
+		sqrps += v * v * lefpos;
+	}
+	double fx = (double)factor;
+	return sqrps / (fx*fx);
 }
 
 void SampledSumQuery::save(mscds::OArchive& ar) const {
@@ -204,7 +222,7 @@ void SampledSumQuery::save(mscds::OArchive& ar) const {
 	ar.var("delta").save(delta);
 	ar.var("factor").save(factor);
 	psum.save(ar.var("psum"));
-	sqrsum.save(ar.var("sqrsum"));
+	psqrsum.save(ar.var("sqrsum"));
 	if (method == 1) {
 		vdir.save(ar.var("direct_values"));
 	}else 
@@ -222,7 +240,7 @@ void SampledSumQuery::load(mscds::IArchive& ar, NIntvQueryInt * posquery) {
 	ar.var("delta").load(delta);
 	ar.var("factor").load(factor);
 	psum.load(ar.var("psum"));
-	sqrsum.load(ar.var("sqrsum"));
+	psqrsum.load(ar.var("sqrsum"));
 	if (method == 1) {
 		vdir.load(ar.var("direct_values"));
 	}else 
@@ -235,7 +253,7 @@ void SampledSumQuery::load(mscds::IArchive& ar, NIntvQueryInt * posquery) {
 void SampledSumQuery::clear() {
 	pq = NULL;
 	psum.clear();
-	sqrsum.clear();
+	psqrsum.clear();
 	len = 0;
 	rate = 0;
 	factor = 0;
@@ -259,7 +277,7 @@ SampledSumQuery::Enum::~Enum() {
 }
 
 double SampledSumQuery::Enum::next() {
-	return (double)(next_int() - delta) / factor;
+	return (double)(next_int() + delta) / factor;
 }
 
 int64_t SampledSumQuery::Enum::next_int() {

@@ -79,6 +79,13 @@ double RunLenSumArray6::sum(uint32_t pos) const {
 	return vals.sum(res.first, res.second);
 }
 
+double RunLenSumArray6::sqrsum(uint32_t pos) const {
+	if (pos == 0) return 0;
+	auto res = itv.find_cover(pos - 1);
+	if (res.first == 0 && res.second == 0) return 0;
+	return vals.sum(res.first, res.second);
+}
+
 unsigned int RunLenSumArray6::countnz(unsigned int pos) const {
 	return itv.coverage(pos);
 }
@@ -131,11 +138,6 @@ unsigned int RunLenSumArray6::length() const {
 void RunLenSumArray6::clear() {
 	itv.clear();
 	vals.clear();
-}
-
-double RunLenSumArray6::sqrsum(uint32_t pos) const {
-	throw runtime_error("not implemented");
-	return 0;
 }
 
 void RunLenSumArray6::getEnum( unsigned int idx, Enum* e ) const {

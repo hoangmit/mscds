@@ -162,11 +162,37 @@ unsigned int ChrNumThread::count_intervals() const {
 
 double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw runtime_error("invalid input interval");
-	return 0;
+	double sx = sum(st, ed);
+	unsigned int cov = coverage(st, ed);
+	double sqsx = vals.sqrsum(ed) - vals.sqrsum(st);
+	double varance = (sqsx - sx * sx / cov) / cov;
+	return sqrt(varance);
 }
 
-std::vector<double> ChrNumThread::stdev_batch( unsigned int st, unsigned int ed, unsigned int n ) const{
-	return std::vector<double>();
+double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
+	if (minmax_opt & MIN_OP) {
+		auto ls = vals.find_intervals(st, ed);
+		if (ls.first < ls.second) {
+			unsigned int i = min.m_idx(ls.first, ls.second);
+			return vals.range_value(i);
+		}
+		else return 0;
+	}
+	else return 0;
+}
+
+double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
+	if (minmax_opt & MAX_OP) {
+		auto ls = vals.find_intervals(st, ed);
+		if (ls.first < ls.second) {
+			unsigned int i = max.m_idx(ls.first, ls.second);
+			return vals.range_value(i);
+		}
+		else return 0;
+	}
+	else return 0;
 }
 
 std::vector<double> ChrNumThread::base_value_map(unsigned int st, unsigned int ed) const {
@@ -224,12 +250,14 @@ template<typename Tp, typename Func>
 inline std::vector<Tp> diff_func(unsigned int st, unsigned int ed, unsigned int n, Func fx) {
 	vector<Tp> out(n);
 	Tp lastval = fx(st);
-	endpoints(st, ed, n, [&](unsigned int i, unsigned pos) { Tp cv = fx(pos); out[i] = cv - lastval; lastval = cv; });
+	endpoints(st, ed, n, [&](unsigned int i, unsigned pos) {
+		Tp cv = fx(pos); out[i] = cv - lastval; lastval = cv; });
 	return out;
 }
 
 std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	if (ed - st > n) return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{return this->sum(pos); });
+	if (ed - st > n) return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{
+		return this->sum(pos); });
 	else {
 		auto arr = base_value_map(st, ed);
 		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
@@ -237,15 +265,39 @@ std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, un
 }
 
 std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->count_intervals(pos); });
+	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{
+		return this->count_intervals(pos); });
 	else {
 		auto arr = base_value_map(st, ed);
-		return mapValue<unsigned int>(st, ed, n, [&](double i)->unsigned int{return boost::math::isnan(arr[i]) ? 0 : 1 ; });
+		return mapValue<unsigned int>(st, ed, n, [&](double i)->unsigned int{
+			return boost::math::isnan(arr[i]) ? 0 : 1 ; });
 	}
 }
 
 std::vector<unsigned int> ChrNumThread::coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{return this->coverage(pos); });
+	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->unsigned int{
+		return this->coverage(pos); });
+	else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<unsigned int>(st, ed, n, [&](double i)->unsigned int{
+			return boost::math::isnan(arr[i]) ? 0 : 1; });
+	}
+}
+
+std::vector<double> ChrNumThread::avg_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+	if (ed - st > n) {
+		std::vector<double> ret(n);
+		pair<double, double> last = make_pair(this->sum(st), this->coverage(st));
+		endpoints(st, ed, n, [&](unsigned int i, unsigned pos) {
+			pair<double, double> cv = make_pair(this->sum(pos), this->coverage(pos));
+			ret[i] = (cv.first - last.first) - (cv.second - last.second);
+			last = cv;
+		});
+		return ret;
+	} else {
+		auto arr = base_value_map(st, ed);
+		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
+	}
 }
 
 template<typename Tp, typename Func>
@@ -257,7 +309,9 @@ inline std::vector<Tp> range_summary(unsigned int st, unsigned int ed, unsigned 
 }
 
 std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	if (ed - st > n) return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->min_value(st, ed); });
+	if (ed - st > n)
+		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
+			return this->min_value(st, ed); });
 	else {
 		auto arr = base_value_map(st, ed);
 		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
@@ -265,22 +319,22 @@ std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int 
 }
 
 std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
-	if (ed - st > n) return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{return this->max_value(st, ed); });
+	if (ed - st > n)
+		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
+			return this->max_value(st, ed); });
 	else {
 		auto arr = base_value_map(st, ed);
 		return mapValue<double>(st, ed, n, [&](double i)->double{return arr[i]; });
 	}
 }
 
-std::vector<double> ChrNumThread::avg_batch( unsigned int st, unsigned int ed, unsigned int n) const {
-	std::vector<double> s(sum_batch(st, ed, n));
-	std::vector<unsigned int> l(coverage_batch(st, ed, n));
-	unsigned int lr = (ed - st) / n;
-	for (unsigned int i = 0; i < s.size(); ++i)
-		s[i] = s[i] / l[i];
-	return s;
+std::vector<double> ChrNumThread::stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+	if (ed - st > n)
+		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
+			return this->stdev(st, ed); });
+	else {
+		return mapValue<double>(st, ed, n, [&](double i)->double{return 0; });
+	}
 }
-
-
 
 }//namespace

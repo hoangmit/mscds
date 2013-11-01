@@ -48,9 +48,9 @@ public:
 	/** \brief returns the last position i.e. the length of the sequence */
 	unsigned int last_position() const;
 
-
 	/** \brief return the sum of the position from 0 to p */
 	double sum(unsigned int p) const;
+	double sum(unsigned int st, unsigned int ed) const;
 
 	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
@@ -113,18 +113,20 @@ private:
 
 namespace app_ds {
 
-inline double ChrNumThread::sum(unsigned int p) const {
-	return vals.sum(p);
+inline double ChrNumThread::sum(unsigned int p) const { return vals.sum(p); }
+
+inline double ChrNumThread::sum(unsigned int st, unsigned int ed) const {
+	if (st >= ed) throw std::runtime_error("invalid input interval");
+	return sum(ed) - sum(st);
 }
 
 inline double ChrNumThread::avg(unsigned int st, unsigned ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
-	return (sum(ed) - sum(st)) / coverage(st, ed);
+	return (sum(st, ed)) / coverage(st, ed);
 }
 
 inline const std::string ChrNumThread::range_annotation(unsigned int i) const {
-	if (has_annotation)
-		return annotations.get(i);
+	if (has_annotation) return annotations.get(i);
 	else return "";
 }
 
@@ -132,28 +134,6 @@ inline unsigned int ChrNumThread::last_position() const { return vals.last_posit
 
 inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
 	return vals.count_range(i);
-}
-
-inline double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
-	if (st >= ed) throw std::runtime_error("invalid input interval");
-	if (minmax_opt & MIN_OP) {
-		auto ls = vals.find_intervals(st, ed);
-		if (ls.first < ls.second) {
-			unsigned int i = min.m_idx(ls.first, ls.second);
-			return vals.range_value(i);
-		}else return 0;
-	}else return 0;
-}
-
-inline double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
-	if (st >= ed) throw std::runtime_error("invalid input interval");
-	if (minmax_opt & MAX_OP) {
-		auto ls = vals.find_intervals(st, ed);
-		if (ls.first < ls.second) {
-			unsigned int i = max.m_idx(ls.first, ls.second);
-			return vals.range_value(i);
-		}else return 0;
-	}else return 0;
 }
 
 inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsigned int st, unsigned int ed) const {

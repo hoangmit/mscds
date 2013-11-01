@@ -80,7 +80,7 @@ public:
 private:
 	NIntvQueryInt * pq;
 	friend class SampledSumBuilder;
-	mscds::SDArraySml psum, sqrsum;
+	mscds::SDArraySml psum, psqrsum;
 	unsigned int len, rate;
 	unsigned int factor;
 	int delta;

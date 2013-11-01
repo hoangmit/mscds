@@ -59,17 +59,31 @@ private:
 	char * buffer;
 };
 
-class IMemArchive: public IArchive {
+class IMemArchive;
+
+class OMemArchive : public OFileArchive {
 public:
+	OMemArchive() : OFileArchive() {
+		ss = std::shared_ptr<std::stringstream>(new std::stringstream(std::ios::binary | std::ios::in | std::ios::out));
+		assign_write(ss.get());
+	}
 private:
-	std::stringstream ss;
+	std::shared_ptr<std::stringstream> ss;
+	OFileArchive ar;
+	friend class IMemArchive;
 };
 
-class OMemArchive: public OArchive {
+class IMemArchive : public IFileArchive {
 public:
+	IMemArchive(OMemArchive& in) : IFileArchive() {
+		this->ss = in.ss;
+		assign_read(ss.get());
+	}
 private:
-	std::stringstream ss;
+	std::shared_ptr<std::stringstream> ss;
 };
+
+
 
 class OSizeEstArchive: public OArchive {
 public:

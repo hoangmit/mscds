@@ -164,7 +164,7 @@ double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw runtime_error("invalid input interval");
 	double sx = sum(st, ed);
 	unsigned int cov = coverage(st, ed);
-	double sqsx = vals.sqrsum(ed) - vals.sqrsum(st);
+	double sqsx = sqrsum(st, ed);
 	double varance = (sqsx - sx * sx / cov) / cov;
 	return sqrt(varance);
 }
@@ -290,7 +290,7 @@ std::vector<double> ChrNumThread::avg_batch(unsigned int st, unsigned int ed, un
 		pair<double, double> last = make_pair(this->sum(st), this->coverage(st));
 		endpoints(st, ed, n, [&](unsigned int i, unsigned pos) {
 			pair<double, double> cv = make_pair(this->sum(pos), this->coverage(pos));
-			ret[i] = (cv.first - last.first) - (cv.second - last.second);
+			ret[i] = (cv.first - last.first) / (cv.second - last.second);
 			last = cv;
 		});
 		return ret;

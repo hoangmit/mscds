@@ -30,7 +30,7 @@ public:
 	unsigned int codeword(unsigned int i) const { return output_code[i].first; }
 	const CodePr& operator[](unsigned int i) const { return output_code[i]; }
 	CodePr encode(unsigned int i) const { return output_code[i]; }
-	unsigned int size() const { return output_code.size(); }
+	unsigned int size() const { return (unsigned int) output_code.size(); }
 	void clear() { output_code.clear(); }
 	void loadCode(size_t n, const std::vector<uint16_t>& L);
 

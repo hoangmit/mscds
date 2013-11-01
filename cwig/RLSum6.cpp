@@ -83,7 +83,7 @@ double RunLenSumArray6::sqrsum(uint32_t pos) const {
 	if (pos == 0) return 0;
 	auto res = itv.find_cover(pos - 1);
 	if (res.first == 0 && res.second == 0) return 0;
-	return vals.sum(res.first, res.second);
+	return vals.sqrSum(res.first, res.second);
 }
 
 unsigned int RunLenSumArray6::countnz(unsigned int pos) const {

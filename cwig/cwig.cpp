@@ -72,9 +72,10 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 		std::string line;
 		std::getline(fi, line);
 		if (!fi) break;
-		line = utils::trim(line);
-		if (line.empty()) continue;
-		if (line[0] == '#') continue;
+		unsigned int i = 0;
+		while (i < line.length() && std::isspace(line[i])) ++i;
+		if (i == line.size() || line[i] == '#') continue;
+		//line = utils::trim(line); if (line.empty()) continue; if (line[0] == '#') continue;
 		BED_Entry b;
 		if (annotation) b.parse_ann(line);
 		else b.quick_parse(line, curchr);
@@ -146,6 +147,14 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 			}
 		}
 	}
+}
+
+void GenomeNumDataBuilder::add(const std::string& bed_line) {
+	BED_Entry e;
+	if (annotation) e.parse_ann(bed_line);
+	else e.parse(bed_line);
+	changechr(e.chrname);
+	add(e.st, e.ed, e.val, e.annotation);
 }
 
 void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d, const std::string& annotation) {

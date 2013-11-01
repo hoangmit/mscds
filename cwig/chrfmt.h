@@ -51,6 +51,7 @@ public:
 	/** \brief return the sum of the position from 0 to p */
 	double sum(unsigned int p) const;
 	double sum(unsigned int st, unsigned int ed) const;
+	double sqrsum(unsigned int st, unsigned int ed) const;
 
 	std::vector<double> sum_batch(unsigned int st, unsigned int ed, unsigned int n) const;
 
@@ -141,20 +142,18 @@ inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsign
 	return vals.find_intervals(st, ed);
 }
 
-inline unsigned int ChrNumThread::next_nz(unsigned int p) const {
-	return vals.next(p);
-}
+inline unsigned int ChrNumThread::next_nz(unsigned int p) const { return vals.next(p); }
 
-inline unsigned int ChrNumThread::prev_nz(unsigned int p) const {
-	return vals.prev(p);
-}
+inline unsigned int ChrNumThread::prev_nz(unsigned int p) const { return vals.prev(p); }
 
-inline unsigned int ChrNumThread::coverage(unsigned int p) const {
-	return vals.countnz(p);
-}
+inline unsigned int ChrNumThread::coverage(unsigned int p) const { return vals.countnz(p); }
 
 inline unsigned int ChrNumThread::coverage(unsigned int st, unsigned int ed) const {
 	return coverage(ed) - coverage(st);
+}
+
+inline double ChrNumThread::sqrsum(unsigned int st, unsigned int ed) const {
+	return vals.sqrsum(ed) - vals.sqrsum(st);
 }
 
 }//namespace

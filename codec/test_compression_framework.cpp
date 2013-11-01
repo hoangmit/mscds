@@ -43,17 +43,7 @@ using namespace std;
 using namespace coder;
 
 
-TEST(huffman,test1) {
-	const int n = 5;
-	int arr[n] = {6,5,3,3,1};
-	vector<unsigned int> v;
-	for (int i = 0; i < n; i++) v.push_back(arr[i]);
-	HuffmanCode code;
-	int tt = code.build(v);
-	ASSERT_EQ(tt, 6*2 + 5*2 + 3*2 + 3*3 + 1*3);
-}
-
-TEST(huffman, encode_decode1) {
+TEST(huffman, encode_decode3) {
 	const int n = 256;
 	adp_huffman_enc enc(n);
 	adp_huffman_dec dec(n);
@@ -66,7 +56,7 @@ TEST(huffman, encode_decode1) {
 	}
 }
 
-TEST(huffman, encode_decode2) {
+TEST(huffman, encode_decode4) {
 	const int n = 256;
 	adp_huffman_enc enc(n);
 	adp_huffman_dec dec(n);
@@ -80,53 +70,6 @@ TEST(huffman, encode_decode2) {
 	}
 }
 
-TEST(huffman, canonical_code1) {
-	const int n = 4;
-	int arr[n] = {2, 1, 3, 3};
-	vector<uint16_t> L;
-	for (int i = 0; i < n; i++) L.push_back(arr[i]);
-	vector<unsigned int> out = HuffmanCode::canonical_code(n, L);
-	ASSERT_EQ(1, out[0]); // 11
-	ASSERT_EQ(0, out[1]); // 0
-	ASSERT_EQ(3, out[2]); // 101
-	ASSERT_EQ(7, out[3]); // 100
-}
-
-TEST(huffman, canonical_code2) {
-	const int n = 9;
-	int arr[n] = {2, 3, 3, 3, 4, 4, 4, 5, 5};
-	vector<uint16_t> L;
-	for (int i = 0; i < n; i++) L.push_back(arr[i]);
-	vector<unsigned int> out = HuffmanCode::canonical_code(n, L);
-	ASSERT_EQ(0, out[0]);  // 00
-	ASSERT_EQ(2, out[1]);  // 010
-	ASSERT_EQ(6, out[2]);  // 011
-	ASSERT_EQ(1, out[3]);  // 100
-	ASSERT_EQ(5, out[4]);  // 1010
-	ASSERT_EQ(13, out[5]); // 1011
-	ASSERT_EQ(3, out[6]);  // 1100
-	ASSERT_EQ(11, out[7]); // 11010
-	ASSERT_EQ(27, out[8]); // 11011
-}
-
-TEST(huffman, canonical_code3) {
-	const int n = 9;
-	int arr[n] = {2, 2, 3, 3, 4, 4, 5, 5, 4};
-	vector<uint16_t> L;
-	for (int i = 0; i < n; i++) L.push_back(arr[i]);
-	vector<unsigned int> out = HuffmanCode::canonical_code(n, L);
-	ASSERT_EQ(0, out[0]);  // 00
-	ASSERT_EQ(2, out[1]);  // 01
-	ASSERT_EQ(1, out[2]);  // 100
-	ASSERT_EQ(5, out[3]);  // 101
-
-	ASSERT_EQ(3, out[4]);  // 1100
-	ASSERT_EQ(11, out[5]); // 1101
-	ASSERT_EQ(7, out[8]);  // 1110
-
-	ASSERT_EQ(15, out[6]); // 11110
-	ASSERT_EQ(31, out[7]); // 11111
-}
 
 #include "intarray/huffarray.h"
 
@@ -165,9 +108,9 @@ TEST(huffman, harray2) {
 	}
 }
 
-
+/*
 int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;
-}
+}*/

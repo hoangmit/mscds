@@ -30,6 +30,7 @@ public:
 			  minmaxop_t opt = ALL_OP, bool range_annotation = false);
 	void changechr(const std::string& chr);
 	void add(unsigned int st, unsigned int ed, double d, const std::string& annotation = "");
+	void add(const std::string& bed_line);
 	void build(GenomeNumData* data);
 	void build(mscds::OArchive& ar);
 	void build_bedgraph(std::istream& fi, mscds::OArchive& ar,

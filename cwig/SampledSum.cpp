@@ -35,6 +35,7 @@ void SampledSumBuilder::clear() {
 	spsbd.clear();
 	lastst = 0;
 	psum = 0;
+	sqpsum = 0;
 	lastv = 0;
 	svals.clear();
 	ptr = &svals;
@@ -80,6 +81,7 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	else vrank.init(storemed, sample_rate);
 	lastst = 0;
 	psum = 0;
+	sqpsum = 0;
 	lastv = 0;
 	cnt = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)

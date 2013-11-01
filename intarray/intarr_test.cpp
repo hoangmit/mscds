@@ -296,10 +296,10 @@ TEST(RemapDtArray, testsuite) {
 	}
 }
 
-
+/*
 int main(int argc, char* argv[]) {
 	//::testing::GTEST_FLAG(filter) = "HuffArray.*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;
-}
+}*/

@@ -5,6 +5,7 @@
 #include "intarray/sdarray_sml.h"
 #include "utils/param.h"
 #include "stringarr.h"
+#include "utils/utest.h"
 
 #include <cstring>
 #include <tuple>
@@ -83,23 +84,13 @@ void test_chrbychr3() {
 
 	GenomeNumDataBuilder bd;
 	bd.init(true);
-	std::string st;
-	for (size_t i = 0; i < 9; ++i) {
-		BED_Entry e;
-		e.parse(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
-		}
-		bd.add(e.st, e.ed, e.val);
-	}
+	for (size_t i = 0; i < 9; ++i)
+		bd.add(input[i]);
+	mscds::OMemArchive fo;
 	GenomeNumData d;
-	mscds::OFileArchive fo;
-	std::stringstream ss(std::ios::binary|std::ios::in|std::ios::out);
-	fo.assign_write(&ss);
 	bd.build(fo);
 
-	mscds::IFileArchive fi;
-	fi.assign_read(&ss);
+	mscds::IMemArchive fi(fo);
 	d.load(fi);
 
 	ASSERT_EQ(0.01 * 100, d.getChr(1).sum(3600));
@@ -124,14 +115,11 @@ void test_bedgraph1() {
 	}
 	GenomeNumDataBuilder bd;
 	bd.init();
-	mscds::OFileArchive fo;
-	std::stringstream sout(std::ios::binary|std::ios::in|std::ios::out);
-	fo.assign_write(&sout);
+	mscds::OMemArchive fo;
 
 	bd.build_bedgraph(sin, fo);
 	GenomeNumData d;
-	mscds::IFileArchive fi;
-	fi.assign_read(&sout);
+	mscds::IMemArchive fi(fo);
 	d.load(fi);
 
 	ASSERT_EQ(0.01 * 100, d.getChr(1).sum(3600));
@@ -153,15 +141,8 @@ void test_mix() {
 
 	GenomeNumDataBuilder bd;
 	bd.init(false);
-	std::string st;
-	for (size_t i = 0; i < 9; ++i) {
-		BED_Entry e;
-		e.parse(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
-		}
-		bd.add(e.st, e.ed, e.val);
-	}
+	for (size_t i = 0; i < 9; ++i)
+		bd.add(input[i]);
 	GenomeNumData d;
 	bd.build(&d);
 	ASSERT_EQ(0.02* 300 + 0.5 * 100, d.getChr(1).sum(3900));
@@ -203,14 +184,8 @@ void test_annotation() {
 	bool has_ann = false;
 	GenomeNumDataBuilder bd;
 	bd.init(true, app_ds::NO_MINMAX, true);
-	std::string st;
 	for (size_t i = 0; i < 9; ++i) {
-		BED_Entry e;
-		e.parse_ann(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
-		}
-		bd.add(e.st, e.ed, e.val, e.annotation);
+		bd.add(input[i]);
 	}
 	GenomeNumData d;
 	bd.build(&d);
@@ -245,15 +220,8 @@ void test_minmax() {
 
 	GenomeNumDataBuilder bd;
 	bd.init(false);
-	std::string st;
-	for (size_t i = 0; i < 9; ++i) {
-		BED_Entry e;
-		e.parse(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
-		}
-		bd.add(e.st, e.ed, e.val);
-	}
+	for (size_t i = 0; i < 9; ++i)
+		bd.add(input[i]);
 	GenomeNumData d;
 	bd.build(&d);
 }
@@ -268,14 +236,8 @@ void test_avg_batch() {
 	GenomeNumDataBuilder bd;
 	bd.init(false);
 	std::string st;
-	for (size_t i = 0; i < len; ++i) {
-		BED_Entry e;
-		e.parse(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
-		}
-		bd.add(e.st, e.ed, e.val);
-	}
+	for (size_t i = 0; i < len; ++i)
+		bd.add(input[i]);
 	GenomeNumData d;
 	bd.build(&d);
 	int chr = d.getChrId("chr1");
@@ -283,6 +245,34 @@ void test_avg_batch() {
 	auto arr = t.avg_batch(14770, 14780, 2);
 	ASSERT_EQ(-1.0, arr[0]);
 	ASSERT(fabs(-2.2 - arr[1]) < 1e-6);
+}
+
+void test_stdev() {
+	const int len = 5;
+	const char* input[len] =
+	{
+	"chr1 1 2	2.0",
+	"chr1 2 5	4.0",
+	"chr1 6 8	5.0",
+	"chr1 8 9	7.0",
+	"chr1 9 10	9.0",
+	};
+
+	GenomeNumDataBuilder bd;
+	bd.init(false);
+	std::string st;
+	for (size_t i = 0; i < len; ++i)
+		bd.add(input[i]);
+	GenomeNumData d;
+	bd.build(&d);
+
+	int chr = d.getChrId("chr1");
+	const ChrNumThread& t = d.getChr(chr);
+	ASSERT_DOUBLE_EQ(40, t.sum(0, 10));
+	double sq = t.sqrsum(0, 10);
+	ASSERT_DOUBLE_EQ(232, sq);
+	double v = t.stdev(0,10);
+	ASSERT_DOUBLE_EQ(2, v);
 }
 
 void test_units() {
@@ -296,6 +286,14 @@ void test_units() {
 	test_bedgraph1();
 	test_mix();
 	test_minmax();
+	test_stdev();
+
+	/*int argc = 1;
+	const char* argv[] = { "aaa" };
+
+	::testing::InitGoogleTest(&argc, argv);
+	int rs = RUN_ALL_TESTS();
+	return rs;*/
 }
 
 //--------------------------------------------------------------------------

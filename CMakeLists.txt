@@ -46,7 +46,7 @@ set(GTEST_LIB gtest)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
 	
 include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/common)
+include_directories(${PROJECT_SOURCE_DIR}/framework)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
@@ -86,6 +86,7 @@ MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cwig)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)

@@ -32,7 +32,7 @@ TEST(cwig, chrbychr1) {
 	for (size_t i = 0; i < 9; ++i) {
 		BED_Entry e;
 		e.parse(input[i]);
-		if (e.chrname != st) { bd.changechr(e.chrname); st = e.chrname; }
+		if (e.chrom != st) { bd.changechr(e.chrom); st = e.chrom; }
 		bd.add(e.st, e.ed, e.val);
 	}
 	GenomeNumData d;
@@ -59,8 +59,8 @@ TEST(cwig, chrbychr2) {
 	for (size_t i = 0; i < 9; ++i) {
 		BED_Entry e;
 		e.parse(input[i]);
-		if (e.chrname != st) {
-			bd.changechr(e.chrname); st = e.chrname;
+		if (e.chrom != st) {
+			bd.changechr(e.chrom); st = e.chrom;
 		}
 		bd.add(e.st, e.ed, e.val);
 	}
@@ -238,7 +238,7 @@ TEST(cwig, avg_batch) {
 	GenomeNumData d;
 	bd.build(&d);
 	int chr = d.getChrId("chr1");
-	const ChrNumThread& t = d.getChr(chr);
+	const ChrNumData& t = d.getChr(chr);
 	auto arr = t.avg_batch(14770, 14780, 2);
 	ASSERT_EQ(-1.0, arr[0]);
 	ASSERT(fabs(-2.2 - arr[1]) < 1e-6);
@@ -264,7 +264,7 @@ TEST(cwig, stdev) {
 	bd.build(&d);
 
 	int chr = d.getChrId("chr1");
-	const ChrNumThread& t = d.getChr(chr);
+	const ChrNumData& t = d.getChr(chr);
 	ASSERT_DOUBLE_EQ(40, t.sum(0, 10));
 	double sq = t.sqrsum(0, 10);
 	ASSERT_DOUBLE_EQ(232, sq);

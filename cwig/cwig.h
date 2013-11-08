@@ -8,14 +8,14 @@
 #include <map>
 #include "chrfmt.h"
 #include "archive.h"
-#include "utils/str_utils.h"
+
 
 namespace app_ds {
 
 class GenomeNumData;
 
 struct BED_Entry {
-	std::string chrname;
+	std::string chrom;
 	unsigned int st, ed;
 	double val;
 	std::string annotation;
@@ -63,14 +63,14 @@ private:
 	minmaxop_t opt;
 	bool onechr, annotation, empty_ann;
 	void buildtemp(const std::string& name);
-	void buildchr(const std::string& name, RangeListTp& lst, ChrNumThread * out);
+	void buildchr(const std::string& name, RangeListTp& lst, ChrNumData * out);
 	std::vector<std::string> tmpfn;
 };
 
 class GenomeNumData {
 public:
 	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
-	const ChrNumThread& getChr(unsigned int chrid) { return chrs[chrid]; }
+	const ChrNumData& getChr(unsigned int chrid) { return chrs[chrid]; }
 
 	/** \brief loads the data structure from file */
 	void load(const std::string& input);
@@ -93,7 +93,7 @@ public:
 private:
 	void loadinit();
 	unsigned int nchr;
-	std::vector<ChrNumThread> chrs;
+	std::vector<ChrNumData> chrs;
 	std::vector<std::string> names;
 	std::map<std::string, unsigned int> chrid;
 	friend class GenomeNumDataBuilder;

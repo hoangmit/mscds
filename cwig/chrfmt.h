@@ -14,17 +14,17 @@ namespace app_ds {
 typedef RunLenSumArray6 ChrNumValType;
 typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
-class ChrNumThread;
+class ChrNumData;
 
 enum minmaxop_t {NO_MINMAX= 0, MIN_OP=1, MAX_OP=2, ALL_OP=3};
 
-class ChrNumThreadBuilder {
+class ChrNumDataBuilder {
 public:
-	ChrNumThreadBuilder();
+	ChrNumDataBuilder();
 	void init(minmaxop_t option=NO_MINMAX, bool range_annotations = false);
 	void add(unsigned int st, unsigned int ed, double val, const std::string& s = "");
 	void build(mscds::OArchive& ar);
-	void build(ChrNumThread* out);
+	void build(ChrNumData* out);
 private:
 	std::deque<ValRange> ranges;
 	bool setup_;
@@ -34,7 +34,7 @@ private:
 	StringArrBuilder annbd;
 };
 
-class ChrNumThread {
+class ChrNumData {
 public:
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
@@ -106,7 +106,7 @@ private:
 
 	bool has_annotation;
 	minmaxop_t minmax_opt;
-	friend class ChrNumThreadBuilder;
+	friend class ChrNumDataBuilder;
 };
 
 
@@ -114,45 +114,45 @@ private:
 
 namespace app_ds {
 
-inline double ChrNumThread::sum(unsigned int p) const { return vals.sum(p); }
+inline double ChrNumData::sum(unsigned int p) const { return vals.sum(p); }
 
-inline double ChrNumThread::sum(unsigned int st, unsigned int ed) const {
+inline double ChrNumData::sum(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
 	return sum(ed) - sum(st);
 }
 
-inline double ChrNumThread::avg(unsigned int st, unsigned ed) const {
+inline double ChrNumData::avg(unsigned int st, unsigned ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
 	return (sum(st, ed)) / coverage(st, ed);
 }
 
-inline const std::string ChrNumThread::range_annotation(unsigned int i) const {
+inline const std::string ChrNumData::range_annotation(unsigned int i) const {
 	if (has_annotation) return annotations.get(i);
 	else return "";
 }
 
-inline unsigned int ChrNumThread::last_position() const { return vals.last_position(); }
+inline unsigned int ChrNumData::last_position() const { return vals.last_position(); }
 
-inline unsigned int ChrNumThread::count_intervals(unsigned int i) const {
+inline unsigned int ChrNumData::count_intervals(unsigned int i) const {
 	return vals.count_range(i);
 }
 
-inline std::pair<unsigned int, unsigned int> ChrNumThread::find_intervals(unsigned int st, unsigned int ed) const {
+inline std::pair<unsigned int, unsigned int> ChrNumData::find_intervals(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
 	return vals.find_intervals(st, ed);
 }
 
-inline unsigned int ChrNumThread::next_nz(unsigned int p) const { return vals.next(p); }
+inline unsigned int ChrNumData::next_nz(unsigned int p) const { return vals.next(p); }
 
-inline unsigned int ChrNumThread::prev_nz(unsigned int p) const { return vals.prev(p); }
+inline unsigned int ChrNumData::prev_nz(unsigned int p) const { return vals.prev(p); }
 
-inline unsigned int ChrNumThread::coverage(unsigned int p) const { return vals.countnz(p); }
+inline unsigned int ChrNumData::coverage(unsigned int p) const { return vals.countnz(p); }
 
-inline unsigned int ChrNumThread::coverage(unsigned int st, unsigned int ed) const {
+inline unsigned int ChrNumData::coverage(unsigned int st, unsigned int ed) const {
 	return coverage(ed) - coverage(st);
 }
 
-inline double ChrNumThread::sqrsum(unsigned int st, unsigned int ed) const {
+inline double ChrNumData::sqrsum(unsigned int st, unsigned int ed) const {
 	return vals.sqrsum(ed) - vals.sqrsum(st);
 }
 

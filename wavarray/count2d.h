@@ -36,6 +36,9 @@ public:
 	std::vector<unsigned int> count_grid(const std::vector<unsigned int>& X, const std::vector<unsigned int>& Y) const;
 	std::vector<unsigned int> heatmap(unsigned int x1, unsigned int x2, 
 		unsigned int y1, unsigned int y2, unsigned int nx, unsigned int ny) const;
+	typedef WatQuery::ListCallback ListCallback;
+	/** return the points in  */
+	void list_each(uint64_t min_x, uint64_t max_x, uint64_t min_y, uint64_t max_y, ListCallback cb, void* context) const;
 
 	void clear();
 	void load(IArchive& ar);
@@ -49,6 +52,9 @@ private:
 
 	unsigned int map_x(unsigned int x) const;
 	unsigned int map_y(unsigned int y) const;
+	unsigned int unmap_x(unsigned int x) const;
+	unsigned int unmap_y(unsigned int y) const;
+
 };
 
 } //namespace

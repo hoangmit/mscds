@@ -14,7 +14,7 @@ namespace app_ds {
 
 void BED_Entry::parse_ann(const std::string& s) {
 	std::istringstream ss(s);
-	ss >> chrname >> st >> ed >> val;
+	ss >> chrom >> st >> ed >> val;
 	if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
 		
 	annotation.clear();
@@ -24,7 +24,7 @@ void BED_Entry::parse_ann(const std::string& s) {
 
 void BED_Entry::parse(const std::string& s) {
 	std::istringstream ss(s);
-	ss >> chrname >> st >> ed >> val;
+	ss >> chrom >> st >> ed >> val;
 	if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
 }
 
@@ -37,10 +37,10 @@ void BED_Entry::quick_parse(std::string& s, const std::string& pre_chr) {
 	}
 	// same chrom name
 	if (i == pre_chr.length() && pre_chr.length() > 0 && (*p == ' ' || *p == '\t')) {
-		this->chrname = pre_chr;
+		this->chrom = pre_chr;
 	} else {
 		while (*p != ' ' && *p != '\t' && *p) ++p;
-		this->chrname = std::string(s.c_str(), p);
+		this->chrom = std::string(s.c_str(), p);
 	}
 	if (*p == ' ' || *p == '\t') ++p;
 	else throw std::runtime_error(std::string("error parsing line: ") + s);
@@ -79,9 +79,9 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
 		BED_Entry b;
 		if (annotation) b.parse_ann(line);
 		else b.quick_parse(line, curchr);
-		if (b.chrname != curchr) {
-			changechr(b.chrname);
-			curchr = b.chrname;
+		if (b.chrom != curchr) {
+			changechr(b.chrom);
+			curchr = b.chrom;
 		}
 		add(b.st, b.ed, b.val, b.annotation);
 	}
@@ -153,7 +153,7 @@ void GenomeNumDataBuilder::add(const std::string& bed_line) {
 	BED_Entry e;
 	if (annotation) e.parse_ann(bed_line);
 	else e.parse(bed_line);
-	changechr(e.chrname);
+	changechr(e.chrom);
 	add(e.st, e.ed, e.val, e.annotation);
 }
 
@@ -165,7 +165,7 @@ void GenomeNumDataBuilder::add(unsigned int st, unsigned int ed, double d, const
 
 void GenomeNumDataBuilder::buildtemp(const std::string& name) {
 	std::string fn = utils::tempfname();
-	ChrNumThread data;
+	ChrNumData data;
 	buildchr(name, list[0], &data);
 	mscds::OFileArchive fo;
 	fo.open_write(fn);
@@ -175,8 +175,8 @@ void GenomeNumDataBuilder::buildtemp(const std::string& name) {
 	tmpfn.push_back(fn);
 }
 
-void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, ChrNumThread * out) {
-	ChrNumThreadBuilder bd;
+void GenomeNumDataBuilder::buildchr(const std::string& name, RangeListTp& rlst, ChrNumData * out) {
+	ChrNumDataBuilder bd;
 	if (annotation && empty_ann) annotation = false;
 	bd.init(opt, annotation);
 	if (!std::is_sorted(rlst.begin(), rlst.end()))

@@ -27,10 +27,10 @@ void build(const string& inpname, const string& outfile) {
 		if (line.empty()) break;
 		BED_Entry e;
 		e.parse(line);
-		if (e.chrname != lastchr) {
+		if (e.chrom != lastchr) {
 			//if (lastchr.length() > 0) break;
-			cout << e.chrname << endl;
-			lastchr = e.chrname;
+			cout << e.chrom << endl;
+			lastchr = e.chrom;
 			bd.changechr(lastchr);
 		}
 		bd.add(e.st, e.ed, e.val);
@@ -54,6 +54,11 @@ void build(const string& inpname, const string& outfile) {
 	}
 }
 
+void build2(const string& inpname, const string& outfile) {
+	GenomeNumDataBuilder bd;
+	bd.build_bedgraph(inpname, outfile);
+}
+
 double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 	unsigned int nchr = qs.chromosome_count();
 	vector<unsigned int> lp, mapchr;
@@ -68,7 +73,7 @@ double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 	utils::Timer tm;
 	for (unsigned int i = 0; i < nqrs; ++i) {
 		unsigned int chr = rand() % lp.size();
-		const ChrNumThread & cq = qs.getChr(mapchr[chr]);
+		const ChrNumData & cq = qs.getChr(mapchr[chr]);
 		unsigned int p1 = rand() % lp[chr];
 		unsigned int p2 = rand() % lp[chr];
 		if (p1 > p2) swap(p1, p2);
@@ -104,6 +109,38 @@ void extract(const string& inp, const string& out) {
 	qs.dump_bedgraph(out);
 }
 
+void testfile_wrong() {
+	string filename = "C:/temp/wgEncodeUwTfbsWi38InputStdRawRep1.C2.V5.P2";
+	mscds::IFileMapArchive fi;
+	fi.open_read(filename);
+	GenomeNumData qs;
+	qs.load(fi);
+
+	string chrname = "chr16";
+
+	unsigned int start = 46416806;
+	unsigned int end = 46416825; //46418595;
+	unsigned int sz = 50; //1606;
+
+	int chr = qs.getChrId(chrname);
+
+	auto & chrds = qs.getChr(chr);
+	auto rng = chrds.find_intervals(start, end);
+	cout << "Indexes: " << rng.first << " " << rng.second << endl;
+	if (rng.first < rng.second) {
+		app_ds::ChrNumValType::Enum e;
+		chrds.getEnum(rng.first, &e);
+		for (unsigned int i = rng.first; i < rng.second; ++i) {
+			auto intv = e.next();
+			cout << chrname << "\t" << intv.st << "\t" << intv.ed << "\t" << intv.val << "\n";
+		}
+		cout << endl;
+	}
+
+	auto arr = chrds.max_value_batch(start, end, sz);
+	for (auto it = arr.begin(); it != arr.end(); ++it)
+		cout << *it << "  ";
+}
 
 int run(int argc, const char* argv[]) {
 	Config * c = Config::getInst();
@@ -116,7 +153,7 @@ int run(int argc, const char* argv[]) {
 	if (argc < 3) return 1;
 	if (argv[1][0] == 'b') {
 		if (argc < 4) throw runtime_error("wrong");
-		build(argv[2], argv[3]);
+		build2(argv[2], argv[3]);
 	}else
 	if (argv[1][0] == 'e') {
 		if (argc < 4) throw runtime_error("wrong");
@@ -133,9 +170,17 @@ int main(int argc, const char* argv[]) {
 	cout << "running.." << endl;
 	//const char* testv[] = {"", "r", "groseq.gnt"};
 	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gnt"};
-	const char* testv[] = {"", "e", "C:/temp/groseq.gnt", "C:/temp/a.txt"};
+	//const char* testv[] = {"", "b", "C:/temp/groseq.gnt", "C:/temp/a.txt"};
+	Config * c = Config::getInst();
+	c->add("CWIG.POSITION_STORAGE", "2");
+	c->add("CWIG.INT_STORAGE", "2");
+	c->add("CWIG.VALUE_STORAGE", "5");
+	const char* testv[] = {"", "b", "C:/temp/wgEncodeFsuRepliChipBg02esWaveSignalRep1.bedGraph", "C:/temp/wgEncodeFsuRepliChipBg02esWaveSignalRep1.cwig"};
 	return run(4, testv);
 	//return run(3, testv);
+	testfile_wrong();
+	return 0;
+
 }
 
 
@@ -234,7 +279,7 @@ void read_queries(const string& fname, const std::map<string, unsigned int>& nam
 double test_sum(GenomeNumData& qs, const vector<QueryX>& lst) {
 	utils::Timer tm;
 	for (unsigned int i = 0; i < lst.size(); ++i) {
-		const ChrNumThread & cq = qs.getChr(lst[i].chr);
+		const ChrNumData & cq = qs.getChr(lst[i].chr);
 		cq.sum(lst[i].st);
 	}
 	double qps = lst.size() / tm.current();

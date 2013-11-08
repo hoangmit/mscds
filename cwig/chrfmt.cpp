@@ -14,15 +14,15 @@ using namespace mscds;
 
 namespace app_ds {
 
-ChrNumThreadBuilder::ChrNumThreadBuilder():setup_(false){}
+ChrNumDataBuilder::ChrNumDataBuilder():setup_(false){}
 
-void ChrNumThreadBuilder::init(minmaxop_t option, bool range_annotations) {
+void ChrNumDataBuilder::init(minmaxop_t option, bool range_annotations) {
 	this->minmax_opt = option;
 	this->has_annotation = range_annotations;
 	setup_ = true;
 }
 
-void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, double val, const std::string& s) {
+void ChrNumDataBuilder::add(unsigned int st, unsigned int ed, double val, const std::string& s) {
 	if (!setup_) throw std::runtime_error("need setup");
 	//if (val == 0) std::runtime_error("zero value with annotation");
 	ranges.push_back(ValRange(st, ed, val));
@@ -30,13 +30,13 @@ void ChrNumThreadBuilder::add(unsigned int st, unsigned int ed, double val, cons
 		annbd.add(s);
 }
 
-void ChrNumThreadBuilder::build(mscds::OArchive& ar) {
-	ChrNumThread t;
+void ChrNumDataBuilder::build(mscds::OArchive& ar) {
+	ChrNumData t;
 	build(&t);
 	t.save(ar);
 }
 
-void ChrNumThreadBuilder::build(ChrNumThread* out) {
+void ChrNumDataBuilder::build(ChrNumData* out) {
 	out->clear();
 	if(!is_sorted(ranges.begin(), ranges.end()))
 		std::sort(ranges.begin(), ranges.end());
@@ -72,14 +72,14 @@ void ChrNumThreadBuilder::build(ChrNumThread* out) {
 
 //-----------------------------------------------------------------------------
 
-void ChrNumThread::clear() {
+void ChrNumData::clear() {
 	vals.clear();
 	min.clear();
 	max.clear();
 	name.clear();
 }
 
-void ChrNumThread::load(mscds::IArchive& ar) {
+void ChrNumData::load(mscds::IArchive& ar) {
 	clear();
 	ar.loadclass("chromosome_number_thread");
 	name = load_str(ar.var("chr_name"));
@@ -97,7 +97,7 @@ void ChrNumThread::load(mscds::IArchive& ar) {
 	ar.endclass();
 }
 
-void ChrNumThread::save(mscds::OArchive& ar) const {
+void ChrNumData::save(mscds::OArchive& ar) const {
 	ar.startclass("chromosome_number_thread", 1);
 	save_str(ar.var("chr_name"), name);
 	uint32_t o = minmax_opt;
@@ -112,11 +112,11 @@ void ChrNumThread::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void ChrNumThread::getEnum(unsigned int i, ChrNumValType::Enum* e) const {
+void ChrNumData::getEnum(unsigned int i, ChrNumValType::Enum* e) const {
 	vals.getEnum(i, e);
 }
 
-void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
+void ChrNumData::dump_bedgraph(std::ostream& fo) const {
 	ChrNumValType::Enum e;
 	vals.getEnum(0, &e);
 	unsigned int i = 0;
@@ -156,11 +156,11 @@ void ChrNumThread::dump_bedgraph(std::ostream& fo) const {
 
 }
 
-unsigned int ChrNumThread::count_intervals() const {
+unsigned int ChrNumData::count_intervals() const {
 	return vals.length();
 }
 
-double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
+double ChrNumData::stdev(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw runtime_error("invalid input interval");
 	double sx = sum(st, ed);
 	unsigned int cov = coverage(st, ed);
@@ -169,7 +169,7 @@ double ChrNumThread::stdev(unsigned int st, unsigned int ed) const {
 	return sqrt(varance);
 }
 
-double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
+double ChrNumData::min_value(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
 	if (minmax_opt & MIN_OP) {
 		auto ls = vals.find_intervals(st, ed);
@@ -182,7 +182,7 @@ double ChrNumThread::min_value(unsigned int st, unsigned int ed) const {
 	else return 0;
 }
 
-double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
+double ChrNumData::max_value(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw std::runtime_error("invalid input interval");
 	if (minmax_opt & MAX_OP) {
 		auto ls = vals.find_intervals(st, ed);
@@ -195,7 +195,7 @@ double ChrNumThread::max_value(unsigned int st, unsigned int ed) const {
 	else return 0;
 }
 
-std::vector<double> ChrNumThread::base_value_map(unsigned int st, unsigned int ed) const {
+std::vector<double> ChrNumData::base_value_map(unsigned int st, unsigned int ed) const {
 	if (st >= ed) throw runtime_error("wrong function inputs");
 	vector<double> out(ed - st, std::numeric_limits<double>::quiet_NaN());
 	auto rng = find_intervals(st, ed);
@@ -255,7 +255,7 @@ inline std::vector<Tp> diff_func(unsigned int st, unsigned int ed, unsigned int 
 	return out;
 }
 
-std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<double> ChrNumData::sum_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n) return diff_func<double>(st, ed, n, [&](unsigned int pos)->double{
 		return this->sum(pos); });
 	else {
@@ -264,7 +264,7 @@ std::vector<double> ChrNumThread::sum_batch(unsigned int st, unsigned int ed, un
 	}
 }
 
-std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<unsigned int> ChrNumData::count_intervals_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->double{
 		return this->count_intervals(pos); });
 	else {
@@ -274,7 +274,7 @@ std::vector<unsigned int> ChrNumThread::count_intervals_batch(unsigned int st, u
 	}
 }
 
-std::vector<unsigned int> ChrNumThread::coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<unsigned int> ChrNumData::coverage_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n) return diff_func<unsigned int>(st, ed, n, [&](unsigned int pos)->unsigned int{
 		return this->coverage(pos); });
 	else {
@@ -284,7 +284,7 @@ std::vector<unsigned int> ChrNumThread::coverage_batch(unsigned int st, unsigned
 	}
 }
 
-std::vector<double> ChrNumThread::avg_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<double> ChrNumData::avg_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n) {
 		std::vector<double> ret(n);
 		pair<double, double> last = make_pair(this->sum(st), this->coverage(st));
@@ -308,7 +308,7 @@ inline std::vector<Tp> range_summary(unsigned int st, unsigned int ed, unsigned 
 	return out;
 }
 
-std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<double> ChrNumData::min_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n)
 		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
 			return this->min_value(st, ed); });
@@ -318,7 +318,7 @@ std::vector<double> ChrNumThread::min_value_batch(unsigned int st, unsigned int 
 	}
 }
 
-std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<double> ChrNumData::max_value_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n)
 		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
 			return this->max_value(st, ed); });
@@ -328,7 +328,7 @@ std::vector<double> ChrNumThread::max_value_batch(unsigned int st, unsigned int 
 	}
 }
 
-std::vector<double> ChrNumThread::stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const {
+std::vector<double> ChrNumData::stdev_batch(unsigned int st, unsigned int ed, unsigned int n) const {
 	if (ed - st > n)
 		return range_summary<double>(st, ed, n, [&](unsigned int st, unsigned int ed)->double{
 			return this->stdev(st, ed); });

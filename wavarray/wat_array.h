@@ -47,7 +47,7 @@ public:
 
 	uint64_t count2d(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos) const;
 	typedef bool (*ListCallback) (void * context, uint64_t c, uint64_t pos);
-	/** return number in range [min_c, max_c) and [beg_pos, end_pos) */
+	/** return the numbers in range [min_c, max_c) and [beg_pos, end_pos) */
 	void list_each(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, ListCallback cb, void* context) const;
 
 	void load(IArchive& ar);

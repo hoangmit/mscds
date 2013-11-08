@@ -18,8 +18,11 @@
  catch (const std::out_of_range& e) {
    SWIG_exception(SWIG_IndexError, e.what());
  }
+ catch (const std::exception& e) {
+   SWIG_exception(SWIG_UnknownError, e.what());
+ }
  catch (...) { 
-   SWIG_exception(SWIG_RuntimeError, "unknown exception");
+   SWIG_exception(SWIG_UnknownError, "unknown exception");
  } 
 }
 
@@ -63,7 +66,7 @@ public:
 		bool minmax_query = true, bool annotation = false);
 };
 
-class ChrNumThread {
+class ChrNumData {
 public:
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
@@ -126,7 +129,7 @@ public:
 class GenomeNumData {
 public:
 	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
-	const ChrNumThread& getChr(unsigned int chrid);
+	const ChrNumData& getChr(unsigned int chrid);
 
 	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const;

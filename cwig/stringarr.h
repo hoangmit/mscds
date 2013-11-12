@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bitarray/bitarray.h"
-#include "archive.h"
+#include "framework/archive.h"
 #include "intarray/sdarray_sml.h"
 
 #include <string>

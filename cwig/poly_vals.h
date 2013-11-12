@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
-#include "archive.h"
+#include "framework/archive.h"
 #include "intarray/intarray.h"
 #include "intarray/deltaarray.h"
 #include "intarray/sdarray_sml.h"

@@ -22,7 +22,7 @@
 #ifndef SDARRAY_HPP__
 #define SDARRAY_HPP__
 
-#include "archive.h"
+#include "framework/archive.h"
 #include "bitarray/bitarray.h"
 
 #include <vector>

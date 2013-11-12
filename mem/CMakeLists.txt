@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(mem)
 
-find_package(Boost REQUIRED)
+#find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 

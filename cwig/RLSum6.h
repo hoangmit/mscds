@@ -3,7 +3,7 @@
 #include <deque>
 #include <cmath>
 #include <stdint.h>
-#include "archive.h"
+#include "framework/archive.h"
 
 #include "rlsum_int.h"
 #include "poly_vals.h"

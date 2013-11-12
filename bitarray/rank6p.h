@@ -4,7 +4,7 @@
 #define __RANK_6P_H_
 
 #include "bitarray.h"
-#include "archive.h"
+#include "framework/archive.h"
 #include "rankselect.h"
 #include <cstdint>
 #include <string>

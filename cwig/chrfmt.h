@@ -5,7 +5,7 @@
 #include "RLSum6.h"
 #include "tree/RMQ_sct.h"
 #include "stringarr.h"
-#include "archive.h"
+#include "framework/archive.h"
 #include "valrange.h"
 
 namespace app_ds {

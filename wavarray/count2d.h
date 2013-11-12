@@ -4,7 +4,7 @@
 #define __COUNT_2D_H_
 
 #include <stdint.h>
-#include "archive.h"
+#include "framework/archive.h"
 #include "wat_array.h"
 #include "intarray/sdarray_sml.h"
 

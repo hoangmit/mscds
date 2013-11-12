@@ -3,7 +3,7 @@
 #ifndef __FILE_ARCHIVE_H_
 #define __FILE_ARCHIVE_H_
 
-#include "archive.h"
+#include "framework/archive.h"
 
 #include <iostream>
 #include <fstream>

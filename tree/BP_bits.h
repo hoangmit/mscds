@@ -11,7 +11,7 @@
 #include <string>
 #include <memory>
 
-#include "archive.h"
+#include "framework/archive.h"
 
 namespace mscds {
 

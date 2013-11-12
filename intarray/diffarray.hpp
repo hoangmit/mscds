@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------
 
 #include <stdint.h>
-#include "archive.h"
+#include "framework/archive.h"
 
 #include "codec/deltacoder.h"
 #include "intarray.h"

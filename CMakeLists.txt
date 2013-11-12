@@ -39,6 +39,8 @@ endif()
 #  .a   = archive
 #  .so  = library
 
+find_package(Boost REQUIRED)
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest ${PROJECT_BINARY_DIR}/gtest)
 include_directories(${PROJECT_SOURCE_DIR}/gtest/include)
 set(GTEST_LIB gtest)
@@ -46,7 +48,7 @@ set(GTEST_LIB gtest)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
 	
 include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/framework)
+#include_directories(${PROJECT_SOURCE_DIR}/framework)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/mem)
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
@@ -54,6 +56,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
 set(COMMON_LIBS mem utils)
 
 ########################################################
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/cstream)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/codec)

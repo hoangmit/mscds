@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <vector>
+#include <cstddef>
 
 namespace utils {
 

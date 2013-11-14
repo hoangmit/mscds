@@ -40,7 +40,7 @@ void test_rd1(const std::deque<unsigned int>& vals, unsigned int method, unsigne
 	}
 }
 
-void test1() {
+TEST(val_arr, test_all) {
 	for (int i = 0; i < 10; ++i) {
 		test_rd1<RankValArr>(generate1(1000), 1);
 		test_rd1<RankValArr>(generate1(1000), 2);
@@ -50,10 +50,6 @@ void test1() {
 		test_rd1<PRValArr>(generate1(1000), 1);
 		test_rd1<PRValArr>(generate1(1000), 2);
 		test_rd1<PRValArr>(generate1(1000), 3);
-	}}
-
-int main() {
-	
-	test1();
-	return 0;
+	}
 }
+

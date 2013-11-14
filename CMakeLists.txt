@@ -39,12 +39,25 @@ endif()
 #  .a   = archive
 #  .so  = library
 
-find_package(Boost REQUIRED)
+#---External packcage------------------------------------------------------------------------------
+find_package(Boost)
+include_directories(${Boost_INCLUDE_DIRS})
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/gtest ${PROJECT_BINARY_DIR}/gtest)
-include_directories(${PROJECT_SOURCE_DIR}/gtest/include)
-set(GTEST_LIB gtest)
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/gtest ${PROJECT_BINARY_DIR}/ext_libs/gtest)
+set(GTEST_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/gtest/include)
+set(GTEST_LIBRARY gtest)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/snappy ${PROJECT_BINARY_DIR}/ext_libs/snappy)
+set(SNAPPY_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/snappy)
+set(SNAPPY_LIBRARY snappy)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/zlib ${PROJECT_BINARY_DIR}/ext_libs/zlib)
+set(ZLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/zlib)
+set(ZLIB_LIBRARY zlibstatic)
+
+include_directories(${GTEST_INCLUDE_DIRS})
+
+#---Interal Utilities-----------------------------------------------------------------------------
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
 	
 include_directories(${PROJECT_SOURCE_DIR})
@@ -57,7 +70,7 @@ set(COMMON_LIBS mem utils)
 
 ########################################################
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/cstream)
+add_subdirectory(${PROJECT_SOURCE_DIR}/extcodec)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/codec)
@@ -90,7 +103,7 @@ MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cwig)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
+add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)

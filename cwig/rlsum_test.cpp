@@ -258,10 +258,3 @@ TEST(rlsum, tb_rng) {
 	}
 }
 
-
-int main(int argc, char* argv[]) {
-	::testing::GTEST_FLAG(throw_on_failure) = true;
-	::testing::InitGoogleTest(&argc, argv); 
-	int rs = RUN_ALL_TESTS();
-	return rs;
-}

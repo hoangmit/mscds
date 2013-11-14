@@ -23,18 +23,9 @@ rlsum_int.h poly_vals.h nintv.h)
 add_library(cwig ${SRCS} ${HEADERS})
 target_link_libraries(cwig mscdsa)
 
-add_executable(t_cwig cwig_test.cpp)
+add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp)
 target_link_libraries(t_cwig cwig utils)
 set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-
-add_executable(t_rlsum rlsum_test.cpp)
-target_link_libraries(t_rlsum intarray cwig ${COMMON_LIBS})
-set_target_properties(t_rlsum PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-
-
-add_executable(t_val_arr val_arr_test.cpp)
-target_link_libraries(t_val_arr intarray  cwig ${COMMON_LIBS})
-set_target_properties(t_val_arr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_executable(tbm_cwig benchmark_cwig.cpp)
 target_link_libraries(tbm_cwig cwig)

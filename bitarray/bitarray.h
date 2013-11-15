@@ -13,6 +13,7 @@
 #include <cassert>
 #include <memory>
 #include <vector>
+#include <cstring>
 
 namespace mscds {
 
@@ -149,7 +150,7 @@ inline BitArray BitArray::create(size_t bitlen) {
 inline BitArray BitArray::create(const char * ptr, size_t bitlen) {
 	BitArray v = create(bitlen);
 	size_t bytelen = (size_t)ceildiv(bitlen, 8);
-	memcpy(v.data, ptr, bytelen);
+	std::memcpy(v.data, ptr, bytelen);
 	return v;
 }
 

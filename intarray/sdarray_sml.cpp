@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-
-
 namespace mscds {
 
 #define CACHE_SELECT_RANK

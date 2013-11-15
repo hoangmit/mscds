@@ -1,6 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include "utils/utest.h"
 #include "blkcomp.h"
+
+#include "framework/archive.h"
+#include "mem/filearchive.h"
 
 #include <string>
 #include <vector>
@@ -27,7 +31,22 @@ TEST(compressblk, test1) {
 
 using namespace std;
 
+void buildfile(const string& inp, const string& out) {
+	BlkCompBuilder bd;
+	std::ifstream file(inp.c_str());
+	std::string line;
+	while (std::getline(file, line)) {
+		bd.add(line);
+	}
+	mscds::OFileArchive fout;
+	fout.open_write(out);
+	bd.build(fout);
+	fout.close();
+	bd.clear();
+}
+
 int main(int argc, char* argv[]) {
+
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();

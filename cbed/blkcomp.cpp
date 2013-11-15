@@ -46,6 +46,7 @@ void LineBlock::_buildptr() {
 
 void BlkCompBuilder::build(mscds::OArchive &ar) {
 	BlkCompQuery out;
+	build(&out);
 	out.save(ar);
 }
 

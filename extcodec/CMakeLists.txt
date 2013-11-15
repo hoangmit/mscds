@@ -29,3 +29,5 @@ add_executable(t_extcodec test_extcodec.cpp)
 target_link_libraries(t_extcodec extcodec utils)
 set_target_properties(t_extcodec PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
+MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})
+

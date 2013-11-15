@@ -20,7 +20,7 @@ ENDFUNCTION()
 # should not not have dependencies on other static libraries.
 # We use it in MySQL to merge mysys,dbug,vio etc into mysqlclient
 
-MACRO(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
+FUNCTION(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
   # To produce a library we need at least one source file.
   # It is created by ADD_CUSTOM_COMMAND below and will helps
   # also help to track dependencies.
@@ -100,4 +100,4 @@ MACRO(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
       )
     ENDIF()
   ENDIF()
-ENDMACRO()
+ENDFUNCTION()

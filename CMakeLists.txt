@@ -93,7 +93,7 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
 MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 
-MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})
+MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
 	
 #get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
 #message(" Location =" ${mscdsa_location})

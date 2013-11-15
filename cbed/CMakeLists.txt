@@ -5,15 +5,15 @@ project(cbed)
 #find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SRCS cbed.cpp)
+set(SRCS cbed.cpp blkcomp.cpp)
 
-set(HEADERS cbed.h genomedata.h genomedata.hxx)
+set(HEADERS cbed.h genomedata.h genomedata.hxx blkcomp.h)
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
 #target_link_libraries(bedgraph2gnt mscdsa)
 
 add_library(cbed ${SRCS} ${HEADERS})
-target_link_libraries(cbed mscdsa)
+target_link_libraries(cbed mscdsa extcodec)
 
 add_executable(t_cbed cbed_test.cpp)
 target_link_libraries(t_cbed cbed utils)

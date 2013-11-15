@@ -8,8 +8,15 @@
 #include <cstddef>
 
 namespace utils {
+/*
+cache table model: a set of keys map to a limited size table. 
+The table is cache_table[0..capacity-1],
 
-class CachePolicyInterface {
+This class helps to manage the organization of the table.
+(It does not keep the actual table.)
+E.g. Given a key: which entry index to access, which entry index to update
+*/
+class CacheTablePolicyInterface {
 public:
 	typedef unsigned int KeyTp;
 	typedef unsigned int EntryIndexTp;
@@ -27,16 +34,11 @@ public:
 	NOT_FOUND or FOUND_ENTRY
 	*/
 	virtual OpResultTp check(const KeyTp& key) = 0;
-	
-	/* find entry of a key; mark recent access
-	NOT_FOUND or FOUND_ENTRY
-	*/
-	virtual OpResultTp access(const KeyTp& key) = 0;
-	
+		
 	/* find existing key, find a place to update,
 	FOUND_ENTRY or REPLACED_ENTRY/NEW_ENTRY
 	*/
-	virtual OpResultTp update(const KeyTp& key) = 0;
+	virtual OpResultTp access(const KeyTp& key) = 0;
 	
 	/* remove existing key 
 	NOT_FOUND or FOUND_ENTRY
@@ -62,14 +64,13 @@ public:
 };
 
 
-class LRU_Policy: public CachePolicyInterface {
+class LRU_Policy : public CacheTablePolicyInterface {
 public:
 	LRU_Policy() :_capacity(0) {}
 	LRU_Policy(size_t capacity) { assert(capacity > 0);  init(capacity); }
 
 	OpResultTp check(const KeyTp& key);
 	OpResultTp access(const KeyTp& key);
-	OpResultTp update(const KeyTp& key);
 	OpResultTp remove(const KeyTp& key);
 	
 	size_t size() { return map.size(); }
@@ -91,8 +92,5 @@ private:
 	size_t _capacity;
 };
 
-template<typename CachePolicyInterface, typename TableTp>
-class CacheTableGeneric {
-};
 
 }//namespace

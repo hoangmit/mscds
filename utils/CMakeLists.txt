@@ -34,8 +34,8 @@ target_link_libraries(utils ${GTEST_LIBRARY})
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
 
-#add_test_files(cache_table_test.cpp)
-add_executable(t_cache_table cache_table_test.cpp)
-target_link_libraries(t_cache_table utils)
-set_target_properties(t_cache_table PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+add_test_files(cache_table_test.cpp)
+#add_executable(t_cache_table cache_table_test.cpp)
+#target_link_libraries(t_cache_table utils)
+#set_target_properties(t_cache_table PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 

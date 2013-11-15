@@ -11,15 +11,15 @@
 
 namespace mscds {
 
-size_t SnappyCodec::compress_c(const char* input, size_t input_length, std::string* output) {
+size_t SnappyCodec::compress_c(const char* input, size_t input_length, std::string* output) const {
 	return snappy::Compress(input, input_length, output);
 }
 
-bool SnappyCodec::uncompress_c(const char* compressed, size_t compressed_length, std::string* uncompressed) {
+bool SnappyCodec::uncompress_c(const char* compressed, size_t compressed_length, std::string* uncompressed) const {
 	return snappy::Uncompress(compressed, compressed_length, uncompressed);
 }
 
-size_t ZlibCodec::compress_c(const char* input, size_t input_length, std::string* output) {
+size_t ZlibCodec::compress_c(const char* input, size_t input_length, std::string* output) const {
 	int compressionlevel = Z_DEFAULT_COMPRESSION;
 	z_stream zs;
 	memset(&zs, 0, sizeof(zs));
@@ -49,7 +49,7 @@ size_t ZlibCodec::compress_c(const char* input, size_t input_length, std::string
 	return output->size();
 }
 
-bool ZlibCodec::uncompress_c(const char* compressed, size_t compressed_length, std::string* uncompressed) {
+bool ZlibCodec::uncompress_c(const char* compressed, size_t compressed_length, std::string* uncompressed) const {
 	z_stream zs;
 	memset(&zs, 0, sizeof(zs));
 	if (inflateInit(&zs) != Z_OK) return false;

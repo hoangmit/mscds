@@ -43,7 +43,6 @@ private:
 	friend class HuffmanTree;
 };
 
-
 class HuffmanTree {
 public:
 	HuffmanTree(): _size(0) {}

@@ -7,13 +7,13 @@ TEST(lru_cache, test_gereneral1) {
 	LRU_Policy cache(5);
 	LRU_Policy::OpResultTp ret;
 
-	ret = cache.access(1);
+	ret = cache.check(1);
 	ASSERT_EQ(LRU_Policy::NOT_FOUND, ret.type);
 
-	ret = cache.update(1);
+	ret = cache.access(1);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
-	ret = cache.access(1);
+	ret = cache.check(1);
 	ASSERT_EQ(LRU_Policy::FOUND_ENTRY, ret.type);
 
 	auto ret2 = cache.envict();
@@ -25,7 +25,7 @@ TEST(lru_cache, test_gereneral1) {
 	ret = cache.check(1);
 	ASSERT_EQ(LRU_Policy::NOT_FOUND, ret.type);
 
-	ret = cache.update(1);
+	ret = cache.access(1);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 	
 	ret = cache.check(1);
@@ -42,10 +42,10 @@ TEST(lru_cache, test_rlu1) {
 	LRU_Policy cache(5);
 	LRU_Policy::OpResultTp ret;
 
-	ret = cache.update(1);
+	ret = cache.access(1);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
-	ret = cache.update(2);
+	ret = cache.access(2);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
 	ret = cache.check(1);
@@ -54,10 +54,10 @@ TEST(lru_cache, test_rlu1) {
 	auto ret2 = cache.envict();
 	ASSERT(ret2.key == 1);
 
-	ret = cache.update(3);
+	ret = cache.access(3);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
-	ret = cache.update(2);
+	ret = cache.access(2);
 	ASSERT_EQ(LRU_Policy::FOUND_ENTRY, ret.type);
 
 	ret2 = cache.envict();
@@ -68,24 +68,25 @@ TEST(lru_cache, test_rlu1) {
 TEST(lru_cache, test_rlu2) {
 	LRU_Policy cache(3);
 	LRU_Policy::OpResultTp ret;
-	ret = cache.update(1);
+	ret = cache.access(1);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 	auto oldpos = ret.index;
 
-	ret = cache.update(2);
+	ret = cache.access(2);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
-	ret = cache.update(3);
+	ret = cache.access(3);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 
-	ret = cache.update(4);
+	ret = cache.access(4);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 	ASSERT_EQ(oldpos, ret.index);
 }
 
+/*
 int main(int argc, char* argv[]) {
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;
-}
+}*/

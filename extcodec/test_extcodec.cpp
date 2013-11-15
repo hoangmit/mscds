@@ -8,17 +8,6 @@
 using namespace std;
 using namespace mscds;
 
-
-string generate_str(unsigned int len) {
-	static const string alph = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	string out;
-	for (unsigned int i = 0; i < len; ++i) {
-		char ch = alph[rand() % alph.size()];
-		out.push_back(ch);
-	}
-	return out;
-}
-
 template<typename Codec>
 void testcd(const string& inp) {
 	Codec cd;
@@ -35,12 +24,16 @@ TEST(extcodec, snappy) {
 	testcd<SnappyCodec>("Hello world");
 	testcd<SnappyCodec>(generate_str(10));
 	testcd<SnappyCodec>(generate_str(100));
+	for (unsigned int i = 0; i < 100; i++)
+		testcd<SnappyCodec>(generate_str(512));
 }
 
 TEST(extcodec, zlib) {
 	testcd<ZlibCodec>("Hello world");
-	testcd<SnappyCodec>(generate_str(10));
-	testcd<SnappyCodec>(generate_str(100));
+	testcd<ZlibCodec>(generate_str(10));
+	testcd<ZlibCodec>(generate_str(100));
+	for (unsigned int i = 0; i < 100; i++)
+		testcd<ZlibCodec>(generate_str(512));
 }
 
 

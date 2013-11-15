@@ -2,7 +2,7 @@
 
 namespace utils {
 
-CachePolicyInterface::OpResultTp LRU_Policy::check(const CachePolicyInterface::KeyTp &key) {
+LRU_Policy::OpResultTp LRU_Policy::check(const LRU_Policy::KeyTp &key) {
 	auto it = map.find(key);
 	if (it != map.end())
 		return OpResultTp(it->second.first, FOUND_ENTRY);
@@ -10,17 +10,7 @@ CachePolicyInterface::OpResultTp LRU_Policy::check(const CachePolicyInterface::K
 		return OpResultTp(0, NOT_FOUND);
 }
 
-CachePolicyInterface::OpResultTp LRU_Policy::access(const CachePolicyInterface::KeyTp &key) {
-	auto it = map.find(key);
-	if (it != map.end()) {
-		auto retid = it->second.first;
-		_access.splice(_access.end(), _access, it->second.second);
-		return OpResultTp(retid, FOUND_ENTRY);
-	} else
-		return OpResultTp(0, NOT_FOUND);
-}
-
-CachePolicyInterface::OpResultTp LRU_Policy::update(const CachePolicyInterface::KeyTp &key) {
+LRU_Policy::OpResultTp LRU_Policy::access(const LRU_Policy::KeyTp &key) {
 	auto it = map.find(key);
 	if (it != map.end()) {
 		auto retid = it->second.first;
@@ -47,7 +37,7 @@ CachePolicyInterface::OpResultTp LRU_Policy::update(const CachePolicyInterface::
 	}
 }
 
-CachePolicyInterface::OpResultTp LRU_Policy::remove(const CachePolicyInterface::KeyTp &key) {
+LRU_Policy::OpResultTp LRU_Policy::remove(const LRU_Policy::KeyTp &key) {
 	auto it = map.find(key);
 	if (it != map.end()) {
 		freelst.push_back(it->second.first);

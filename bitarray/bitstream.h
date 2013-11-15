@@ -19,6 +19,7 @@ public:
 	void puts(uint64_t v, uint16_t len);
 	void puts(const std::pair<uint64_t, uint16_t>& code);
 	void puts(uint64_t v);
+	void puts_c(const char* ptr, size_t byte_count);
 
 	void clear();
 	void close();
@@ -28,7 +29,7 @@ public:
 	size_t word_count() const { return os.size(); }
 	uint64_t* data_ptr() { return os.data(); }
 private:
-	bool getbit(uint64_t pos) const { return (os[pos/WORDLEN] & (1ull << (pos%WORDLEN))) > 0; }
+	bool getbit(uint64_t pos) const;
 	const static uint16_t WORDLEN = 64;
 	void pushout();
 	
@@ -37,6 +38,8 @@ private:
 	uint16_t j;	
 	std::vector<uint64_t> os;
 };
+
+//-----------------------------------------------------------------------
 
 inline void OBitStream::put0() { pushout(); }
 inline void OBitStream::put1() { cur |= (1ull << j);  pushout(); }
@@ -59,12 +62,15 @@ inline void OBitStream::puts(const std::pair<uint64_t, uint16_t>& code) {
 	puts(code.first, code.second);
 }
 
-
 inline void OBitStream::puts(uint64_t v) {
 	cur |= (v << j);
 	os.push_back(cur);
 	cur = (v >> (WORDLEN - j));
 	bitlen += WORDLEN;
+}
+
+inline void OBitStream::puts_c(const char* ptr, size_t byte_count) {
+	for (unsigned int i = 0; i < byte_count; ++i) this->puts(*(ptr + i), 8);
 }
 
 inline void OBitStream::clear() {
@@ -99,6 +105,7 @@ inline void OBitStream::pushout() {
 	}
 }
 
+inline bool OBitStream::getbit(uint64_t pos) const { return (os[pos / WORDLEN] & (1ull << (pos%WORDLEN))) > 0; }
 
 //------------------------------------------------------------------------
 
@@ -204,5 +211,23 @@ inline uint64_t IWBitStream::get(uint16_t len) {
 	skipw(len);
 	return v;
 }
+//----------------------------------------------------------------
+
+class OByteStream {
+public:
+	OByteStream() {}
+	void put(char c) { os.push_back(c); }
+	void puts(const std::string& str) {
+		for (size_t i = 0; i < str.length(); ++i) os.push_back(str[i]);
+	}
+	void puts(const char* str, unsigned int len) {
+		for (size_t i = 0; i < len; ++i) os.push_back(*(str + i));
+	}
+	size_t length() const { return os.size(); }
+	const char* data_ptr() { return os.data(); }
+	void clear() { os.clear(); }
+private:
+	std::vector<char> os;
+};
 
 }//namespace

@@ -24,6 +24,7 @@ set(HEADERS cstream.h compression_streams.h mem_codec.h)
 add_library(extcodec ${SRCS} ${HEADERS})
 target_link_libraries(extcodec utils ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY} ${Boost_LIBRARIES})
 
+#add_test_files(test_extcodec.cpp)
 add_executable(t_extcodec test_extcodec.cpp)
 target_link_libraries(t_extcodec extcodec utils)
 set_target_properties(t_extcodec PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

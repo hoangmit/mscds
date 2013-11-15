@@ -17,9 +17,6 @@
 // http://en.wikipedia.org/wiki/Assert.h
 
 
-
-
-
 namespace has_insertion_operator_impl {
 	typedef char no;
 	typedef char yes[2];
@@ -82,6 +79,17 @@ namespace has_insertion_operator_impl {
 #define ASSERT ASSERT_TRUE
 
 #endif //USE_OWN_TEST_LIB
+
+#include <string>
+
+inline std::string generate_str(size_t len, const std::string& alph = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+	std::string out;
+	for (size_t i = 0; i < len; ++i) {
+		char ch = alph[rand() % alph.size()];
+		out.push_back(ch);
+	}
+	return out;
+}
 
 
 #endif //__UNIT_TEST_H_

@@ -70,8 +70,6 @@ set(COMMON_LIBS mem utils)
 
 ########################################################
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/extcodec)
-
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/codec)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
@@ -109,3 +107,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 
 
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/extcodec)
+MERGE_STATIC_LIBRARIES(extcodeca extcodec zlib snappy)

@@ -23,7 +23,6 @@ set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
 set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 	CACHE PATH "Directory for python modules")
 
-
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -O3 -g")
 else()
@@ -71,13 +70,15 @@ set(COMMON_LIBS mem utils)
 ########################################################
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/extcodec)
-MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})
+
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/codec)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/wavarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 
 set(CORE_LIBS utils mem bitarray codec intarray wavarray tree)
 
@@ -92,7 +93,7 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
 
 
 MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
-	
+MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})	
 #get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
 #message(" Location =" ${mscdsa_location})
 #get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
@@ -106,7 +107,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cwig)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
-add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
+
 
 
 

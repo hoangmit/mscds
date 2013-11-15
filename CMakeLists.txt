@@ -78,8 +78,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/wavarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
-
 set(CORE_LIBS utils mem bitarray codec intarray wavarray tree)
 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
@@ -93,7 +91,10 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
 
 
 MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
-MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})	
+add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
+
+MERGE_STATIC_LIBRARIES(extcodeca extcodec ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY})
+	
 #get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
 #message(" Location =" ${mscdsa_location})
 #get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)

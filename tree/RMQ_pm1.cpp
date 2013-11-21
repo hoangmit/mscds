@@ -149,6 +149,51 @@ std::pair<int8_t, uint8_t> max_excess_word(uint64_t x, uint8_t st, uint8_t ed) {
 	return ret;
 }
 
+void RMQ_index_pm1::build(BitArray b, unsigned int blksize, bool _min_struct, RMQ_index_pm1 *out) {
+	Rank6pBuilder::build(b, &(out->bits));
+	out->_min_struct = _min_struct;
+	auto nc = b.word_count();
+	std::vector<int> mwex(nc);
+	int val = 0;
+	for (size_t i = 0; i < nc - 1; ++i) {
+		uint64_t w = b.word(i);
+		int mx;
+		if (_min_struct) mx = val + min_excess_word(w).first;
+		else mx = val + max_excess_word(w).first;
+		mwex[i] = mx;
+		val += word_excess(w);
+	}
+	{//last one, may not be a whole word
+		uint64_t w = b.word(nc - 1);
+		unsigned int lastlen = b.length() % WORDSIZE;
+		if (lastlen == 0) lastlen = WORDSIZE;
+		int mx;
+		if (_min_struct) mx = val + min_excess_word(w, 0, lastlen).first;
+		else mx = val + max_excess_word(w, 0, lastlen).first;
+		mwex[nc - 1] = mx;
+	}
+	RMQ_index_blk::build(mwex, blksize, _min_struct, &(out->blks));
+}
+
+void RMQ_index_pm1::save_aux(OArchive &ar) const {
+	ar.startclass("RMQ_index_pm1_auxiliary");
+	uint32_t v = _min_struct ? 1 : 0;
+	ar.var("is_min_structure").save(v);
+	blks.save(ar.var("word_rmq"));
+	bits.save_aux(ar.var("rank_aux"));
+	ar.endclass();
+}
+
+void RMQ_index_pm1::load_aux(IArchive &ar, BitArray b) {
+	ar.loadclass("RMQ_index_pm1_auxiliary");
+	uint32_t v = 0;
+	ar.var("is_min_structure").load(v);
+	_min_struct = v != 0 ? true : false;
+	blks.load(ar.var("word_rmq"));
+	bits.load_aux(ar.var("rank_aux"), b);
+	ar.endclass();
+}
+
 
 //----------------------------------------------------------------------------------------------
 

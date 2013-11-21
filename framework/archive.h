@@ -75,8 +75,8 @@ public:
 
 
 class SaveLoadInt {
-	virtual void save(IArchive& ar) const = 0;
-	virtual void load(OArchive& ar) = 0;
+	virtual void save(OArchive& ar) const = 0;
+	virtual void load(IArchive& ar) = 0;
 };
 
 

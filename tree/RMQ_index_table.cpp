@@ -17,7 +17,7 @@ void RMQ_index_blk::build(const std::vector<int> &wordvals, unsigned int blksize
 		if (_min_struct) mx = std::min(mx, wordvals[i]);
 		else mx = std::max(mx, wordvals[i]);
 		if ((i + 1) % blksize == 0 && i > 0) {
-			RMQ_table_access::build_stream(sbv, _min_struct, &subblkv);
+			RMQ_index_table::build_stream(sbv, _min_struct, &subblkv);
 			bv.push_back(mx);
 			sbv.clear();
 			if (_min_struct) mx = std::numeric_limits<int>::max();
@@ -29,28 +29,28 @@ void RMQ_index_blk::build(const std::vector<int> &wordvals, unsigned int blksize
 		assert(sbv.size() < blksize);
 		for (size_t i = sbv.size(); i < blksize; ++i)
 			sbv.push_back(0);
-		RMQ_table_access::build_stream(sbv, _min_struct, &subblkv);
+		RMQ_index_table::build_stream(sbv, _min_struct, &subblkv);
 		bv.push_back(mx);
 		sblcnt++;
 	}
-	RMQ_table_access::build(bv, _min_struct, &(out->blockrmq));
-	RMQ_table_access::build_stream(sbv, _min_struct, &subblkv);
+	RMQ_index_table::build(bv, _min_struct, &(out->blockrmq));
+	RMQ_index_table::build_stream(sbv, _min_struct, &subblkv);
 	subblkv.close();
 	BitArray bt = BitArray::create(subblkv.data_ptr(), subblkv.length());
-	out->subblkrmq.init_shared(sblcnt, blksize, 0, bt);
+	out->subblkrmq.init_shared(sblcnt, blksize, bt);
 
 	out->len = wordvals.size();
 	out->blksize = blksize;
 }
 
-void RMQ_table_access::build(const std::vector<int> &values, bool _min_struct, RMQ_table_access *tbl) {
+void RMQ_index_table::build(const std::vector<int> &values, bool _min_struct, RMQ_index_table *tbl) {
 	OBitStream out;
 	build_stream(values, _min_struct, &out);
 	out.close();
 	tbl->init(values.size(), BitArray::create(out.data_ptr(), out.length()));
 }
 
-size_t RMQ_table_access::build_stream(const std::vector<int> &values, bool _min_struct, OBitStream *out) {
+size_t RMQ_index_table::build_stream(const std::vector<int> &values, bool _min_struct, OBitStream *out) {
 	size_t len = values.size();
 	size_t layerspan = 2;
 	size_t bitsize = 0;
@@ -77,7 +77,7 @@ size_t RMQ_table_access::build_stream(const std::vector<int> &values, bool _min_
 	return bitsize;
 }
 
-size_t RMQ_table_access::build_start(size_t len, std::vector<unsigned int> *starts) {
+size_t RMQ_index_table::build_start(size_t len, std::vector<unsigned int> *starts) {
 	starts->clear();
 	size_t layerspan = 2;
 	unsigned int layer = 1;
@@ -93,23 +93,58 @@ size_t RMQ_table_access::build_start(size_t len, std::vector<unsigned int> *star
 	return starts->back();
 }
 
-void RMQ_table_access::init_shared(unsigned int nblk, size_t seqlen, size_t base_pos, BitArray b) {
+void RMQ_index_table::init_shared(unsigned int nblk, size_t seqlen, BitArray b) {
 	this->nblk = nblk;
 	len = seqlen;
-	this->start_pos = base_pos;
-	this->base_pos = base_pos;
+	this->start_pos = 0;
 	this->bits = b;
 	bit_size = build_start(seqlen, &starts);
 	if (bit_size + start_pos > b.length()) throw std::runtime_error("over flow");
 }
 
-void RMQ_table_access::init(size_t seqlen, BitArray b) {
+void RMQ_index_table::init(size_t seqlen, BitArray b) {
 	start_pos = 0;
-	base_pos = 0;
 	nblk = 1;
 	bits = b;
 	this->len = seqlen;
 	bit_size = build_start(seqlen, &starts);
 }
 
+void RMQ_index_table::save(OArchive& ar) const {
+	ar.startclass("RMQ_index_table");
+	ar.var("block_length").save(len);
+	ar.var("num_shared_blocks").save(nblk);
+	bits.save(ar.var("data"));
+	ar.endclass();
 }
+
+void RMQ_index_table::load(IArchive& ar) {
+	ar.loadclass("RMQ_index_table");
+	ar.var("block_length").load(len);
+	ar.var("num_shared_blocks").load(nblk);
+	bits.load(ar.var("data"));
+	ar.endclass();
+	bit_size = build_start(len, &starts);
+	start_pos = 0;
+}
+
+void RMQ_index_blk::save(OArchive &ar) const {
+	ar.startclass("RMQ_index_blk");
+	ar.var("length").save(len);
+	ar.var("block_size").save(blksize);
+	blockrmq.save(ar.var("block_rmq"));
+	subblkrmq.save(ar.var("subblock_rmq"));
+	ar.endclass();
+}
+
+void RMQ_index_blk::load(IArchive &ar) {
+	ar.loadclass("RMQ_index_blk");
+	ar.var("length").load(len);
+	ar.var("block_size").load(blksize);
+	blockrmq.load(ar.var("block_rmq"));
+	subblkrmq.load(ar.var("subblock_rmq"));
+	ar.endclass();
+}
+
+
+}//namespace

@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cassert>
 
+#include "mem/filearchive.h"
+
 using namespace std;
 using namespace mscds;
 using namespace utils;
@@ -56,7 +58,7 @@ void testmin(uint64_t v) {
 	}
 }
 
-TEST(rmq_test2, min_max_excess_word) {
+TEST(rmq_pm1, min_max_excess_word) {
 	for (unsigned int i = 0; i < 100000; ++i) {
 		uint64_t v = rand64();
 		testmax(v);
@@ -66,12 +68,12 @@ TEST(rmq_test2, min_max_excess_word) {
 
 void test_rmq2(unsigned int len, unsigned int range, bool min_val = true) {
 	std::vector<int> vals = rand_vec<int>(len, range);
-	RMQ_table_access tbl;
-	RMQ_table_access::build(vals, min_val, &tbl);
+	RMQ_index_table tbl;
+	RMQ_index_table::build(vals, min_val, &tbl);
 	
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		for (unsigned int j = i + 1; j <= vals.size(); ++j) {
-			size_t exp = RMQ_table_access::_slow_m_idx<int>(i, j, vals, min_val);
+			size_t exp = RMQ_index_table::_slow_m_idx<int>(i, j, vals, min_val);
 			auto ret = tbl.m_idx(i, j);
 			ASSERT(ret.first <= ret.second);
 			if (ret.first != exp && ret.second != exp) {
@@ -82,7 +84,7 @@ void test_rmq2(unsigned int len, unsigned int range, bool min_val = true) {
 	}
 }
 
-TEST(rmq_test2, min_max_struct1) {
+TEST(rmq_pm1, min_max_struct1) {
 	test_rmq2(10, 5);
 	test_rmq2(10, 5);
 	test_rmq2(16, 5);
@@ -100,7 +102,7 @@ void test_idx_table(unsigned int len, unsigned int range, unsigned int blksize =
 
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		for (unsigned int j = i + 1; j <= vals.size(); ++j) {
-			size_t exp = RMQ_table_access::_slow_m_idx<int>(i, j, vals, min_val);
+			size_t exp = RMQ_index_table::_slow_m_idx<int>(i, j, vals, min_val);
 			auto ret = tbl.m_idx(i, j);
 			for (size_t k = 1; k < ret.size(); ++k) ASSERT(ret[k] > ret[k - 1]);
 			bool found = false;
@@ -120,7 +122,7 @@ void test_idx_table(unsigned int len, unsigned int range, unsigned int blksize =
 	}
 }
 
-TEST(rmq_test2, blk_table) {
+TEST(rmq_pm1, blk_table) {
 	test_idx_table(25, 5, 8, true);
 	test_idx_table(100, 8, 8, true);
 
@@ -159,8 +161,8 @@ void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) 
 		cout << endl;
 	}*/
 
-	RMQ_table_access tbl;
-	RMQ_table_access::build(vals, min_struct, &tbl);
+	RMQ_index_table tbl;
+	RMQ_index_table::build(vals, min_struct, &tbl);
 
 	RMQ_index_pm1 rmq;
 	RMQ_index_pm1::build(b, blksize, min_struct, &(rmq));
@@ -174,7 +176,7 @@ void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) 
 				if (vals[p.first] < vals[p.second]) exp = p.second;
 			auto ac = rmq.m_idx(i, j);
 			if (exp != ac) {
-				auto exp2 = RMQ_table_access::_slow_m_idx<int>(i, j, vals, min_struct);
+				auto exp2 = RMQ_index_table::_slow_m_idx<int>(i, j, vals, min_struct);
 				cout << "i = " << i << "     j = " << j << endl;
 				cout << "expected = " << exp << "    (" << exp2 << ")"<< endl;
 				cout << "actual   = " << ac << endl;
@@ -185,7 +187,7 @@ void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) 
 	}
 }
 
-TEST(rmq_test2, rmq_pm1) {
+TEST(rmq_pm1, rmq_pm1) {
 	test_rmq_pm1(769, 4, true);
 	test_rmq_pm1(768, 4, true);
 	for (unsigned int i = 0; i < 50; ++i) {
@@ -197,8 +199,44 @@ TEST(rmq_test2, rmq_pm1) {
 	cout << endl;
 }
 
+TEST(rmq_pm1, saveload) {
+	unsigned int len = 10000, blksize = 8;
+	bool min_struct = true;
+	vector<bool> bv(len);
+	vector<int> vals(len);
+	BitArray b = BitArray::create(len);
+	int last = 0;
+	for (int i = 0; i < bv.size(); ++i) {
+		bool bx = (rand() % 2) == 1;
+		bv[i] = bx;
+		b.setbit(i, bx);
+		if (bx) last += 1;
+		else last -= 1;
+		vals[i] = last;
+	}
+
+	RMQ_index_pm1 rmq;
+	RMQ_index_pm1::build(b, blksize, min_struct, &(rmq));
+	OMemArchive out;
+	rmq.save_aux(out);
+	out.close();
+
+	RMQ_index_pm1 nrmq;
+	IMemArchive inx(out);
+	nrmq.load_aux(inx, b);
+	for (unsigned int i = 0; i < vals.size(); ++i) {
+		unsigned int st = i;
+		unsigned int ed = rand() % (vals.size() + 1);
+		if (st > ed) std::swap(st, ed);
+		auto x1 = nrmq.m_idx(st, ed);
+		auto x2 = rmq.m_idx(st, ed);
+		ASSERT_EQ(x2, x1);
+	}
+	inx.close();
+}
+
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(filter) = "rmq_test2.rmq_pm1";
+	//::testing::GTEST_FLAG(filter) = "rmq_pm1.rmq_pm1";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;

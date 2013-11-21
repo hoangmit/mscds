@@ -83,8 +83,6 @@ private:
 	std::shared_ptr<std::stringstream> ss;
 };
 
-
-
 class OSizeEstArchive: public OArchive {
 public:
 	OSizeEstArchive(): pos(0) {}

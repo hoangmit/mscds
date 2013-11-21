@@ -34,8 +34,8 @@ public:
 	bool bit(uint64_t p) const;
 	std::string to_str() const { return bits.to_str(); }
 
-	void loadp(IArchive& ar, BitArray& b);
-	void savep(OArchive& ar) const;
+	void load_aux(IArchive& ar, BitArray& b);
+	void save_aux(OArchive& ar) const;
 
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;

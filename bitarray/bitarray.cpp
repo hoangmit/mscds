@@ -108,5 +108,14 @@ void BitArraySeqBuilder::done() {
 	assert(wl == pos);
 }
 
+FixedWArray FixedWArray::build(const std::vector<unsigned int> &values) {
+	unsigned int max_val = *max_element(values.begin(), values.end());
+	unsigned int width = ceillog2(max_val + 1);
+	FixedWArray out = create(values.size(), width);
+	for (unsigned int i = 0; i < values.size(); ++i)
+		out.set(i, values[i]);
+	return out;
+}
+
 
 }//namespace

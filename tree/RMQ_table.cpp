@@ -6,13 +6,13 @@
 namespace mscds {
 using namespace std;
 
-uint64_t RMQ_table::get_tb(uint64_t d, uint64_t i) const {
+size_t RMQ_table::get_tb(size_t d, size_t i) const {
 	if (d == 0) return i;
 	uint64_t start = len*(d-1) - (1ULL<<(d-1)) + 1;
 	return table[start + i];
 }
 
-uint64_t RMQ_table::m_idx(uint64_t st, uint64_t ed) const {
+size_t RMQ_table::m_idx(size_t st, size_t ed) const {
 	assert(st < ed && ed <= len);
 	if (ed - st == 1) return st;
 	unsigned int d = msb_intr(ed - st);
@@ -20,14 +20,14 @@ uint64_t RMQ_table::m_idx(uint64_t st, uint64_t ed) const {
 	uint64_t i1 = table[start + st];
 	if (ed - (1ULL<<d) != st) {
 		uint64_t i2 = table[start + ed - (1ULL<<d)];
-		if (_min_structre != (r_val(i1) > r_val(i2))) return i1;
+		if (_min_structure != (r_val(i1) > r_val(i2))) return i1;
 		else return i2;
 	}else return i1;
 }
 
 std::string RMQ_table::to_str() const {
 	std::ostringstream ss;
-	if (_min_structre) ss << "min_structure\n";
+	if (_min_structure) ss << "min_structure\n";
 	else ss << "max_structure\n";
 	if (len == 0) return "";
 	ss << '{' << r_val(0);
@@ -50,7 +50,7 @@ void RMQ_table::save(OArchive& ar) const {
 	ar.startclass("rmq_table", 1);
 	ar.var("len").save(len);
 	ar.var("max_val").save(max_val);
-	uint32_t mins = _min_structre ? 1 : 0;
+	uint32_t mins = _min_structure ? 1 : 0;
 	ar.var("min_structure").save(mins);
 	ar.var("values");
 	rval.save(ar);
@@ -66,7 +66,7 @@ void RMQ_table::load(IArchive& ar) {
 	ar.var("max_val").load(max_val);
 	uint32_t mins;
 	ar.var("min_structure").load(mins);
-	_min_structre = mins != 0;
+	_min_structure = mins != 0;
 	ar.var("values");
 	rval.load(ar);
 	ar.var("table");
@@ -101,16 +101,16 @@ uint64_t choose(bool ismin, const Vec& v, uint64_t i1, uint64_t i2) {
 	else return i2;
 }
 
-void RMQ_table_builder::build(const std::vector<uint64_t>& lst, RMQ_table * t,  bool min_structre, bool pack_values) {
+void RMQ_table_builder::build(const std::vector<uint64_t>& lst, RMQ_table * t, bool min_structure, bool pack_values) {
 	assert(lst.size() > 1);
 	t->clear();
 	t->len = lst.size();
-	t->_min_structre = min_structre;
+	t->_min_structure = min_structure;
 	std::vector<uint64_t> nlst;
 	pack(pack_values, lst, nlst, t->max_val); // set max_val
 	//t->init_width(); // initialize idx_bwidth and val_bwidth
 	unsigned int idx_bwidth = ceillog2(t->len);
-	unsigned int val_bwidth = ceillog2(t->max_val);
+	unsigned int val_bwidth = ceillog2(t->max_val+1);
 	t->rval = FixedWArray::create(nlst.size(), val_bwidth);
 	t->rval.fillzero();
 	for (size_t i = 0; i < nlst.size(); ++i) 
@@ -124,7 +124,7 @@ void RMQ_table_builder::build(const std::vector<uint64_t>& lst, RMQ_table * t,  
 	for (size_t d = 1; d < nl; ++d) {
 		uint64_t span = 1ULL << (d-1);
 		for (size_t i = 0; i < t->len - span; i++) {
-			uint64_t v = choose(min_structre, nlst, last[i], last[i+span]);
+			uint64_t v = choose(min_structure, nlst, last[i], last[i + span]);
 			t->table.set(px, v);
 			px++;
 			last[i] = v;

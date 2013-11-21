@@ -120,8 +120,6 @@ void Rank6p::load(IArchive &ar) {
 	if (bits.length() != blen) throw std::runtime_error("length mismatch");
 }
 
-
-
 bool Rank6p::bit(uint64_t p) const {
 	return bits.bit(p);
 }

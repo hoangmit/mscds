@@ -78,18 +78,11 @@ void test_sct(const vector<uint64_t>& vec) {
 
 }
 
-vector<uint64_t>  rand_vec(int len, int range = 1000000) {
-	vector<uint64_t> out;
-	for (unsigned int i = 0; i < len; ++i) {
-		out.push_back(rand() % range);
-	}
-	return out;
-}
 
 TEST(test2, RMQ) {
 	for (int i = 0; i < 100; i++) {
-		test_rmq(rand_vec(126 + rand() % 4));
-		test_rmq(rand_vec(126 + rand() % 4, 100));
+		test_rmq(rand_vec<uint64_t>(126 + rand() % 4));
+		test_rmq(rand_vec<uint64_t>(126 + rand() % 4, 100));
 	}
 }
 
@@ -121,13 +114,13 @@ void test_cmp(const vector<uint64_t>& x) {
 TEST(random_long, RMQ) {
 	for (size_t i = 0; i < 100; i++) {
 		if (i % 10 == 0) cout << '.';
-		test_sct(rand_vec(rand() % 10 + 100, 20));
-		test_sct(rand_vec(rand() % 10 + 100));
+		test_sct(rand_vec<uint64_t>(rand() % 10 + 100, 20));
+		test_sct(rand_vec<uint64_t>(rand() % 10 + 100));
 	}
 	for (size_t i = 0; i < 1000; i++) {
 		if (i % 10 == 0) cout << '.';
-		test_cmp(rand_vec(rand() % 10 + 100, 20));
-		test_cmp(rand_vec(rand() % 10 + 10000));
+		test_cmp(rand_vec<uint64_t>(rand() % 10 + 100, 20));
+		test_cmp(rand_vec<uint64_t>(rand() % 10 + 10000));
 	}
 
 }

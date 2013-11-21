@@ -122,6 +122,33 @@ namespace utils {
 		}
 		return ss.str();
 	}
+
+	inline uint64_t binstr2word(const std::string& s) {
+		uint64_t v = 1, out = 0;
+		for (char c : s) {
+			if (c == '1') {
+				out |= v;
+				v <<= 1;
+			}
+			else
+			if (c == '0') {
+				c <<= 1;
+			}
+		}
+		return out;
+	}
+
+	inline std::string binstr2(uint64_t n, int len = 64, int breakmark = 8) {
+		std::ostringstream ss;
+		for (int i = 0; i < len; ++i) {
+			if (i % breakmark == 0 && i > 0) ss << ' ';
+			ss << (int)(n & 1);
+			n = n >> 1;
+		}
+		return ss.str();
+	}
+
+	//---------------------------------------------------------------------
 	
 	template <class cT, class traits = std::char_traits<cT> >
 	class basic_nullbuf: public std::basic_streambuf<cT, traits> {
@@ -150,6 +177,7 @@ namespace utils {
 		virtual char do_thousands_sep() const { return ','; }
 		virtual std::string do_grouping() const { return "\03"; }
 	};
+	//print numbers with commas
 	//locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
 }//namespace
 

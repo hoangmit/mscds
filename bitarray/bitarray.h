@@ -59,7 +59,7 @@ public:
 	const uint64_t* data_ptr() const;
 
 	static BitArray create(size_t bitlen);
-	static BitArray create(uint64_t * ptr, size_t bitlen);
+	static BitArray create(const uint64_t * ptr, size_t bitlen);
 	static BitArray create(const char * ptr, size_t bitlen);
 
 	BitArray clone_mem() const;
@@ -154,7 +154,7 @@ inline BitArray BitArray::create(const char * ptr, size_t bitlen) {
 	return v;
 }
 
-inline BitArray BitArray::create(uint64_t * ptr, size_t bitlen) {
+inline BitArray BitArray::create(const uint64_t * ptr, size_t bitlen) {
 	BitArray v = create(bitlen);
 	size_t arrlen = (size_t)ceildiv(bitlen, WORDLEN);
 	std::copy(ptr, ptr + arrlen, v.data);
@@ -219,6 +219,9 @@ public:
 	static FixedWArray create(size_t len, unsigned int width) {
 		return FixedWArray(BitArray::create(len*width), width);
 	}
+
+	static FixedWArray build(const std::vector<unsigned int>& values);
+
 	uint64_t operator[](size_t i) const { return b.bits(i*width, width); }
 	void set(size_t i, uint64_t v) { b.setbits(i*width, v, width); }
 

@@ -3,10 +3,12 @@
 #ifndef __BALANCE_PARATHESIS_AUXILIARY_H_
 #define __BALANCE_PARATHESIS_AUXILIARY_H_
 
-#include <stdint.h>
+
 #include "bitarray/bitarray.h"
 #include "bitarray/rank6p.h"
 #include "intarray/sdarray_sml.h"
+
+#include <stdint.h>
 #include <algorithm>
 #include <string>
 #include <memory>
@@ -29,7 +31,7 @@ private:
 	static int8_t min_excess8_t[256], excess8_t[256], min_op_ex_pos8_t[256], min_op_ex8_t[256];
 
 	static uint8_t revbits(uint8_t c) {
-		return (c * 0x0202020202ULL & 0x010884422010ULL) % 1023;
+		return (uint8_t)((c * 0x0202020202ULL & 0x010884422010ULL) % 1023);
 	}
 	friend class BP_superblock;
 
@@ -60,32 +62,6 @@ public:
 };
 
 class BP_aux;
-
-class BP_superblock {
-	BP_block blk;
-	unsigned int spblksize;
-	int8_t * min;
-	BP_aux * parent;
-	int8_t * revmin;
-
-	uint64_t forward_scan(uint64_t pos, int64_t excess) const {
-		uint64_t ret = BP_block::NOTFOUND;
-		if (pos % spblksize != 0)
-			ret = blk.forward_scan(pos, excess);
-		if (ret != BP_block::NOTFOUND) return ret;
-		pos = (pos / spblksize + 1) * spblksize;
-		if (pos >= blk.bp.length()) return BP_block::NOTFOUND;
-		assert(pos % spblksize == 0);
-		uint64_t endp = blk.bp.length();
-		uint64_t idx = pos / spblksize;
-		for (; pos < endp; pos += spblksize) {
-			
-		}
-		return 0;
-	}
-	uint64_t backward_scan(uint64_t pos, int64_t excess) const;
-};
-
 
 BitArray find_pioneers(const BitArray& bp, size_t blksize);
 std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize);

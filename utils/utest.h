@@ -71,7 +71,8 @@ namespace has_insertion_operator_impl {
 
 #endif //ASSERT
 
-#define TEST(tcase, test) void tcase ## test () 
+#define TEST(tcase, test) void tcase ## test ()
+#define SCOPED_TRACE(msg)
 
 #else //USE_OWN_TEST_LIB
 
@@ -80,6 +81,7 @@ namespace has_insertion_operator_impl {
 
 #endif //USE_OWN_TEST_LIB
 
+#include <vector>
 #include <string>
 
 inline std::string generate_str(size_t len, const std::string& alph = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
@@ -88,6 +90,14 @@ inline std::string generate_str(size_t len, const std::string& alph = "012345678
 		char ch = alph[rand() % alph.size()];
 		out.push_back(ch);
 	}
+	return out;
+}
+
+template<typename T = unsigned int>
+inline std::vector<T> rand_vec(unsigned int len, int range = 1000000) {
+	std::vector<T> out;
+	for (unsigned int i = 0; i < len; ++i)
+		out.push_back(rand() % range);
 	return out;
 }
 

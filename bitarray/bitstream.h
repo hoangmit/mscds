@@ -27,7 +27,7 @@ public:
 
 	size_t length() const { return bitlen; }
 	size_t word_count() const { return os.size(); }
-	uint64_t* data_ptr() { return os.data(); }
+	uint64_t* data_ptr() { assert(j == 0); return os.data(); }
 private:
 	bool getbit(uint64_t pos) const;
 	const static uint16_t WORDLEN = 64;

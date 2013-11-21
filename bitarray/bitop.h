@@ -28,6 +28,7 @@ namespace mscds {
 
 #define ZCOMPARE_STEP_8(x) ( ( ( x | ( ( x | MSBS_STEP_8 ) - ONES_STEP_8 ) ) & MSBS_STEP_8 ) >> 7 )
 
+// from "Sebastiano Vigna"
 inline uint64_t selectword_v2(uint64_t x, uint64_t r) {
 	register uint64_t byte_sums = x - ( ( x & 0xa * ONES_STEP_4 ) >> 1 );
 	byte_sums = ( byte_sums & 3 * ONES_STEP_4 ) + ( ( byte_sums >> 2 ) & 3 * ONES_STEP_4 );
@@ -174,7 +175,7 @@ namespace mscds {
 
 namespace mscds {
 	inline uint8_t revbits(uint8_t c) {
-		return (c * 0x0202020202ULL & 0x010884422010ULL) % 1023;
+		return (uint8_t)((c * 0x0202020202ULL & 0x010884422010ULL) % 1023);
 	}
 
 	inline uint32_t revbits(uint32_t v) {

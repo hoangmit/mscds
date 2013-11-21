@@ -132,17 +132,18 @@ std::pair<int8_t, uint8_t> min_excess_word(uint64_t x) {
 }
 
 std::pair<int8_t, uint8_t> min_excess_word(uint64_t x, uint8_t st, uint8_t ed) {
-	x <<= st;
+	x >>= st;
 	ed -= st;
-	if (ed < 64) x |= ((1ull << (64 - ed)) - 1) >> st;
+	if (ed < 64) x |= ~((1ull << ed) - 1);
 	auto ret = min_excess_word(x);
 	ret.second += st;
 	return ret;
 }
 
 std::pair<int8_t, uint8_t> max_excess_word(uint64_t x, uint8_t st, uint8_t ed) {
-	x <<= st;
+	x >>= st;
 	ed -= st;
+	if (ed < 64) x &= ((1ull << ed) - 1);
 	auto ret = max_excess_word(x);
 	ret.second += st;
 	return ret;

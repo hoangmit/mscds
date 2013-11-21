@@ -58,7 +58,6 @@ private:
 //---------------------------------------------------------------
 
 inline std::vector<unsigned int> RMQ_index_blk::m_idx(size_t st, size_t ed) const {
-	assert(ed > st);
 	std::vector<unsigned int> ret;
 	if (st >= ed) return ret;
 	ed -= 1;
@@ -67,14 +66,19 @@ inline std::vector<unsigned int> RMQ_index_blk::m_idx(size_t st, size_t ed) cons
 	if (stb == edb) {
 		_find(stb, stp, edp + 1, ret);
 	} else {
-		_find(stb, stp, blksize, ret);
-		if (stb + 1 < edb) {
-			auto r = blockrmq.m_idx(stb + 1, edb);
+		if (stp > 0) {
+			_find(stb, stp, blksize, ret);
+			stb += 1;
+		}
+		if (edp == blksize - 1) edb += 1;
+		if (stb < edb) {
+			auto r = blockrmq.m_idx(stb, edb);
 			_find(r.first, 0, blksize, ret);
 			if (r.first != r.second)
 				_find(r.second, 0, blksize, ret);
 		}
-		_find(edb, 0, edp + 1, ret); // check this index
+		if (edp != blksize - 1)
+			_find(edb, 0, edp + 1, ret); // check this index
 	}
 	return ret;
 }

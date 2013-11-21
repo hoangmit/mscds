@@ -124,14 +124,17 @@ TEST(rmq_test2, blk_table) {
 	test_idx_table(25, 5, 8, true);
 	test_idx_table(100, 8, 8, true);
 
+	test_idx_table(12, 10, 4, true);
+	test_idx_table(32, 5, 4, true);
 	test_idx_table(32, 5, 8, true);
 	test_idx_table(64, 5, 8, true);
-	for (unsigned int i = 0; i < 50; ++i){
+	for (unsigned int i = 0; i < 50; ++i) {
+		SCOPED_TRACE("loop i = " + utils::tostr(i));
 		test_idx_table(120 + rand() % 16, 8 + rand() % 4, 8, rand() % 2 == 0);
 	}
 }
 
-void test(unsigned int len, unsigned blksize = 8, bool min_struct=true) {
+void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) {
 	vector<bool> bv(len);
 	vector<int> vals(len);
 	BitArray b = BitArray::create(len);
@@ -144,29 +147,58 @@ void test(unsigned int len, unsigned blksize = 8, bool min_struct=true) {
 		else last -= 1;
 		vals[i] = last;
 	}
+	/*{
+		unsigned int ll = utils::ceildiv(len, 64);
+		vector<int> blkexp(ll);
+		for (unsigned int i = 0; i < ll; ++i) {
+			unsigned int edx = std::min((i + 1) * 64, len);
+			blkexp[i] = *std::min_element(vals.begin() + i * 64, vals.begin() + edx);
+		}
+		for (unsigned int i = 0; i < ll; ++i)
+			cout << blkexp[i] << ", ";
+		cout << endl;
+	}*/
+
+	RMQ_table_access tbl;
+	RMQ_table_access::build(vals, min_struct, &tbl);
 
 	RMQ_index_pm1 rmq;
 	RMQ_index_pm1::build(b, blksize, min_struct, &(rmq));
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		for (unsigned int j = i + 1; j <= vals.size(); ++j) {
-			auto exp = RMQ_table_access::_slow_m_idx<int>(i, j, vals, min_struct);
+			auto p = tbl.m_idx(i, j);
+			size_t exp = p.first;
+			if (min_struct) {
+				if (vals[p.first] > vals[p.second]) exp = p.second;
+			} else
+				if (vals[p.first] < vals[p.second]) exp = p.second;
 			auto ac = rmq.m_idx(i, j);
 			if (exp != ac) {
-				cout << "expected = " << exp << endl;
+				auto exp2 = RMQ_table_access::_slow_m_idx<int>(i, j, vals, min_struct);
+				cout << "i = " << i << "     j = " << j << endl;
+				cout << "expected = " << exp << "    (" << exp2 << ")"<< endl;
 				cout << "actual   = " << ac << endl;
 				rmq.m_idx(i, j);
 				ASSERT_EQ(exp, ac);
 			}
 		}
 	}
-
 }
 
 TEST(rmq_test2, rmq_pm1) {
+	test_rmq_pm1(769, 4, true);
+	test_rmq_pm1(768, 4, true);
+	for (unsigned int i = 0; i < 50; ++i) {
+		SCOPED_TRACE("loop i = " + utils::tostr(i));
+		cout << ".";
+		if (i % 5 == 0) cout << flush;
+		test_rmq_pm1(764 + rand() % 16, 4, rand() % 2 == 0);
+	}
+	cout << endl;
 }
 
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(filter) = "";
+	//::testing::GTEST_FLAG(filter) = "rmq_test2.rmq_pm1";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;

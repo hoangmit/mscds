@@ -45,11 +45,13 @@ public:
 			mwex[i] = mx;
 			val += word_excess(w);
 		}
-		{//last one, it is not a whole word
+		{//last one, may not be a whole word
 			uint64_t w = b.word(nc - 1);
+			unsigned int lastlen = b.length() % WORDSIZE;
+			if (lastlen == 0) lastlen = WORDSIZE;
 			int mx;
-			if (_min_struct) mx = val + min_excess_word(w, 0, b.length() % WORDSIZE).first;
-			else mx = val + max_excess_word(w, 0, b.length() % WORDSIZE).first;
+			if (_min_struct) mx = val + min_excess_word(w, 0, lastlen).first;
+			else mx = val + max_excess_word(w, 0, lastlen).first;
 			mwex[nc - 1] = mx;
 		}
 		RMQ_index_blk::build(mwex, blksize, _min_struct, &(out->blks));
@@ -65,14 +67,15 @@ public:
 		unsigned int edb = (unsigned int)ed / WORDSIZE;
 		uint8_t edp = (uint8_t)(ed % WORDSIZE);
 		if (stb == edb) {
-			return st + getpos(stb, stp, edp + 1);
+			return stb * WORDSIZE + getpos(stb, stp, edp + 1);
 		} else {
 			std::vector<unsigned int> poslst;
 			if (stp > 0) {
-				poslst.push_back(st + getpos(stb, stp, WORDSIZE));
+				poslst.push_back(stb*WORDSIZE + getpos(stb, stp, WORDSIZE));
 				stb += 1;
 			}
-			if (edp == WORDSIZE - 1) edb += 1;
+			if (edp == WORDSIZE - 1)
+				edb += 1;
 			auto lst = blks.m_idx(stb, edb);
 			checkpos(lst, &poslst);
 			if (edp != WORDSIZE - 1)
@@ -90,11 +93,11 @@ public:
 
 private:
 	inline size_t getpos(unsigned int wpos, uint8_t st, uint8_t ed) const {
-		if (_min_struct) {
-			return min_excess_word(bits.getBitArray().word(wpos), st, ed).second;
-		} else {
-			max_excess_word(bits.getBitArray().word(wpos), st, ed).second;
-		}
+		uint64_t w = bits.getBitArray().word(wpos);
+		if (_min_struct)
+			return min_excess_word(w, st, ed).second;
+		else
+			return max_excess_word(w, st, ed).second;
 	}
 
 	inline void checkpos(const std::vector<unsigned int>& blkpos, std::vector<unsigned int>* out) const {
@@ -108,21 +111,23 @@ private:
 	}
 
 	inline size_t validate(std::vector<unsigned int>& pos) const {
+		size_t px = -1;
+		assert(pos.size() > 0);
+		if (pos.size() == 1) return pos[0];
 		if (_min_struct) {
 			int mx = std::numeric_limits<int>::max();
 			for (auto p : pos) {
 				auto e = excess(p);
-				if (mx > e) e = mx;
+				if (mx > e) { mx = e; px = p; }
 			}
-			return mx;
 		} else {
 			int mx = std::numeric_limits<int>::min();
 			for (auto p : pos) {
 				auto e = excess(p);
-				if (mx < e) e = mx;
+				if (mx < e) { mx = e; px = p; }
 			}
-			return mx;
 		}
+		return px;
 	}
 
 

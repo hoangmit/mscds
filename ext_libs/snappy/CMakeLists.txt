@@ -47,6 +47,7 @@ configure_file(snappy-stubs-public.h.in
     @ONLY)
 
 add_library(snappy ${SRCS} ${HEADERS})
+set_property(TARGET snappy PROPERTY FOLDER "ExtLibs")
 
 #ENABLE_TESTING()
 #find_package(GTest)
@@ -58,3 +59,4 @@ add_library(snappy ${SRCS} ${HEADERS})
 #target_link_libraries(snappy_unittest
 #    snappy
 #    ${GTEST_BOTH_LIBRARIES})
+

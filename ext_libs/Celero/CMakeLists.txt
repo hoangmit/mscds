@@ -33,8 +33,6 @@ set(CELERO_COMPILE_DYNAMIC_LIBRARIES OFF)
 #endif()
 SET(CELERO_USER_DEFINED_SHARED_OR_STATIC "STATIC")
 
-set_property(GLOBAL PROPERTY USE_FOLDERS OFF) #ON
-
 #
 # Compiler Settings
 #
@@ -193,3 +191,5 @@ include_directories(${HEADER_PATH})
 	# set_property(TARGET celero PROPERTY FOLDER "Celero")
 	# set_property(TARGET celeroDemo PROPERTY FOLDER "Celero")
 # endif()
+
+set_property(TARGET celero PROPERTY FOLDER "ExtLibs")

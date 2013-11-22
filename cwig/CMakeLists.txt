@@ -26,7 +26,11 @@ target_link_libraries(cwig mscdsa)
 add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp)
 target_link_libraries(t_cwig cwig utils)
 set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+set_property(TARGET t_cwig PROPERTY FOLDER "Tests")
 
 add_executable(tbm_cwig benchmark_cwig.cpp)
 target_link_libraries(tbm_cwig cwig)
 set_target_properties(tbm_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+set_property(TARGET tbm_cwig PROPERTY FOLDER "Tests")
+
+

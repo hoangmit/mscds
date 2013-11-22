@@ -238,3 +238,6 @@ if (gtest_build_tests)
   cxx_executable(gtest_xml_output_unittest_ test gtest)
   py_test(gtest_xml_output_unittest)
 endif()
+
+set_property(TARGET gtest PROPERTY FOLDER "ExtLibs")
+set_property(TARGET gtest_main PROPERTY FOLDER "ExtLibs")

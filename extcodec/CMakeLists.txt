@@ -28,5 +28,6 @@ target_link_libraries(extcodec  ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY} ${Boost_LIBRAR
 add_executable(t_extcodec test_extcodec.cpp)
 target_link_libraries(t_extcodec extcodec utils)
 set_target_properties(t_extcodec PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+set_property(TARGET t_extcodec PROPERTY FOLDER "Tests")
 
 

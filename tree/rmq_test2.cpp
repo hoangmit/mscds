@@ -4,10 +4,13 @@
 #include "utils/utils.h"
 #include "utils/utest.h"
 #include "utils/str_utils.h"
+#include "RMQ_sct.h"
 #include <iostream>
 #include <cassert>
 
 #include "mem/filearchive.h"
+
+#include "celero/Celero.h"
 
 using namespace std;
 using namespace mscds;
@@ -137,13 +140,12 @@ TEST(rmq_pm1, blk_table) {
 }
 
 void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) {
-	vector<bool> bv(len);
 	vector<int> vals(len);
 	BitArray b = BitArray::create(len);
 	int last = 0;
+	vector<bool> bv = rand_bitvec(len);
 	for (int i = 0; i < bv.size(); ++i) {
-		bool bx = (rand() % 2) == 1;
-		bv[i] = bx;
+		bool bx = bv[i];
 		b.setbit(i, bx);
 		if (bx) last += 1;
 		else last -= 1;
@@ -164,8 +166,8 @@ void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) 
 	RMQ_index_table tbl;
 	RMQ_index_table::build(vals, min_struct, &tbl);
 
-	RMQ_index_pm1 rmq;
-	RMQ_index_pm1::build(b, blksize, min_struct, &(rmq));
+	RMQ_pm1 rmq;
+	RMQ_pm1::build(b, blksize, min_struct, &(rmq));
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		for (unsigned int j = i + 1; j <= vals.size(); ++j) {
 			auto p = tbl.m_idx(i, j);
@@ -202,26 +204,25 @@ TEST(rmq_pm1, rmq_pm1) {
 TEST(rmq_pm1, saveload) {
 	unsigned int len = 10000, blksize = 8;
 	bool min_struct = true;
-	vector<bool> bv(len);
+	vector<bool> bv = rand_bitvec(len);
 	vector<int> vals(len);
 	BitArray b = BitArray::create(len);
 	int last = 0;
 	for (int i = 0; i < bv.size(); ++i) {
-		bool bx = (rand() % 2) == 1;
-		bv[i] = bx;
+		bool bx = bv[i];
 		b.setbit(i, bx);
 		if (bx) last += 1;
 		else last -= 1;
 		vals[i] = last;
 	}
 
-	RMQ_index_pm1 rmq;
-	RMQ_index_pm1::build(b, blksize, min_struct, &(rmq));
+	RMQ_pm1 rmq;
+	RMQ_pm1::build(b, blksize, min_struct, &(rmq));
 	OMemArchive out;
 	rmq.save_aux(out);
 	out.close();
 
-	RMQ_index_pm1 nrmq;
+	RMQ_pm1 nrmq;
 	IMemArchive inx(out);
 	nrmq.load_aux(inx, b);
 	for (unsigned int i = 0; i < vals.size(); ++i) {
@@ -235,7 +236,165 @@ TEST(rmq_pm1, saveload) {
 	inx.close();
 }
 
+#include "utils/str_utils.h"
+
+void report_size(unsigned int len, unsigned int blksize, bool progress = false) {
+	if (progress) cout << "Generating input ..." << endl;
+	vector<bool> bv = rand_bitvec(len);
+	vector<int> vals(len);
+	BitArray b = BitArray::create(len);
+	int last = 0;
+	for (int i = 0; i < bv.size(); ++i) {
+		bool bx = bv[i];
+		b.setbit(i, bx);
+		if (bx) last += 1;
+		else last -= 1;
+		vals[i] = last;
+	}
+	bv.clear();
+
+
+	RMQ_pm1 rmq;
+	RMQ_index_table tblsim;
+	RMQ_index_blk tblblk;
+
+
+	RMQ_pm1::build(b, blksize, true, &(rmq));
+	OSizeEstArchive ar;
+	if (progress) cout << "Measuring size ..." << endl;
+
+	cout << "Input length = " << len << " bits" << endl;
+	cout << "Block size = " << blksize << endl;
+	cout << endl;
+	RMQ_pm1::build(b, blksize, true, &(rmq));
+	rmq.save_aux(ar);
+	size_t last_pos = 0, sz = 0;
+	sz = ar.opos() - last_pos;
+	last_pos = ar.opos();
+	cout << "RMQ_pm1:" << endl;
+	cout << "Aux Size = " << sz << " bytes" << endl;
+	cout << "Ratio = " << ((sz * 8) / ((double)len)) * 100 << " %" << endl;
+	cout << endl;
+
+	RMQ_index_table::build(vals, true, &tblsim);
+	tblsim.save(ar);
+	sz = ar.opos() - last_pos;
+	last_pos = ar.opos();
+	cout << "RMQ_index_table:" << endl;
+	cout << "Aux Size = " << sz << " bytes" << endl;
+	cout << "Ratio = " << ((sz * 8) / ((double)len)) * 100 << " %" << endl;
+	cout << endl;
+
+	RMQ_index_blk::build(vals, blksize, true, &tblblk);
+	tblblk.save(ar);
+	sz = ar.opos() - last_pos;
+	last_pos = ar.opos();
+	cout << "RMQ_index_block:" << endl;
+	cout << "Aux Size = " << sz << " bytes" << endl;
+	cout << "Ratio = " << ((sz * 8) / ((double)len)) * 100 << " %" << endl;
+	cout << endl;
+}
+
+
+void test_size() {
+	unsigned int len = 10000000;
+
+	cout << "RMQ_pm1 auxiliary size measurement" << endl;
+
+	//report_size(len, 16);
+	report_size(len, 32);
+	//report_size(len, 64);
+}
+
+class QueryFixture : public celero::TestFixture {
+public:
+	QueryFixture() {
+		ProblemSetValues.push_back(1);
+		unsigned int blksize = 32;
+		unsigned int len = 2000000;
+		unsigned int querycnt = 1000;
+		vector<bool> bv = rand_bitvec(len);
+		b = BitArray::create(len);
+		vals.resize(len);
+		int last = 0;
+		for (int i = 0; i < bv.size(); ++i) {
+			bool bx = bv[i];
+			this->b.setbit(i, bx);
+			if (bx) last += 1;
+			else last -= 1;
+			this->vals[i] = last;
+		}
+		RMQ_pm1::build(b, blksize, true, &(rmq));
+		RMQ_index_table::build(vals, true, &tblsim);
+		RMQ_index_blk::build(vals, blksize, true, &tblblk);
+		sct.build(vals, true);
+		queries.clear();
+		for (unsigned int i = 0; i < querycnt; ++i) {
+			unsigned int st = rand() % len;
+			unsigned int ed = rand() % (len + 1);
+			if (st > ed) std::swap(st, ed);
+			queries.push_back(make_pair(st, ed));
+		}
+	}
+	virtual void SetUp(const int32_t problemSetValue) {
+	}
+
+	virtual void TearDown() {
+		/*b.clear();
+		vals.clear();
+		queries.clear();
+
+		rmq.clear();
+		tblsim.clear();
+		tblblk.clear();
+		sct.clear();*/
+	}
+
+	BitArray b;
+	std::vector<int> vals;
+	std::vector<std::pair<unsigned int, unsigned int> > queries;
+	RMQ_pm1 rmq;
+	RMQ_index_table tblsim;
+	RMQ_index_blk tblblk;
+	RMQ_sct sct;
+};
+
+BASELINE_F(RMQ_pm1, table_big, QueryFixture, 2, 2) {
+	for (auto p : queries) {
+		celero::DoNotOptimizeAway(
+			this->tblsim.m_idx(p.first, p.second));
+	}
+}
+
+BENCHMARK_F(RMQ_pm1, table_smaller, QueryFixture, 2, 2) {
+	for (auto p : queries) {
+		celero::DoNotOptimizeAway(
+			this->tblblk.m_idx(p.first, p.second));
+	}
+}
+
+
+BENCHMARK_F(RMQ_pm1, rmq1, QueryFixture, 2, 2) {
+	for (auto p : queries) {
+		celero::DoNotOptimizeAway(
+			this->rmq.m_idx(p.first, p.second));
+	}
+}
+
+
+BENCHMARK_F(RMQ_pm1, sct, QueryFixture, 1, 2) {
+	for (auto p : queries) {
+		celero::DoNotOptimizeAway(
+			this->sct.m_idx(p.first, p.second));
+	}
+}
+
 int main(int argc, char* argv[]) {
+	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
+	//test_size();
+	celero::Run(argc, argv);
+	return 0;
+
 	//::testing::GTEST_FLAG(filter) = "rmq_pm1.rmq_pm1";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();

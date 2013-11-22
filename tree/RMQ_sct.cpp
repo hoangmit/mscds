@@ -5,6 +5,7 @@
 
 namespace mscds {
 	size_t RMQ_sct::m_idx(size_t st, size_t ed) const {
+		if (st >= ed) return st;
 		ed--;
 		assert(st <= ed && ed < length());
 		if (st == ed) return st;

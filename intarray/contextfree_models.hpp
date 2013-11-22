@@ -1,13 +1,15 @@
 #pragma once
 
 #include "codec/deltacoder.h"
+#include "utils/param.h"
+#include "bitarray/bitstream.h"
 
 namespace mscds {
 class DeltaModel {
 public:
-	void buildModel(const std::vector<uint32_t> * data, const Config* conf = NULL) { }
-	void saveModel(OBitStream * out) const {}
-	void loadModel(IWBitStream & is, bool decode_only = false) { }
+	void buildModel(const std::vector<uint32_t> *, const Config* conf = NULL) { }
+	void saveModel(OBitStream *) const {}
+	void loadModel(IWBitStream &, bool decode_only = false) { }
 
 	void clear() {}
 
@@ -17,7 +19,7 @@ public:
 		is->skipw(a.second);
 		return a.first - 1;
 	}
-	void inspect(const std::string& cmd, std::ostream& out) const { }
+	void inspect(const std::string&, std::ostream&) const { }
 private:
 };
 

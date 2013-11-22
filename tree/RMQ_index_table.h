@@ -34,6 +34,7 @@ public:
 	size_t size() const { return bit_size; }
 	void save(OArchive& ar) const;
 	void load(IArchive& ar);
+	void clear() { bits.clear(); starts.clear(); len = 0; }
 private:
 	static size_t build_start(size_t len, std::vector<unsigned int> * starts);
 	size_t get(unsigned layer, size_t idx) const;
@@ -55,6 +56,7 @@ public:
 	std::vector<unsigned int> m_idx(size_t st, size_t ed) const;
 	void save(OArchive& ar) const;
 	void load(IArchive& ar);
+	void clear() { len = 0; blksize = 0; blockrmq.clear(); subblkrmq.clear(); }
 private:
 	void _find(unsigned int blk, unsigned int st, unsigned int ed, std::vector<unsigned int>& out) const;
 	size_t len;
@@ -124,7 +126,7 @@ inline size_t RMQ_index_table::_slow_m_idx(size_t st, size_t ed, const std::vect
 
 inline std::pair<size_t, size_t> RMQ_index_table::m_idx(size_t st, size_t ed) const {
 	assert(ed <= len);
-	if (ed - st == 1) return std::pair<size_t, size_t>(st, st);
+	if (st + 1 >= ed) return std::pair<size_t, size_t>(st, st);
 	unsigned int d = msb_intr(ed - st);
 	size_t nx = ed - (1ull << d);
 	if (st != nx)

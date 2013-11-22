@@ -86,9 +86,9 @@ private:
 class OSizeEstArchive: public OArchive {
 public:
 	OSizeEstArchive(): pos(0) {}
-	OArchive& startclass(const std::string& name, unsigned char version=1) {return *this;}
+	OArchive& startclass(const std::string&, unsigned char version=1) {return *this;}
 	OArchive& endclass() {return *this;}
-	OArchive& save_bin(const void* ptr, size_t size) { pos += size; return *this;}
+	OArchive& save_bin(const void*, size_t size) { pos += size; return *this;}
 	size_t opos() const {return pos;}
 	void close() {}
 private:

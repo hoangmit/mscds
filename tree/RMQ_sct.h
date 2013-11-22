@@ -22,7 +22,8 @@ BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first
 class RMQ_sct {
 	BP_aux bp;
 public:
-	void build(const std::vector<uint64_t>& arr, bool minstr = true, unsigned int blksize = 256) {
+	template<typename T>
+	void build(const std::vector<T>& arr, bool minstr = true, unsigned int blksize = 256) {
 		BitArray b = build_supercartisian_tree(minstr, arr.begin(), arr.end());
 		bp.build(b, blksize);
 	}

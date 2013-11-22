@@ -184,7 +184,7 @@ public:
 	void getEnum(size_t idx, Enum * e) const { return qs.getPSEnum(idx, &(e->re));}
 	
 	const SDArraySml& getArray() const { return qs; }
-	void inspect(const std::string& cmd, std::ostream& out) const {}
+	void inspect(const std::string&, std::ostream&) const {}
 private:
 	SDArraySml qs;
 	void initrank();

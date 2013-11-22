@@ -30,6 +30,7 @@ else()
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		add_definitions(/wd4244 /wd4018)
 		add_definitions(/D_VARIADIC_MAX=10)
+		#add_definitions(/arch:SSE)
 	endif()
 endif()
 #  .exe = runtime
@@ -42,19 +43,24 @@ endif()
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/gtest ${PROJECT_BINARY_DIR}/ext_libs/gtest)
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/gtest) #${PROJECT_BINARY_DIR}/ext_libs/gtest
 set(GTEST_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/gtest/include)
 set(GTEST_LIBRARY gtest)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/snappy ${PROJECT_BINARY_DIR}/ext_libs/snappy)
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/snappy)
 set(SNAPPY_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/snappy)
 set(SNAPPY_LIBRARY snappy)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/zlib ${PROJECT_BINARY_DIR}/ext_libs/zlib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_LIBRARY zlibstatic)
 
 include_directories(${GTEST_INCLUDE_DIRS})
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/Celero)
+set(CELERO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/Celero/include)
+set(CELERO_LIBRARY celero)
+
 
 #---Interal Utilities-----------------------------------------------------------------------------
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)

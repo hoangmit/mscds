@@ -32,9 +32,9 @@ private:
 class OArchive {
 public:
 	virtual ~OArchive() {}
-	virtual OArchive& var(const std::string& name) { return * this; }
-	virtual OArchive& annotate(const std::string& name) { return * this; }
-	virtual OArchive& startclass(const std::string& name, unsigned char version=1) = 0;
+	virtual OArchive& var(const std::string&) { return * this; }
+	virtual OArchive& annotate(const std::string&) { return * this; }
+	virtual OArchive& startclass(const std::string&, unsigned char version=1) = 0;
 	virtual OArchive& endclass() = 0;
 	
 	virtual OArchive& save(uint32_t v) { return save_bin(&v, sizeof(v)); }
@@ -53,8 +53,8 @@ typedef std::shared_ptr<void> SharedPtr;
 class IArchive {
 public:
 	virtual ~IArchive() {}
-	virtual IArchive& var(const std::string& name) { return * this; }
-	virtual IArchive& var(const char* name) { return * this; }
+	virtual IArchive& var(const std::string&) { return * this; }
+	virtual IArchive& var(const char*) { return * this; }
 	virtual unsigned char loadclass(const std::string& name) = 0;
 	virtual IArchive& endclass() = 0;
 

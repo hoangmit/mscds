@@ -162,7 +162,6 @@ void CodeModelBlk<Model>::set_stream(unsigned int i, IWBitStream& is) const {
 	is.init(ptr->bits.data_ptr(), ptr->bits.length(), ptr->subblkptr(blk, ptr->p1(i)));
 	auto r = ptr->p3(i);
 
-	unsigned int val = 0;
 	for (unsigned int j = 0; j < r; ++j)
 		model.decode(&is);
 }

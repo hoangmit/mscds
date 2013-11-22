@@ -359,14 +359,14 @@ public:
 	RMQ_sct sct;
 };
 
-BASELINE_F(RMQ_pm1, table_big, QueryFixture, 2, 2) {
+BASELINE_F(RMQ_pm1, table_big, QueryFixture, 5, 5) {
 	for (auto p : queries) {
 		celero::DoNotOptimizeAway(
 			this->tblsim.m_idx(p.first, p.second));
 	}
 }
 
-BENCHMARK_F(RMQ_pm1, table_smaller, QueryFixture, 2, 2) {
+BENCHMARK_F(RMQ_pm1, table_smaller, QueryFixture, 5, 5) {
 	for (auto p : queries) {
 		celero::DoNotOptimizeAway(
 			this->tblblk.m_idx(p.first, p.second));
@@ -374,7 +374,7 @@ BENCHMARK_F(RMQ_pm1, table_smaller, QueryFixture, 2, 2) {
 }
 
 
-BENCHMARK_F(RMQ_pm1, rmq1, QueryFixture, 2, 2) {
+BENCHMARK_F(RMQ_pm1, rmq1, QueryFixture, 5, 5) {
 	for (auto p : queries) {
 		celero::DoNotOptimizeAway(
 			this->rmq.m_idx(p.first, p.second));
@@ -382,7 +382,7 @@ BENCHMARK_F(RMQ_pm1, rmq1, QueryFixture, 2, 2) {
 }
 
 
-BENCHMARK_F(RMQ_pm1, sct, QueryFixture, 1, 2) {
+BENCHMARK_F(RMQ_pm1, sct, QueryFixture, 5, 5) {
 	for (auto p : queries) {
 		celero::DoNotOptimizeAway(
 			this->sct.m_idx(p.first, p.second));

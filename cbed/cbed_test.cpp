@@ -79,7 +79,9 @@ void testxx() {
 	}
 	BEDFormatQuery qs;
 	bd.build(&qs);
-
+	OSizeEstArchive ar;
+	qs.save(ar);
+	cout << ar.opos() << endl;
 }
 
 int main(int argc, char* argv[]) {

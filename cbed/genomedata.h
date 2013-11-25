@@ -138,14 +138,27 @@ public:
 	    returns -1 otherwise */
 	int getChrId(const std::string& chrname) const{ return 0; }
 
-	void save(mscds::OArchive& ar) const {}
+	void save(mscds::OArchive& ar) const {
+		ar.startclass("genome_data", 1);
+		assert(nchr == chrs.size());
+		ar.var("num_chr").save(nchr);
+		for (auto it = chrs.begin(); it != chrs.end(); ++it) {
+			if (it->get_name().length() < 10)
+				it->save(ar.var(it->get_name()));
+			else
+				it->save(ar);
+		}
+		ar.endclass();
+	}
 	void dump_file(std::ostream& fo);
 
 	/** \brief writes the current data into bedgraph format */
 	void dump_file(const std::string& output);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
 private:
-	void loadinit() {}
+	void loadinit() {
+
+	}
 
 	unsigned int nchr;
 	std::vector<ChrData> chrs;
@@ -187,7 +200,9 @@ void GenomeDataSortedBuilder::add(const std::string &line) {
 void GenomeDataSortedBuilder::build(GenomeData *data) { //<ChrData>
 	size_t sz = bdlst.size();
 	unsigned int i = 0;
-	if (!empty_chrom) names.push_back(lastchr);
+	if (!empty_chrom) {
+		names.push_back(lastchr); numchr++;
+	}
 	data->clear();
 	data->chrs.resize(sz);
 	for (auto& bd : bdlst) {

@@ -65,9 +65,12 @@ public:
 	/** \brief writes the current data into bedgraph format */
 	void dump_file(const std::string& output) {}
 	typedef BEDChrBuilder BuilderTp;
+	const std::string& get_name() const { return name; }
+	void set_name(const std::string& _name) { this->name = _name; }
 private:
 	IntvLst pos;
 	mscds::BlkCompQuery ext;
+	std::string name;
 	friend class BEDChrBuilder;
 };
 

@@ -113,6 +113,7 @@ void BEDChrBuilder::build(BEDChrQuery *data) {
 
 void BEDChrQuery::save(mscds::OArchive& ar) const {
 	ar.startclass("BEDChrQuery");
+	save_str(ar.var("chr_name"), name);
 	pos.save(ar.var("positions"));
 	ext.save(ar.var("extra_cols"));
 	ar.endclass();

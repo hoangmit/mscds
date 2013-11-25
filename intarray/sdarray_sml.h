@@ -15,7 +15,7 @@ public:
 	SDArraySmlBuilder();
 
 	void add(uint64_t val);
-	void add_inc(uint64_t delta);
+	void add_inc(uint64_t pos);
 
 	void build(SDArraySml* out);
 	void build(OArchive& ar);
@@ -125,7 +125,7 @@ class SDRankSelectBuilderSml  {
 public:
 	SDRankSelectBuilderSml(): last(0) { }
 	void add(uint64_t delta) { assert(delta > 0); last += delta; add_inc(last); }
-	void add_inc(uint64_t v) { assert(v >= last); vals.push_back(v); last = v; }
+	void add_inc(uint64_t pos) { assert(pos >= last); vals.push_back(pos); last = pos; }
 	void clear() { vals.clear(); last = 0; }
 	void build(SDRankSelectSml* out);
 	void build(OArchive& ar);

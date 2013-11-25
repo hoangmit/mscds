@@ -73,7 +73,7 @@ public:
 	void init(Config* conf) {}
 	void init(unsigned int cache_size, Config* conf) {}
 	void load(mscds::IArchive& ar);
-	void save(mscds::OArchive& ar);
+	void save(mscds::OArchive& ar) const;
 	std::string getline(unsigned int i) const;
 private:
 	const LineBlock& getblk(unsigned int b) const;

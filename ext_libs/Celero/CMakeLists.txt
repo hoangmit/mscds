@@ -37,20 +37,20 @@ SET(CELERO_USER_DEFINED_SHARED_OR_STATIC "STATIC")
 # Compiler Settings
 #
 
-if(MSVC) 
-  # Force to always compile with warning level 4
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]") 
-	string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}") 
-  else() 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4") 
-  endif() 
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "Compiler Flags for All Builds" FORCE) 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "Compiler Flags for Debug Builds" FORCE) 
-  set(CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "Compiler Flags for Release Builds" FORCE) 
-
-  add_definitions("/D_CRT_SECURE_NO_WARNINGS /wd4251 /nologo")
-endif() 
+#if(MSVC) 
+#  #Force to always compile with warning level 4
+#  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]") 
+#	string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}") 
+#  else() 
+#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4") 
+#  endif() 
+#
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "Compiler Flags for All Builds" FORCE) 
+#  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "Compiler Flags for Debug Builds" FORCE) 
+#  set(CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "Compiler Flags for Release Builds" FORCE) 
+#
+#  add_definitions("/D_CRT_SECURE_NO_WARNINGS /wd4251 /nologo")
+#endif() 
  
 if(BORLAND) 
   set(CMAKE_CXX_FLAGS "" CACHE STRING "Compiler Flags for All Builds" FORCE) 
@@ -67,11 +67,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set (CMAKE_COMPILER_IS_GNUCXX 1)
 endif()
  
-if(CMAKE_COMPILER_IS_GNUCXX) 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -std=gnu++11" CACHE STRING "Compiler Flags for All Builds" FORCE) 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pedantic" CACHE STRING "Compiler Flags for Debug Builds" FORCE) 
-  set(CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "Compiler Flags for Release Builds" FORCE) 
-endif() 
+#if(CMAKE_COMPILER_IS_GNUCXX) 
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -std=gnu++11" CACHE STRING "Compiler Flags for All Builds" FORCE) 
+#  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pedantic" CACHE STRING "Compiler Flags for Debug Builds" FORCE) 
+#  set(CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "Compiler Flags for Release Builds" FORCE) 
+#endif() 
 
 #
 # Build and Install Settings

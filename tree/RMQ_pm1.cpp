@@ -180,17 +180,18 @@ void RMQ_pm1::save_aux(OArchive &ar) const {
 	uint32_t v = _min_struct ? 1 : 0;
 	ar.var("is_min_structure").save(v);
 	blks.save(ar.var("word_rmq"));
-	bits.save_aux(ar.var("rank_aux"));
+	//bits.save_aux(ar.var("rank_aux"));
 	ar.endclass();
 }
 
-void RMQ_pm1::load_aux(IArchive &ar, BitArray b) {
+void RMQ_pm1::load_aux(IArchive &ar, Rank6p& rs) {
 	ar.loadclass("RMQ_pm1_auxiliary");
 	uint32_t v = 0;
 	ar.var("is_min_structure").load(v);
 	_min_struct = v != 0 ? true : false;
 	blks.load(ar.var("word_rmq"));
-	bits.load_aux(ar.var("rank_aux"), b);
+	bits = rs;
+	//bits.load_aux(ar.var("rank_aux"), b);
 	ar.endclass();
 }
 
@@ -206,10 +207,10 @@ void RMQ_pm1_minmax::save_aux(OArchive &ar) const {
 	ar.endclass();
 }
 
-void RMQ_pm1_minmax::load_aux(IArchive &ar, BitArray b) {
+void RMQ_pm1_minmax::load_aux(IArchive &ar, Rank6p& rs) {
 	ar.loadclass("minmax");
-	minidx.load_aux(ar.var("minidx"), b);
-	maxidx.load_aux(ar.var("maxidx"), b);
+	minidx.load_aux(ar.var("minidx"), rs);
+	maxidx.load_aux(ar.var("maxidx"), rs);
 	ar.endclass();
 }
 

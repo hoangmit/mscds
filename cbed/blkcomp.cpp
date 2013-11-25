@@ -109,7 +109,7 @@ void BlkCompQuery::load(mscds::IArchive &ar) {
 	prepare_ptr();
 }
 
-void BlkCompQuery::save(mscds::OArchive &ar) {
+void BlkCompQuery::save(mscds::OArchive &ar) const {
 	ar.startclass("BlockCompressor");
 	ar.var("n_entries").save(entcnt);
 	ar.var("entry_per_block").save(maxblksz);

@@ -6,6 +6,9 @@
 #include "framework/archive.h"
 #include "mem/filearchive.h"
 
+#include "cbed.h"
+#include "genomedata.h"
+
 #include <string>
 #include <vector>
 
@@ -45,7 +48,43 @@ void buildfile(const string& inp, const string& out) {
 	bd.clear();
 }
 
+//-----------------------------
+
+#include "intv.h"
+using namespace app_ds;
+
+void testx() {
+	vector<pair<unsigned, unsigned> > inp = { { 1, 8 }, { 3, 4 }, { 3, 5 }, { 3, 5 } };
+
+	IntvLstBuilder bd;
+
+	for (auto p : inp) {
+		bd.add(p.first, p.second);
+	}
+
+	IntvLst lst;
+	bd.build(&lst);
+}
+
+//-------------------------------
+typedef GenomeDataBuilder BEDFormatBuilder;
+typedef GenomeData BEDFormatQuery;
+
+void testxx() {
+	vector<string> lst = { "chr1	1	3	abc", "chr1	2	4	def" };
+	BEDFormatBuilder bd;
+	bd.init();
+	for (auto& line : lst) {
+		bd.add(line);
+	}
+	BEDFormatQuery qs;
+	bd.build(&qs);
+
+}
+
 int main(int argc, char* argv[]) {
+	testx();
+	testxx();
 
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);

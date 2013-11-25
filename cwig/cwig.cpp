@@ -28,33 +28,36 @@ void BED_Entry::parse(const std::string& s) {
 	if (!ss) throw std::runtime_error(std::string("error parsing line: ") + s);
 }
 
-void BED_Entry::quick_parse(std::string& s, const std::string& pre_chr) {
+void BED_Entry::quick_parse(const std::string& s, const std::string& pre_chr) {
 	const char * p = s.c_str();
 	unsigned int i = 0;
-	while (*p != '\0' && i < pre_chr.length() && *p == pre_chr[i]) {
+	while (*p != ' ' && *p != '\t' && i < pre_chr.length() && i < s.length() && *p == pre_chr[i]) {
 		++p;
 		++i;
 	}
 	// same chrom name
 	if (i == pre_chr.length() && pre_chr.length() > 0 && (*p == ' ' || *p == '\t')) {
 		this->chrom = pre_chr;
-	} else {
-		while (*p != ' ' && *p != '\t' && *p) ++p;
+	}
+	else {
+		while (*p != ' ' && *p != '\t' && i < s.length()) { ++p; ++i; }
 		this->chrom = std::string(s.c_str(), p);
 	}
 	if (*p == ' ' || *p == '\t') ++p;
 	else throw std::runtime_error(std::string("error parsing line: ") + s);
 	unsigned int st = 0;
-	while (*p >= '0' && *p <= '9') {
-		st = (st*10) + (*p - '0');
+	while (*p >= '0' && *p <= '9' && i < s.length()) {
+		st = (st * 10) + (*p - '0');
+		++i;
 		++p;
 	}
 	this->st = st;
 	if (*p == ' ' || *p == '\t') ++p;
 	else throw std::runtime_error(std::string("error parsing line: ") + s);
 	unsigned int ed = 0;
-	while (*p >= '0' && *p <= '9') {
-		ed = (ed*10) + (*p - '0');
+	while (*p >= '0' && *p <= '9' && i < s.length()) {
+		ed = (ed * 10) + (*p - '0');
+		++i;
 		++p;
 	}
 	this->ed = ed;

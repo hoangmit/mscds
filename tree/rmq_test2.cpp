@@ -224,7 +224,10 @@ TEST(rmq_pm1, saveload) {
 
 	RMQ_pm1 nrmq;
 	IMemArchive inx(out);
-	nrmq.load_aux(inx, b);
+	Rank6pBuilder rbd;
+	Rank6p r6;
+	rbd.build(b, &(r6));
+	nrmq.load_aux(inx, r6);
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		unsigned int st = i;
 		unsigned int ed = rand() % (vals.size() + 1);

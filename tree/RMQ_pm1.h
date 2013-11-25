@@ -38,7 +38,7 @@ public:
 	//std::string to_str() const;
 
 	void save_aux(OArchive& ar) const;
-	void load_aux(IArchive& ar, BitArray b);
+	void load_aux(IArchive& ar, Rank6p& rs);
 	void clear() { bits.clear(); blks.clear(); }
 
 private:
@@ -60,7 +60,7 @@ public:
 	std::pair<int, size_t> find_min(size_t st, size_t ed) const;
 
 	void save_aux(OArchive& ar) const;
-	void load_aux(IArchive& ar, BitArray b);
+	void load_aux(IArchive& ar, Rank6p& rs);
 
 private:
 	RMQ_pm1 minidx, maxidx;

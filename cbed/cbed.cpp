@@ -74,9 +74,13 @@ void app_ds::BED_Entry2::quick_parse(const std::string &s, const std::string &pr
 		++p;
 	}
 	this->ed = ed;
-	if (*p == ' ' || *p == '\t') ++p;
-	else throw std::runtime_error(std::string("error parsing line: ") + s);
-	this->other = std::string(p);
+	if ((*p == ' ' || *p == '\t') && i < s.length()) {
+		++p; this->other = std::string(p);
+	}
+	else {
+		this->other = "";
+	}
+	
 }
 
 void BED_Entry2::parse_other(const std::string &chrom, unsigned int start, unsigned int end, const std::string &other) {

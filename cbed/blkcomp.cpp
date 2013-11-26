@@ -125,6 +125,15 @@ std::string BlkCompQuery::getline(unsigned int i) const {
 	return ref.getline(i % maxblksz);
 }
 
+void BlkCompQuery::clear() {
+	maxblksz = 0;
+	entcnt = 0;
+	len = 0;
+	bptr.clear();
+	bits.clear();
+	ptr = NULL;
+}
+
 const LineBlock& BlkCompQuery::getblk(unsigned int b) const {
 	if (b == lastblk) return cache[lastanswer]; // read only :)
 	auto r = cache_mamager.access(b);

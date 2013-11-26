@@ -75,6 +75,7 @@ public:
 	void load(mscds::IArchive& ar);
 	void save(mscds::OArchive& ar) const;
 	std::string getline(unsigned int i) const;
+	void clear();
 private:
 	const LineBlock& getblk(unsigned int b) const;
 	void load_blk(unsigned int blk, unsigned int tblidx) const;

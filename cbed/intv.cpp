@@ -92,9 +92,9 @@ void IntvLst::clear() { marks.clear(); pos.clear(); span.clear(); }
 std::pair<IntvLst::PosType, IntvLst::PosType> IntvLst::get(unsigned int i) const {
 	std::pair<PosType, PosType> ret;
 	auto rpos = marks.select(i);
-	ret.first = (PosType) pos.prefixsum(i);
-	auto span = pos.lookup(i);
-	ret.second = (PosType) pos.prefixsum(i + span);
+	ret.first = (PosType) pos.prefixsum(i + 1);
+	auto sl = span.lookup(i);
+	ret.second = (PosType) pos.prefixsum(i + sl + 1);
 	return ret;
 }
 

@@ -43,7 +43,7 @@ public:
 	void add(const BED_Entry2& e);
 	void clear();
 
-	void set_name(const std::string& name) {}
+	void set_name(const std::string& name);
 
 	void build(BEDChrQuery* data);
 	void build(mscds::OArchive& ar);
@@ -51,6 +51,7 @@ public:
 	typedef BEDChrQuery QueryTp;
 	typedef BED_Entry2 DataEntryTp;
 private:
+	std::string name;
 	IntvLstBuilder intbd;
 	mscds::BlkCompBuilder pdb;
 };
@@ -67,6 +68,16 @@ public:
 	typedef BEDChrBuilder BuilderTp;
 	const std::string& get_name() const { return name; }
 	void set_name(const std::string& _name) { this->name = _name; }
+	struct DataOut {
+		unsigned int st, ed;
+		std::string other;
+		DataOut() {}
+		DataOut(unsigned int _st, unsigned int _ed, const std::string& _ext) : st(_st), ed(_ed), other(_ext) {}
+	};
+	DataOut get(unsigned int i) const {
+		auto p = pos.get(i);
+		return DataOut(p.first, p.second, ext.getline(i));
+	}
 private:
 	IntvLst pos;
 	mscds::BlkCompQuery ext;

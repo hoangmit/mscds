@@ -3,15 +3,18 @@
 #ifndef __GENOME_DATA_GENERIC_FORMAT_H_
 #define __GENOME_DATA_GENERIC_FORMAT_H_
 
+
+#include "utils/param.h"
+#include "mem/fmaparchive.h"
+#include "framework/archive.h"
+#include "cbed.h"
+
 #include <vector>
 #include <deque>
 #include <list>
 #include <string>
 #include <map>
 #include <memory>
-#include "utils/param.h"
-#include "framework/archive.h"
-#include "cbed.h"
 
 namespace app_ds {
 /*
@@ -53,9 +56,7 @@ public:
 
 	//adapter
 	void add(const std::string& line);
-	
 	void build(GenomeData* data);
-
 	void build(mscds::OArchive& ar);
 
 	void clear() { bdlst.clear(); numchr = 0; lastchr.clear(); meta.clear(); empty_chrom = true;  }
@@ -121,44 +122,32 @@ private:
 //template<typename ChrData>
 class GenomeData {
 public:
+	GenomeData() : nchr(0) {}
 	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */
 	const ChrData& getChr(unsigned int chrid) { return chrs[chrid]; }
 	
 	const std::string& get_meta() { return meta; }
 
 	/** \brief loads the data structure from file */
-	void load(const std::string& input) {}
+	void load(const std::string& inputfile);
 
-	void load(mscds::IArchive& ar) {}
+	void load(mscds::IArchive& ar);
 
 	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const { return nchr; }
 
 	/** \brief gets the id from the chromosome name if it exists,
 	    returns -1 otherwise */
-	int getChrId(const std::string& chrname) const{ return 0; }
+	int getChrId(const std::string& chrname) const;
 
-	void save(mscds::OArchive& ar) const {
-		ar.startclass("genome_data", 1);
-		assert(nchr == chrs.size());
-		ar.var("num_chr").save(nchr);
-		for (auto it = chrs.begin(); it != chrs.end(); ++it) {
-			if (it->get_name().length() < 10)
-				it->save(ar.var(it->get_name()));
-			else
-				it->save(ar);
-		}
-		ar.endclass();
-	}
+	void save(mscds::OArchive& ar) const;
 	void dump_file(std::ostream& fo);
 
 	/** \brief writes the current data into bedgraph format */
 	void dump_file(const std::string& output);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
 private:
-	void loadinit() {
-
-	}
+	void loadinit();
 
 	unsigned int nchr;
 	std::vector<ChrData> chrs;
@@ -169,58 +158,6 @@ private:
 	friend class GenomeDataBuilder;// <ChrData>;
 	friend class GenomeDataSortedBuilder;// <ChrData>;
 };
-
-void GenomeDataSortedBuilder::change_chrom(const std::string &chr) {
-	if (chr != lastchr) {
-		if (!empty_chrom) {
-			bdlst.back().close();
-			numchr++;
-			names.push_back(lastchr);
-			bdlst.push_back(ChrBuilderTp());
-			empty_chrom = true;
-		}
-		lastchr = chr;
-	}
-}
-
-void GenomeDataSortedBuilder::add(const GenomeDataSortedBuilder::DataEntryTp &ent) {
-	change_chrom(ent.getChrom());
-	bdlst.back().add(ent);
-	empty_chrom = false;
-}
-
-void GenomeDataSortedBuilder::add(const std::string &line) {
-	if (lastchr.size() > 0) {
-		entparser.quick_parse(line, lastchr);
-	}
-	else entparser.parse(line);
-	add(entparser);
-}
-
-void GenomeDataSortedBuilder::build(GenomeData *data) { //<ChrData>
-	size_t sz = bdlst.size();
-	unsigned int i = 0;
-	if (!empty_chrom) {
-		names.push_back(lastchr); numchr++;
-	}
-	data->clear();
-	data->chrs.resize(sz);
-	for (auto& bd : bdlst) {
-		bd.set_name(names[i]);
-		bd.build(&(data->chrs[i]));		
-		data->names.push_back(names[i]);
-	}
-	data->meta = this->meta;
-	data->nchr = this->numchr;
-	data->loadinit();
-	bdlst.clear();
-}
-
-void GenomeDataSortedBuilder::build(mscds::OArchive &ar) {
-	GenomeData out;
-	build(&out);
-	out.save(ar);
-}
 
 }//namespace
 

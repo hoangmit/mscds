@@ -100,6 +100,8 @@ void BEDChrBuilder::clear() {
 	pdb.clear();
 }
 
+void BEDChrBuilder::set_name(const std::string &name) { this->name = name; }
+
 void BEDChrBuilder::build(mscds::OArchive &ar) {
 	BEDChrQuery out;
 	build(&out);
@@ -107,8 +109,19 @@ void BEDChrBuilder::build(mscds::OArchive &ar) {
 }
 
 void BEDChrBuilder::build(BEDChrQuery *data) {
+	data->name = this->name;
 	intbd.build(&data->pos);
 	pdb.build(&data->ext);
+}
+
+void BEDChrQuery::clear() { pos.clear(); ext.clear(); name.clear(); }
+
+void BEDChrQuery::load(mscds::IArchive &ar) {
+	ar.loadclass("BEDChrQuery");
+	name = load_str(ar.var("chr_name"));
+	pos.load(ar.var("positions"));
+	ext.load(ar.var("extra_cols"));
+	ar.endclass();
 }
 
 void BEDChrQuery::save(mscds::OArchive& ar) const {

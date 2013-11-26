@@ -8,12 +8,14 @@ void IntvLstBuilder::build(mscds::OArchive &ar) {
 	out.save(ar);
 }
 
-void IntvLstBuilder::clear() { len = 0;  cur_id = 0; last_st = 0; last_ed = 0; lst.clear(); }
+void IntvLstBuilder::clear() {
+	len = 0;  cur_id = 0; last_st = 0; last_ed = 0; lst.clear();
+}
 
 void IntvLstBuilder::add(IntvLstBuilder::PosType st, IntvLstBuilder::PosType ed) {
 	if (ed <= st) throw std::runtime_error("wrong interval");
 	if (st < last_st) throw std::runtime_error("invalid order");
-	if (st == last_st && ed < last_ed) throw std::runtime_error("invalid order");
+	if (st == last_st && ed < last_ed) throw std::runtime_error("invalid order 2");
 	lst.push_back(PosData(cur_id, st, '<'));
 	lst.push_back(PosData(cur_id, ed, '>'));
 	cur_id++;
@@ -39,8 +41,7 @@ void IntvLstBuilder::build(IntvLst *out) {
 	}
 	bd.build(&(out->pos));
 	markout.close();
-	mscds::Rank6pBuilder rbd;
-	rbd.build(mscds::BitArray::create(markout.data_ptr(), markout.length()), &(out->marks));
+	mscds::Rank6pBuilder::build(mscds::BitArray::create(markout.data_ptr(), markout.length()), &(out->marks));
 	///
 	std::sort(lst.begin(), lst.end(), [](const PosData& a, const PosData& b)->bool{
 		if (a.id != b.id) return a.id < b.id;

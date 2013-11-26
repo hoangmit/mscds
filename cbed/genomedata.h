@@ -39,16 +39,13 @@ class GenomeDataSortedBuilder {
 public:
 	typedef ChrData::BuilderTp ChrBuilderTp;
 	typedef ChrBuilderTp::DataEntryTp DataEntryTp;
-	GenomeDataSortedBuilder() {}
+	GenomeDataSortedBuilder() { clear(); }
 
 	void initd(Config* conf = NULL) {
 		clear();
-		bdlst.push_back(ChrBuilderTp());
 	}
 
-	void set_meta(const std::string& meta) {
-		this->meta = meta;
-	}
+	void set_meta(const std::string& meta);
 
 	void change_chrom(const std::string& chr);
 

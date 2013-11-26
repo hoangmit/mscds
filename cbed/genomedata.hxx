@@ -5,29 +5,34 @@
 
 namespace app_ds {
 
+void GenomeDataSortedBuilder::set_meta(const std::string &meta) {
+	this->meta = meta;
+}
+
 inline void GenomeDataSortedBuilder::change_chrom(const std::string &chr) {
 	if (chr != lastchr) {
-		if (!empty_chrom) {
+		if (!empty_chrom)
 			bdlst.back().close();
-			numchr++;
-			names.push_back(lastchr);
-			bdlst.push_back(ChrBuilderTp());
-			empty_chrom = true;
-		}
+		empty_chrom = true;
 		lastchr = chr;
 	}
 }
 
 inline void GenomeDataSortedBuilder::add(const GenomeDataSortedBuilder::DataEntryTp &ent) {
 	change_chrom(ent.getChrom());
+
+	if (empty_chrom) {
+		numchr++;
+		names.push_back(lastchr);
+		bdlst.push_back(ChrBuilderTp());
+	}
 	bdlst.back().add(ent);
 	empty_chrom = false;
 }
 
 inline void GenomeDataSortedBuilder::add(const std::string &line) {
-	if (lastchr.size() > 0) {
+	if (!lastchr.empty())
 		entparser.quick_parse(line, lastchr);
-	}
 	else entparser.parse(line);
 	add(entparser);
 }
@@ -35,9 +40,6 @@ inline void GenomeDataSortedBuilder::add(const std::string &line) {
 inline void GenomeDataSortedBuilder::build(GenomeData *data) { //<ChrData>
 	size_t sz = bdlst.size();
 
-	if (!empty_chrom) {
-		names.push_back(lastchr); numchr++;
-	}
 	data->clear();
 	data->chrs.resize(sz);
 	unsigned int i = 0;

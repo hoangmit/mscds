@@ -36,9 +36,7 @@ class BEDChrQuery;
 
 class BEDChrBuilder {
 public:
-	void init(Config* conf) {
-
-	}
+	void init(Config* conf) {}
 
 	void add(const BED_Entry2& e);
 	void clear();

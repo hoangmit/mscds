@@ -64,7 +64,7 @@ class IMemArchive;
 class OMemArchive : public OFileArchive {
 public:
 	OMemArchive() : OFileArchive() {
-		ss = std::make_shared<std::stringstream>(std::stringstream(std::ios::binary | std::ios::in | std::ios::out));
+		ss = std::make_shared<std::stringstream>(std::ios::binary | std::ios::in | std::ios::out);
 		assign_write(ss.get());
 	}
 private:

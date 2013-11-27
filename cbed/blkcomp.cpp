@@ -29,6 +29,7 @@ size_t LineBlock::size() const { return _size; }
 
 void LineBlock::clear() { blkmem.clear(); lineptr.clear(); _size = 0; }
 
+
 void LineBlock::post_load() {
 	_buildptr();
 }
@@ -118,13 +119,6 @@ void BlkCompQuery::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-std::string BlkCompQuery::getline(unsigned int i) const {
-	if (i >= entcnt) throw std::runtime_error("index out of range");
-	unsigned int blk = i / maxblksz;
-	const LineBlock& ref = getblk(blk);
-	return ref.getline(i % maxblksz);
-}
-
 void BlkCompQuery::clear() {
 	maxblksz = 0;
 	entcnt = 0;
@@ -134,22 +128,54 @@ void BlkCompQuery::clear() {
 	ptr = NULL;
 }
 
+void BlkCompQuery::getEnum(unsigned int idx, BlkCompQuery::Enum *e) const {
+	unsigned int blk = idx / maxblksz;
+	e->bidx = idx % maxblksz;
+	e->idx = idx;
+	e->cblk = blk;
+	load_blk(blk, e->blkdata);
+	e->parent = this;
+}
+
+bool BlkCompQuery::Enum::hasNext() const {
+	return idx < parent->len;
+}
+
+std::string BlkCompQuery::Enum::next() {
+	std::string ret = blkdata.getline(bidx);
+	idx++;
+	bidx++;
+	if (bidx >= parent->maxblksz && idx < parent->len) {
+		cblk++;
+		parent->load_blk(cblk, this->blkdata);
+		bidx = 0;
+	}
+	return ret;
+}
+
+std::string BlkCompQuery::getline(unsigned int i) const {
+	if (i >= entcnt) throw std::runtime_error("index out of range");
+	unsigned int blk = i / maxblksz;
+	const LineBlock& ref = getblk(blk);
+	return ref.getline(i % maxblksz);
+}
+
 const LineBlock& BlkCompQuery::getblk(unsigned int b) const {
 	if (b == lastblk) return cache[lastanswer]; // read only :)
 	auto r = cache_mamager.access(b);
 	if (r.type != utils::LRU_Policy::FOUND_ENTRY)
-		load_blk(b, r.index);
+		load_blk(b, cache[r.index]);
 	lastblk = b;
 	lastanswer = r.index;
 	return cache[lastanswer];
 }
 
-void BlkCompQuery::load_blk(unsigned int blk, unsigned int tblidx) const {
+void BlkCompQuery::load_blk(unsigned int blk, LineBlock& lnblk) const {
 	//assert();
 	unsigned int st = bptr.prefixsum(blk);
 	unsigned int ed = bptr.prefixsum(blk + 1);
-	codec.uncompress_c(ptr + st, ed - st, &(cache[tblidx].blkmem));
-	cache[tblidx].post_load();
+	codec.uncompress_c(ptr+st, ed-st, &(lnblk.blkmem));
+	lnblk.post_load();
 }
 
 void BlkCompQuery::prepare_ptr() {

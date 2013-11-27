@@ -24,7 +24,7 @@ inline void GenomeDataSortedBuilder::add(const GenomeDataSortedBuilder::DataEntr
 	if (empty_chrom) {
 		numchr++;
 		names.push_back(lastchr);
-		bdlst.push_back(ChrBuilderTp());
+		bdlst.emplace_back();
 	}
 	bdlst.back().add(ent);
 	empty_chrom = false;

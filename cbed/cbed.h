@@ -61,8 +61,6 @@ public:
 	void save(mscds::OArchive& ar) const;
 	void dump_file(std::ostream& fo);
 
-	/** \brief writes the current data into bedgraph format */
-	void dump_file(const std::string& output) {}
 	typedef BEDChrBuilder BuilderTp;
 	const std::string& get_name() const { return name; }
 	void set_name(const std::string& _name) { this->name = _name; }
@@ -76,6 +74,7 @@ public:
 		auto p = pos.get(i);
 		return DataOut(p.first, p.second, ext.getline(i));
 	}
+	size_t size() const;
 private:
 	IntvLst pos;
 	mscds::BlkCompQuery ext;

@@ -76,9 +76,22 @@ public:
 	void save(mscds::OArchive& ar) const;
 	std::string getline(unsigned int i) const;
 	void clear();
+public:
+	class Enum : public mscds::EnumeratorInt<std::string> {
+	public:
+		Enum() {}
+		bool hasNext() const;
+		std::string next();
+	private:
+		friend class BlkCompQuery;
+		LineBlock blkdata;
+		unsigned int idx, cblk, bidx;
+		const BlkCompQuery * parent;
+	};
+	void getEnum(unsigned int idx, Enum * e) const;
 private:
 	const LineBlock& getblk(unsigned int b) const;
-	void load_blk(unsigned int blk, unsigned int tblidx) const;
+	void load_blk(unsigned int blk, LineBlock& lnblk) const;
 
 	unsigned int maxblksz;
 	size_t entcnt;

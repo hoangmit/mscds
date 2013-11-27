@@ -11,11 +11,27 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using namespace mscds;
 
 TEST(compressblk, test1) {
+	vector<string> inp = { "abc", "def" };
+
+	unsigned int n = inp.size();
+	BlkCompBuilder bd;
+	for (unsigned int i = 0; i < n; ++i)
+		bd.add(inp[i]);
+
+	BlkCompQuery qs;
+	bd.build(&qs);
+	for (unsigned int i = 0; i < n; ++i) {
+		ASSERT_EQ(inp[i], qs.getline(i)) << "i = " << i << endl;
+	}
+}
+
+TEST(compressblk, test2) {
 	const int n = 1000, len = 100;
 	vector<string> inp;
 	for (unsigned int i = 0; i < n; ++i)
@@ -53,7 +69,7 @@ void buildfile(const string& inp, const string& out) {
 #include "intv.h"
 using namespace app_ds;
 
-void testx() {
+TEST(Intv, test1) {
 	vector<pair<unsigned, unsigned> > inp = { { 1, 8 }, { 3, 4 }, { 3, 5 }, { 3, 5 } };
 
 	IntvLstBuilder bd;
@@ -77,7 +93,7 @@ void testx() {
 typedef GenomeDataBuilder BEDFormatBuilder;
 typedef GenomeData BEDFormatQuery;
 
-void testxx() {
+TEST(cbed, access1) {
 	vector<string> lst = { "chr1	1	3	abc", "chr1	2	4	def" };
 	BEDFormatBuilder bd;
 	bd.init();
@@ -97,13 +113,10 @@ void testxx() {
 	ASSERT_EQ(4, x.ed);
 	ASSERT_EQ("def", x.other);
 	
-	OSizeEstArchive ar;
-	qs.save(ar);
-	cout << ar.opos() << endl;
 }
 
-void testxx2() {
-	vector<string> lst = { "chr1	1	3	abc", "chr1	2	4	def", "chf2	1	50	fsfds" };
+TEST(cbed, access2) {
+	vector<string> lst = { "chr1	1	3	abc", "chr1	2	4	def", "chr2	1	50	fsfds" };
 	BEDFormatBuilder bd;
 	bd.init();
 	for (auto& line : lst) {
@@ -131,16 +144,13 @@ void testxx2() {
 	ASSERT_EQ(1, x.st);
 	ASSERT_EQ(50, x.ed);
 	ASSERT_EQ("fsfds", x.other);
+	stringstream ss;
 
-	OSizeEstArchive ar;
-	qs.save(ar);
-	cout << ar.opos() << endl;
+	ax.dump_file(ss);
+	cout << ss.str() << endl;
 }
 
 int main(int argc, char* argv[]) {
-	testx();
-	testxx();
-	testxx2();
 
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);

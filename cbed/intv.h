@@ -49,6 +49,7 @@ public:
 	void clear();
 
 	std::pair<PosType, PosType> get(unsigned int i) const;
+	size_t size() const;
 private:
 	mscds::Rank6p marks;
 	mscds::SDArraySml pos;

@@ -99,5 +99,9 @@ std::pair<IntvLst::PosType, IntvLst::PosType> IntvLst::get(unsigned int i) const
 	return ret;
 }
 
+size_t app_ds::IntvLst::size() const {
+	return pos.length() / 2;
+}
+
 
 }//namespace

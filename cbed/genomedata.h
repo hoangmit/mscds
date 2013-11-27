@@ -35,6 +35,7 @@ class GenomeData;
 
 typedef BEDChrQuery ChrData;
 
+/* build the data structure, the input must be sorted */
 class GenomeDataSortedBuilder {
 public:
 	typedef ChrData::BuilderTp ChrBuilderTp;
@@ -57,7 +58,6 @@ public:
 	void build(mscds::OArchive& ar);
 
 	void clear() { bdlst.clear(); numchr = 0; lastchr.clear(); meta.clear(); empty_chrom = true;  }
-
 private:
 	Config * conf;
 	std::string meta;

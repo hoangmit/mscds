@@ -132,6 +132,25 @@ void BEDChrQuery::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
+void BEDChrQuery::dump_file(std::ostream &fo) {
+	unsigned int i = 0;
+	for (unsigned int i = 0; i < size(); ++i) {
+		fo << name << '\t';
+		auto p = pos.get(i);
+		fo << p.first << '\t' << p.second;
+		string s = ext.getline(i); // TODO: change to enumerator later
+		if (!s.empty())
+			fo << '\t' << s << '\n';
+		else
+			fo << '\n';
+	}
+}
+
+size_t BEDChrQuery::size() const {
+	return pos.size();
+}
+
+
 
 
 }//namespace

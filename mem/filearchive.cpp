@@ -261,7 +261,7 @@ uint32_t FNV_hash24(const std::string& s) {
 	OClassInfoArchive::OClassInfoArchive(): pos(0) {
 		impl = new ClassListInfo();
 		ClassListInfo& x = *((ClassListInfo*)impl);
-		x.cur = PInfoNode(new CInfoNode());
+		x.cur = std::make_shared<CInfoNode>(CInfoNode());
 		finalized = false;
 	}
 

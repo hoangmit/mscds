@@ -111,6 +111,8 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 		ASSERT_EQ(rng[i].st, r.int_start(i));
 		ASSERT_EQ(rng[i].ed, r.int_end(i));
 		ASSERT_EQ(rng[i].ed - rng[i].st, r.int_len(i));
+		auto px = r.int_startend(i);
+		ASSERT(rng[i].st == px.first && rng[i].ed == px.second);
 	}
 	for (size_t i = 0; i < rng.size() - 3; ++i) {
 		typename StructTp::Enum e;
@@ -129,7 +131,7 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 		if (rng[j].st <= i) jp = j;
 		auto v = r.rank_interval(i);
 		ASSERT_EQ(jp, v);
-		ASSERT_EQ(cnt, r.coverage(i));
+		ASSERT_EQ(cnt, r.coverage(i)) << "test id = " << testid << "   i = " << i << endl;
 		auto p = r.find_cover(i);
 		if (rng[j].st <= i) {
 			++cnt;
@@ -140,9 +142,9 @@ void test_intervals(const std::deque<ValRange>& rng, int testid=0) {
 			ASSERT_EQ(0, p.second);
 		}
 	}
-	ASSERT_EQ(j, rng.size() - 1);
+	ASSERT_EQ(rng.size() - 1, j);
 	auto v = r.rank_interval(mlen);
-	ASSERT_EQ(v, rng.size() - 1);
+	ASSERT_EQ(rng.size() - 1, v);
 }
 
 template<typename RunLenSumArray>
@@ -199,38 +201,69 @@ vector<int> generate(int len) {
 }
 
 
-TEST(intv, start_end1) {
+TEST(intv, basic1) {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
 	test_intervals<NIntv>(genInp(Av));
 }
 
-TEST(intv, start_end2) {
+TEST(intv, basic2) {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
 		test_intervals<NIntv>(genInp(A));
 		if (i % 10 == 0) cout << '.';
 	}
+	cout << endl;
 }
 
-TEST(intv, start_end3) {
+TEST(intv, group1) {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
 	auto iv = genInp(Av);
-	test_intervals<NIntv2>(iv);
+	test_intervals<NIntvGroup>(iv);
 }
 
-TEST(intv, start_end4) {
+TEST(intv, group2) {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = generate(len);
 		auto iv = genInp(A);
-		test_intervals<NIntv2>(iv, i);
+		test_intervals<NIntvGroup>(iv, i);
 		if (i % 10 == 0) cout << '.';
 	}
+	cout << endl;
+}
+
+
+TEST(intv, gap1) {
+	const int len = 11;
+	int A[len] = { 1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3 };
+	vector<int> Av(A, A + len);
+	auto iv = genInp(Av);
+	test_intervals<NIntvGap>(iv);
+}
+
+TEST(intv, gap2) {
+	const int len = 14;
+	int A[len] = { 0, 0, 0, 2, 2, 0, 3, 3, 0, 4, 5, 0, 0, 0 };
+	vector<int> Av(A, A + len);
+	auto iv = genInp(Av);
+	test_intervals<NIntvGap>(iv);
+}
+
+
+TEST(intv, gap3) {
+	int len = 10000;
+	for (size_t i = 0; i < 100; ++i) {
+		vector<int> A = generate(len);
+		auto iv = genInp(A);
+		test_intervals<NIntvGap>(iv, i);
+		if (i % 10 == 0) cout << '.';
+	}
+	cout << endl;
 }
 
 
@@ -240,7 +273,6 @@ void test_rlsum_tb_rng(int test_num) {
 	int len = 10000;
 	vector<int> A = generate(len);
 	test_rlsum_basic_vec<RunLenSumType, true>(A);
-	cout << ".";
 }
 
 
@@ -255,6 +287,8 @@ TEST(rlsum, tb_2) {
 TEST(rlsum, tb_rng) {
 	for (int i = 0; i < 100; i++) {
 		test_rlsum_tb_rng<RunLenSumArray6>(i);
+		cout << ".";
 	}
+	cout << endl;
 }
 

@@ -97,6 +97,11 @@ NIntv::PosType NIntv::int_end(PosType i) const {
 	return int_start(i) + int_len(i);
 }
 
+std::pair<NIntv::PosType, NIntv::PosType> NIntv::int_startend(NIntv::PosType i) const {
+	NIntv::PosType st = start.select(i);
+	return make_pair(st, st + int_len(i));
+}
+
 void NIntv::clear() {
 	len = 0;
 	start.clear();
@@ -121,12 +126,17 @@ void NIntv::getEnum(PosType idx, Enum * e) const {
 	start.getEnum(idx, &(e->st));
 }
 
+std::pair<NIntv::PosType, NIntv::PosType> NIntv::Enum::next() {
+	auto stx = st.next();
+	return std::pair<PosType, PosType>(stx, stx + re.next());
+}
+
 
 //------------------------------------------------------------------------
 
-NIntv2Builder::NIntv2Builder() { clear(); }
+NIntvGroupBuilder::NIntvGroupBuilder() { clear(); }
 
-void NIntv2Builder::clear() {
+void NIntvGroupBuilder::clear() {
 	gstbd.clear();
 	ilbd.clear();
 	gcbd.clear();
@@ -137,7 +147,7 @@ void NIntv2Builder::clear() {
 	first = true;
 }
 
-void NIntv2Builder::add(PosType st, PosType ed) {
+void NIntvGroupBuilder::add(PosType st, PosType ed) {
 	if (ed <= st) throw std::runtime_error("invalid range");
 	if (first) {
 		ilbd.add_inc(0);
@@ -159,7 +169,7 @@ void NIntv2Builder::add(PosType st, PosType ed) {
 	++cnt;
 }
 
-void NIntv2Builder::build(NIntv2 *out) {
+void NIntvGroupBuilder::build(NIntvGroup *out) {
 	gcbd.add_inc(g_pos);
 	out->len = cnt;
 	out->maxpos = last_ed;
@@ -169,13 +179,13 @@ void NIntv2Builder::build(NIntv2 *out) {
 	clear();
 }
 
-void NIntv2Builder::build(mscds::OArchive &ar) {
-	NIntv2 a;
+void NIntvGroupBuilder::build(mscds::OArchive &ar) {
+	NIntvGroup a;
 	build(&a);
 	a.save(ar);
 }
 
-void NIntv2::save(mscds::OArchive &ar) const {
+void NIntvGroup::save(mscds::OArchive &ar) const {
 	ar.startclass("non-overlapped_grouped_intervals", 1);
 	ar.var("length").save(len);
 	ar.var("max_pos").save(maxpos);
@@ -185,7 +195,7 @@ void NIntv2::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NIntv2::load(mscds::IArchive &ar) {
+void NIntvGroup::load(mscds::IArchive &ar) {
 	ar.loadclass("non-overlapped_grouped_intervals");
 	ar.var("length").load(len);
 	ar.var("max_pos").load(maxpos);
@@ -195,7 +205,7 @@ void NIntv2::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-std::pair<NIntv2::PosType, NIntv2::PosType> NIntv2::find_cover(PosType pos) const {
+std::pair<NIntvGroup::PosType, NIntvGroup::PosType> NIntvGroup::find_cover(PosType pos) const {
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return pair<PosType, PosType>(0, 0);
 	--j;
@@ -208,7 +218,7 @@ std::pair<NIntv2::PosType, NIntv2::PosType> NIntv2::find_cover(PosType pos) cons
 		return pair<PosType, PosType>(nb, 0);
 }
 
-NIntv2::PosType NIntv2::rank_interval(PosType pos) const {
+NIntvGroup::PosType NIntvGroup::rank_interval(PosType pos) const {
 	if (pos >= maxpos) return len - 1;
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return npos();
@@ -220,7 +230,7 @@ NIntv2::PosType NIntv2::rank_interval(PosType pos) const {
 	else return nb - 1;
 }
 
-NIntv2::PosType NIntv2::coverage(PosType pos) const {
+NIntvGroup::PosType NIntvGroup::coverage(PosType pos) const {
 	if (pos >= maxpos) return ilen.select(ilen.one_count() - 1);
 	uint64_t j = gstart.rank(pos+1);
 	if (j == 0) return 0;
@@ -231,39 +241,48 @@ NIntv2::PosType NIntv2::coverage(PosType pos) const {
 	else return ilen.select(gcnt.select(j+1));
 }
 
-NIntv2::PosType NIntv2::int_start(PosType i) const {
+NIntvGroup::PosType NIntvGroup::int_start(PosType i) const {
 	uint64_t j = gcnt.rank(i+1)-1;
 	return gstart.select(j) + ilen.select(i) - ilen.select(gcnt.select(j));
 }
 
-NIntv2::PosType NIntv2::int_len(PosType i) const {
-	return ilen.select(i+1) - ilen.select(i);
+NIntvGroup::PosType NIntvGroup::int_len(PosType i) const {
+	NIntvGroup::PosType ret = ilen.sdarray().lookup(i + 1);
+	assert(ret == ilen.select(i+1) - ilen.select(i));
+	return ret;
 }
 
-NIntv2::PosType NIntv2::int_end(PosType i) const {
+NIntvGroup::PosType NIntvGroup::int_end(PosType i) const {
 	return int_start(i) + int_len(i);
 }
 
-void NIntv2::clear() {
+std::pair<NIntvGroup::PosType, NIntvGroup::PosType> NIntvGroup::int_startend(NIntvGroup::PosType i) const {
+	uint64_t j = gcnt.rank(i + 1) - 1;
+	uint64_t sli = ilen.select(i);
+	uint64_t st = gstart.select(j) + sli - ilen.select(gcnt.select(j));
+	return std::pair<PosType, PosType>(st, st + ilen.select(i + 1) - sli);
+}
+
+void NIntvGroup::clear() {
 	len = 0;
 	gcnt.clear();
 	ilen.clear();
 	gstart.clear();
 }
 
-NIntv2::PosType NIntv2::length() const {
+NIntvGroup::PosType NIntvGroup::length() const {
 	return len;
 }
 
-NIntv2::PosType NIntv2::find_rlen(PosType val) const {
+NIntvGroup::PosType NIntvGroup::find_rlen(PosType val) const {
 	return ilen.rank(val);
 }
 
-NIntv2::PosType NIntv2::int_psrlen(PosType i) const {
+NIntvGroup::PosType NIntvGroup::int_psrlen(PosType i) const {
 	return ilen.select(i);
 }
 
-void NIntv2::getEnum(PosType idx, Enum *e) const {
+void NIntvGroup::getEnum(PosType idx, Enum *e) const {
 	ilen.getDisEnum(idx+1, &(e->rl));
 	auto j = gcnt.rank(idx+1);
 	gcnt.getDisEnum(j, &(e->gc));
@@ -272,27 +291,161 @@ void NIntv2::getEnum(PosType idx, Enum *e) const {
 	gstart.getEnum(j, &(e->gs));
 }
 
-void NIntv2::inspect(const std::string& cmd, std::ostream& out) const {
+void NIntvGroup::inspect(const std::string& cmd, std::ostream& out) const {
 	out << gcnt.to_str() << "\n";
 }
 
 
-std::pair<NIntv2::PosType, NIntv2::PosType> NIntv2::Enum::next() {
-	NIntv2::PosType xp = cp;
-	NIntv2::PosType xxp = cp + rl.next();
+std::pair<NIntvGroup::PosType, NIntvGroup::PosType> NIntvGroup::Enum::next() {
+	NIntvGroup::PosType xp = cp;
+	NIntvGroup::PosType xxp = cp + rl.next();
 	gi--;
 	if (gi == 0 && gc.hasNext()) {
 		gi = gc.next();
 		cp = gs.next();
 	}else
 		cp = xxp;
-	return std::pair<NIntv2::PosType, NIntv2::PosType>(xp, xxp);
+	return std::pair<NIntvGroup::PosType, NIntvGroup::PosType>(xp, xxp);
 }
 
-bool NIntv2::Enum::hasNext() const {
+bool NIntvGroup::Enum::hasNext() const {
 	return rl.hasNext();
 }
 
+//------------------------------------------------------------------------
+
+NIntvGapBuilder::NIntvGapBuilder() { clear(); }
+
+void NIntvGapBuilder::add(NIntvGapBuilder::PosType st, NIntvGapBuilder::PosType ed) {
+	if (ed <= st) throw std::runtime_error("invalid range");
+	PosType llen = ed - st;
+	if (lasted > st) throw std::runtime_error("overlapping intervals");
+	stbd.add_inc(st);
+	rgapbd.add(st - lasted);
+	lasted = ed;
+	++cnt;
+}
+
+void NIntvGapBuilder::build(NIntvGap *out) {
+	stbd.add_inc(lasted);
+	rgapbd.add(0);
+	out->len = cnt;
+	stbd.build(&out->start);
+	rgapbd.build(&out->rgap);
+	clear();
+}
+
+void NIntvGapBuilder::clear() {
+	stbd.clear();
+	rgapbd.clear();
+	cnt = 0;
+	lasted = 0;
+}
+
+void NIntvGap::save(mscds::OArchive &ar) const {
+	ar.startclass("non-overlapped_intervals_gap", 1);
+	ar.var("length").save(len);
+	start.save(ar.var("start"));
+	rgap.save(ar.var("rlen"));
+	ar.endclass();
+}
+
+void NIntvGap::load(mscds::IArchive &ar) {
+	ar.loadclass("non-overlapped_intervals_gap");
+	ar.var("length").load(len);
+	start.load(ar.var("start"));
+	rgap.load(ar.var("rlen"));
+	ar.endclass();
+}
+
+NIntvGap::PosType NIntvGap::rank_interval(NIntvGap::PosType pos) const {
+	uint64_t p = start.rank(pos+1);
+	if (p == 0) return npos();
+	else
+		if (p < len) return p-1;
+		else return len - 1;
+}
+
+std::pair<NIntvGap::PosType, NIntvGap::PosType> NIntvGap::find_cover(NIntvGap::PosType pos) const {
+	PosType p = rank_interval(pos);
+	if (p == npos()) return pair<PosType, PosType>(0u, 0u);
+	uint64_t sp = start.select(p);
+	assert(sp <= pos);
+	PosType kl = pos - sp + 1;
+	PosType rangelen = int_len(p);
+	if (kl <= rangelen) return pair<PosType, PosType>(p, kl);
+	else return pair<PosType, PosType>(p+1, 0);
+}
+
+NIntvGap::PosType NIntvGap::coverage(NIntvGap::PosType pos) const {
+	uint64_t p = rank_interval(pos);
+	if (p == npos()) return 0;
+	uint64_t pre;
+	uint64_t diff = start.sdarray().lookup(p + 1, pre);
+	uint64_t gapsum;
+	PosType gaplen = rgap.lookup(p + 1, gapsum);
+	uint64_t len = diff - gaplen;
+	if (pos - pre >= len) return pre - gapsum + len;
+	else return pre - gapsum + pos - pre;
+}
+
+NIntvGap::PosType NIntvGap::int_start(PosType i) const {
+	assert(i < len);
+	return start.select(i);
+}
+
+NIntvGap::PosType NIntvGap::int_len(PosType i) const {
+	assert(i < len);
+	uint64_t diff = start.sdarray().lookup(i + 1);
+	assert(diff == start.select(i+1) - start.select(i));
+	return diff - rgap.lookup(i + 1);
+}
+
+NIntvGap::PosType NIntvGap::int_end(PosType i) const {
+	assert(i < len);
+	uint64_t next_st = start.select(i+1);
+	return next_st - rgap.lookup(i + 1);
+}
+
+std::pair<NIntvGap::PosType, NIntvGap::PosType> NIntvGap::int_startend(NIntvGap::PosType i) const {
+	assert(i < len);
+	uint64_t pre;
+	uint64_t diff = start.sdarray().lookup(i + 1, pre);
+	return std::pair<PosType, PosType>(pre, pre + diff - rgap.lookup(i + 1));
+}
+
+void NIntvGap::clear() {
+	len = 0;
+	start.clear();
+	rgap.clear();
+}
+
+NIntvGap::PosType NIntvGap::length() const {
+	return len;
+}
+
+NIntvGap::PosType NIntvGap::find_rlen(PosType val) const {
+	throw std::runtime_error("not implemented");
+	return 0;
+}
+
+NIntvGap::PosType NIntvGap::int_psrlen(PosType i) const {
+	return start.select(i + 1) - rgap.prefixsum(i);
+}
+
+void NIntvGap::getEnum(PosType idx, Enum * e) const {
+	start.getEnum(idx, &(e->st));
+	assert(e->st.hasNext());
+	e->last = e->st.next();
+	rgap.getEnum(idx + 1, &(e->rg));
+}
+
+std::pair<NIntvGap::PosType, NIntvGap::PosType> NIntvGap::Enum::next() {
+	auto stx = st.next();
+	std::pair<PosType, PosType> ret(last, stx - rg.next());
+	last = stx;
+	return ret;
+}
 
 
 //------------------------------------------------------------------------
@@ -458,6 +611,14 @@ PNIntv::PosType PNIntv::int_psrlen(PosType i) const {
 	return 0;
 }
 
+std::pair<PNIntv::PosType, PNIntv::PosType> PNIntv::int_startend(PNIntv::PosType i) const {
+	if (method == 1) return m1.int_startend(i);
+	else {
+		assert(method == 2);
+		return m2.int_startend(i);
+	}
+}
+
 PNIntv::PosType PNIntv::length() const {
 	if (method == 1) return m1.length();
 	else if (method == 2) return m2.length();
@@ -478,12 +639,6 @@ void PNIntv::inspect( const std::string& cmd, std::ostream& out ) const {
 	else if (method == 2) m2.inspect(cmd, out);
 }
 
-
-
-std::pair<NIntv::PosType, NIntv::PosType> NIntv::Enum::next() {
-	auto stx = st.next();
-	return std::pair<PosType, PosType>(stx, stx + re.next());
-}
 
 
 } // namespace

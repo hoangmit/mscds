@@ -152,6 +152,9 @@ public:
 
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }
+	
+	// gap between p-th position of one and (p-1)-th position 
+	const SDArraySml& sdarray() const { return qs; }
 
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;

@@ -175,8 +175,6 @@ TEST(Intv, rand1) {
 	}
 }
 
-
-
 //-------------------------------
 typedef GenomeDataBuilder BEDFormatBuilder;
 typedef GenomeData BEDFormatQuery;

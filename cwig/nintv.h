@@ -8,6 +8,7 @@
 #include <vector>
 #include <limits>
 #include <stdexcept>
+#include <algorithm>
 
 namespace app_ds {
 
@@ -20,6 +21,7 @@ public:
 	virtual PosType int_start(PosType i) const = 0;
 	virtual PosType int_len(PosType i) const = 0;
 	virtual PosType int_end(PosType i) const = 0;
+	virtual std::pair<PosType, PosType> int_startend(PosType i) const { return std::make_pair(int_start(i), int_end(i)); }
 	virtual PosType int_psrlen(PosType i) const = 0;
 
 	virtual PosType length() const = 0;
@@ -60,6 +62,7 @@ public:
 	PosType int_len(PosType i) const;
 	PosType int_end(PosType i) const;
 	PosType int_psrlen(PosType i) const;
+	std::pair<PosType, PosType> int_startend(PosType i) const;
 
 	static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
@@ -88,20 +91,19 @@ private:
 	friend class NIntvBuilder;
 };
 
-//----------------------------------------
-class NIntv2;
+//--------------------------------------------------------------------------
+class NIntvGroup;
 
 // segment scheme: start of segments, length, segment count
-
-class NIntv2Builder {
+class NIntvGroupBuilder {
 public:
 	typedef unsigned int PosType;
-	NIntv2Builder();
+	NIntvGroupBuilder();
 	void add(PosType st, PosType ed);
-	void build(NIntv2* out);
+	void build(NIntvGroup* out);
 	void build(mscds::OArchive& ar);
 	void clear();
-	typedef NIntv2 QueryTp;
+	typedef NIntvGroup QueryTp;
 private:
 	size_t last_ed;
 	size_t g_pos, cnt, llen;
@@ -110,10 +112,10 @@ private:
 	bool first;
 };
 
-class NIntv2: public NIntvQueryInt {
+class NIntvGroup: public NIntvQueryInt {
 public:
 	typedef unsigned int PosType;
-	NIntv2(): len(0) {}
+	NIntvGroup() : len(0) {}
 
 	/* \brief returns (interval, length) or (interval, 0) */
 	PosType rank_interval(PosType pos) const;
@@ -126,6 +128,7 @@ public:
 	PosType int_len(PosType i) const;
 	PosType int_end(PosType i) const;
 	PosType int_psrlen(PosType i) const;
+	std::pair<PosType, PosType> int_startend(PosType i) const;
 
 	static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
@@ -133,7 +136,7 @@ public:
 	PosType length() const;
 	void save(mscds::OArchive& ar) const;
 	void load(mscds::IArchive& ar);
-	typedef NIntv2Builder BuilderTp;
+	typedef NIntvGroupBuilder BuilderTp;
 
 	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
 	public:
@@ -144,7 +147,7 @@ public:
 		mscds::SDRankSelectSml::Enum gs;
 		mscds::SDRankSelectSml::DEnum rl, gc;
 		unsigned int gi, cp;
-		friend class NIntv2;
+		friend class NIntvGroup;
 	};
 	void getEnum(PosType idx, Enum *e) const;
 	void inspect(const std::string& cmd, std::ostream& out) const;
@@ -152,11 +155,76 @@ private:
 	size_t len, maxpos, ngrp;
 	mscds::SDRankSelectSml gstart, ilen;
 	mscds::SDRankSelectSml gcnt;
-	friend class NIntv2Builder;
+	friend class NIntvGroupBuilder;
 };
 
+//--------------------------------------------------------------------------
 
-//-----------------------
+class NIntvGap;
+
+// segment scheme: start of segments, length, segment count
+class NIntvGapBuilder {
+public:
+	typedef unsigned int PosType;
+	NIntvGapBuilder();
+	void add(PosType st, PosType ed);
+	void build(NIntvGap* out);
+	void build(mscds::OArchive& ar);
+	void clear();
+	typedef NIntvGap QueryTp;
+private:
+	size_t lasted, cnt;
+	mscds::SDRankSelectBuilderSml stbd;
+	mscds::SDArraySmlBuilder rgapbd;
+};
+
+class NIntvGap : public NIntvQueryInt {
+public:
+	typedef unsigned int PosType;
+	NIntvGap() : len(0) {}
+
+	/* \brief returns (interval, length) or (interval, 0) */
+	PosType rank_interval(PosType pos) const;
+	std::pair<PosType, PosType> find_cover(PosType pos) const;
+
+	PosType find_rlen(PosType val) const;
+	PosType coverage(PosType pos) const;
+
+	PosType int_start(PosType i) const;
+	PosType int_len(PosType i) const;
+	PosType int_end(PosType i) const;
+	PosType int_psrlen(PosType i) const;
+	std::pair<PosType, PosType> int_startend(PosType i) const;
+
+	static PosType npos() { return std::numeric_limits<PosType>::max(); }
+
+	void clear();
+	PosType length() const;
+	void save(mscds::OArchive& ar) const;
+	void load(mscds::IArchive& ar);
+	typedef NIntvGapBuilder BuilderTp;
+
+	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
+	public:
+		Enum() {}
+		bool hasNext() const { return rg.hasNext(); }
+		std::pair<PosType, PosType> next();
+	private:
+		mscds::SDArraySml::Enum rg;
+		mscds::SDRankSelectSml::Enum st;
+		PosType last;
+		friend class NIntvGap;
+	};
+	void getEnum(PosType idx, Enum *e) const;
+	void inspect(const std::string& cmd, std::ostream& out) const;
+private:
+	size_t len;
+	mscds::SDRankSelectSml start;
+	mscds::SDArraySml rgap;
+	friend class NIntvGapBuilder;
+};
+
+//--------------------------------------------------------------------------
 
 
 class PNIntv;
@@ -180,7 +248,7 @@ private:
 
 	void addmethod(PosType st, PosType ed);
 	NIntvBuilder bd1;
-	NIntv2Builder bd2;
+	NIntvGroupBuilder bd2;
 	bool autoselect;
 };
 
@@ -197,6 +265,7 @@ public:
 	PosType int_len(PosType i) const;
 	PosType int_end(PosType i) const;
 	PosType int_psrlen(PosType i) const;
+	std::pair<PosType, PosType> int_startend(PosType i) const;
 	static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
 	void clear();
@@ -213,7 +282,7 @@ public:
 		std::pair<PosType, PosType> next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else throw std::runtime_error("not initilized"); }
 	private:
 		NIntv::Enum e1;
-		NIntv2::Enum e2;
+		NIntvGroup::Enum e2;
 		unsigned int method;
 		friend class PNIntv;
 	};
@@ -224,7 +293,7 @@ private:
 	unsigned int autoselect;
 		
 	NIntv m1;
-	NIntv2 m2;
+	NIntvGroup m2;
 };
 
 }//namespace

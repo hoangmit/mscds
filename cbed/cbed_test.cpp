@@ -5,6 +5,7 @@
 
 #include "framework/archive.h"
 #include "mem/filearchive.h"
+#include "mem/fmaparchive.h"
 
 #include "cbed.h"
 #include "genomedata.h"
@@ -50,7 +51,7 @@ TEST(compressblk, test2) {
 
 using namespace std;
 
-void buildfile(const string& inp, const string& out) {
+void build_ext(const string& inp, const string& out) {
 	BlkCompBuilder bd;
 	std::ifstream file(inp.c_str());
 	std::string line;
@@ -88,6 +89,93 @@ TEST(Intv, test1) {
 		++i;
 	}
 }
+
+TEST(Intv, test2) {
+	vector<pair<unsigned, unsigned> > inp = { { 849466, 849467 }, { 854277, 854278 },
+	{ 854470, 854471 }, { 874459, 874460 }, { 874570, 874571 } };
+	IntvLstBuilder bd;
+
+	for (auto p : inp) {
+		bd.add(p.first, p.second);
+	}
+
+	IntvLst lst;
+	bd.build(&lst);
+
+	unsigned int i = 0;
+	for (auto p : inp) {
+		auto x = lst.get(i);
+		ASSERT_EQ(inp[i].first, x.first);
+		ASSERT_EQ(inp[i].second, x.second);
+		++i;
+	}
+}
+
+TEST(Intv, test3) {
+	vector<pair<unsigned, unsigned> > inp = { { 849466, 849467 }, { 854277, 854278 },
+	{ 854470, 854471 }, { 874459, 874460 }, { 874570, 874571 }, { 874608, 874609 }, { 874695, 874696 },
+	{ 874735, 874736 }, { 874840, 874841 }, { 874888, 874889 }, { 874889, 874890 }, { 882767, 882768 },
+	{ 882802, 882803 }, { 882806, 882807 }, { 883175, 883176 }, { 884645, 884646 }, { 884723, 884724 },
+	{ 884739, 884740 }, { 884758, 884759 }, { 884759, 884760 } };
+	IntvLstBuilder bd;
+
+	for (auto p : inp) {
+		bd.add(p.first, p.second);
+	}
+
+	IntvLst lst;
+	bd.build(&lst);
+	unsigned int i = 0;
+	for (auto p : inp) {
+		auto x = lst.get(i);
+		ASSERT_EQ(inp[i].first, x.first);
+		ASSERT_EQ(inp[i].second, x.second);
+		++i;
+	}
+}
+
+vector<pair<unsigned, unsigned> > generate_pairs(unsigned int n, unsigned int range) {
+	vector<pair<unsigned, unsigned> > ret;
+	for (unsigned int i = 0; i < n; ++i) {
+		unsigned int st = rand() % range;
+		unsigned int ed = (rand() % range) + 1;
+		if (st > ed) std::swap(st, ed);
+		if (st == ed) ed += 1;
+		ret.emplace_back(st, ed);
+	}
+	std::sort(ret.begin(), ret.end());
+	return ret;
+}
+
+void test_intv_rand(unsigned int n, unsigned int range) {
+	vector<pair<unsigned, unsigned> > inp = generate_pairs(10, 5);
+	IntvLstBuilder bd;
+	for (auto p : inp) {
+		bd.add(p.first, p.second);
+	}
+	IntvLst lst;
+	bd.build(&lst);
+	unsigned int i = 0;
+	for (auto p : inp) {
+		auto x = lst.get(i);
+		if (inp[i].first != x.first || inp[i].second != x.second) {
+			x = lst.get(i);
+		}
+		ASSERT_EQ(inp[i].first, x.first);
+		ASSERT_EQ(inp[i].second, x.second);
+		++i;
+	}
+}
+
+TEST(Intv, rand1) {
+	test_intv_rand(10, 5);
+	test_intv_rand(100, 10);
+	for (unsigned int i = 0; i < 100; ++i) {
+		test_intv_rand(200, 20);
+	}
+}
+
+
 
 //-------------------------------
 typedef GenomeDataBuilder BEDFormatBuilder;
@@ -147,10 +235,47 @@ TEST(cbed, access2) {
 	stringstream ss;
 
 	ax.dump_file(ss);
-	cout << ss.str() << endl;
+	for (unsigned int i = 0; i < 3; ++i) {
+		string line;
+		getline(ss, line);
+		ASSERT_EQ(lst[i], line);
+	}
+}
+
+void buildfile(const string& inp, const string& out) {
+	GenomeDataBuilder bd;
+	bd.init();
+	std::ifstream file(inp.c_str());
+	std::string line;
+	while (std::getline(file, line)) {
+		try {
+			bd.add(line);
+		}
+		catch (std::runtime_error& e) {
+			cout << "Error processing line: " << line << endl;
+			cout << e.what() << endl;
+			throw;
+		}
+	}
+	GenomeData qs;
+	bd.build(&qs);
+	mscds::OFileArchive fout;
+	fout.open_write(out);
+	qs.save(fout);
+	fout.close();
+}
+
+void extractfile(const string& inp, const string& out) {
+	GenomeData qs;
+	IFileMapArchive ar;
+	ar.open_read(inp);
+	qs.load(ar);
+	qs.dump_file(out);
 }
 
 int main(int argc, char* argv[]) {
+	//buildfile("C:/temp/affyCytoScan.bed", "C:/temp/affyCytoScan.cbed");
+	//extractfile("C:/temp/affyCytoScan.cbed", "C:/temp/affyCytoScan.bedx");
 
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);

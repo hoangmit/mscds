@@ -98,6 +98,7 @@ uint32_t FNV_hash24(const std::string& s) {
 //---------------------------------------------------------------------------
 
 	unsigned char IFileArchive::loadclass(const std::string& name) {
+		if (!in) throw ioerror("stream error");
 		uint32_t hash = FNV_hash24(name);
 		//unsigned char version = 0;
 		uint32_t v;

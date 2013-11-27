@@ -42,6 +42,7 @@ void IFileMapArchive::close() {
 
 unsigned char IFileMapArchive::loadclass(const std::string &name) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
+	if (!fm->fi) throw ioerror("stream error");
 	uint32_t hash = FNV_hash24(name);
 	//unsigned char version = 0;
 	uint32_t v;

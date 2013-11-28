@@ -272,7 +272,20 @@ TEST(cwig, stdev) {
 	ASSERT_DOUBLE_EQ(2, v);
 }
 
+#include "utils/str_utils.h"
+
+using namespace utils;
+
+void run_benchmark();
+
 int main(int argc, char* argv[]) {
+
+	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
+	run_benchmark();
+	//test_size();
+	return 0;
+
+
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();

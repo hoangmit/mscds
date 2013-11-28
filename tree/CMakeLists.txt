@@ -10,7 +10,7 @@ add_library(tree ${SRCS} ${HEADERS})
 target_link_libraries(tree bitarray intarray)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
-include_directories(${CELERO_INCLUDE_DIRS})
+
 
 add_test_files(rmq_test.cpp)
 #add_executable(t_rmq rmq_test.cpp)
@@ -22,8 +22,9 @@ add_test_files(bptree_test.cpp)
 #target_link_libraries(t_bptree tree utils ${COMMON_LIBS})
 #set_target_properties(t_bptree PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
+include_directories(${HAYAI_INCLUDE_DIRS})
 
 add_executable(t_rmq_test2 rmq_test2.cpp)
-target_link_libraries(t_rmq_test2 tree utils ${COMMON_LIBS} ${CELERO_LIBRARY})
+target_link_libraries(t_rmq_test2 tree utils ${COMMON_LIBS} ${HAYAI_LIBRARY})
 set_target_properties(t_rmq_test2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 set_property(TARGET t_rmq_test2 PROPERTY FOLDER "Tests")

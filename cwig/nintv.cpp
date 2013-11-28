@@ -30,6 +30,7 @@ void NIntvBuilder::add(PosType st, PosType ed) {
 }
 
 void NIntvBuilder::build(NIntv *out) {
+	out->clear();
 	out->len = cnt;
 	stbd.build(&(out->start));
 	rlbd.build(&(out->rlen));
@@ -170,6 +171,7 @@ void NIntvGroupBuilder::add(PosType st, PosType ed) {
 }
 
 void NIntvGroupBuilder::build(NIntvGroup *out) {
+	out->clear();
 	gcbd.add_inc(g_pos);
 	out->len = cnt;
 	out->maxpos = last_ed;
@@ -327,6 +329,7 @@ void NIntvGapBuilder::add(NIntvGapBuilder::PosType st, NIntvGapBuilder::PosType 
 }
 
 void NIntvGapBuilder::build(NIntvGap *out) {
+	out->clear();
 	stbd.add_inc(lasted);
 	rgapbd.add(0);
 	out->len = cnt;

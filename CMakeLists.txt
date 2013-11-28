@@ -59,10 +59,13 @@ set(ZLIB_LIBRARY zlibstatic)
 
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/Celero)
-set(CELERO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/Celero/include)
-set(CELERO_LIBRARY celero)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/Celero)
+#set(CELERO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/Celero/include)
+#set(CELERO_LIBRARY celero)
 
+#add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/hayai)
+#set(HAYAI_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/hayai)
+#set(HAYAI_LIBRARY hayai_main)
 
 #---Interal Utilities-----------------------------------------------------------------------------
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)

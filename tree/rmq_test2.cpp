@@ -7,10 +7,17 @@
 #include "RMQ_sct.h"
 #include <iostream>
 #include <cassert>
+#include "utils/benchmark.h"
 
 #include "mem/filearchive.h"
+#ifndef WIN32
+#include <unistd.h>
+#else
+#include <process.h>
+#endif
 
-#include "celero/Celero.h"
+#include <functional>
+#include <chrono>
 
 using namespace std;
 using namespace mscds;
@@ -309,13 +316,14 @@ void test_size() {
 	//report_size(len, 64);
 }
 
-class QueryFixture : public celero::TestFixture {
+class QuerySFixture {
 public:
-	QueryFixture() {
-		ProblemSetValues.push_back(1);
+	QuerySFixture() { }
+
+	void SetUp(const int32_t problemSetValue) {
 		unsigned int blksize = 32;
-		unsigned int len = 2000000;
-		unsigned int querycnt = 1000;
+		unsigned int len = 10000000;
+		unsigned int querycnt = 10000;
 		vector<bool> bv = rand_bitvec(len);
 		b = BitArray::create(len);
 		vals.resize(len);
@@ -339,18 +347,16 @@ public:
 			queries.push_back(make_pair(st, ed));
 		}
 	}
-	virtual void SetUp(const int32_t problemSetValue) {
-	}
 
-	virtual void TearDown() {
-		/*b.clear();
+	void TearDown() {
+		b.clear();
 		vals.clear();
 		queries.clear();
 
 		rmq.clear();
 		tblsim.clear();
 		tblblk.clear();
-		sct.clear();*/
+		sct.clear();
 	}
 
 	BitArray b;
@@ -361,41 +367,64 @@ public:
 	RMQ_index_blk tblblk;
 	RMQ_sct sct;
 };
+/*
+template<class T> void DoNotOptimizeAway(T&& datum)
+{
+#ifdef WIN32
+	if (_getpid() == 1)
+#else
+	if (getpid() == 1)
+#endif
+	{
+		const void* p = &datum;
+		putchar(*static_cast<const char*>(p));
+	}
+}*/
 
-BASELINE_F(RMQ_pm1, table_big, QueryFixture, 5, 5) {
-	for (auto p : queries) {
-		celero::DoNotOptimizeAway(
-			this->tblsim.m_idx(p.first, p.second));
+#define DoNotOptimizeAway(T) (T)
+
+void RMQ_pm1_table_big(QuerySFixture * fixture) {
+	for (auto p : fixture->queries) {
+		DoNotOptimizeAway(fixture->tblsim.m_idx(p.first, p.second));
 	}
 }
 
-BENCHMARK_F(RMQ_pm1, table_smaller, QueryFixture, 5, 5) {
-	for (auto p : queries) {
-		celero::DoNotOptimizeAway(
-			this->tblblk.m_idx(p.first, p.second));
+void RMQ_pm1_table_smaller(QuerySFixture * fixture) {
+	for (auto p : fixture->queries) {
+		fixture->tblblk.m_idx(p.first, p.second);
+	}
+}
+
+void RMQ_pm1_rmq1(QuerySFixture* fixture) {
+	for (auto p : fixture->queries) {
+		fixture->rmq.m_idx(p.first, p.second);
+	}
+}
+
+void RMQ_pm1_sct(QuerySFixture * fixture) {
+	for (auto p : fixture->queries) {
+		fixture->sct.m_idx(p.first, p.second);
 	}
 }
 
 
-BENCHMARK_F(RMQ_pm1, rmq1, QueryFixture, 5, 5) {
-	for (auto p : queries) {
-		celero::DoNotOptimizeAway(
-			this->rmq.m_idx(p.first, p.second));
-	}
-}
+void run_benchmark() {
+	Benchmarker<QuerySFixture> bm;
+	bm.n_samples = 3;
 
+	bm.add("RMQ_pm1_table_big", RMQ_pm1_table_big);
+	bm.add("RMQ_pm1_table_smaller", RMQ_pm1_table_smaller);
+	bm.add("RMQ_pm1_rmq1", RMQ_pm1_rmq1);
+	bm.add("RMQ_pm1_sct", RMQ_pm1_sct);
 
-BENCHMARK_F(RMQ_pm1, sct, QueryFixture, 5, 5) {
-	for (auto p : queries) {
-		celero::DoNotOptimizeAway(
-			this->sct.m_idx(p.first, p.second));
-	}
+	bm.run_all();
+	bm.report(0);
 }
 
 int main(int argc, char* argv[]) {
 	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
-	//test_size();
-	celero::Run(argc, argv);
+
+	run_benchmark();
 	return 0;
 
 	//::testing::GTEST_FLAG(filter) = "rmq_pm1.rmq_pm1";

@@ -11,6 +11,7 @@ debug.cpp
 param.cpp
 modp_numtoa.cpp
 cache_table.cpp
+rand_data.cpp
 )
 
 
@@ -24,6 +25,8 @@ utest.h
 param.h
 modp_numtoa.h
 cache_table.h
+rand_data.h
+benchmark.h
 )
 
 include_directories(${GTEST_INCLUDE_DIRS})

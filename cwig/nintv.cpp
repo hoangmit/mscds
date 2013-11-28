@@ -465,7 +465,7 @@ void PNIntvBuilder::init(unsigned int _method /*= 0*/) {
 		auto cf = Config::getInst();
 		if (cf->check("CWIG.POSITION_STORAGE")) {
 			method = cf->getInt("CWIG.POSITION_STORAGE");
-			if (method > 2) throw std::runtime_error("invalid method");
+			if (method > 3) throw std::runtime_error("invalid method");
 		}
 	}
 	autoselect = (method == 0);
@@ -479,7 +479,7 @@ void PNIntvBuilder::choosemethod() {
 		if (vals[i - 1].second == vals[i].first)
 			++contcnt;
 	}
-	if (2 * contcnt > vals.size()) method = 2;
+	if (2 * contcnt > vals.size()) method = 3;
 	else method = 1;
 	for (PosType i = 0; i < vals.size(); ++i)
 		addmethod(vals[i].first, vals[i].second);
@@ -489,6 +489,7 @@ void PNIntvBuilder::choosemethod() {
 void PNIntvBuilder::addmethod(PosType st, PosType ed) {
 	if (method == 1) bd1.add(st, ed);
 	else if (method == 2) bd2.add(st, ed);
+	else if (method == 3) bd3.add(st, ed);
 	else assert(false);
 }
 
@@ -515,12 +516,16 @@ void PNIntvBuilder::build(PNIntv* out) {
 	else
 	if (method == 2)
 		bd2.build(&(out->m2));
+	else
+	if (method == 3)
+		bd3.build(&(out->m3));
 	else assert(false);
 }
 
 void PNIntvBuilder::clear() {
 	bd1.clear();
 	bd2.clear();
+	bd3.clear();
 	cnt = 0;
 	method = 0;
 }
@@ -536,6 +541,10 @@ void PNIntv::save(mscds::OArchive& ar) const {
 	} else if (method == 2) {
 		m2.save(ar.var("method2"));
 	}
+	else if (method == 3) {
+		m3.save(ar.var("method3"));
+	}
+	else { assert(false); }
 	ar.endclass();
 }
 
@@ -549,6 +558,12 @@ void PNIntv::load( mscds::IArchive& ar ) {
 	} else if (method == 2) {
 		m2.load(ar.var("method2"));
 	}
+	else if (method == 3) {
+		m3.load(ar.var("method3"));
+	}
+	else {
+		assert(false);
+	}
 	ar.endclass();
 }
 
@@ -556,11 +571,13 @@ void PNIntv::clear() {
 	method = 0;
 	m1.clear();
 	m2.clear();
+	m3.clear();
 }
 
 std::pair<PNIntv::PosType, PNIntv::PosType> PNIntv::find_cover(PosType pos) const {
 	if (method == 1) return m1.find_cover(pos);
 	else if (method == 2) return m2.find_cover(pos);
+	else if (method == 3) return m3.find_cover(pos);
 	else assert(false);
 	return std::pair<PosType, PosType>();
 }
@@ -568,6 +585,7 @@ std::pair<PNIntv::PosType, PNIntv::PosType> PNIntv::find_cover(PosType pos) cons
 PNIntv::PosType PNIntv::rank_interval(PosType pos) const {
 	if (method == 1) return m1.rank_interval(pos);
 	else if (method == 2) return m2.rank_interval(pos);
+	else if (method == 3) return m3.rank_interval(pos); 
 	else assert(false);
 	return 0;
 }
@@ -575,6 +593,7 @@ PNIntv::PosType PNIntv::rank_interval(PosType pos) const {
 PNIntv::PosType PNIntv::find_rlen(PosType val) const {
 	if (method == 1) return m1.find_rlen(val);
 	else if (method == 2) return m2.find_rlen(val);
+	else if (method == 2) return m3.find_rlen(val);
 	else assert(false);
 	return 0;
 }
@@ -582,6 +601,7 @@ PNIntv::PosType PNIntv::find_rlen(PosType val) const {
 PNIntv::PosType PNIntv::coverage(PosType pos) const {
 	if (method == 1) return m1.coverage(pos);
 	else if (method == 2) return m2.coverage(pos);
+	else if (method == 3) return m3.coverage(pos);
 	else assert(false);
 	return 0;
 }
@@ -589,6 +609,7 @@ PNIntv::PosType PNIntv::coverage(PosType pos) const {
 PNIntv::PosType PNIntv::int_start(PosType i) const {
 	if (method == 1) return m1.int_start(i);
 	else if (method == 2) return m2.int_start(i);
+	else if (method == 3) return m3.int_start(i);
 	else assert(false);
 	return 0;
 }
@@ -596,6 +617,7 @@ PNIntv::PosType PNIntv::int_start(PosType i) const {
 PNIntv::PosType PNIntv::int_len(PosType i) const {
 	if (method == 1) return m1.int_len(i);
 	else if (method == 2) return m2.int_len(i);
+	else if (method == 3) return m3.int_len(i);
 	else assert(false);
 	return 0;
 }
@@ -603,6 +625,7 @@ PNIntv::PosType PNIntv::int_len(PosType i) const {
 PNIntv::PosType PNIntv::int_end(PosType i) const {
 	if (method == 1) return m1.int_end(i);
 	else if (method == 2) return m2.int_end(i);
+	else if (method == 3) return m3.int_end(i);
 	else assert(false);
 	return 0;
 }
@@ -610,21 +633,25 @@ PNIntv::PosType PNIntv::int_end(PosType i) const {
 PNIntv::PosType PNIntv::int_psrlen(PosType i) const {
 	if (method == 1) return m1.int_psrlen(i);
 	else if (method == 2) return m2.int_psrlen(i);
+	else if (method == 3) return m3.int_psrlen(i);
 	else assert(false);
 	return 0;
 }
 
 std::pair<PNIntv::PosType, PNIntv::PosType> PNIntv::int_startend(PNIntv::PosType i) const {
 	if (method == 1) return m1.int_startend(i);
+	else if (method == 2) return m2.int_startend(i);
+	else if (method == 3) return m3.int_startend(i);
 	else {
-		assert(method == 2);
-		return m2.int_startend(i);
+		assert(false);
+		return std::pair<PNIntv::PosType, PNIntv::PosType>();
 	}
 }
 
 PNIntv::PosType PNIntv::length() const {
 	if (method == 1) return m1.length();
 	else if (method == 2) return m2.length();
+	else if (method == 3) return m3.length();
 	else assert(false);
 	return 0;
 }
@@ -632,14 +659,15 @@ PNIntv::PosType PNIntv::length() const {
 void PNIntv::getEnum( PosType idx, Enum *e ) const {
 	e->method = method;
 	if (method == 1) m1.getEnum(idx, &(e->e1));
-	else
-		if (method == 2) m2.getEnum(idx, &(e->e2));
-		else throw std::runtime_error("not initilized");
+	else if (method == 2) m2.getEnum(idx, &(e->e2));
+	else if (method == 3) m3.getEnum(idx, &(e->e3));
+	else throw std::runtime_error("not initilized");
 }
 
 void PNIntv::inspect( const std::string& cmd, std::ostream& out ) const {
 	if (method == 1) m1.inspect(cmd, out);
 	else if (method == 2) m2.inspect(cmd, out);
+	else if (method == 3) m3.inspect(cmd, out);
 }
 
 

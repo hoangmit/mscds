@@ -113,7 +113,6 @@ public:
 	}
 
 	void _report_methods(const RESVector& results, int baseline = -1) {
-
 		if (baseline >= 0 && baseline < results.size()) {
 			double baseval = results[baseline].second;
 			std::cout << "Baseline method : " << results[baseline].first << std::endl;

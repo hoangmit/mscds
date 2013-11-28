@@ -216,7 +216,7 @@ public:
 		friend class NIntvGap;
 	};
 	void getEnum(PosType idx, Enum *e) const;
-	void inspect(const std::string& cmd, std::ostream& out) const;
+	void inspect(const std::string& cmd, std::ostream& out) const {}
 private:
 	size_t len;
 	mscds::SDRankSelectSml start;
@@ -249,6 +249,7 @@ private:
 	void addmethod(PosType st, PosType ed);
 	NIntvBuilder bd1;
 	NIntvGroupBuilder bd2;
+	NIntvGapBuilder bd3;
 	bool autoselect;
 };
 
@@ -278,11 +279,12 @@ public:
 	public:
 		Enum() {}
 		Enum(const Enum& o): e1(o.e1), e2(o.e2), method(o.method) {}
-		bool hasNext() const { if (method == 1) return e1.hasNext(); else if (method == 2) return e2.hasNext(); else throw std::runtime_error("not initilized"); }
-		std::pair<PosType, PosType> next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else throw std::runtime_error("not initilized"); }
+		bool hasNext() const { if (method == 1) return e1.hasNext(); else if (method == 2) return e2.hasNext(); else if (method == 3) return e3.hasNext();  else throw std::runtime_error("not initilized"); }
+		std::pair<PosType, PosType> next() { if (method == 1) return e1.next(); else if (method == 2) return e2.next(); else if (method == 3) return e3.next(); else throw std::runtime_error("not initilized"); }
 	private:
 		NIntv::Enum e1;
 		NIntvGroup::Enum e2;
+		NIntvGap::Enum e3;
 		unsigned int method;
 		friend class PNIntv;
 	};
@@ -294,6 +296,7 @@ private:
 		
 	NIntv m1;
 	NIntvGroup m2;
+	NIntvGap m3;
 };
 
 }//namespace

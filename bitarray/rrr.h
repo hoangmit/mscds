@@ -6,10 +6,9 @@
 #include "bitarray.h"
 #include "framework/archive.h"
 #include "rankselect.h"
+
 #include <cstdint>
 #include <string>
-
-
 
 namespace mscds {
 
@@ -18,8 +17,6 @@ class RRRHintSel;
 
 class RRR : public RankSelect {
 private:
-	//BitArray bits;
-	//BitArray inv;
     BitArray E, R, S, sumR, posS;
 	uint64_t onecnt, len;
 public:
@@ -40,20 +37,12 @@ public:
 
 	void load(IArchive& ar);
 	void save(OArchive& ar) const;
-	//const BitArray& getBitArray() const { return bits; }
+
 	typedef RRRBuilder BuilderTp;
 private:
     uint64_t partialsum(uint64_t block) const;
     uint64_t positionS(uint64_t block) const;
-//	uint64_t blkrank(size_t blk) const;
-/*	uint64_t subblkrank(size_t blk, unsigned int off) const;
-	uint64_t blkrank0(size_t blk) const;
-	uint64_t subblkrank0(size_t blk, unsigned int off) const;
 
-	uint64_t selectblock(uint64_t blk, uint64_t d) const;
-	uint64_t selectblock0(uint64_t blk, uint64_t d) const;
-
-	unsigned int word_rank(size_t idx, unsigned int i) const;*/
 	friend class RRRBuilder;
 	friend class RRRHintSel;
 	friend struct BlockIntIterator;

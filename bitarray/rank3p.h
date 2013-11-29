@@ -19,7 +19,6 @@ class Rank3pHintSel;
 class Rank3p : public RankSelect {
 private:
 	BitArray bits;
-	//BitArray inv;
     BitArray l0, l1_l2, sampling;
 	uint64_t onecnt;
 public:
@@ -49,15 +48,7 @@ private:
     uint64_t countone(uint64_t start, uint64_t end) const;
     uint64_t l1binarysearch(uint64_t j, uint64_t start, uint64_t end) const;
     uint64_t l0binarysearch(uint64_t i) const;
-//	uint64_t blkrank(size_t blk) const;
-/*	uint64_t subblkrank(size_t blk, unsigned int off) const;
-	uint64_t blkrank0(size_t blk) const;
-	uint64_t subblkrank0(size_t blk, unsigned int off) const;
 
-	uint64_t selectblock(uint64_t blk, uint64_t d) const;
-	uint64_t selectblock0(uint64_t blk, uint64_t d) const;
-
-	unsigned int word_rank(size_t idx, unsigned int i) const;*/
 	friend class Rank3pBuilder;
 	friend class Rank3pHintSel;
 	friend struct BlockIntIterator;
@@ -81,9 +72,7 @@ public:
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;
-	uint64_t rank(uint64_t p) const {
-		return rankst.rank(p);
-	}
+	uint64_t rank(uint64_t p) const { return rankst.rank(p); }
 	void clear();
 private:
 	void init();

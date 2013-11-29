@@ -1,7 +1,11 @@
 
 #include "rank25p.h"
 #include "rank6p.h"
+#include "rank3p.h"
+#include "rrr.h"
 #include "utils/utest.h"
+#include "utils/utils.h"
+
 
 #include <vector>
 #include <iostream>
@@ -125,10 +129,12 @@ void test_rank(const std::vector<bool>& vec) {
 	int last = -1;
 	for (unsigned int i = 0; i < onecnt; ++i) {
 		int pos = r.select(i);
+		ASSERT_EQ(i, r.rank(pos));
+		ASSERT_EQ(i + 1, r.rank(pos + 1));
 		if (pos >= vec.size() || !vec[pos] || pos <= last) {
 			cout << "select " << i << "  " << r.select(i) << endl;
 			if (i > 0) r.select(i-1);
-			ASSERT_EQ(vec[pos], true);
+			ASSERT_EQ(true, vec[pos]);
 		}
 		ASSERT(pos > last);
 		last = pos;
@@ -136,11 +142,12 @@ void test_rank(const std::vector<bool>& vec) {
 	last = -1;
 	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
 		int pos = r.selectzero(i);
+		ASSERT_EQ(i, r.rankzero(pos));
+		ASSERT_EQ(i + 1, r.rankzero(pos + 1));
 		ASSERT(pos < vec.size() && vec[pos] == false);
 		ASSERT(pos > last);
 		last = pos;
 	}
-	cout << ".";
 }
 
 void test_temp(int len) {
@@ -172,36 +179,79 @@ void test_temp(int len) {
 		ASSERT(pos > last);
 		last = pos;
 	}
-	cout << '.';
 }
 
-TEST(all_rank, ranktest) {
+TEST(ranktest, rank25p) {
+	test_rank<Rank25p>(bits_one());
+	test_rank<Rank25p>(bits_zero());
+	test_rank<Rank25p>(bits_onezero());
+	test_rank<Rank25p>(bits_oneonezero());
+	test_rank<Rank25p>(bits_zerozeroone());
+	for (int i = 0; i < 200; i++) {
+		test_rank<Rank25p>(bits_dense(2046 + rand() % 4));
+		test_rank<Rank25p>(bits_sparse(2046 + rand() % 4));
+		test_rank<Rank25p>(bits_imbal(2046 + rand() % 4));
+		if (i % 10 == 0) cout << ".";
+	}
+	test_rank<Rank25p>(bits_dense(100000));
+	test_rank<Rank25p>(bits_sparse(100000));
+	cout << endl;
+}
+
+
+TEST(ranktest, rank6p) {
 	for (int i = 0; i < 100; i++) {
 		test_temp(4094 + rand() % 4);
+		if (i % 10 == 0) cout << ".";
 	}
-	return ;
+
 	test_rank<Rank6p>(bits_one());
 	test_rank<Rank6p>(bits_zero());
 	test_rank<Rank6p>(bits_onezero());
 	test_rank<Rank6p>(bits_oneonezero());
 	test_rank<Rank6p>(bits_zerozeroone());
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 200; i++) {
 		test_rank<Rank6p>(bits_dense(2046 + rand() % 4));
 		test_rank<Rank6p>(bits_sparse(2046 + rand() % 4));
-		test_rank<Rank6p>(bits_sparse(2046 + rand() % 4));
+		test_rank<Rank6p>(bits_imbal(2046 + rand() % 4));
+		if (i % 10 == 0) cout << ".";
 	}
 	test_rank<Rank6p>(bits_dense(100000));
 	test_rank<Rank6p>(bits_sparse(100000));
 	cout << endl;
 }
 
-//void gridquerytest2();
-//void test_map_all();
-//void wat_test_all();
-/*
-int main() {
-	//test_map_all();
-	test_all_rank();
-	//wat_test_all();
-	return 0;
-}*/
+
+TEST(ranktest, rank3p) {
+	test_rank<Rank3p>(bits_one());
+	test_rank<Rank3p>(bits_zero());
+	test_rank<Rank3p>(bits_onezero());
+	test_rank<Rank3p>(bits_oneonezero());
+	test_rank<Rank3p>(bits_zerozeroone());
+	for (int i = 0; i < 200; i++) {
+		test_rank<Rank3p>(bits_dense(2046 + rand() % 4));
+		test_rank<Rank3p>(bits_sparse(2046 + rand() % 4));
+		test_rank<Rank3p>(bits_imbal(2046 + rand() % 4));
+		if (i % 10 == 0) cout << ".";
+	}
+	test_rank<Rank3p>(bits_dense(100000));
+	test_rank<Rank3p>(bits_sparse(100000));
+	cout << endl;
+}
+
+TEST(ranktest, rrr) {
+	test_rank<RRR>(bits_one());
+	test_rank<RRR>(bits_zero());
+	test_rank<RRR>(bits_onezero());
+	test_rank<RRR>(bits_oneonezero());
+	test_rank<RRR>(bits_zerozeroone());
+	for (int i = 0; i < 200; i++) {
+		test_rank<RRR>(bits_dense(2046 + rand() % 4));
+		test_rank<RRR>(bits_sparse(2046 + rand() % 4));
+		test_rank<RRR>(bits_imbal(2046 + rand() % 4));
+		if (i % 10 == 0) cout << ".";
+	}
+	test_rank<RRR>(bits_dense(20000));
+	test_rank<RRR>(bits_sparse(20000));
+	cout << endl;
+}

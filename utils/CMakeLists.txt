@@ -12,6 +12,7 @@ param.cpp
 modp_numtoa.cpp
 cache_table.cpp
 rand_data.cpp
+benchmark.cpp
 )
 
 

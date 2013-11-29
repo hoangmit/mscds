@@ -28,10 +28,12 @@ public:
 	uint64_t selectzero(uint64_t r) const;
 	uint64_t one_count() const { return onecnt; }
 	uint64_t length() const { return bits.length(); }
+	bool bit(uint64_t p) const;
 	bool access(uint64_t pos) const { return bits[pos]; }
+
 	void clear();
 	
-	bool bit(uint64_t p) const;
+	
 	std::string to_str() const { return bits.to_str(); }
 
 	void load_aux(IArchive& ar, BitArray& b);

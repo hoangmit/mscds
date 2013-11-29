@@ -224,7 +224,7 @@ void nintv_gap_access(QueryFixture * fix) {
 	}
 }
 
-void run_benchmark() {
+BENCHMARK_SET(nitv_benchmark) {
 	Benchmarker<QueryFixture> bm;
 	std::vector<int> vals = { 1, 25, 50, 75, 100 };
 	bm.n_samples = 5;

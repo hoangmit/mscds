@@ -316,9 +316,9 @@ void test_size() {
 	//report_size(len, 64);
 }
 
-class QuerySFixture {
+class RMQQuerySFixture {
 public:
-	QuerySFixture() { }
+	RMQQuerySFixture() { }
 
 	void SetUp(const int32_t problemSetValue) {
 		unsigned int blksize = 32;
@@ -383,48 +383,48 @@ template<class T> void DoNotOptimizeAway(T&& datum)
 
 #define DoNotOptimizeAway(T) (T)
 
-void RMQ_pm1_table_big(QuerySFixture * fixture) {
+void RMQ_pm1_table_big(RMQQuerySFixture * fixture) {
 	for (auto p : fixture->queries) {
 		DoNotOptimizeAway(fixture->tblsim.m_idx(p.first, p.second));
 	}
 }
 
-void RMQ_pm1_table_smaller(QuerySFixture * fixture) {
+void RMQ_pm1_table_smaller(RMQQuerySFixture * fixture) {
 	for (auto p : fixture->queries) {
 		fixture->tblblk.m_idx(p.first, p.second);
 	}
 }
 
-void RMQ_pm1_rmq1(QuerySFixture* fixture) {
+void RMQ_pm1_rmq1(RMQQuerySFixture* fixture) {
 	for (auto p : fixture->queries) {
 		fixture->rmq.m_idx(p.first, p.second);
 	}
 }
 
-void RMQ_pm1_sct(QuerySFixture * fixture) {
+void RMQ_pm1_sct(RMQQuerySFixture * fixture) {
 	for (auto p : fixture->queries) {
 		fixture->sct.m_idx(p.first, p.second);
 	}
 }
 
-
-void run_benchmark() {
-	Benchmarker<QuerySFixture> bm;
+BENCHMARK_SET(rmq_benchmark) {
+	Benchmarker<RMQQuerySFixture> bm;
 	bm.n_samples = 3;
 
-	bm.add("RMQ_pm1_table_big", RMQ_pm1_table_big);
-	bm.add("RMQ_pm1_table_smaller", RMQ_pm1_table_smaller);
-	bm.add("RMQ_pm1_rmq1", RMQ_pm1_rmq1);
-	bm.add("RMQ_pm1_sct", RMQ_pm1_sct);
+	bm.add("RMQ_pm1_table_big", RMQ_pm1_table_big, 50);
+	bm.add("RMQ_pm1_table_smaller", RMQ_pm1_table_smaller, 10);
+	bm.add("RMQ_pm1_rmq1", RMQ_pm1_rmq1, 10);
+	bm.add("RMQ_pm1_sct", RMQ_pm1_sct, 10);
 
 	bm.run_all();
 	bm.report(0);
 }
 
+/*
 int main(int argc, char* argv[]) {
 	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
-
-	run_benchmark();
+	BenchmarkRegister::run_all();
+	
 	return 0;
 
 	//::testing::GTEST_FLAG(filter) = "rmq_pm1.rmq_pm1";
@@ -434,3 +434,4 @@ int main(int argc, char* argv[]) {
 
 	//print_max_excess_8_table();
 }
+*/

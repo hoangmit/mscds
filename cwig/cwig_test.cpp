@@ -6,6 +6,7 @@
 #include "utils/param.h"
 #include "stringarr.h"
 #include "utils/utest.h"
+#include "utils/benchmark.h"
 
 #include <cstring>
 #include <tuple>
@@ -152,8 +153,6 @@ TEST(cwig, mix) {
 	cout << '.';
 }
 
-
-
 TEST(cwig, strarr1) {
 	const char* A[10] = { "", "", "abc", "defx", "", "eg", "", "", "xagtg", ""};
 	StringArrBuilder bd;
@@ -276,18 +275,19 @@ TEST(cwig, stdev) {
 
 using namespace utils;
 
-void run_benchmark();
 
 int main(int argc, char* argv[]) {
 
 	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
-	run_benchmark();
-	//test_size();
-	return 0;
+	
 
 
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
+
+
+	BenchmarkRegister::run_all();
+
 	return rs;
 }

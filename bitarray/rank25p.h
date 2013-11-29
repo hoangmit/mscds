@@ -2,31 +2,36 @@
 
 #include "bitarray.h"
 #include "bitop.h"
-
+#include "rankselect.h"
 
 namespace mscds {
 
-class rank25p_builder;
+class Rank25pBuilder;
 
-class rank25p {
+class Rank25p : public RankSelect {
 	BitArray inv, bits;
 	uint64_t onecnt;
 public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t p) const;
 	uint64_t one_count() const { return onecnt; }
+	bool access(uint64_t pos) const { return bits[pos]; }
 	uint64_t length() const { return bits.length(); }
+	uint64_t selectzero(uint64_t r) const;
+	typedef Rank25pBuilder BuilderTp;
+	void clear() { onecnt = 0; inv.clear(); bits.clear(); }
 private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
-	friend class rank25p_builder;
+	friend class Rank25pBuilder;
 };
 
-class rank25p_builder {
+class Rank25pBuilder {
 public:
-	void build(rank25p * o, BitArray& b);
+	static void build(const BitArray& b, Rank25p * o);
+	typedef Rank25p QueryTP;
 };
 
-void rank25p_builder::build(rank25p * o, BitArray& b) {
+inline void Rank25pBuilder::build(const BitArray& b, Rank25p * o) {
 	o->bits = b;
 	uint64_t nc = ((o->bits.length() + 511) / 512) * 2;
 	o->inv = BitArray::create(nc*64);
@@ -48,17 +53,43 @@ void rank25p_builder::build(rank25p * o, BitArray& b) {
 }
 
 /* first word: rank(p); second word: 7 sub-blocks, each uses 9 bits */
-
-uint64_t rank25p::rank(const uint64_t p) const {
+inline uint64_t Rank25p::rank(const uint64_t p) const {
 	assert(p <= bits.length());
+	if (p == bits.length()) return onecnt;
 	const uint64_t wpos = p >> 6; // div 64
 	const uint64_t blk = (p >> 8) & ~1ull;
 	return inv.word(blk)
 		+ ((inv.word(blk + 1) >>  (((wpos & 7) - 1) & 7) * 9) & 0x1FF)
-		+ word_rank(wpos, p & 63);
+			+ word_rank(wpos, p & 63);
 }
 
-unsigned int rank25p::word_rank(size_t idx, unsigned int i) const {
+inline uint64_t Rank25p::select(uint64_t r) const {
+	assert(r < onecnt);
+	r += 1;
+	uint64_t start = 0, end = bits.length();
+	while (start < end) {
+		uint64_t mid = (start + end) / 2;
+		if (rank(mid) < r)
+			start = mid + 1;
+		else end = mid;
+	}
+	return start > 0 ? start - 1 : 0;
+}
+
+inline uint64_t Rank25p::selectzero(uint64_t r) const {
+	assert(r < bits.length() - onecnt);
+	r += 1;
+	uint64_t start = 0, end = bits.length();
+	while (start < end) {
+		uint64_t mid = (start + end) / 2;
+		if (rankzero(mid) < r)
+			start = mid + 1;
+		else end = mid;
+	}
+	return start > 0 ? start - 1 : 0;
+}
+
+inline unsigned int Rank25p::word_rank(size_t idx, unsigned int i) const {
 	return (i != 0) ? popcnt(bits.word(idx) & ((1ULL << i) - 1)) : 0;
 }
 

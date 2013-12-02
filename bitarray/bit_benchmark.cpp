@@ -53,6 +53,13 @@ struct RankBMFix : public SharedFixtureItf {
 	RRR rr;
 };
 
+void rankbm_null(RankBMFix * fix) {
+	unsigned int t = 0;
+	for (auto p : fix->queries) {
+		t ^= 101;
+		t >>= 1;
+	}
+}
 
 void rankbm_rank25(RankBMFix * fix) {
 	unsigned int t = 0;

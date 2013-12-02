@@ -569,6 +569,7 @@ void PNIntv::load( mscds::IArchive& ar ) {
 
 void PNIntv::clear() {
 	method = 0;
+	autoselect = false;
 	m1.clear();
 	m2.clear();
 	m3.clear();

@@ -114,7 +114,7 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 		qfx.SetUp(size);
 		for (FuncInfo& fc : lst) {
 			Clock::duration d;
-			if (verbose) cout << fc.name << endl;
+			if (verbose) std::cout << fc.name << std::endl;
 			unsigned int rc = fc.nrun;
 			if (rc > 1) {
 				auto t1 = Clock::now();
@@ -131,7 +131,7 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 				auto t2 = Clock::now();
 				d += t2 - t1;
 			}
-			results[idx].second += chrono::duration_cast<millisecs_t>(d).count() / fc.nrun;
+			results[idx].second += std::chrono::duration_cast<millisecs_t>(d).count() / fc.nrun;
 			idx++;
 		}
 		qfx.TearDown();
@@ -144,7 +144,7 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 template<typename SharedFixture>
 void Benchmarker<SharedFixture>::report(int baseline) {
 	if (problemSizes.empty()) {
-		std::cout << endl;
+		std::cout << std::endl;
 		_report_methods(results, baseline);
 	}
 	else {

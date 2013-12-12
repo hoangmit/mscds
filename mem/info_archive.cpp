@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <cstring>
 #include <algorithm>
 using namespace std;
 

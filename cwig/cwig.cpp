@@ -1,7 +1,7 @@
 #include "cwig.h"
 #include "utils/file_utils.h"
-#include "mem/filearchive.h"
-#include "mem/fmaparchive.h"
+#include "mem/file_archive.h"
+#include "mem/fmap_archive.h"
 #include "utils/str_utils.h"
 #include <iostream>
 #include <fstream>
@@ -231,7 +231,7 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 	}
 }
 
-void GenomeNumDataBuilder::build(mscds::OArchive &ar) {
+void GenomeNumDataBuilder::build(mscds::OutArchive &ar) {
 	if (onechr) {
 		GenomeNumData data;
 		if (list[0].size() > 0) {
@@ -284,7 +284,7 @@ void GenomeNumData::load(const std::string &input) {
 	fi.close();
 }
 
-void GenomeNumData::load(mscds::IArchive &ar) {
+void GenomeNumData::load(mscds::InpArchive &ar) {
 	ar.loadclass("genome_num_data");
 	ar.var("num_chr").load(nchr);
 	chrs.resize(nchr);
@@ -296,7 +296,7 @@ void GenomeNumData::load(mscds::IArchive &ar) {
 	loadinit();
 }
 
-void GenomeNumData::save(mscds::OArchive &ar) const {
+void GenomeNumData::save(mscds::OutArchive &ar) const {
 	ar.startclass("genome_num_data", 1);
 	assert(nchr == chrs.size());
 	ar.var("num_chr").save(nchr);

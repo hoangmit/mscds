@@ -45,7 +45,7 @@ void LineBlock::_buildptr() {
 }
 //--------------------------------------------------------------
 
-void BlkCompBuilder::build(mscds::OArchive &ar) {
+void BlkCompBuilder::build(mscds::OutArchive &ar) {
 	BlkCompQuery out;
 	build(&out);
 	out.save(ar);
@@ -88,7 +88,8 @@ void BlkCompBuilder::build(BlkCompQuery *data) {
 	data->entcnt = entcnt;
 	data->maxblksz = this->maxblksz;
 	pbd.build(&(data->bptr));
-	data->bits = BitArrayBuilder::create(os.data_ptr(), os.length() * 8);
+	//UNDONE
+	//os.build(&(data->bits));
 	data->prepare_ptr();
 	entcnt = 0;
 }
@@ -100,7 +101,7 @@ void BlkCompQuery::init() { cache_mamager.resize_capacity(32); cache.resize(32);
 
 BlkCompQuery::BlkCompQuery() { init(); }
 
-void BlkCompQuery::load(mscds::IArchive &ar) {
+void BlkCompQuery::load(mscds::InpArchive &ar) {
 	ar.loadclass("BlockCompressor");
 	ar.var("n_entries").load(entcnt);
 	ar.var("entry_per_block").load(maxblksz);
@@ -110,7 +111,7 @@ void BlkCompQuery::load(mscds::IArchive &ar) {
 	prepare_ptr();
 }
 
-void BlkCompQuery::save(mscds::OArchive &ar) const {
+void BlkCompQuery::save(mscds::OutArchive &ar) const {
 	ar.startclass("BlockCompressor");
 	ar.var("n_entries").save(entcnt);
 	ar.var("entry_per_block").save(maxblksz);

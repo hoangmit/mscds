@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #define SAMPLE_INT 100
 
@@ -75,8 +76,10 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
     SBitStream.close();
 	SBitStream.build(&o->S);
 
-    if (o->onecnt == 0)
-        return;
+	if (o->onecnt == 0) {
+		o->len = b.length();
+		return;
+	}
 
     //----------------------Building sumR and posS------------------------
     unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceil(log10(o->onecnt) / 0.3010299957);
@@ -101,7 +104,6 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
         sum += logtable[o->R.bits(idxR, 4)];
     }
     o->len=b.length();
-
 }
 
 void RRRBuilder::build(const BitArray &b, OutArchive &ar) {

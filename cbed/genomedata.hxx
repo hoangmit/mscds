@@ -55,7 +55,7 @@ inline void GenomeDataSortedBuilder::build(GenomeData *data) { //<ChrData>
 	bdlst.clear();
 }
 
-inline void GenomeDataSortedBuilder::build(mscds::OArchive &ar) {
+inline void GenomeDataSortedBuilder::build(mscds::OutArchive &ar) {
 	GenomeData out;
 	build(&out);
 	out.save(ar);
@@ -96,7 +96,7 @@ inline void GenomeData::load(const std::string &inputfile) {
 	fi.close();
 }
 
-inline void GenomeData::load(mscds::IArchive &ar) {
+inline void GenomeData::load(mscds::InpArchive &ar) {
 	ar.loadclass("genome_data");
 	ar.var("num_chr").load(nchr);
 	chrs.resize(nchr);
@@ -108,7 +108,7 @@ inline void GenomeData::load(mscds::IArchive &ar) {
 	loadinit();
 }
 
-inline void GenomeData::save(mscds::OArchive &ar) const {
+inline void GenomeData::save(mscds::OutArchive &ar) const {
 	ar.startclass("genome_data", 1);
 	assert(nchr == chrs.size());
 	ar.var("num_chr").save(nchr);

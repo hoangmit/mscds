@@ -1,7 +1,7 @@
 #include "cbed.h"
 #include "utils/file_utils.h"
-#include "mem/filearchive.h"
-#include "mem/fmaparchive.h"
+#include "mem/file_archive.h"
+#include "mem/fmap_archive.h"
 #include "utils/str_utils.h"
 #include <iostream>
 #include <fstream>
@@ -102,7 +102,7 @@ void BEDChrBuilder::clear() {
 
 void BEDChrBuilder::set_name(const std::string &name) { this->name = name; }
 
-void BEDChrBuilder::build(mscds::OArchive &ar) {
+void BEDChrBuilder::build(mscds::OutArchive &ar) {
 	BEDChrQuery out;
 	build(&out);
 	out.save(ar);
@@ -116,7 +116,7 @@ void BEDChrBuilder::build(BEDChrQuery *data) {
 
 void BEDChrQuery::clear() { pos.clear(); ext.clear(); name.clear(); }
 
-void BEDChrQuery::load(mscds::IArchive &ar) {
+void BEDChrQuery::load(mscds::InpArchive &ar) {
 	ar.loadclass("BEDChrQuery");
 	name = load_str(ar.var("chr_name"));
 	pos.load(ar.var("positions"));

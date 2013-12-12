@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <utility>
 #include <algorithm>
-#include "mem/filearchive.h"
+#include "mem/file_archive.h"
 #include "utils/param.h"
 
 using namespace std;
@@ -37,13 +37,13 @@ void NIntvBuilder::build(NIntv *out) {
 	clear();
 }
 
-void NIntvBuilder::build(mscds::OArchive &ar) {
+void NIntvBuilder::build(mscds::OutArchive &ar) {
 	NIntv a;
 	build(&a);
 	a.save(ar);
 }
 
-void NIntv::save(mscds::OArchive &ar) const {
+void NIntv::save(mscds::OutArchive &ar) const {
 	ar.startclass("non-overlapped_intervals", 1);
 	ar.var("length").save(len);
 	start.save(ar.var("start"));
@@ -51,7 +51,7 @@ void NIntv::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NIntv::load(mscds::IArchive &ar) {
+void NIntv::load(mscds::InpArchive &ar) {
 	ar.loadclass("non-overlapped_intervals");
 	ar.var("length").load(len);
 	start.load(ar.var("start"));
@@ -181,13 +181,13 @@ void NIntvGroupBuilder::build(NIntvGroup *out) {
 	clear();
 }
 
-void NIntvGroupBuilder::build(mscds::OArchive &ar) {
+void NIntvGroupBuilder::build(mscds::OutArchive &ar) {
 	NIntvGroup a;
 	build(&a);
 	a.save(ar);
 }
 
-void NIntvGroup::save(mscds::OArchive &ar) const {
+void NIntvGroup::save(mscds::OutArchive &ar) const {
 	ar.startclass("non-overlapped_grouped_intervals", 1);
 	ar.var("length").save(len);
 	ar.var("max_pos").save(maxpos);
@@ -197,7 +197,7 @@ void NIntvGroup::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NIntvGroup::load(mscds::IArchive &ar) {
+void NIntvGroup::load(mscds::InpArchive &ar) {
 	ar.loadclass("non-overlapped_grouped_intervals");
 	ar.var("length").load(len);
 	ar.var("max_pos").load(maxpos);
@@ -345,7 +345,7 @@ void NIntvGapBuilder::clear() {
 	lasted = 0;
 }
 
-void NIntvGap::save(mscds::OArchive &ar) const {
+void NIntvGap::save(mscds::OutArchive &ar) const {
 	ar.startclass("non-overlapped_intervals_gap", 1);
 	ar.var("length").save(len);
 	start.save(ar.var("start"));
@@ -353,7 +353,7 @@ void NIntvGap::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void NIntvGap::load(mscds::IArchive &ar) {
+void NIntvGap::load(mscds::InpArchive &ar) {
 	ar.loadclass("non-overlapped_intervals_gap");
 	ar.var("length").load(len);
 	start.load(ar.var("start"));

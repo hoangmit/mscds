@@ -114,7 +114,6 @@ void test_rank(const std::vector<bool>& vec) {
 	}
 
 	RankSelect r;
-	//Rank6pBuilder bd;
 	RankSelect::BuilderTp::build(v, &r);
 	for (unsigned int i = 0; i < vec.size(); ++i)
 		ASSERT_EQ(vec[i], r.access(i));
@@ -143,7 +142,7 @@ void test_rank(const std::vector<bool>& vec) {
 	last = -1;
 	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
 		int pos = r.selectzero(i);
-		ASSERT_EQ(i, r.rankzero(pos)) << "pos =" << pos << "   i =" << i << endl;
+		ASSERT_EQ(i, r.rankzero(pos)) << "pos =" << pos << "   i =" << i << "  len=" << r.length() << endl;
 		ASSERT_EQ(i + 1, r.rankzero(pos + 1));
 		ASSERT(pos < vec.size() && vec[pos] == false);
 		ASSERT(pos > last);
@@ -243,12 +242,7 @@ TEST(ranktest, rank3p) {
 
 TEST(ranktest, rrr) {
 	test_rank<RRR>(bits_one());
-	{
-		SCOPED_TRACE("Normal");
-		cout << "afsdf" << endl;
-		test_rank<RRR>(bits_zero());
-		cout << "fsfsdfs" << endl;
-	}
+	test_rank<RRR>(bits_zero());
 	test_rank<RRR>(bits_onezero());
 
 	test_rank<RRR>(bits_oneonezero());

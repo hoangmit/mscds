@@ -42,43 +42,43 @@ void StringArrBuilder::build(StringArr *out) {
 	store.clear();
 }
 
-void StringArrBuilder::build(mscds::OArchive &ar) {
+void StringArrBuilder::build(mscds::OutArchive &ar) {
 	StringArr out;
 	build(&out);
 	out.save(ar);
 }
 
-void StringArr::save(mscds::OArchive &ar) const {
+void StringArr::save(mscds::OutArchive &ar) const {
 	ar.startclass("string_array", 1);
 	ar.var("count").save(cnt);
 	if (cnt > 0) {
 		ar.var("length").save(tlen);
 		start.save(ar.var("start"));
-		ar.save_bin(ba.get(), ((tlen + 7) / 8)*8);
+		//ar.save_bin(ba.get(), ((tlen + 7) / 8)*8);
 	}
 	ar.endclass();
 }
 
-void StringArr::load(mscds::IArchive &ar) {
+void StringArr::load(mscds::InpArchive &ar) {
 	ar.loadclass("string_array");
 	ar.var("count").load(cnt);
 	if (cnt > 0) {
 		ar.var("length").load(tlen);
 		start.load(ar.var("start"));
-		ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
+		//ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
 	} else {
-		ba.reset();
+		//ba.reset();
 		start.clear();
 		tlen = 0;
 	}
 	ar.endclass();
-	ptrs = (const char*) ba.get();
+	//ptrs = (const char*) ba.get();
 }
 
 void StringArr::clear() {
 	cnt = tlen = 0;
 	ptrs = NULL;
-	ba.reset();
+	//ba.reset();
 	start.clear();
 }
 

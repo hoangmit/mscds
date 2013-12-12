@@ -2,7 +2,7 @@
 
 #include "nintv.h"
 #include "rlsum_trivbin.h"
-#include "mem/filearchive.h"
+#include "mem/file_archive.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
 #include "RLSum6.h"

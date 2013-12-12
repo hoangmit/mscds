@@ -33,7 +33,7 @@ public:
 private:
 	size_t cnt, tlen;
 	const char * ptrs;
-	mscds::SharedPtr ba;
+	mscds::StaticMemRegionPtr ba;
 	mscds::SDArraySml start;
 	friend class StringArrBuilder;
 };

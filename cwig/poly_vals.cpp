@@ -1,8 +1,9 @@
 #include "poly_vals.h"
-#include "mem/filearchive.h"
+#include "mem/file_archive.h"
 #include <stdexcept>
 #include "utils/param.h"
 #include "utils/str_utils.h"
+#include "mem/info_archive.h"
 
 
 namespace app_ds {

@@ -2,7 +2,7 @@
 
 namespace app_ds {
 
-void IntvLstBuilder::build(mscds::OArchive &ar) {
+void IntvLstBuilder::build(mscds::OutArchive &ar) {
 	IntvLst out;
 	build(&out);
 	out.save(ar);
@@ -74,7 +74,7 @@ void IntvLstBuilder::build(IntvLst *out) {
 	bdsp.build(&(out->span));
 }
 
-void IntvLst::save(mscds::OArchive &ar) const {
+void IntvLst::save(mscds::OutArchive &ar) const {
 	ar.startclass("Interval_list");
 	marks.save(ar.var("markers"));
 	pos.save(ar.var("positions"));
@@ -82,7 +82,7 @@ void IntvLst::save(mscds::OArchive &ar) const {
 	ar.endclass();
 }
 
-void IntvLst::load(mscds::IArchive &ar) {
+void IntvLst::load(mscds::InpArchive &ar) {
 	ar.loadclass("Interval_list");
 	marks.load(ar.var("markers"));
 	pos.load(ar.var("positions"));

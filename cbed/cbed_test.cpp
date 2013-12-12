@@ -4,8 +4,9 @@
 #include "blkcomp.h"
 
 #include "framework/archive.h"
-#include "mem/filearchive.h"
-#include "mem/fmaparchive.h"
+#include "mem/file_archive.h"
+#include "mem/fmap_archive.h"
+#include "mem/info_archive.h"
 
 #include "cbed.h"
 #include "genomedata.h"

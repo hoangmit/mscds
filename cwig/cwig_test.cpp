@@ -1,10 +1,13 @@
 #include "cwig.h"
-#include "utils/str_utils.h"
-#include "mem/filearchive.h"
-#include "utils/utest.h"
-#include "intarray/sdarray_sml.h"
-#include "utils/param.h"
+#include "mem/file_archive.h"
+#include "mem/info_archive.h"
+
 #include "stringarr.h"
+#include "intarray/sdarray_sml.h"
+
+#include "utils/str_utils.h"
+#include "utils/utest.h"
+#include "utils/param.h"
 #include "utils/utest.h"
 #include "utils/benchmark.h"
 

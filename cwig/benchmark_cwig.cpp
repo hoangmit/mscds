@@ -1,7 +1,8 @@
 
 #include <iostream>
 #include "cwig.h"
-#include "mem/fmaparchive.h"
+#include "mem/fmap_archive.h"
+#include "mem/info_archive.h"
 #include "utils/utest.h"
 #include "utils/param.h"
 #include "utils/utils.h"

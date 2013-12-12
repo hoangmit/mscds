@@ -57,6 +57,9 @@ public:
 	OutArchive& save_bin(const void* ptr, size_t size);
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
 	OutArchive& endclass();
+	OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4);
+	OutArchive& add_mem_region(const void* ptr, size_t size);
+	OutArchive& end_mem_region();
 	void close();
 	size_t opos() const {return pos;}
 	std::string printxml();

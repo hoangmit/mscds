@@ -16,12 +16,13 @@ typedef std::shared_ptr<CInfoNode> PInfoNode;
 struct CInfoNode {
 	CInfoNode(): total(0), version(0) {}
 	struct VarInfo {
-		VarInfo(): size(0), childidx(0), sval(0) {}
-		VarInfo(const string& s): name(s), size(0), childidx(0), sval(0) {}
+		VarInfo(): size(0), childidx(0), sval(0), is_static(true) {}
+		VarInfo(const string& s): name(s), size(0), childidx(0), sval(0), is_static(true) {}
 		std::string name;
 		size_t size;
 		int childidx;
 		uint64_t sval;
+		bool is_static;
 	};
 	std::vector<VarInfo> lst;
 	std::vector<PInfoNode> children;
@@ -49,10 +50,15 @@ struct CInfoNode {
 			if (it->childidx > 0) {
 				children[it->childidx - 1]->printxml(ss, it->name);
 			}else {
-				ss << "<data name=\"" << it->name << "\" size=\'" << it->size << "\'";
-				if (it->size <= 8)
-					ss << " val=\'" << it->sval << '\'';
-				ss << " />";
+				if (it->is_static) {
+					ss << "<data name=\"" << it->name << "\" size=\'" << it->size << "\'";
+					if (it->size <= 8)
+						ss << " val=\'" << it->sval << '\'';
+					ss << " />";
+				} else {
+					ss << "<memory_region name=\"" << it->name << "\" size=\'" << it->size << "\'";
+					ss << " />";
+				}
 			}
 		}
 		ss << "</class>";
@@ -86,10 +92,10 @@ OutArchive& OClassInfoArchive::var(const std::string& name) {
 OutArchive& OClassInfoArchive::save_bin(const void* ptr, size_t size) {
 	pos += size;
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0)
+	if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
 		x.cur->lst.push_back(CInfoNode::VarInfo());
 	CInfoNode::VarInfo & v = x.cur->lst.back();
-	if (size <= 8 && v.size == 0 && v.childidx == 0)
+	if (size <= 8 && v.size == 0 && v.childidx == 0 && v.is_static)
 		memcpy(&(v.sval), ptr, std::min<size_t>(size, 8u));
 	v.size += size;
 	return *this;
@@ -99,7 +105,7 @@ OutArchive& OClassInfoArchive::startclass(const std::string& name, unsigned char
 	ClassListInfo& x = *((ClassListInfo*)impl);
 	if (x.cur->lst.empty())
 		x.cur->lst.push_back(CInfoNode::VarInfo());
-	if (x.cur->lst.back().size != 0 || x.cur->lst.back().childidx != 0)
+	if (x.cur->lst.back().size != 0 || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
 		x.cur->lst.push_back(CInfoNode::VarInfo());
 	x.cur->lst.back().childidx = (int)x.cur->children.size() + 1;
 	x.cur->children.push_back(PInfoNode(new CInfoNode()));
@@ -115,6 +121,23 @@ OutArchive& OClassInfoArchive::endclass() {
 	if (x.parents.empty()) throw ioerror("too many endclass");
 	x.cur = x.parents.top();
 	x.parents.pop();
+	return *this;
+}
+
+OutArchive& OClassInfoArchive::start_mem_region(size_t size, MemoryAlignmentType) {
+	pos += size;
+	ClassListInfo& x = *((ClassListInfo*)impl);
+	if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
+		x.cur->lst.push_back(CInfoNode::VarInfo());
+	CInfoNode::VarInfo & v = x.cur->lst.back();
+	v.is_static = false;
+	v.size = size;
+	return *this;
+}
+OutArchive& OClassInfoArchive::add_mem_region(const void* ptr, size_t size) {
+	return *this;
+}
+OutArchive& OClassInfoArchive::end_mem_region() {
 	return *this;
 }
 

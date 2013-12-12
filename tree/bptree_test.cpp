@@ -177,7 +177,7 @@ void test_near_bp(int blksize = 128) {
 				ASSERT_EQ(enclose[i], block.backward_scan(i - 1, 1));
 			}else {
 				if (i > 0) 
-					ASSERT_EQ(BP_block::NOTFOUND, block.backward_scan(i - 1, 1));
+					ASSERT(BP_block::NOTFOUND == block.backward_scan(i - 1, 1));
 			}
 		}else {
 			ASSERT_EQ(match[i], block.backward_scan(i, 0));
@@ -212,7 +212,7 @@ void test_bp(const BitArray& b, int blksize) {
 		if (enclose[i] >= 0) {
 			ASSERT_EQ(enclose[i], bps.enclose(i));
 		}else {
-			ASSERT_EQ(BP_block::NOTFOUND, bps.enclose(i));
+			ASSERT(BP_block::NOTFOUND == bps.enclose(i));
 		}
 	}
 }
@@ -255,7 +255,7 @@ void test_bp2(const BitArray& b, int blksize) {
 		if (enclose[i] >= 0) {
 			ASSERT_EQ(enclose[i], bps.enclose(i));
 		}else {
-			ASSERT_EQ(BP_block::NOTFOUND, bps.enclose(i));
+			ASSERT(BP_block::NOTFOUND == bps.enclose(i));
 		}
 	}
 	std::remove(fn.c_str());

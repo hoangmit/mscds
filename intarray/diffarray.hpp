@@ -21,7 +21,7 @@ public:
 	DiffArrayBuilder();
 	void init(const Config * conf = NULL);
 	void add(uint64_t val);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void build(QueryTp * out);
 	void clear();
 private:
@@ -38,8 +38,8 @@ public:
 	uint64_t lookup(uint64_t pos) const;
 	uint64_t operator[](uint64_t pos) const { return lookup(pos); }
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	void clear();
 	typedef DiffArrayBuilder<IntArray> BuilderTp;
 	struct Enum: public EnumeratorInt<uint64_t> {
@@ -113,7 +113,7 @@ void DiffArrayBuilder<IntArray>::add(uint64_t val) {
 }
 
 template<typename IntArray>
-void DiffArrayBuilder<IntArray>::build(OArchive &ar) {
+void DiffArrayBuilder<IntArray>::build(OutArchive &ar) {
 	DiffArray<IntArray> tmp;
 	build(&tmp);
 	tmp.save(ar);
@@ -177,7 +177,7 @@ void DiffArray<IntArray>::clear() {
 }
 
 template<typename IntArray>
-void DiffArray<IntArray>::save(OArchive &ar) const {
+void DiffArray<IntArray>::save(OutArchive &ar) const {
 	ar.startclass("diff_array", 1);
 	ar.var("sample_rate").save(sample_rate);
 	arr.save(ar.var("array"));
@@ -185,7 +185,7 @@ void DiffArray<IntArray>::save(OArchive &ar) const {
 }
 
 template<typename IntArray>
-void DiffArray<IntArray>::load(IArchive &ar) {
+void DiffArray<IntArray>::load(InpArchive &ar) {
 	ar.loadclass("diff_array");
 	ar.var("sample_rate").load(sample_rate);
 	arr.load(ar.var("array"));

@@ -83,7 +83,7 @@ namespace mscds {
 		out->max_val = alphabet_num;
 		out->slength = length;
 		out->bitwidth = alphabet_bit_num_;
-		BitArray v = BitArray::create(length * alphabet_bit_num_);
+		BitArray v = BitArrayBuilder::create(length * alphabet_bit_num_);
 		v.fillzero();
 
 		std::vector<uint64_t> runlen, pos(list);
@@ -99,7 +99,7 @@ namespace mscds {
 	}
 
 	template<typename RankSelect>
-	void WatBuilderGen<RankSelect>::build(const std::vector<uint64_t>& list, OArchive & ar) {
+	void WatBuilderGen<RankSelect>::build(const std::vector<uint64_t>& list, OutArchive & ar) {
 		WatQuery q;
 		build(list, &q);
 		q.save(ar);
@@ -110,7 +110,7 @@ namespace mscds {
 	//#define SSTR( x ) dynamic_cast<std::ostringstream &>((std::ostringstream() <<  x )).str()
 
 	template<typename RankSelect>
-	void WatQueryGen<RankSelect>::load(IArchive& ar) {
+	void WatQueryGen<RankSelect>::load(InpArchive& ar) {
 		clear();
 		unsigned char ver = ar.loadclass("wavelet_tree");
 		if (ver < 2) throw std::runtime_error("incompatible with version < 2");
@@ -123,7 +123,7 @@ namespace mscds {
 	}
 
 	template<typename RankSelect>
-	void WatQueryGen<RankSelect>::save(OArchive& ar) const {
+	void WatQueryGen<RankSelect>::save(OutArchive& ar) const {
 		ar.startclass("wavelet_tree", 2);
 		ar.var("length").save(slength);
 		ar.var("bitwidth").save(bitwidth);

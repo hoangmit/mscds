@@ -36,7 +36,8 @@ void RMQ_index_blk::build(const std::vector<int> &wordvals, unsigned int blksize
 	RMQ_index_table::build(bv, _min_struct, &(out->blockrmq));
 	RMQ_index_table::build_stream(sbv, _min_struct, &subblkv);
 	subblkv.close();
-	BitArray bt = BitArray::create(subblkv.data_ptr(), subblkv.length());
+	BitArray bt;
+	subblkv.build(&bt);
 	out->subblkrmq.init_shared(sblcnt, blksize, bt);
 
 	out->len = wordvals.size();
@@ -47,7 +48,9 @@ void RMQ_index_table::build(const std::vector<int> &values, bool _min_struct, RM
 	OBitStream out;
 	build_stream(values, _min_struct, &out);
 	out.close();
-	tbl->init(values.size(), BitArray::create(out.data_ptr(), out.length()));
+	BitArray b;
+	out.build(&b);
+	tbl->init(values.size(), b);
 }
 
 size_t RMQ_index_table::build_stream(const std::vector<int> &values, bool _min_struct, OBitStream *out) {
@@ -110,7 +113,7 @@ void RMQ_index_table::init(size_t seqlen, BitArray b) {
 	bit_size = build_start(seqlen, &starts);
 }
 
-void RMQ_index_table::save(OArchive& ar) const {
+void RMQ_index_table::save(OutArchive& ar) const {
 	ar.startclass("RMQ_index_table");
 	ar.var("block_length").save(len);
 	ar.var("num_shared_blocks").save(nblk);
@@ -118,7 +121,7 @@ void RMQ_index_table::save(OArchive& ar) const {
 	ar.endclass();
 }
 
-void RMQ_index_table::load(IArchive& ar) {
+void RMQ_index_table::load(InpArchive& ar) {
 	ar.loadclass("RMQ_index_table");
 	ar.var("block_length").load(len);
 	ar.var("num_shared_blocks").load(nblk);
@@ -128,7 +131,7 @@ void RMQ_index_table::load(IArchive& ar) {
 	start_pos = 0;
 }
 
-void RMQ_index_blk::save(OArchive &ar) const {
+void RMQ_index_blk::save(OutArchive &ar) const {
 	ar.startclass("RMQ_index_blk");
 	ar.var("length").save(len);
 	ar.var("block_size").save(blksize);
@@ -137,7 +140,7 @@ void RMQ_index_blk::save(OArchive &ar) const {
 	ar.endclass();
 }
 
-void RMQ_index_blk::load(IArchive &ar) {
+void RMQ_index_blk::load(InpArchive &ar) {
 	ar.loadclass("RMQ_index_blk");
 	ar.var("length").load(len);
 	ar.var("block_size").load(blksize);

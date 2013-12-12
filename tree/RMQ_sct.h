@@ -36,14 +36,14 @@ public:
 	size_t nsv(size_t p) const;
 	size_t length() const;
 
-	void save(OArchive& ar) const { bp.save(ar); }
-	void load(IArchive& ar) { bp.load(ar); }
+	void save(OutArchive& ar) const { bp.save(ar); }
+	void load(InpArchive& ar) { bp.load(ar); }
 	void clear() {bp.clear();}
 };
 
 template<typename RandomAccessIterator>
 inline BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last) {
-	BitArray bp = BitArray(2*std::distance(first, last));
+	BitArray bp = BitArrayBuilder::create(2 * std::distance(first, last));
 	bp.fillzero();
 	typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
 	std::stack<value_type> st;

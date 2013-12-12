@@ -20,7 +20,7 @@ public:
 	void add(PosType st, PosType ed);
 	
 	void build(IntvLst* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	
 	typedef IntvLst QueryTp;
 private:
@@ -44,8 +44,8 @@ private:
 class IntvLst {
 public:
 	typedef unsigned int PosType;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	void clear();
 
 	std::pair<PosType, PosType> get(unsigned int i) const;

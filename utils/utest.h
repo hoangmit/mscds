@@ -73,11 +73,13 @@ namespace has_insertion_operator_impl {
 
 #define TEST(tcase, test) void tcase ## test ()
 #define SCOPED_TRACE(msg)
+#define TESTALL_MAIN() int main(int argc, char **argv) { return 0; }
 
 #else //USE_OWN_TEST_LIB
 
 #include <gtest/gtest.h>
 #define ASSERT ASSERT_TRUE
+#define TESTALL_MAIN() int main(int argc, char **argv) { ::testing::InitGoogleTest(&argc, argv); return RUN_ALL_TESTS(); }
 
 #endif //USE_OWN_TEST_LIB
 

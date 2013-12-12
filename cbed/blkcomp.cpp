@@ -88,7 +88,7 @@ void BlkCompBuilder::build(BlkCompQuery *data) {
 	data->entcnt = entcnt;
 	data->maxblksz = this->maxblksz;
 	pbd.build(&(data->bptr));
-	data->bits = BitArray::create(os.data_ptr(), os.length() * 8);
+	data->bits = BitArrayBuilder::create(os.data_ptr(), os.length() * 8);
 	data->prepare_ptr();
 	entcnt = 0;
 }
@@ -182,7 +182,8 @@ void BlkCompQuery::prepare_ptr() {
 	if (utils::ceildiv(entcnt, maxblksz) != bptr.length()) {
 		throw std::runtime_error("data inconsistent");
 	}
-	ptr = (const char*)bits.data_ptr();
+	//UNDONE
+	//ptr = (const char*)bits.data_ptr();
 	len = bits.length() / 8;
 	lastblk = -1;
 }

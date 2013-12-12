@@ -1,6 +1,7 @@
 
 #include "sdarray.h"
-#include "mem/filearchive.h"
+#include "mem/file_archive.h"
+#include "mem/info_archive.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
@@ -172,7 +173,6 @@ TEST(sdatest, SDA1) {
 	}
 	psum += A[len-1];
 	//ASSERT(1000 == arr.find(psum));
-	cout << ".";
 }
 
 
@@ -190,13 +190,14 @@ void test_SDA2_rnd() {
 	for (int i = 0; i < len; ++i)
 		bd.add(A[i]);
 	OFileArchive ofa;
-	ofa.open_write(get_tempdir() + string("tmp_saveload"));
+	string fname = utils::tempfname();
+	ofa.open_write(fname);
 	bd.build(ofa);
 	ofa.close();
 
 	IFileArchive ifa;
 	SDArrayQuery d2;
-	ifa.open_read(get_tempdir() + "tmp_saveload");
+	ifa.open_read(fname);
 	d2.load(ifa);
 	ifa.close();
 
@@ -204,12 +205,15 @@ void test_SDA2_rnd() {
 		int val = d2.prefixsum(i) - d2.prefixsum(i-1);
 		ASSERT(A[i-1] == val);
 	}
+	/*
 	int psum = 0;
 	for (int i = 0; i < len - 1; i++) {
 		psum += A[i];
-		//ASSERT(i+1 == d2.find(psum));
-		//ASSERT(i == d2.find(psum-1));
-	}
+		ASSERT(i+1 == d2.find(psum));
+		ASSERT(i == d2.find(psum-1));
+	}*/
+	d2.clear();
+	std::remove(fname.c_str());
 	cout << ".";
 }
 
@@ -228,7 +232,7 @@ void test_rank(int len) {
 		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
 		else ranks[i] = ranks[i-1];
 	BitArray v;
-	v = BitArray::create(vec.size());
+	v = BitArrayBuilder::create(vec.size());
 	v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++)
 		v.setbit(i, vec[i]);
@@ -258,20 +262,25 @@ void test_rank(int len) {
 		ASSERT(pos > last);
 		last = pos;
 	}
-	cout << ".";
 }
 
 TEST(sdatest, SDA_rnd_all) {
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("test_rank");
 		test_rank(1000);
+		if (i % 40 == 0) cout << '.';
+	}
 	
-	for (int i  = 0; i < 100; i++)
+	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("test_SDA2_rnd");
 		test_SDA2_rnd();
+		if (i % 40 == 0) cout << '.';
+	}
 	cout << endl;
 }
 
 BitArray randbit(unsigned int len, unsigned int & cnt) {
-	BitArray b = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
 	cnt = 0;
 	for (size_t i = 0; i < len; ++i)
 		if (rand() % 100 < 10) { b.setbit(i, true); cnt++;}
@@ -479,7 +488,7 @@ void test_rank2(int len) {
 		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
 		else ranks[i] = ranks[i-1];
 	BitArray v;
-	v = BitArray::create(vec.size());
+	v = BitArrayBuilder::create(vec.size());
 	v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++)
 		v.setbit(i, vec[i]);
@@ -509,7 +518,6 @@ void test_rank2(int len) {
 		ASSERT(pos > last);
 		last = pos;
 	}
-	cout << ".";
 }
 
 void test_rank3(int len) {
@@ -521,7 +529,7 @@ void test_rank3(int len) {
 	}
 
 	BitArray v;
-	v = BitArray::create(vec.size());
+	v = BitArrayBuilder::create(vec.size());
 	v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++)
 		v.setbit(i, vec[i]);
@@ -536,7 +544,6 @@ void test_rank3(int len) {
 	for (unsigned int i = 0; i < vec.size(); ++i)
 		if (vec[i])
 			ASSERT_EQ(i, r.select(r.rank(i)));
-	cout << ".";
 }
 
 TEST(sdatest, rank4) {
@@ -571,7 +578,6 @@ TEST(sdatest, rank4) {
 	for (unsigned int i = 0; i < len; ++i) {
 		ASSERT_EQ(inp[i], r.select(i));
 	}
-	cout << ".";
 }
 
 TEST(sdatest, bug2) {
@@ -624,18 +630,23 @@ TEST(sdatest, bug2) {
 	for (unsigned int i = 0; i < len; ++i) {
 		ASSERT_EQ(inp[i], r.select(i));
 	}
-	cout << ".";
 }
 
 TEST(sdatest, test_sda2_rnd_all) {
-	for (int i = 0; i < 200; i++) 
+	for (int i = 0; i < 500; i++) {
 		test_rank3(1020 + rand() % 8);
-	for (int i = 0; i < 200; i++) 
+		if (i % 10 == 0) cout << '.';
+	}
+	for (int i = 0; i < 500; i++) {
 		test_rank2(1020 + rand() % 8);
-	for (int i = 0; i < 100; i++) {
+		if (i % 10 == 0) cout << '.';
+	}
+	for (int i = 0; i < 200; i++) {
 		test_sda2_rand();
 		test_sda2_rand2();
+		if (i % 10 == 0) cout << '.';
 	}
+	cout << endl;
 
 }
 

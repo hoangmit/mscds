@@ -17,11 +17,11 @@ uint64_t Rank3pBuilder::getwordz(const BitArray& v, size_t idx) {
 void Rank3pBuilder::build(const BitArray& b, Rank3p * o) {
     o->bits = b;
     uint64_t num_of_l1_l2 = b.length() % 2048 != 0 ? b.length() / 2048 + 1 : b.length() / 2048;
-    o->l1_l2=BitArray::create(num_of_l1_l2 * 64);
+	o->l1_l2 = BitArrayBuilder::create(num_of_l1_l2 * 64);
     o->l1_l2.fillzero();
     uint64_t num_of_l0 = b.length() % (1ULL << 32) != 0 ? b.length() / (1ULL << 32) + 1 : b.length() / (1ULL << 32);
-    o->l0=BitArray::create(num_of_l0 * 64);
-    o->l0.word(0) = 0;
+	o->l0 = BitArrayBuilder::create(num_of_l0 * 64);
+    o->l0.setword(0, 0);
     uint64_t curr_l1_l2_blk=0, curr_l0_blk=0, curr_l1_l2_count=0, curr_block_count=0;
     o->onecnt=0;
     unsigned int blocknum=0, hold;
@@ -45,13 +45,18 @@ void Rank3pBuilder::build(const BitArray& b, Rank3p * o) {
             if (blocknum==3) {
                 ++curr_l1_l2_blk;
 
-                if (i < b.length())
-                    o->l1_l2.word(curr_l1_l2_blk) |= curr_l1_l2_count;
+				if (i < b.length()) {
+					uint64_t v = o->l1_l2.word(curr_l1_l2_blk);
+					v |= curr_l1_l2_count;
+					o->l1_l2.setword(curr_l1_l2_blk, v);
+				}
 
                 blocknum=0;
             } 
             else {
-                o->l1_l2.word(curr_l1_l2_blk) |= (curr_block_count << (32 + 10 * blocknum));
+				uint64_t v = o->l1_l2.word(curr_l1_l2_blk);
+                v |= (curr_block_count << (32 + 10 * blocknum));
+				o->l1_l2.setword(curr_l1_l2_blk, v);
                 ++blocknum;
             }
 
@@ -60,12 +65,12 @@ void Rank3pBuilder::build(const BitArray& b, Rank3p * o) {
 
         if ((i < b.length()) && (i % (1ULL << 32) == 0)) {
             curr_l1_l2_count=0;
-            o->l0.word(++curr_l0_blk)=o->onecnt;
+            o->l0.setword(++curr_l0_blk,o->onecnt);
         }
     }
 
     uint64_t num_of_sampling = b.length() % 8192 != 0 ? b.length() / 8192 + 1 : b.length() / 8192;
-    o->sampling=BitArray::create(num_of_sampling * 32);
+	o->sampling = BitArrayBuilder::create(num_of_sampling * 32);
     o->sampling.fillzero();
     uint64_t curr_l0_count, curr_sampling_idx=0, l0_sampling_offset, l1_blk=0;
     uint64_t l1_rank, bitpos;
@@ -103,16 +108,16 @@ void Rank3pBuilder::build(const BitArray& b, Rank3p * o) {
 }
 
 //Does not initialize sampling answers
-void Rank3pBuilder::build(const BitArray &b, OArchive &ar) {
+void Rank3pBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.startclass("Rank3p", 1);
 	ar.var("bit_len").save(b.length());
 	ar.var("inventory");
     uint64_t num_of_l1_l2 = b.length() % 2048 != 0 ? b.length() / 2048 + 1 : b.length() / 2048;
-    BitArray l1_l2=BitArray::create(num_of_l1_l2 * 64);
+	BitArray l1_l2 = BitArrayBuilder::create(num_of_l1_l2 * 64);
     l1_l2.fillzero();
     uint64_t num_of_l0 = b.length() % (1ULL << 32) != 0 ? b.length() / (1ULL << 32) + 1 : b.length() / (1ULL << 32);
-    BitArray l0=BitArray::create(num_of_l0 * 64);
-    l0.word(0)=0;
+	BitArray l0 = BitArrayBuilder::create(num_of_l0 * 64);
+    l0.setword(0,0);
     uint64_t curr_l1_l2_blk=0, curr_l0_blk=0, curr_l1_l2_count=0, curr_block_count=0, cnt=0;
     unsigned int blocknum=0, hold;
    
@@ -135,13 +140,18 @@ void Rank3pBuilder::build(const BitArray &b, OArchive &ar) {
             if (blocknum==3) {
                 ++curr_l1_l2_blk;
 
-                if (i < b.length())
-                    l1_l2.word(curr_l1_l2_blk) |= curr_l1_l2_count;
+				if (i < b.length()) {
+					uint64_t v = l1_l2.word(curr_l1_l2_blk);
+					v |= curr_l1_l2_count;
+					l1_l2.setword(curr_l1_l2_blk, v);
+				}
 
                 blocknum=0;
             } 
             else {
-                l1_l2.word(curr_l1_l2_blk) |= (curr_block_count << (32 + 10 * blocknum));
+				uint64_t v = l1_l2.word(curr_l1_l2_blk);
+                v |= (curr_block_count << (32 + 10 * blocknum));
+				l1_l2.setword(curr_l1_l2_blk, v);
                 ++blocknum;
             }
 
@@ -150,7 +160,7 @@ void Rank3pBuilder::build(const BitArray &b, OArchive &ar) {
 
         if ((i < b.length()) && (i % (1ULL << 32) == 0)) {
             curr_l1_l2_count=0;
-            l0.word(++curr_l0_blk)=cnt;
+			l0.setword(++curr_l0_blk, cnt);
         }
     }
 
@@ -160,7 +170,7 @@ void Rank3pBuilder::build(const BitArray &b, OArchive &ar) {
 	ar.endclass();
 }
 
-void Rank3p::savep(OArchive &ar) const {
+void Rank3p::savep(OutArchive &ar) const {
 	ar.startclass("Rank3p_rankonly", 1);
 	ar.var("bit_len").save(length());
 	ar.var("inventory");
@@ -170,7 +180,7 @@ void Rank3p::savep(OArchive &ar) const {
 	ar.endclass();
 }
 
-void Rank3p::loadp(IArchive &ar, BitArray &b) {
+void Rank3p::loadp(InpArchive &ar, BitArray &b) {
 	ar.loadclass("Rank3p_rankonly");
 	size_t blen;
 	ar.var("bit_len").load(blen);
@@ -183,7 +193,7 @@ void Rank3p::loadp(IArchive &ar, BitArray &b) {
 	ar.endclass();
 }
 
-void Rank3p::save(OArchive &ar) const {
+void Rank3p::save(OutArchive &ar) const {
 	ar.startclass("Rank3p", 1);
 	ar.var("bit_len").save(length());
 	ar.var("inventory");
@@ -194,7 +204,7 @@ void Rank3p::save(OArchive &ar) const {
 	ar.endclass();
 }
 
-void Rank3p::load(IArchive &ar) {
+void Rank3p::load(InpArchive &ar) {
 	ar.loadclass("Rank3p");
 	size_t blen;
 	ar.var("bit_len").load(blen);

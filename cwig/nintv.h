@@ -36,7 +36,7 @@ public:
 	NIntvBuilder();
 	void add(PosType st, PosType ed);
 	void build(NIntv* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef NIntv QueryTp;
 private:
@@ -68,8 +68,8 @@ public:
 
 	void clear();
 	PosType length() const;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	typedef NIntvBuilder BuilderTp;
 	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
 	public:
@@ -101,7 +101,7 @@ public:
 	NIntvGroupBuilder();
 	void add(PosType st, PosType ed);
 	void build(NIntvGroup* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef NIntvGroup QueryTp;
 private:
@@ -134,8 +134,8 @@ public:
 
 	void clear();
 	PosType length() const;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	typedef NIntvGroupBuilder BuilderTp;
 
 	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
@@ -169,7 +169,7 @@ public:
 	NIntvGapBuilder();
 	void add(PosType st, PosType ed);
 	void build(NIntvGap* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef NIntvGap QueryTp;
 private:
@@ -200,8 +200,8 @@ public:
 
 	void clear();
 	PosType length() const;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	typedef NIntvGapBuilder BuilderTp;
 
 	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {
@@ -236,7 +236,7 @@ public:
 	void init(unsigned int _method = 0);
 	void add(PosType st, PosType ed);
 	void build(PNIntv* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef PNIntv QueryTp;
 private:
@@ -271,8 +271,8 @@ public:
 
 	void clear();
 	PosType length() const;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	typedef PNIntvBuilder BuilderTp;
 	friend class PNIntvBuilder;
 	class Enum : public mscds::EnumeratorInt<std::pair<PosType, PosType> > {

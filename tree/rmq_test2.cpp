@@ -9,7 +9,8 @@
 #include <cassert>
 #include "utils/benchmark.h"
 
-#include "mem/filearchive.h"
+#include "mem/file_archive.h"
+#include "mem/info_archive.h"
 #ifndef WIN32
 #include <unistd.h>
 #else
@@ -148,7 +149,7 @@ TEST(rmq_pm1, blk_table) {
 
 void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) {
 	vector<int> vals(len);
-	BitArray b = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
 	int last = 0;
 	vector<bool> bv = rand_bitvec(len);
 	for (int i = 0; i < bv.size(); ++i) {
@@ -213,7 +214,7 @@ TEST(rmq_pm1, saveload) {
 	bool min_struct = true;
 	vector<bool> bv = rand_bitvec(len);
 	vector<int> vals(len);
-	BitArray b = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
 	int last = 0;
 	for (int i = 0; i < bv.size(); ++i) {
 		bool bx = bv[i];
@@ -252,7 +253,7 @@ void report_size(unsigned int len, unsigned int blksize, bool progress = false) 
 	if (progress) cout << "Generating input ..." << endl;
 	vector<bool> bv = rand_bitvec(len);
 	vector<int> vals(len);
-	BitArray b = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
 	int last = 0;
 	for (int i = 0; i < bv.size(); ++i) {
 		bool bx = bv[i];
@@ -325,7 +326,7 @@ public:
 		unsigned int len = 10000000;
 		unsigned int querycnt = 10000;
 		vector<bool> bv = rand_bitvec(len);
-		b = BitArray::create(len);
+		b = BitArrayBuilder::create(len);
 		vals.resize(len);
 		int last = 0;
 		for (int i = 0; i < bv.size(); ++i) {

@@ -26,7 +26,7 @@ public:
 	void add(unsigned int st, unsigned int ed, double v);
 
 	void build(RunLenSumArray6* arr);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef RunLenSumArray6 QueryTp;
 
@@ -44,8 +44,8 @@ public:
 	RunLenSumArray6() {}
 	~RunLenSumArray6() { clear(); }
 	size_t load(std::istream& fi);
-	void load(mscds::IArchive& ar);
-	void save(mscds::OArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void save(mscds::OutArchive& ar) const;
 
 	double sum(uint32_t pos) const;
 	double sqrsum(uint32_t pos) const;

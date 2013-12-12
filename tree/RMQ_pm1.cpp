@@ -175,7 +175,7 @@ void RMQ_pm1::build(BitArray b, unsigned int blksize, bool _min_struct, RMQ_pm1 
 	RMQ_index_blk::build(mwex, blksize, _min_struct, &(out->blks));
 }
 
-void RMQ_pm1::save_aux(OArchive &ar) const {
+void RMQ_pm1::save_aux(OutArchive &ar) const {
 	ar.startclass("RMQ_pm1_auxiliary");
 	uint32_t v = _min_struct ? 1 : 0;
 	ar.var("is_min_structure").save(v);
@@ -184,7 +184,7 @@ void RMQ_pm1::save_aux(OArchive &ar) const {
 	ar.endclass();
 }
 
-void RMQ_pm1::load_aux(IArchive &ar, Rank6p& rs) {
+void RMQ_pm1::load_aux(InpArchive &ar, Rank6p& rs) {
 	ar.loadclass("RMQ_pm1_auxiliary");
 	uint32_t v = 0;
 	ar.var("is_min_structure").load(v);
@@ -200,14 +200,14 @@ void RMQ_pm1_minmax::build(BitArray b, unsigned int blksize, RMQ_pm1_minmax *out
 	RMQ_pm1::build(b, blksize, true, &(out->maxidx));
 }
 
-void RMQ_pm1_minmax::save_aux(OArchive &ar) const {
+void RMQ_pm1_minmax::save_aux(OutArchive &ar) const {
 	ar.startclass("minmax");
 	minidx.save_aux(ar.var("minidx"));
 	maxidx.save_aux(ar.var("maxidx"));
 	ar.endclass();
 }
 
-void RMQ_pm1_minmax::load_aux(IArchive &ar, Rank6p& rs) {
+void RMQ_pm1_minmax::load_aux(InpArchive &ar, Rank6p& rs) {
 	ar.loadclass("minmax");
 	minidx.load_aux(ar.var("minidx"), rs);
 	maxidx.load_aux(ar.var("maxidx"), rs);

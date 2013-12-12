@@ -64,7 +64,7 @@ public:
 	CodeModelBuilder();
 	void init(const Config* conf = NULL);
 	void add(uint32_t val);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void build(QueryTp * out);
 	void clear();
 private:
@@ -82,8 +82,8 @@ public:
 	typedef std::shared_ptr<const CodeModelBlk<Model> > BlkPtr; 
 
 	CodeModelArray() {}
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	void clear();
 	uint64_t length() const;
 	uint32_t lookup(unsigned int i) const;
@@ -149,7 +149,8 @@ void CodeModelBlk<Model>::build(const std::vector<uint32_t> * data, unsigned int
 template<typename Model>
 void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
 	this->ptr = ptr;
-	IWBitStream is(ptr->bits.data_ptr(), ptr->bits.length(), ptr->blkptr(blk));
+	IWBitStream is;
+	is.init(ptr->bits, ptr->blkptr(blk));
 	model.loadModel(is);
 	unsigned int subsize = is.get(32);
 	this->len = is.get(32);
@@ -159,7 +160,7 @@ void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
 template<typename Model>
 void CodeModelBlk<Model>::set_stream(unsigned int i, IWBitStream& is) const {
 	assert(ptr->p0(i) == this->blk);
-	is.init(ptr->bits.data_ptr(), ptr->bits.length(), ptr->subblkptr(blk, ptr->p1(i)));
+	is.init(ptr->bits, ptr->subblkptr(blk, ptr->p1(i)));
 	auto r = ptr->p3(i);
 
 	for (unsigned int j = 0; j < r; ++j)
@@ -175,7 +176,7 @@ void mscds::CodeModelBlk<Model>::inspect(const std::string& cmd, std::ostream& o
 //------------------------------------------------
 
 template<typename Model>
-void CodeModelBuilder<Model>::build(OArchive& ar) {
+void CodeModelBuilder<Model>::build(OutArchive& ar) {
 	CodeModelArray<Model> tmp;
 	tmp.save(ar);
 }
@@ -192,7 +193,7 @@ void CodeModelBuilder<Model>::build(CodeModelArray<Model> * outx) {
 	out.close();
 	auto& outds = outx->ptr;
 	bd.build(&(outds.ptr));
-	outds.bits = BitArray::create(out.data_ptr(), out.length());
+	out.build(&outds.bits);
 	outds.len = cnt;
 	outds.rate1 = rate1;
 	outds.rate2 = rate2;
@@ -299,7 +300,7 @@ const Model& CodeModelBlk<Model>::getModel() const {
 }
 
 template<typename Model>
-void CodeModelArray<Model>::save(OArchive& ar) const {
+void CodeModelArray<Model>::save(OutArchive& ar) const {
 	ar.startclass(std::string("code_") + TypeParseTraits<Model>::name(), 1);
 	ar.var("length").save(ptr.len);
 	ar.var("sample_rate").save(ptr.rate1);
@@ -310,7 +311,7 @@ void CodeModelArray<Model>::save(OArchive& ar) const {
 }
 
 template<typename Model>
-void CodeModelArray<Model>::load(IArchive& ar) {
+void CodeModelArray<Model>::load(InpArchive& ar) {
 	ar.loadclass(std::string("code_") + TypeParseTraits<Model>::name());
 	ar.var("length").load(ptr.len);
 	ar.var("sample_rate").load(ptr.rate1);

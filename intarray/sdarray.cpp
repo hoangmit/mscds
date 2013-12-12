@@ -144,16 +144,10 @@ void SDArrayBuilder::clear(){
 	last  = 0;
 }
 
-void SDArrayBuilder::build(OArchive& ar){
-	build_inc();
-	ar.startclass("sdarray", 1);
-	ar.var("size").save(size_);
-	ar.var("sum").save(sum_);
-	BitArray b(B_.data(), B_.size() * 64);
-	b.save(ar.var("bits"));
-	BitArray l(Ltable_.data(), Ltable_.size() * 64);
-	l.save(ar.var("table"));
-	ar.endclass();
+void SDArrayBuilder::build(OutArchive& ar){
+	SDArrayQuery out;
+	build(&out);
+	out.save(ar);
 	clear();
 }
 
@@ -162,16 +156,20 @@ void SDArrayBuilder::build(SDArrayQuery * out) {
 	out->clear();
 	out->size_ = this->size_;
 	out->sum_ = this->sum_;
-	if (B_.size() > 0)
-		out->B_ = BitArray::create(B_.data(), B_.size() * 64);
-	if (Ltable_.size() > 0)
-		out->Ltable_ = BitArray::create(Ltable_.data(), Ltable_.size() * 64);
+	if (B_.size() > 0) {
+		BitArrayBuilder bd;
+		out->B_ = bd.create(B_.size() * 64, (char*)(B_.data()));
+	}
+	if (Ltable_.size() > 0) {
+		BitArrayBuilder bd;
+		out->Ltable_ = bd.create(Ltable_.size() * 64, (char*)(Ltable_.data()));
+	}
 	clear();
 }
 
 //------------------------------------------------------------------------------
 
-void SDArrayQuery::save(OArchive& ar) const {
+void SDArrayQuery::save(OutArchive& ar) const {
 	ar.startclass("sdarray", 1);
 	ar.var("size").save(size_);
 	ar.var("sum").save(sum_);
@@ -180,7 +178,7 @@ void SDArrayQuery::save(OArchive& ar) const {
 	ar.endclass();
 }
 
-void SDArrayQuery::load(IArchive& ar) {
+void SDArrayQuery::load(InpArchive& ar) {
 	clear();
 	ar.loadclass("sdarray");
 	ar.var("size").load(size_);
@@ -529,7 +527,7 @@ uint64_t SDRankSelect::rank(uint64_t p) const {
 	return k;
 }
 
-void SDRankSelect::load(IArchive& ar) {
+void SDRankSelect::load(InpArchive& ar) {
 	ar.loadclass("sd_rank_select");
 	qs.load(ar);
 	ar.load(ranklrate);
@@ -537,7 +535,7 @@ void SDRankSelect::load(IArchive& ar) {
 	ar.endclass();
 }
 
-void SDRankSelect::save(OArchive& ar) const {
+void SDRankSelect::save(OutArchive& ar) const {
 	ar.startclass("sd_rank_select", 1);
 	qs.save(ar);
 	ar.save(ranklrate);

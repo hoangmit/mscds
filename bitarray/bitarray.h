@@ -7,6 +7,7 @@
 #include "bitop.h"
 #include "framework/archive.h"
 
+
 #include <stdint.h>
 #include <cstdlib>
 #include <cstdio>
@@ -15,16 +16,17 @@
 #include <vector>
 #include <cstring>
 
+#include "mem/local_mem.h"
+
 namespace mscds {
 
-class BitArraySeqBuilder {
+class BitArray;
+
+class BitArrayBuilder {
 public:
-	BitArraySeqBuilder(size_t wordlen, OArchive& _ar);
-	void addword(uint64_t v);
-	void done();
-private:
-	OArchive & ar;
-	size_t pos, wl;
+	static BitArray create(size_t bitlen);
+	static BitArray create(size_t bitlen, const char * ptr);
+	static BitArray adopt(size_t bitlen, StaticMemRegionPtr p);
 };
 
 class BitArray {
@@ -43,131 +45,92 @@ public:
 	void fillzero();
 	void fillone();
 
-	uint64_t& word(size_t pos);
-	const uint64_t& word(size_t pos) const;
+	void setword(size_t pos, uint64_t val);
+	uint64_t word(size_t pos) const;
 	size_t length() const { return bitlen; }
 	size_t word_count() const;
 
 	//--------------------------------------------------
 	BitArray();
-	BitArray(size_t bit_len);
-	BitArray(const BitArray& other);
-	BitArray& operator=(const BitArray& other);
-	BitArray(SharedPtr p, size_t bit_len);
-	BitArray(uint64_t * ptr, size_t bit_len);
+	BitArray(const BitArray& other) = default;
+	BitArray& operator=(const BitArray& other) = default;
+	BitArray(BitArray&& mE) : bitlen(mE.bitlen), data(std::move(mE.data)) {}
+	BitArray& operator=(BitArray&& mE) { bitlen = mE.bitlen; data = std::move(mE.data); return *this; }
 
-	const uint64_t* data_ptr() const;
-
-	static BitArray create(size_t bitlen);
-	static BitArray create(const uint64_t * ptr, size_t bitlen);
-	static BitArray create(const char * ptr, size_t bitlen);
-
-	BitArray clone_mem() const;
+	StaticMemRegionPtr data_ptr() const { return data; }
 
 	void clear();
 	~BitArray();
 
-	IArchive& load(IArchive& ar);
-	OArchive& save(OArchive& ar) const;
-	OArchive& save_nocls(OArchive& ar) const;
-	IArchive& load_nocls(IArchive& ar);
+	InpArchive& load(InpArchive& ar);
+	OutArchive& save(OutArchive& ar) const;
+	OutArchive& save_nocls(OutArchive& ar) const;
+	InpArchive& load_nocls(InpArchive& ar);
 	std::string to_str() const;
 
-private:
 	inline static uint64_t ceildiv(uint64_t a, uint64_t b) {
-		/* return (a != 0 ? ((a - 1) / b) + 1 : 0); */
+		/* return (a != 0 ? ((a - 1) / b) + 1 : 0); // overflow free version */
 		return (a + b - 1) / b;
 	}
-
+private:
+	friend class BitArrayBuilder;
 	size_t bitlen;
-	uint64_t * data;
-	SharedPtr ptr;
+	StaticMemRegionPtr data;
 };
 
 //---------------------------------------------------------------------
 
 
-inline BitArray::BitArray(): bitlen(0), data(NULL) {}
+inline BitArray::BitArray(): bitlen(0) {}
 
-inline BitArray::BitArray(size_t bit_len): bitlen(0) {
-	*this = create(bit_len);
-}
+inline void BitArray::clear() { bitlen = 0; data = StaticMemRegionPtr(); }
 
-inline BitArray::BitArray(const BitArray& other) {
-	data = other.data;
-	bitlen = other.bitlen;
-	ptr = other.ptr;
-}
-
-inline BitArray& BitArray::operator=(const BitArray& other) {
-	data = other.data;
-	bitlen = other.bitlen;
-	ptr = other.ptr;
-	return *this;
-}
-
-inline BitArray::BitArray(SharedPtr p, size_t bit_len): ptr(p), bitlen(bit_len) {
-	data = (uint64_t*) ptr.get();
-}
-
-inline BitArray::BitArray(uint64_t * ptr, size_t bit_len): bitlen(bit_len), data(ptr) {
-	this->ptr.reset();
-}
-
-inline void BitArray::clear() {
-	if (bitlen > 0) ptr.reset();
-	bitlen = 0;
-	data = NULL;
-}
-
-inline uint64_t& BitArray::word(size_t pos) { assert(pos < word_count()); return data[pos]; }
-inline const uint64_t& BitArray::word(size_t pos) const { assert(pos < word_count()); return data[pos]; }
+inline void BitArray::setword(size_t pos, uint64_t val) { assert(pos < word_count()); data.setword(pos, val); }
+inline uint64_t BitArray::word(size_t pos) const { assert(pos < word_count()); return data.getword(pos); }
 inline size_t BitArray::word_count() const { return ceildiv(bitlen, WORDLEN); }
 
-inline const uint64_t* BitArray::data_ptr() const { return data; }
+//inline const uint64_t* BitArray::data_ptr() const { return data; }
 
 template<typename T>
 struct CppArrDeleter {
 	void operator()(void* p) const { delete[]((T*)p); }
 };
 
-inline SharedPtr createUI64Arr(size_t len) {
-	return SharedPtr(new uint64_t[len], CppArrDeleter<uint64_t>());
-}
 
-inline BitArray BitArray::create(size_t bitlen) {
+inline BitArray BitArrayBuilder::create(size_t bitlen) {
 	BitArray v;
 	if (bitlen == 0) return v;
 	assert(bitlen > 0);
-	size_t arrlen = (size_t)ceildiv(bitlen, WORDLEN);
-	v.ptr = createUI64Arr(arrlen);
-	v.data = (uint64_t*)v.ptr.get();
+	size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
+	LocalMemModel alloc;
+	v.data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
 	v.bitlen = bitlen;
-	if (arrlen > 0) v.data[arrlen - 1] = 0;
+	if (arrlen > 0) v.data.setword(arrlen - 1, 0);
 	return v;
 }
 
-inline BitArray BitArray::create(const char * ptr, size_t bitlen) {
+inline BitArray BitArrayBuilder::create(size_t bitlen, const char * ptr) {
 	BitArray v = create(bitlen);
-	size_t bytelen = (size_t)ceildiv(bitlen, 8);
-	std::memcpy(v.data, ptr, bytelen);
+	size_t bytelen = (size_t)BitArray::ceildiv(bitlen, 8);
+	v.data.write(0, bytelen, (const void*) ptr);
 	return v;
 }
 
-inline BitArray BitArray::create(const uint64_t * ptr, size_t bitlen) {
-	BitArray v = create(bitlen);
-	size_t arrlen = (size_t)ceildiv(bitlen, WORDLEN);
-	std::copy(ptr, ptr + arrlen, v.data);
+inline BitArray BitArrayBuilder::adopt(size_t bitlen, StaticMemRegionPtr p) {
+	BitArray v;
+	v.data = p;
+	v.bitlen = bitlen;
 	return v;
 }
 
+/*
 inline BitArray BitArray::clone_mem() const {
 	BitArray v(this->bitlen);
 	std::copy(data, data + word_count(), v.data);
 	return v;
-}
+}*/
 
-inline BitArray::~BitArray() { clear(); }
+inline BitArray::~BitArray() { }
 
 inline uint64_t BitArray::bits(size_t bitindex, unsigned int len) const {
 	assert(len <= WORDLEN); // len > 0
@@ -178,9 +141,9 @@ inline uint64_t BitArray::bits(size_t bitindex, unsigned int len) const {
 	//uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull;
 	uint64_t mask = ((~0ull) >> (WORDLEN - len));
 	if (j + len <= WORDLEN)
-		return (data[i] >> j) & mask;
+		return (word(i) >> j) & mask;
 	else
-		return (data[i] >> j) | ((data[i + 1] << (WORDLEN - j)) & mask);
+		return (word(i) >> j) | ((word(i + 1) << (WORDLEN - j)) & mask);
 }
 
 inline void BitArray::setbits(size_t bitindex, uint64_t value, unsigned int len) {
@@ -191,21 +154,30 @@ inline void BitArray::setbits(size_t bitindex, uint64_t value, unsigned int len)
 	//uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull; // & (~0ull >> (WORDLEN - len))
 	uint64_t mask = ((~0ull) >> (WORDLEN - len));
 	value = value & mask;
-	data[i] = (data[i] & ~(mask << j)) | (value << j);
+	uint64_t v = (word(i) & ~(mask << j)) | (value << j);
+	data.setword(i, v);
 	if (j + len > WORDLEN)
-		data[i+1] = (data[i+1] & ~ (mask >> (WORDLEN - j))) | (value >> (WORDLEN - j));
+		setword(i+1, (word(i+1) & ~ (mask >> (WORDLEN - j))) | (value >> (WORDLEN - j)));
 }
 
 inline bool BitArray::bit(size_t bitindex) const {
 	assert(bitindex < bitlen);
-	return (data[bitindex / WORDLEN] & (1ULL << (bitindex % WORDLEN))) != 0;
+	return (word(bitindex / WORDLEN) & (1ULL << (bitindex % WORDLEN))) != 0;
 }
 
 inline void BitArray::setbit(size_t bitindex, bool value) {
 	assert(bitindex < bitlen);
-	if (value) data[bitindex / WORDLEN] |= (1ULL << (bitindex % WORDLEN));
-	else data[bitindex / WORDLEN] &= ~(1ULL << (bitindex % WORDLEN));
+	uint64_t v = word(bitindex / WORDLEN);
+	if (value) v |= (1ULL << (bitindex % WORDLEN));
+	else v &= ~(1ULL << (bitindex % WORDLEN));
+	setword(bitindex / WORDLEN, v);
 }
+
+inline uint8_t BitArray::byte(size_t pos) const {
+	assert(pos * 8 < bitlen);
+	return data.getchar(pos);
+}
+
 
 //------------------------------------------------------------------------
 class FixedWArray {
@@ -217,7 +189,7 @@ public:
 	FixedWArray(const FixedWArray& other): b(other.b), width(other.width) {}
 	FixedWArray(const BitArray& bits, unsigned int width_): b(bits), width(width_) {}
 	static FixedWArray create(size_t len, unsigned int width) {
-		return FixedWArray(BitArray::create(len*width), width);
+		 return FixedWArray(BitArrayBuilder::create(len*width), width);
 	}
 
 	static FixedWArray build(const std::vector<unsigned int>& values);
@@ -227,8 +199,8 @@ public:
 
 	void fillzero() { b.fillzero(); }
 	void clear() { b.clear(); width = 0; }
-	IArchive& load(IArchive& ar);
-	OArchive& save(OArchive& ar) const;
+	InpArchive& load(InpArchive& ar);
+	OutArchive& save(OutArchive& ar) const;
 	size_t length() const { return b.length() / width; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }

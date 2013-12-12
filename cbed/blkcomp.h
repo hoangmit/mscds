@@ -51,7 +51,7 @@ public:
 	void init();
 	void add(const std::string& line);
 	void build(BlkCompQuery* data);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 
 	void clear();
 private:
@@ -72,8 +72,8 @@ public:
 	void init(); // default cache size = 32
 	void init(Config* conf) {}
 	void init(unsigned int cache_size, Config* conf) {}
-	void load(mscds::IArchive& ar);
-	void save(mscds::OArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void save(mscds::OutArchive& ar) const;
 	std::string getline(unsigned int i) const;
 	void clear();
 public:

@@ -1,7 +1,7 @@
 
 
 #include "count2d.h"
-#include "mem/fmaparchive.h"
+#include "mem/fmap_archive.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"
 #include <cassert>
@@ -15,7 +15,7 @@
 using namespace mscds;
 using namespace std;
 
-TEST(test1, count2d) {
+TEST(count2d, test1) {
 	int px[10] = {0, 0, 1, 1, 4, 4, 3, 3, 5, 6};
 	int py[10] = {0, 1, 0, 1, 4, 3, 4, 3, 3, 4};
 	std::vector<Point> list;
@@ -37,7 +37,6 @@ TEST(test1, count2d) {
 	ASSERT_EQ(7, cq.count(6, 4));
 	ASSERT_EQ(7, cq.count(7, 4));
 	ASSERT_EQ(10, cq.count(7, 5));
-	cout << '.' << flush;
 }
 
 void test2x(unsigned int n, double p) {
@@ -77,11 +76,10 @@ void test2x(unsigned int n, double p) {
 			int val = cq.count(i,j);
 			ASSERT_EQ(exp, val);
 		}
-	cout << '.' << flush;
 }
 
 
-TEST(test3, count2d) {
+TEST(count2d, test3) {
 	const unsigned int n = 150;
 	double p = 0.125;
 	vector<vector<bool> > matrix;
@@ -128,7 +126,6 @@ TEST(test3, count2d) {
 			int val = cq.count(i,j);
 			ASSERT_EQ(exp, val);
 		}
-	cout << '.' << flush;
 }
 
 
@@ -192,7 +189,6 @@ void test_grid_query1(unsigned int n, double p) {
 			}
 		}
 	}
-	cout << '.' << flush;
 }
 
 
@@ -230,14 +226,19 @@ void test_performance() {
 	cout << '.' << flush;
 }
 
-TEST(all_rnd, count2d) {
+TEST(count2d, all_rnd) {
 	test2x(150, 0.125);
 	test_grid_query1(150, 0.125);
-	for (int i = 0; i < 100; ++i)
-		test2x(100, (1.0+(rand() % 50))/100.0);
-	for (int i = 0; i < 100; ++i)
-		test_grid_query1(100, (1.0+(rand() % 50))/100.0);
-	test_performance();
+	for (int i = 0; i < 100; ++i) {
+		test2x(100, (1.0 + (rand() % 50)) / 100.0);
+		if (i % 10 == 0) cout << '.';
+	}
+	for (int i = 0; i < 100; ++i) {
+		test_grid_query1(100, (1.0 + (rand() % 50)) / 100.0);
+		if (i % 10 == 0) cout << '.';
+	}
+	//test_performance();
+	cout << endl;
 }
 
 

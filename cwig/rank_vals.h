@@ -20,7 +20,7 @@ namespace app_ds {
 
 		void add(unsigned int v) { vals.push_back(v);}
 		void build(RankValArr* out);
-		void build(mscds::OArchive& ar);
+		void build(mscds::OutArchive& ar);
 		void clear() { vals.clear(); rbd.clear(); vbd.clear(); }
 		typedef RankValArr QueryTp;
 	private:
@@ -33,8 +33,8 @@ namespace app_ds {
 	public:
 		unsigned int sample_rate() { return rankv.sample_rate(); }
 		uint64_t access(size_t p) const;
-		void save(mscds::OArchive& ar) const;
-		void load(mscds::IArchive& ar);
+		void save(mscds::OutArchive& ar) const;
+		void load(mscds::InpArchive& ar);
 		void clear();
 		size_t length() const { return rankv.length(); }
 

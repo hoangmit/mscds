@@ -32,8 +32,8 @@ public:
 	void clear() { len = 0; table.clear(); rval.clear(); }
 
 	std::string to_str() const;
-	void save(OArchive& ar) const;
-	void load(IArchive& ar);
+	void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
 
 private:
 	size_t get_tb(size_t d, size_t i) const;

@@ -532,7 +532,7 @@ void PNIntvBuilder::clear() {
 
 //-------------------------------------------------------
 
-void PNIntv::save(mscds::OArchive& ar) const {
+void PNIntv::save(mscds::OutArchive& ar) const {
 	ar.startclass("poly_non_overlap_intervals", 1);
 	ar.var("method").save(method);
 	ar.var("autoselect").save(autoselect);
@@ -548,7 +548,7 @@ void PNIntv::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void PNIntv::load( mscds::IArchive& ar ) {
+void PNIntv::load( mscds::InpArchive& ar ) {
 	clear();
 	ar.loadclass("poly_non_overlap_intervals");
 	ar.var("method").load(method);

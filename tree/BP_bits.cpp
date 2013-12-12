@@ -58,7 +58,7 @@ std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
 
 BitArray find_pioneers(const BitArray& bp, size_t blksize) {
 	std::vector<size_t> v = find_pioneers_v(bp, blksize);
-	BitArray ret = BitArray::create(bp.length());
+	BitArray ret = BitArrayBuilder::create(bp.length());
 	ret.fillzero();
 	for (int i = 0; i < v.size(); i++)
 		ret.setbit(v[i], true);
@@ -356,7 +356,7 @@ unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 		//pioneer_map
 		pioneer_map.build(pio);
 		//nextlvl
-		BitArray nxtlvl = BitArray::create(pio.size());
+		BitArray nxtlvl = BitArrayBuilder::create(pio.size());
 		for (size_t i = 0; i < pio.size(); i++)
 			nxtlvl.setbit(i, bp[pio[i]]);
 		lowerlvl = std::make_shared<BP_aux>();
@@ -493,7 +493,7 @@ std::string BP_aux::to_str() const {
 	return ss.str();
 }
 
-OArchive &BP_aux::save(OArchive &ar) const {
+OutArchive &BP_aux::save(OutArchive &ar) const {
 	ar.startclass("BP_aux", 1);
 	ar.var("blksize").save(blksize);
 	bprank.save(ar.var("bps"));
@@ -511,7 +511,7 @@ OArchive &BP_aux::save(OArchive &ar) const {
 	return ar;
 }
 
-IArchive &BP_aux::load(IArchive &ar) {
+InpArchive &BP_aux::load(InpArchive &ar) {
 	ar.loadclass("BP_aux");
 	ar.var("blksize").load(blksize);
 	bprank.load(ar.var("bps"));

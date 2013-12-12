@@ -34,11 +34,11 @@ public:
 	bool bit(uint64_t p) const;
 	std::string to_str() const { return bits.to_str(); }
 
-	void loadp(IArchive& ar, BitArray& b);
-	void savep(OArchive& ar) const;
+	void loadp(InpArchive& ar, BitArray& b);
+	void savep(OutArchive& ar) const;
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	const BitArray& getBitArray() const { return bits; }
 	typedef Rank3pBuilder BuilderTp;
 private:
@@ -57,7 +57,7 @@ private:
 class Rank3pBuilder {
 public:
 	static void build(const BitArray& b, Rank3p * o);
-	static void build(const BitArray& b, OArchive& ar);
+	static void build(const BitArray& b, OutArchive& ar);
 	typedef Rank3p QueryTp;
 private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);

@@ -33,7 +33,7 @@ public:
 
 	void add(unsigned int v);
 	void build(PRValArr* out);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 	typedef PRValArr QueryTp;
 private:
@@ -71,8 +71,8 @@ public:
 	PRValArr(): len(0) {}
 	unsigned int sample_rate() { return rate; }
 	uint64_t access(size_t p) const;
-	void save(mscds::OArchive& ar) const;
-	void load(mscds::IArchive& ar);
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 	void clear();
 	size_t length() const { return len; }
 	class Enum : public mscds::EnumeratorInt<uint64_t> {

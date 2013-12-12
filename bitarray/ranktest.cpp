@@ -3,6 +3,7 @@
 #include "rank6p.h"
 #include "rank3p.h"
 #include "rrr.h"
+#include "rrr2.h"
 #include "utils/utest.h"
 #include "utils/utils.h"
 
@@ -102,7 +103,7 @@ void test_rank(const std::vector<bool>& vec) {
 		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
 		else ranks[i] = ranks[i-1];
 	BitArray v;
-	v = BitArray::create(vec.size());
+	v = BitArrayBuilder::create(vec.size());
 	//v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		v.setbit(i, vec[i]);
@@ -120,7 +121,7 @@ void test_rank(const std::vector<bool>& vec) {
 	for (int i = 0; i <= vec.size(); ++i) {
 		if (ranks[i] != r.rank(i)) {
 			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
-			ASSERT(ranks[i] == r.rank(i));
+			ASSERT_EQ(ranks[i], r.rank(i));
 		}
 	}
 	unsigned int onecnt = 0;
@@ -142,7 +143,7 @@ void test_rank(const std::vector<bool>& vec) {
 	last = -1;
 	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
 		int pos = r.selectzero(i);
-		ASSERT_EQ(i, r.rankzero(pos));
+		ASSERT_EQ(i, r.rankzero(pos)) << "pos =" << pos << "   i =" << i << endl;
 		ASSERT_EQ(i + 1, r.rankzero(pos + 1));
 		ASSERT(pos < vec.size() && vec[pos] == false);
 		ASSERT(pos > last);
@@ -153,7 +154,7 @@ void test_rank(const std::vector<bool>& vec) {
 void test_temp(int len) {
 	const std::vector<bool>& vec = bits_imbal(len);
 	BitArray v;
-	v = BitArray::create(vec.size());
+	v = BitArrayBuilder::create(vec.size());
 	v.fillzero();
 	for (unsigned int i = 0; i < vec.size(); i++) {
 		v.setbit(i, vec[i]);
@@ -188,6 +189,7 @@ TEST(ranktest, rank25p) {
 	test_rank<Rank25p>(bits_oneonezero());
 	test_rank<Rank25p>(bits_zerozeroone());
 	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("Random");
 		test_rank<Rank25p>(bits_dense(2046 + rand() % 4));
 		test_rank<Rank25p>(bits_sparse(2046 + rand() % 4));
 		test_rank<Rank25p>(bits_imbal(2046 + rand() % 4));
@@ -197,7 +199,6 @@ TEST(ranktest, rank25p) {
 	test_rank<Rank25p>(bits_sparse(100000));
 	cout << endl;
 }
-
 
 TEST(ranktest, rank6p) {
 	for (int i = 0; i < 100; i++) {
@@ -211,6 +212,7 @@ TEST(ranktest, rank6p) {
 	test_rank<Rank6p>(bits_oneonezero());
 	test_rank<Rank6p>(bits_zerozeroone());
 	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("Random");
 		test_rank<Rank6p>(bits_dense(2046 + rand() % 4));
 		test_rank<Rank6p>(bits_sparse(2046 + rand() % 4));
 		test_rank<Rank6p>(bits_imbal(2046 + rand() % 4));
@@ -221,7 +223,6 @@ TEST(ranktest, rank6p) {
 	cout << endl;
 }
 
-
 TEST(ranktest, rank3p) {
 	test_rank<Rank3p>(bits_one());
 	test_rank<Rank3p>(bits_zero());
@@ -229,6 +230,7 @@ TEST(ranktest, rank3p) {
 	test_rank<Rank3p>(bits_oneonezero());
 	test_rank<Rank3p>(bits_zerozeroone());
 	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("Random");
 		test_rank<Rank3p>(bits_dense(2046 + rand() % 4));
 		test_rank<Rank3p>(bits_sparse(2046 + rand() % 4));
 		test_rank<Rank3p>(bits_imbal(2046 + rand() % 4));
@@ -241,11 +243,18 @@ TEST(ranktest, rank3p) {
 
 TEST(ranktest, rrr) {
 	test_rank<RRR>(bits_one());
-	test_rank<RRR>(bits_zero());
+	{
+		SCOPED_TRACE("Normal");
+		cout << "afsdf" << endl;
+		test_rank<RRR>(bits_zero());
+		cout << "fsfsdfs" << endl;
+	}
 	test_rank<RRR>(bits_onezero());
+
 	test_rank<RRR>(bits_oneonezero());
 	test_rank<RRR>(bits_zerozeroone());
 	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("Random");
 		test_rank<RRR>(bits_dense(2046 + rand() % 4));
 		test_rank<RRR>(bits_sparse(2046 + rand() % 4));
 		test_rank<RRR>(bits_imbal(2046 + rand() % 4));
@@ -255,3 +264,23 @@ TEST(ranktest, rrr) {
 	test_rank<RRR>(bits_sparse(20000));
 	cout << endl;
 }
+
+TEST(ranktest, rrr2) {
+	test_rank<RRR2>(bits_one());
+	test_rank<RRR2>(bits_zero());
+	test_rank<RRR2>(bits_onezero());
+	test_rank<RRR2>(bits_oneonezero());
+	test_rank<RRR2>(bits_zerozeroone());
+	for (int i = 0; i < 200; i++) {
+		SCOPED_TRACE("Random");
+		test_rank<RRR2>(bits_dense(2046 + rand() % 4));
+		test_rank<RRR2>(bits_sparse(2046 + rand() % 4));
+		test_rank<RRR2>(bits_imbal(2046 + rand() % 4));
+		if (i % 10 == 0) cout << ".";
+	}
+	test_rank<RRR2>(bits_dense(20000));
+	test_rank<RRR2>(bits_sparse(20000));
+	cout << endl;
+}
+
+

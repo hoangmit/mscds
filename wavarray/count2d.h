@@ -27,7 +27,7 @@ class Count2DQuery;
 class Count2DBuilder {
 public:
 	void build(std::vector<Point>& list, Count2DQuery * out);
-	void build(std::vector<Point>& list, OArchive& ar);
+	void build(std::vector<Point>& list, OutArchive& ar);
 };
 
 class Count2DQuery {
@@ -41,8 +41,8 @@ public:
 	void list_each(uint64_t min_x, uint64_t max_x, uint64_t min_y, uint64_t max_y, ListCallback cb, void* context) const;
 
 	void clear();
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	size_t size();
 private:
 	WatQuery wq;

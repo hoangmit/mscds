@@ -50,8 +50,8 @@ public:
 	/** return the numbers in range [min_c, max_c) and [beg_pos, end_pos) */
 	void list_each(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, ListCallback cb, void* context) const;
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	void clear();
 	std::string to_str() const;
 
@@ -79,7 +79,7 @@ class WatBuilderGen {
 public:
 	//static std::vector<uint64_t> convert(const std::vector<unsigned int>& list);
 	static void build(const std::vector<uint64_t>& list, WatQueryGen<RankSelect> * out);
-	static void build(const std::vector<uint64_t>& list, OArchive & ar);
+	static void build(const std::vector<uint64_t>& list, OutArchive & ar);
 private:
 };
 

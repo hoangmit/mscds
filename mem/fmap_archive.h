@@ -2,21 +2,24 @@
 
 #ifndef __FILE_MAP_ARCHIVE_H_
 #define __FILE_MAP_ARCHIVE_H_
-#include "filearchive.h"
+
+#include "framework/mem_models.h"
+#include "file_archive.h"
 
 namespace mscds {
 struct FileMapImpl;
 
-class IFileMapArchive: public IArchive {
+class IFileMapArchive: public InpArchive {
 public:
 	IFileMapArchive(): impl(NULL) {}
 	~IFileMapArchive() {close();}
 
 	unsigned char loadclass(const std::string& name);
-	IArchive& load_bin(void *ptr, size_t size);
-	IArchive& endclass();
+	InpArchive& load_bin(void *ptr, size_t size);
+	InpArchive& endclass();
+	
+	StaticMemRegionPtr load_mem_region();
 
-	SharedPtr load_mem(int type, size_t size);
 	size_t ipos() const;
 
 	void open_read(const std::string& fname);

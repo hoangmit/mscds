@@ -46,7 +46,7 @@ std::string RMQ_table::to_str() const {
 	return ss.str();
 }
 
-void RMQ_table::save(OArchive& ar) const {
+void RMQ_table::save(OutArchive& ar) const {
 	ar.startclass("rmq_table", 1);
 	ar.var("len").save(len);
 	ar.var("max_val").save(max_val);
@@ -59,7 +59,7 @@ void RMQ_table::save(OArchive& ar) const {
 	ar.endclass();
 }
 
-void RMQ_table::load(IArchive& ar) {
+void RMQ_table::load(InpArchive& ar) {
 	clear();
 	ar.loadclass("rmq_table");
 	ar.var("len").load(len);

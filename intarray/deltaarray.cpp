@@ -27,7 +27,7 @@ namespace mscds {
 		++i;
 	}
 
-	void DeltaCodeArrBuilder::build(OArchive &ar) {
+	void DeltaCodeArrBuilder::build(OutArchive &ar) {
 		DeltaCodeArr tmp;
 		tmp.save(ar);
 	}
@@ -37,14 +37,14 @@ namespace mscds {
 		out->clear();
 		out->sample_rate = sample_rate;
 		out->len = i;
-		out->enc = BitArray::create(enc.data_ptr(), enc.length());
+		enc.build(&out->enc);
 		ptrbd.build(&(out->ptr));
 	}
 
 	void DeltaCodeArr::getEnum(uint64_t pos, Enum * e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		e->is.init(enc.data_ptr(), enc.length(), p);
+		e->is.init(enc, p);
 		for (unsigned int i = 0; i < r; ++i)
 			e->next();
 	}
@@ -65,7 +65,7 @@ namespace mscds {
 		return e.next();
 	}
 
-	void DeltaCodeArr::save(OArchive &ar) const {
+	void DeltaCodeArr::save(OutArchive &ar) const {
 		ar.startclass("delta_code_array", 1);
 		ar.var("length").save(len);
 		ar.var("sample_rate").save(sample_rate);
@@ -81,7 +81,7 @@ namespace mscds {
 		enc.clear();
 	}
 
-	void DeltaCodeArr::load(IArchive &ar) {
+	void DeltaCodeArr::load(InpArchive &ar) {
 		ar.loadclass("delta_code_array");
 		ar.var("length").load(len);
 		ar.var("sample_rate").load(sample_rate);

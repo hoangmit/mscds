@@ -66,7 +66,7 @@ void BED_Entry::quick_parse(const std::string& s, const std::string& pre_chr) {
 	this->val = utils::atof2(p);
 }
 
-void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OArchive& ar,
+void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OutArchive& ar,
 										  bool minmax_query, bool annotation) {
 	clear();
 	init(false, (minmax_query ? ALL_OP : NO_MINMAX), annotation);

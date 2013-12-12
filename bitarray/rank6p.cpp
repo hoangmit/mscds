@@ -15,32 +15,37 @@ void Rank6pBuilder::build(const BitArray& b, Rank6p * o) {
 	assert(b.length() <= (1ULL << 50));
 	o->bits = b;
 	uint64_t nc = ((o->bits.length() + 2047) / 2048) * 2;
-	o->inv = BitArray::create(nc*64);
+	o->inv = BitArrayBuilder::create(nc*64);
 	o->inv.fillzero();
 
 	uint64_t cnt = 0;
 	uint64_t pos = 0;
 	uint64_t i = 0;
 	while (i < o->bits.word_count()) {
-		o->inv.word(pos) = cnt;
+		o->inv.setword(pos, cnt);
 		for (unsigned int k = 0; k < 4; k++)
 			cnt += popcnt(getwordz(o->bits, i+k));
 
 		uint64_t overflow = 0;
 		for(unsigned int j = 1;  j < 8; j++) {
 			uint64_t val = cnt - o->inv.word(pos);
-			o->inv.word(pos + 1) |= (val & 0x1FF) << 9 * (j - 1);
+			uint64_t v2 = o->inv.word(pos + 1);
+			v2 |= (val & 0x1FF) << 9 * (j - 1);
+			o->inv.setword(pos + 1, v2);
 			overflow |= ((val >> 9) & 3) << 2 * (j - 1);
 			for (unsigned int k = 0; k < 4; k++)
 				cnt += popcnt(getwordz(o->bits, i + j * 4 + k));
 		}
-		o->inv.word(pos) |= overflow << 50;
+		uint64_t v = o->inv.word(pos);
+		v |= overflow << 50;
+		o->inv.setword(pos, v);
 		i += 8*4; pos += 2;
 	}
 	o->onecnt = cnt;
 }
 
-void Rank6pBuilder::build(const BitArray &b, OArchive &ar) {
+/*
+void Rank6pBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.startclass("Rank6p", 1);
 	assert(b.length() <= (1ULL << 50));
 	ar.var("bit_len").save(b.length());
@@ -76,9 +81,9 @@ void Rank6pBuilder::build(const BitArray &b, OArchive &ar) {
 	bd.done();
 	ar.var("onecnt").save(cnt);
 	ar.endclass();
-}
+}*/
 
-void Rank6p::save_aux(OArchive &ar) const {
+void Rank6p::save_aux(OutArchive &ar) const {
 	ar.startclass("Rank6p_auxiliary", 1);
 	ar.var("bit_len").save(length());
 	ar.var("inventory");
@@ -87,7 +92,7 @@ void Rank6p::save_aux(OArchive &ar) const {
 	ar.endclass();
 }
 
-void Rank6p::load_aux(IArchive &ar, BitArray &b) {
+void Rank6p::load_aux(InpArchive &ar, BitArray &b) {
 	ar.loadclass("Rank6p_auxiliary");
 	size_t blen;
 	ar.var("bit_len").load(blen);
@@ -99,7 +104,7 @@ void Rank6p::load_aux(IArchive &ar, BitArray &b) {
 	ar.endclass();
 }
 
-void Rank6p::save(OArchive &ar) const {
+void Rank6p::save(OutArchive &ar) const {
 	ar.startclass("Rank6p", 1);       // declare a new data structure class (for error checking)
 	ar.var("bit_len").save(length()); // save integer variable
 	ar.var("inventory");              // declare the name of a sub-data-structure
@@ -109,7 +114,7 @@ void Rank6p::save(OArchive &ar) const {
 	ar.endclass();                    // end data structure class (for error checking)
 }
 
-void Rank6p::load(IArchive &ar) {
+void Rank6p::load(InpArchive &ar) {
 	ar.loadclass("Rank6p");
 	size_t blen;
 	ar.var("bit_len").load(blen);

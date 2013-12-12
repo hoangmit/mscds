@@ -3,22 +3,28 @@
 #ifndef __ARCHIVE_H_
 #define __ARCHIVE_H_
 
+#include "mem_models.h"
+
 #include <stdint.h>
 #include <string>
 #include <memory>
+#include <stdexcept>
+
 
 namespace mscds {
 
-struct ArchiveProp {
-	bool name_preserve;
-	bool save_only;
-	bool load_only;
-	bool special_object_service;
+struct ArchiveProperties {
+	bool writeable : 1 ; // out, save
+	bool readable : 1;  // in, load
+	bool direct_mem_api : 1;
+	bool window_mem_api : 1;
+	bool name_preserve : 1;
+
 	unsigned int ext1;
 	void * ext2;
 };
 
-class ioerror: public std::exception {
+class ioerror: public ::std::exception {
 public:
 	ioerror() {}
 	~ioerror() throw() {}
@@ -29,54 +35,84 @@ private:
 	std::string msg;
 };
 
-class OArchive {
+class OutArchive {
 public:
-	virtual ~OArchive() {}
-	virtual OArchive& var(const std::string&) { return * this; }
-	virtual OArchive& annotate(const std::string&) { return * this; }
-	virtual OArchive& startclass(const std::string&, unsigned char version=1) = 0;
-	virtual OArchive& endclass() = 0;
+	virtual ~OutArchive() {}
+	virtual OutArchive& var(const std::string&) { return * this; }
+	virtual OutArchive& var(const char*) { return *this; }
+	virtual OutArchive& annotate(const std::string&) { return * this; }
+
+	virtual OutArchive& startclass(const std::string&, unsigned char version = 1) { return *this;  };
+	virtual OutArchive& endclass() { return *this; };
 	
-	virtual OArchive& save(uint32_t v) { return save_bin(&v, sizeof(v)); }
-	virtual OArchive& save(int32_t v) { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(uint32_t v) { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(int32_t v)  { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(uint64_t v) { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(int64_t v)  { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
-	virtual OArchive& save(uint64_t v) { return save_bin(&v, sizeof(v)); }
-	virtual OArchive& save(int64_t v) { return save_bin(&v, sizeof(v)); }
+	//--------------------------------------------------------------------
+	virtual OutArchive& save_mem_region(const void* ptr, size_t size) {
+		start_mem_region(size); add_mem_region(ptr, size); return end_mem_region(); }
 
-	virtual OArchive& save_bin(const void* ptr, size_t size) = 0;
+	virtual OutArchive& save_mem(const StaticMemRegionAbstract& mem) {
+		start_mem_region(mem.size());
+		if (mem.size() > 0) {
+			if (mem.has_direct_access()) {
+				add_mem_region(mem.get_addr(), mem.size());
+			}
+			else
+			if (mem.has_page_access()) {
+				size_t p = 0, size = mem.size();
+				while (p < size) {
+					StaticMemRegionPtr::PagePtrInfo info = mem.request_page(p);
+					add_mem_region(info.start_addr, info.end_addr - info.start_addr);
+					mem.relase_page(info.pid);
+				}
+			}
+			else { throw memory_error("unknown access mode"); }
+		}
+		end_mem_region();
+		return *this;
+	}
+
+	virtual OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4) = 0;
+	virtual OutArchive& add_mem_region(const void* ptr, size_t size) = 0;
+	virtual OutArchive& end_mem_region() = 0;
+	
+	virtual void close() {}
+
 	virtual size_t opos() const = 0;
 	//virtual ArchiveProp properties() = 0;
 };
 
-typedef std::shared_ptr<void> SharedPtr;
-
-class IArchive {
+class InpArchive {
 public:
-	virtual ~IArchive() {}
-	virtual IArchive& var(const std::string&) { return * this; }
-	virtual IArchive& var(const char*) { return * this; }
-	virtual unsigned char loadclass(const std::string& name) = 0;
-	virtual IArchive& endclass() = 0;
+	virtual ~InpArchive() {}
+	virtual InpArchive& var(const std::string&) { return *this; }
+	virtual InpArchive& var(const char*) { return *this; }
+	virtual unsigned char loadclass(const std::string& name) { return 0; };
+	virtual InpArchive& endclass() { return *this; };
 
-	virtual IArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); }
-	virtual IArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); }
-
-	virtual IArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); }
-	virtual IArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); }
+	virtual InpArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); }
+	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); }
+	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); }
+	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); }
 	
-	virtual IArchive& load_bin(void* ptr, size_t size) = 0;
+	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 
-	virtual SharedPtr load_mem(int type, size_t size) = 0;
+	// BoundedMemRegion is defined in mem_models.h
+	virtual StaticMemRegionPtr load_mem_region() = 0;
 	
 	virtual size_t ipos() const = 0;
 	virtual bool eof() const = 0;
+	virtual void close() {}
 	//virtual ArchiveProp properties() = 0;
 };
 
-
 class SaveLoadInt {
-	virtual void save(OArchive& ar) const = 0;
-	virtual void load(IArchive& ar) = 0;
+	virtual void save(OutArchive& ar) const = 0;
+	virtual void load(InpArchive& ar) = 0;
 };
 
 

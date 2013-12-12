@@ -14,7 +14,7 @@ struct RankBMFix : public SharedFixtureItf {
 		}
 		size_t onepc = 5000;
 		size_t queries_cnt = 100000;
-		ba = BitArray::create(size);
+		ba = BitArrayBuilder::create(size);
 		for (int i = 0; i < size; ++i)
 			if (rand() % 10000 < onepc) ba.setbit(i, true);
 			else ba.setbit(i, false);
@@ -32,8 +32,8 @@ struct RankBMFix : public SharedFixtureItf {
 		Rank3pBuilder br3;
 		br3.build(ba, &r3);
 
-		RRRBuilder brr;
-		brr.build(ba, &rr);
+		RRRBuilder brrr;
+		brrr.build(ba, &rr);
 	}
 
 	void TearDown() {
@@ -95,7 +95,7 @@ BENCHMARK_SET(rank_benchmark) {
 	bm.add("rank25", rankbm_rank25, 15);
 	bm.add("rank6", rankbm_rank6, 15);
 	bm.add("rank3", rankbm_rank3, 15);
-	bm.add("rankrr", rankbm_rankrr, 15);
+	bm.add("rankrrr", rankbm_rankrr, 15);
 	bm.run_all();
 	bm.report(0);
 }

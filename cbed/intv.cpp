@@ -41,7 +41,9 @@ void IntvLstBuilder::build(IntvLst *out) {
 	}
 	bd.build(&(out->pos));
 	markout.close();
-	mscds::Rank6pBuilder::build(mscds::BitArray::create(markout.data_ptr(), markout.length()), &(out->marks));
+	mscds::BitArray bx;
+	markout.build(&bx);
+	mscds::Rank6pBuilder::build(bx, &(out->marks));
 	///
 	std::sort(lst.begin(), lst.end(), [](const PosData& a, const PosData& b)->bool{
 		if (a.id != b.id) return a.id < b.id;

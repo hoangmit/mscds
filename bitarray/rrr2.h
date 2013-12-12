@@ -1,23 +1,24 @@
 #pragma once
 
-#ifndef __RRR_H_
-#define __RRR_H_
+#ifndef __RRR2_H_
+#define __RRR2_H_
 
 #include "bitarray.h"
 #include "framework/archive.h"
 #include "rankselect.h"
-
 #include <cstdint>
 #include <string>
 
+
+
 namespace mscds {
 
-class RRRBuilder;
-class RRRHintSel;
+class RRR2Builder;
+class RRR2HintSel;
 
-class RRR : public RankSelect {
+class RRR2 : public RankSelect {
 private:
-    BitArray E, R, S, sumR, posS;
+    BitArray R, S, sumR, posS, combination;
 	uint64_t onecnt, len;
 public:
 	uint64_t rank(uint64_t p) const;
@@ -25,7 +26,7 @@ public:
 	uint64_t select(uint64_t r) const;
 	uint64_t selectzero(uint64_t r) const;
 	uint64_t one_count() const { return onecnt; }
-	uint64_t length() const { /*return bits.length();*/ return len; }
+	uint64_t length() const { return len; }
 	bool access(uint64_t pos) const { return (rank(pos+1) - rank(pos))==1; }
 	void clear();
 	
@@ -37,32 +38,34 @@ public:
 
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
-
-	typedef RRRBuilder BuilderTp;
+	//const BitArray& getBitArray() const { return bits; }
+	typedef RRR2Builder BuilderTp;
 private:
     uint64_t partialsum(uint64_t block) const;
     uint64_t positionS(uint64_t block) const;
+    uint64_t decode(uint64_t offset, unsigned int k) const;
 
-	friend class RRRBuilder;
-	friend class RRRHintSel;
+	friend class RRR2Builder;
+	friend class RRR2HintSel;
 	friend struct BlockIntIterator;
 };
 
-class RRRBuilder {
+class RRR2Builder {
 public:
-	static void build(const BitArray& b, RRR * o);
+    static uint64_t encode(uint64_t w, unsigned int k, const BitArray& combination);
+	static void build(const BitArray& b, RRR2 * o);
 	static void build(const BitArray& b, OutArchive& ar);
-	typedef RRR QueryTp;
+	typedef RRR2 QueryTp;
 private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);
 };
 
 
-class RRRHintSel {
-	RRR rankst;
+class RRR2HintSel {
+	RRR2 rankst;
 	FixedWArray hints;
 public:
-	void init(RRR& r);
+	void init(RRR2& r);
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;
@@ -77,4 +80,4 @@ private:
 }
 
 
-#endif //__RRR_H_
+#endif //__RRR2_H_

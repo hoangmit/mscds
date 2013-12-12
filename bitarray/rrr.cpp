@@ -19,7 +19,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
 	assert(b.length() <= (1ULL << 50));
 
     //--------------------Building table E-----------------------------
-    o->E = BitArray::create(524288); //16 * 2^15
+	o->E = BitArrayBuilder::create(524288); //16 * 2^15
     uint64_t idxE = 0, curr_offset;
     unsigned int offset[32768];
     bool selector[15];
@@ -50,7 +50,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
     //---------------------Building tables R and S---------------------------
     unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
     uint64_t num_of_blocks = b.length() % 15 == 0 ? b.length() / 15 : b.length() / 15 + 1;
-    o->R = BitArray::create(4 * num_of_blocks);
+	o->R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0;
     unsigned int step, curr_word, curr_popcnt;
@@ -73,14 +73,14 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
 
     //save o->S
     SBitStream.close();
-    o->S = BitArray::create(SBitStream.data_ptr(), SBitStream.length());
+	SBitStream.build(&o->S);
 
     if (o->onecnt == 0)
         return;
 
     //----------------------Building sumR and posS------------------------
     unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceil(log10(o->onecnt) / 0.3010299957);
-    o->sumR = BitArray::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
+    o->sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
     for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < o->sumR.length(); idxR += 4) {
@@ -91,7 +91,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
     }
 
     unsigned int bits_per_posS = ceil(log10(o->S.length()) / 0.3010299957);
-    o->posS = BitArray::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
+	o->posS = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
     for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_posS) < o->posS.length(); idxR += 4) {
@@ -104,13 +104,13 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
 
 }
 
-void RRRBuilder::build(const BitArray &b, OArchive &ar) {
+void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.startclass("RRR", 1);
 	assert(b.length() <= (1ULL << 50));
 	ar.var("inventory");
 
     //--------------------Building table E-----------------------------
-    BitArray E = BitArray::create(524288); //16 * 2^15
+	BitArray E = BitArrayBuilder::create(524288); //16 * 2^15
     uint64_t idxE = 0, curr_offset;
     unsigned int offset[32768];
     bool selector[15];
@@ -141,7 +141,7 @@ void RRRBuilder::build(const BitArray &b, OArchive &ar) {
     //---------------------Building tables R and S---------------------------
     unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
     uint64_t num_of_blocks = b.length() % 15 == 0 ? b.length() / 15 : b.length() / 15 + 1;
-    BitArray R = BitArray::create(4 * num_of_blocks);
+	BitArray R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0;
     unsigned int step, curr_word, curr_popcnt;
@@ -164,14 +164,15 @@ void RRRBuilder::build(const BitArray &b, OArchive &ar) {
 
     //save o->S
     SBitStream.close();
-    BitArray S = BitArray::create(SBitStream.data_ptr(), SBitStream.length());
+	BitArray S;
+	SBitStream.build(&S);
 
     if (onecnt == 0)
         return;
 
     //----------------------Building sumR and posS------------------------
     unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
-    BitArray sumR = BitArray::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
+	BitArray sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
     for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < sumR.length(); idxR += 4) {
@@ -182,7 +183,7 @@ void RRRBuilder::build(const BitArray &b, OArchive &ar) {
     }
 
     unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957);
-    BitArray posS = BitArray::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
+	BitArray posS = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
     for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_posS) < posS.length(); idxR += 4) {
@@ -203,7 +204,7 @@ void RRRBuilder::build(const BitArray &b, OArchive &ar) {
 
 }
 
-void RRR::savep(OArchive &ar) const {
+void RRR::savep(OutArchive &ar) const {
 	ar.startclass("RRR_rankonly", 1);
 	ar.var("bit_len").save(length());
 	E.save(ar.var("E"));
@@ -216,7 +217,7 @@ void RRR::savep(OArchive &ar) const {
 	ar.endclass();
 }
 
-void RRR::loadp(IArchive &ar, BitArray &b) {
+void RRR::loadp(InpArchive &ar, BitArray &b) {
 	ar.loadclass("RRR_rankonly");
 	size_t blen;
 	ar.var("bit_len").load(blen);
@@ -233,7 +234,7 @@ void RRR::loadp(IArchive &ar, BitArray &b) {
 	ar.endclass();
 }
 
-void RRR::save(OArchive &ar) const {
+void RRR::save(OutArchive &ar) const {
 	ar.startclass("RRR", 1);
 	ar.var("bit_len").save(length());
 	E.save(ar.var("E"));
@@ -247,7 +248,7 @@ void RRR::save(OArchive &ar) const {
 	ar.endclass();
 }
 
-void RRR::load(IArchive &ar) {
+void RRR::load(InpArchive &ar) {
 	ar.loadclass("RRR");
 	size_t blen;
 	ar.var("bit_len").load(blen);

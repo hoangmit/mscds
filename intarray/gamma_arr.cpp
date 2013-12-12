@@ -5,19 +5,18 @@
 namespace mscds {
 
 void GammaArrayBuilder::add(uint64_t val) {
-	coder::GammaCoder gc;
-	auto c = gc.encode_raw(val + 1);
+	auto c = coder::GammaCoder::encode_raw(val + 1);
 	upper.add(c.second);
 	lower.puts(c.first, c.second);
 }
 
 void GammaArrayBuilder::build(GammaArray * out) {
 	lower.close();
-	upper.build(&(out->upper));
-	out->lower = BitArray::create(lower.data_ptr(), lower.length());
+	upper.build(&out->upper);
+	lower.build(&out->lower);
 }
 
-void GammaArrayBuilder::build(OArchive& ar) {
+void GammaArrayBuilder::build(OutArchive& ar) {
 	GammaArray temp;
 	build(&temp);
 	temp.save(ar);
@@ -30,14 +29,14 @@ uint64_t GammaArray::lookup(uint64_t p) const {
 	return (val | (1ULL << len)) - 1;
 }
 
-void GammaArray::save(OArchive& ar) const {
+void GammaArray::save(OutArchive& ar) const {
 	ar.startclass("gamma_code", 1);
 	upper.save(ar.var("upper"));
 	lower.save(ar.var("lower"));
 	ar.endclass();
 }
 
-void GammaArray::load(IArchive& ar) {
+void GammaArray::load(InpArchive& ar) {
 	ar.loadclass("gamma_code");
 	upper.load(ar.var("upper"));
 	lower.load(ar.var("lower"));

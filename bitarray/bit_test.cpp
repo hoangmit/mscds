@@ -11,24 +11,23 @@ using namespace mscds;
 
 void test_bitarr1(int len = 2048) {
 	vector<bool> v(len);
-	BitArray b = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
 	for (int i = 0; i < v.size(); ++i) {
 		v[i] = (rand() % 2) == 1;
 		b.setbit(i, v[i]);
 	}
 	for (int i = 0; i < v.size(); ++i) { 
-		ASSERT(v[i] == b[i]);
+		ASSERT_EQ(v[i], b[i]);
 	}
 	for (int i = 0; i < v.size() / 8; i++) {
-		ASSERT(b.bits(i*8,8) == b.byte(i));
+		ASSERT_EQ(b.bits(i*8,8), b.byte(i));
 	}
-	cout << "." ;
 }
 
 void test_bitarr2(int len = 2048) {
 	vector<bool> v(len);
-	BitArray b = BitArray::create(len);
-	BitArray c = BitArray::create(len);
+	BitArray b = BitArrayBuilder::create(len);
+	BitArray c = BitArrayBuilder::create(len);
 	for (int i = 0; i < v.size(); ++i) {
 		v[i] = (rand() % 2) == 1;
 		b.setbit(i, v[i]);
@@ -73,7 +72,8 @@ void test_obitstream(int len = 2048) {
 		}
 	}
 	os.close();
-	BitArray b = BitArray::create(os.data_ptr(), len);
+	BitArray b;
+	os.build(&b);
 	for (int i = 0; i < len; ++i) {
 		if (v[i] != b[i]) {
 			cout << v[i] << " " << b[i] << endl;
@@ -89,10 +89,12 @@ void test_ibitstream(int len, int idx) {
 		if (rand() % 2 == 1) { os.put1(); debug.append("1"); }
 		else { os.put0();  debug.append("0"); }
 	os.close();
-	BitArray b = BitArray::create(os.data_ptr(), len);
-	IWBitStream is(os.data_ptr(), len, 0);
+	BitArray b;
 	string s = os.to_str();
 	ASSERT_EQ(debug, s);
+	IWBitStream is(os);
+	os.build(&b);
+	
 	int bl = len;
 	int pos = 0, j = 0;
 	while (pos < len) {
@@ -104,27 +106,41 @@ void test_ibitstream(int len, int idx) {
 		pos += rl;
 		j++;
 	}
-	size_t x = is.current_ptr() - os.data_ptr();
-	ASSERT_EQ(x, os.word_count());
+	ASSERT_EQ(true, is.empty());
+	//size_t x = is.current_ptr() - os.data_ptr();
+	//ASSERT_EQ(x, os.word_count());
 	is.close();
 }
 
-TEST(bit_all, bittest) {
-	for (int i = 0; i < 500; i++)
-		test_ibitstream(2048 + rand() % 64, i);
 
-	for (int i = 0; i < 500; i++)
-		test_obitstream(1024 + rand() % 64);
-
-	for (int i = 0; i < 1000; i++)
-		test_bitarr1(1024 + rand() % 256);
-	for (int i = 0; i < 100; i++)
-		test_bitarr2(512 + rand() % 256);
+TEST(bitstream, inp) {
+	for (int i = 0; i < 1000; i++) {
+		test_ibitstream(2044 + rand() % 64, i);
+		if (i % 100 == 0) cout << '.';
+	}
+	cout << endl;
 }
 
-/*
-int main() {
-	test_bit_all();
-	return 0;
+TEST(bitstream, bitarray) {
+	for (int i = 0; i < 1000; i++) {
+		test_bitarr1(1022 + rand() % 256);
+		if (i % 100 == 0) cout << '.';
+	}
+	for (int i = 0; i < 100; i++) {
+		test_bitarr2(510 + rand() % 256);
+		if (i % 100 == 0) cout << '.';
+	}
+	cout << endl;
 }
-*/
+
+
+TEST(bitstream, out) {
+	for (int i = 0; i < 500; i++) {
+		test_obitstream(1022 + rand() % 64);
+		if (i % 100 == 0) cout << '.';
+	}
+	cout << endl;
+}
+
+
+//TESTALL_MAIN();

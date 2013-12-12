@@ -18,7 +18,7 @@ public:
 	void add_inc(uint64_t pos);
 
 	void build(SDArraySml* out);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void clear();
 
 	static const uint64_t BLKSIZE;
@@ -49,8 +49,8 @@ public:
 	std::string to_str(bool psum) const;
 	void dump_text(std::ostream& fo) const;
 	void clear();
-	void save(OArchive& ar) const;
-	void load(IArchive& ar);
+	void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
 	uint64_t total() const { return sum; }
 	typedef SDArraySmlBuilder BuilderTp;
 
@@ -128,7 +128,7 @@ public:
 	void add_inc(uint64_t pos) { assert(pos >= last); vals.push_back(pos); last = pos; }
 	void clear() { vals.clear(); last = 0; }
 	void build(SDRankSelectSml* out);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 private:
 	std::vector<uint64_t> vals;
 	uint64_t last;
@@ -156,8 +156,8 @@ public:
 	// gap between p-th position of one and (p-1)-th position 
 	const SDArraySml& sdarray() const { return qs; }
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
 	void clear() { qs.clear(); rankhints.clear(); }
 	std::string to_str() const;
@@ -195,7 +195,7 @@ private:
 	FixedWArray rankhints;
 };
 
-inline void SDRankSelectBuilderSml::build(OArchive& ar) { SDRankSelectSml a; a.save(ar); }
+inline void SDRankSelectBuilderSml::build(OutArchive& ar) { SDRankSelectSml a; a.save(ar); }
 
 inline void SDRankSelectBuilderSml::build(SDRankSelectSml* out) { out->build(vals);};
 

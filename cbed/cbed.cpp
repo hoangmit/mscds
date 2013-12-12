@@ -124,7 +124,7 @@ void BEDChrQuery::load(mscds::IArchive &ar) {
 	ar.endclass();
 }
 
-void BEDChrQuery::save(mscds::OArchive& ar) const {
+void BEDChrQuery::save(mscds::OutArchive& ar) const {
 	ar.startclass("BEDChrQuery");
 	save_str(ar.var("chr_name"), name);
 	pos.save(ar.var("positions"));

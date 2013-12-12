@@ -56,8 +56,8 @@ public:
 	uint64_t min_excess_pos_slow(uint64_t l, uint64_t r) const;
 
 	void clear();
-	OArchive& save(OArchive& ar) const { return ar;}
-	IArchive& load(IArchive& ar) { return ar;}
+	OutArchive& save(OutArchive& ar) const { return ar;}
+	InpArchive& load(InpArchive& ar) { return ar;}
 
 };
 
@@ -104,8 +104,8 @@ public:
 	uint64_t rr_enclose(uint64_t i, uint64_t j) const;
 	uint64_t min_excess_pos(uint64_t l, uint64_t r) const;
 
-	OArchive& save(OArchive& ar) const;
-	IArchive& load(IArchive& ar);
+	OutArchive& save(OutArchive& ar) const;
+	InpArchive& load(InpArchive& ar);
 };
 
 

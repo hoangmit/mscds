@@ -57,7 +57,7 @@ public:
 	/*
    * Build an index. This build should be called before prefixSum(), prefixSumLookup(), and find().
    */
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void build(SDArrayQuery * out);
 	void clear();
 private:
@@ -103,8 +103,8 @@ public:
 	size_t length() const;
 	uint64_t total() const { return sum_; }
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	void clear();
 
 	void dump_text(std::ostream& fo) const; /* len, then numbers */
@@ -140,7 +140,7 @@ public:
 	void add_inc(uint64_t v) {  assert(v >= last); vals.push_back(v); last = v; }
 	void clear() { vals.clear(); }
 	void build(SDRankSelect* out);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 private:
 	std::vector<uint64_t> vals;
 	uint64_t last;
@@ -160,8 +160,8 @@ public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
 	void clear() { qs.clear(); rankhints.clear(); }
 	std::string to_str() const;
@@ -172,7 +172,7 @@ private:
 	FixedWArray rankhints;
 };
 
-inline void SDRankSelectBuilder::build(OArchive& ar) { SDRankSelect a; a.save(ar); }
+inline void SDRankSelectBuilder::build(OutArchive& ar) { SDRankSelect a; a.save(ar); }
 inline void SDRankSelectBuilder::build(SDRankSelect* out) { out->build(vals);};
 
 }//namespace

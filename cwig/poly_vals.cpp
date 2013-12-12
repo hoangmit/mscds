@@ -225,7 +225,7 @@ uint64_t PRValArr::access(size_t p) const {
 	}
 }
 
-void PRValArr::save(mscds::OArchive& ar) const {
+void PRValArr::save(mscds::OutArchive& ar) const {
 	ar.startclass("polymorphic_array", 1);
 	ar.var("length").save(len);
 	ar.var("method").save(storetype);
@@ -253,7 +253,7 @@ void PRValArr::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void PRValArr::load(mscds::IArchive& ar) {
+void PRValArr::load(mscds::InpArchive& ar) {
 	ar.loadclass("polymorphic_array");
 	ar.var("length").load(len);
 	ar.var("method").load(storetype);

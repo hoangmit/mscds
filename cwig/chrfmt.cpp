@@ -30,7 +30,7 @@ void ChrNumDataBuilder::add(unsigned int st, unsigned int ed, double val, const 
 		annbd.add(s);
 }
 
-void ChrNumDataBuilder::build(mscds::OArchive& ar) {
+void ChrNumDataBuilder::build(mscds::OutArchive& ar) {
 	ChrNumData t;
 	build(&t);
 	t.save(ar);
@@ -79,7 +79,7 @@ void ChrNumData::clear() {
 	name.clear();
 }
 
-void ChrNumData::load(mscds::IArchive& ar) {
+void ChrNumData::load(mscds::InpArchive& ar) {
 	clear();
 	ar.loadclass("chromosome_number_thread");
 	name = load_str(ar.var("chr_name"));
@@ -97,7 +97,7 @@ void ChrNumData::load(mscds::IArchive& ar) {
 	ar.endclass();
 }
 
-void ChrNumData::save(mscds::OArchive& ar) const {
+void ChrNumData::save(mscds::OutArchive& ar) const {
 	ar.startclass("chromosome_number_thread", 1);
 	save_str(ar.var("chr_name"), name);
 	uint32_t o = minmax_opt;

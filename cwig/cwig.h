@@ -32,8 +32,8 @@ public:
 	void add(unsigned int st, unsigned int ed, double d, const std::string& annotation = "");
 	void add(const std::string& bed_line);
 	void build(GenomeNumData* data);
-	void build(mscds::OArchive& ar);
-	void build_bedgraph(std::istream& fi, mscds::OArchive& ar,
+	void build(mscds::OutArchive& ar);
+	void build_bedgraph(std::istream& fi, mscds::OutArchive& ar,
 		 bool minmax_query = true, bool annotation = false);
 	/**
 	  * \brief converts the BED graph file into our format
@@ -75,7 +75,7 @@ public:
 	/** \brief loads the data structure from file */
 	void load(const std::string& input);
 
-	void load(mscds::IArchive& ar);
+	void load(mscds::InpArchive& ar);
 
 	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const { return nchr; }
@@ -84,7 +84,7 @@ public:
 	    returns -1 otherwise */
 	int getChrId(const std::string& chrname) const;
 
-	void save(mscds::OArchive& ar) const;
+	void save(mscds::OutArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo);
 
 	/** \brief writes the current data into bedgraph format */

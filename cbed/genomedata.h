@@ -55,7 +55,7 @@ public:
 	//adapter
 	void add(const std::string& line);
 	void build(GenomeData* data);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 
 	void clear() { bdlst.clear(); numchr = 0; lastchr.clear(); meta.clear(); empty_chrom = true;  }
 private:
@@ -96,11 +96,11 @@ public:
 	void build(GenomeData* data) { //<ChrData>
 		base.build(data);
 	}
-	void build(mscds::OArchive& ar) {
+	void build(mscds::OutArchive& ar) {
 		base.build(ar);
 	}
 
-	void build_file(std::istream& fi, mscds::OArchive& ar, Config* conf = NULL);
+	void build_file(std::istream& fi, mscds::OutArchive& ar, Config* conf = NULL);
 	void build_file(const std::string& input, const std::string& output, Config* conf = NULL);
 private:
 	typedef std::deque<DataEntryTp> RangeListTp;
@@ -128,7 +128,7 @@ public:
 	/** \brief loads the data structure from file */
 	void load(const std::string& inputfile);
 
-	void load(mscds::IArchive& ar);
+	void load(mscds::InpArchive& ar);
 
 	/** \brief returns the number of chromosomes */
 	unsigned int chromosome_count() const { return nchr; }
@@ -137,7 +137,7 @@ public:
 	    returns -1 otherwise */
 	int getChrId(const std::string& chrname) const;
 
-	void save(mscds::OArchive& ar) const;
+	void save(mscds::OutArchive& ar) const;
 	void dump_file(std::ostream& fo);
 
 	/** \brief writes the current data into bedgraph format */

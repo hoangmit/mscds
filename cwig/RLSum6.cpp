@@ -38,7 +38,7 @@ void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	clear();
 }
 
-void RunLenSumArrayBuilder6::build(OArchive& ar) {
+void RunLenSumArrayBuilder6::build(OutArchive& ar) {
 	RunLenSumArray6 a;
 	build(&a);
 	a.save(ar);
@@ -46,14 +46,14 @@ void RunLenSumArrayBuilder6::build(OArchive& ar) {
 
 //-----------------------------------------------------------------------------
 
-void RunLenSumArray6::save(OArchive& ar) const {
+void RunLenSumArray6::save(OutArchive& ar) const {
 	ar.startclass("run_length_sum_array6", 1);
 	itv.save(ar.var("intervals"));
 	vals.save(ar.var("vals"));
 	ar.endclass();
 }
 
-void RunLenSumArray6::load(IArchive& ar) {
+void RunLenSumArray6::load(InpArchive& ar) {
 	clear();
 	ar.loadclass("run_length_sum_array6");
 	itv.load(ar.var("intervals"));

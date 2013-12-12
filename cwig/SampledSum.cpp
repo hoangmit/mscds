@@ -53,7 +53,7 @@ void SampledSumBuilder::add(unsigned int st, unsigned int ed, double val) {
 	lastst = st;
 }
 
-void SampledSumBuilder::build(mscds::OArchive& ar) {
+void SampledSumBuilder::build(mscds::OutArchive& ar) {
 	SampledSumQuery a;
 	build(&a, NULL);
 	a.save(ar);
@@ -217,7 +217,7 @@ double SampledSumQuery::sqrSum(unsigned int idx, unsigned int lefpos) const {
 	return sqrps / (fx*fx);
 }
 
-void SampledSumQuery::save(mscds::OArchive& ar) const {
+void SampledSumQuery::save(mscds::OutArchive& ar) const {
 	ar.startclass("sampledsum");
 	ar.var("int_method_type").save(method);
 	ar.var("rate").save(rate);
@@ -234,7 +234,7 @@ void SampledSumQuery::save(mscds::OArchive& ar) const {
 	ar.endclass();
 }
 
-void SampledSumQuery::load(mscds::IArchive& ar, NIntvQueryInt * posquery) {
+void SampledSumQuery::load(mscds::InpArchive& ar, NIntvQueryInt * posquery) {
 	this->pq = posquery;
 	ar.loadclass("sampledsum");
 	ar.var("int_method_type").load(method);

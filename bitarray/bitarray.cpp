@@ -7,11 +7,15 @@ namespace mscds {
 
 
 void BitArray::fillzero() {
-	std::fill(data, data + word_count(), 0ull);
+	//std::fill(data, data + word_count(), 0ull);
+	size_t wc = word_count();
+	for (size_t i = 0; i < wc; ++i) data.setword(i, 0ull);
 }
 
 void BitArray::fillone() {
-	std::fill(data, data + word_count(), ~0ull);
+	//std::fill(data, data + word_count(), ~0ull);
+	size_t wc = word_count();
+	for (size_t i = 0; i < wc; ++i) data.setword(i, ~0ull);
 }
 
 uint64_t BitArray::count_one() const {
@@ -25,27 +29,26 @@ uint64_t BitArray::count_one() const {
 	return ret;
 }
 
-IArchive& BitArray::load_nocls(IArchive& ar) {
+InpArchive& BitArray::load_nocls(InpArchive& ar) {
 	ar.var("bit_len").load(bitlen);
-	ptr = ar.var("bits").load_mem(0, sizeof(uint64_t) * word_count());
-	data = (uint64_t*) ptr.get();
+	if (bitlen > 0) data = ar.load_mem_region();
 	return ar;
 }
 
-IArchive& BitArray::load(IArchive& ar) {
+InpArchive& BitArray::load(InpArchive& ar) {
 	ar.loadclass("Bitvector");
 	load_nocls(ar);
 	ar.endclass();
 	return ar;
 }
 
-OArchive& BitArray::save_nocls(OArchive& ar) const {
+OutArchive& BitArray::save_nocls(OutArchive& ar) const {
 	ar.var("bit_len").save(bitlen);
-	ar.var("bits").save_bin(data, sizeof(uint64_t) * word_count());
+	if (bitlen > 0) ar.var("bits").save_mem(data);
 	return ar;
 }
 
-OArchive& BitArray::save(OArchive& ar) const {
+OutArchive& BitArray::save(OutArchive& ar) const {
 	ar.startclass("Bitvector", 1);
 	save_nocls(ar);
 	ar.endclass();
@@ -61,20 +64,15 @@ std::string BitArray::to_str() const {
 	return s;
 }
 
-uint8_t BitArray::byte(size_t pos) const {
-	assert(pos*8 < bitlen);
-	return ((const uint8_t*) data)[pos];
-}
-
 //------------------------------------------------------------------------------
-IArchive& FixedWArray::load(IArchive& ar) {
+InpArchive& FixedWArray::load(InpArchive& ar) {
 	ar.loadclass("FixedWArray");
 	ar.var("bitwidth").load(width);
 	b.load_nocls(ar);
 	ar.endclass();
 	return ar;
 }
-OArchive& FixedWArray::save(OArchive& ar) const {
+OutArchive& FixedWArray::save(OutArchive& ar) const {
 	ar.startclass("FixedWArray", 1);
 	ar.var("bitwidth").save(width);
 	b.save_nocls(ar);
@@ -92,7 +90,8 @@ std::string FixedWArray::to_str() const {
 	return ss.str();
 }
 
-BitArraySeqBuilder::BitArraySeqBuilder(size_t wordlen, OArchive &_ar): ar(_ar), pos(0) {
+/*
+BitArraySeqBuilder::BitArraySeqBuilder(size_t wordlen, OutArchive &_ar): ar(_ar), pos(0) {
 	ar.startclass("Bitvector", 1);
 	ar.var("bit_len").save(wordlen * 64);
 	wl = wordlen;
@@ -106,7 +105,7 @@ void BitArraySeqBuilder::addword(uint64_t v) {
 void BitArraySeqBuilder::done() {
 	ar.endclass();
 	assert(wl == pos);
-}
+}*/
 
 FixedWArray FixedWArray::build(const std::vector<unsigned int> &values) {
 	unsigned int max_val = *max_element(values.begin(), values.end());

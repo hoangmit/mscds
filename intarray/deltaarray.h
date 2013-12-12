@@ -21,7 +21,7 @@ public:
 	/* parameters: SAMPLE_RATE = 32 */
 	void init(const Config* conf = NULL);
 	void add(uint64_t val);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void build(DeltaCodeArr * out);
 	void clear();
 	typedef DeltaCodeArr QueryTp;
@@ -38,8 +38,8 @@ public:
 	uint64_t operator[](uint64_t pos) const { return lookup(pos); }
 	uint64_t length() const { return len; }
 	
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	void clear();
 	typedef DeltaCodeArrBuilder BuilderTp;
 

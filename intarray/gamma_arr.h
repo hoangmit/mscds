@@ -13,7 +13,7 @@ public:
 	void init(const Config* conf = NULL) {}
 	void add(uint64_t val);
 	void build(GammaArray * out);
-	void build(OArchive& ar);
+	void build(OutArchive& ar);
 	void clear() { upper.clear(); lower.clear(); }
 	typedef GammaArray QueryTp;
 private:
@@ -24,8 +24,8 @@ private:
 class GammaArray {
 public:
 	uint64_t lookup(uint64_t p) const;
-	void save(OArchive& ar) const;
-	void load(IArchive& ar);
+	void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
 	void clear();
 	uint64_t length() const;
 	typedef GammaArrayBuilder BuilderTp;

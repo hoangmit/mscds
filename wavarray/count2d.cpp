@@ -49,13 +49,13 @@ void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
 	bd.build(wlst, &out->wq);
 }
 
-void Count2DBuilder::build(std::vector<Point>& list, OArchive& ar) {
+void Count2DBuilder::build(std::vector<Point>& list, OutArchive& ar) {
 	Count2DQuery out;
 	build(list, &out);
 	out.save(ar);
 }
 
-void Count2DQuery::save(OArchive& ar) const {
+void Count2DQuery::save(OutArchive& ar) const {
 	ar.startclass("count2d", 1);
 	ar.var("max_x").save(max_x);
 	ar.var("max_y").save(max_y);
@@ -67,7 +67,7 @@ void Count2DQuery::save(OArchive& ar) const {
 }
 
 
-void Count2DQuery::load(IArchive& ar) {
+void Count2DQuery::load(InpArchive& ar) {
 	clear();
 	ar.loadclass("count2d");
 	ar.var("max_x").load(max_x);

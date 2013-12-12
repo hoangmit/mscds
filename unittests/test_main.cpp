@@ -5,14 +5,13 @@
 
 int main(int argc, char* argv[]) {
 
-	BenchmarkRegister::run_all();
-	return 0;
-	//::testing::GTEST_FLAG(filter) = "";
+	//::testing::GTEST_FLAG(filter) = "BP_tree.ran*";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
+	return rs;
 
-
-	
+	BenchmarkRegister::run_all();
+	//return 0;
 
 	return rs;
 }

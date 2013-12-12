@@ -23,7 +23,7 @@ public:
 	ChrNumDataBuilder();
 	void init(minmaxop_t option=NO_MINMAX, bool range_annotations = false);
 	void add(unsigned int st, unsigned int ed, double val, const std::string& s = "");
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void build(ChrNumData* out);
 private:
 	std::deque<ValRange> ranges;
@@ -94,8 +94,8 @@ public:
 	std::vector<double> base_value_map(unsigned int st, unsigned int ed) const;
 
 	void clear();
-	void load(mscds::IArchive& ar);
-	void save(mscds::OArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void save(mscds::OutArchive& ar) const;
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 

@@ -36,13 +36,13 @@ void SDArraySmlBuilder::build(SDArraySml* out) {
 	bits.close();
 	out->len = cnt;
 	out->sum = p_sum;
-	out->bits = BitArray::create(bits.data_ptr(), bits.length());
-	out->table = BitArray::create(table.data(), table.size()*64);
+	bits.build(&out->bits);
+	out->table = BitArrayBuilder::create(table.size() * 64, (char*) (table.data()));
 	cnt = 0;
 	p_sum = 0;
 }
 
-void SDArraySmlBuilder::build(OArchive& ar) {
+void SDArraySmlBuilder::build(OutArchive& ar) {
 	SDArraySml sda;
 	build(&sda);
 	sda.save(ar);
@@ -417,7 +417,7 @@ void SDArraySml::clear() {
 	#endif
 }
 
-void SDArraySml::save(OArchive& ar) const {
+void SDArraySml::save(OutArchive& ar) const {
 	ar.startclass("SDArraySml", 1);
 	ar.var("length").save(len);
 	ar.var("sum").save(sum);
@@ -426,7 +426,7 @@ void SDArraySml::save(OArchive& ar) const {
 	ar.endclass();
 }
 
-void SDArraySml::load(IArchive& ar) {
+void SDArraySml::load(InpArchive& ar) {
 	ar.loadclass("SDArraySml");
 	ar.var("length").load(len);
 	ar.var("sum").load(sum);
@@ -570,7 +570,7 @@ uint64_t SDRankSelectSml::rank(uint64_t p) const {
 	else return k - 1;
 }
 
-void SDRankSelectSml::load(IArchive& ar) {
+void SDRankSelectSml::load(InpArchive& ar) {
 	ar.loadclass("sd_rank_select_sml");
 	qs.load(ar);
 	ar.load(ranklrate);
@@ -578,7 +578,7 @@ void SDRankSelectSml::load(IArchive& ar) {
 	ar.endclass();
 }
 
-void SDRankSelectSml::save(OArchive& ar) const {
+void SDRankSelectSml::save(OutArchive& ar) const {
 	ar.startclass("sd_rank_select_sml", 1);
 	qs.save(ar.var("sdarray"));
 	ar.var("log_sample_rate").save(ranklrate);

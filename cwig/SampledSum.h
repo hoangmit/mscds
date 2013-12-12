@@ -20,7 +20,7 @@ public:
 	void add(unsigned int st, unsigned int ed, double val);
 	void add_all(std::deque<ValRange>* vals);
 	void build(SampledSumQuery * out, NIntvQueryInt * posquery);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void clear();
 private:
 
@@ -74,8 +74,8 @@ public:
 	 
 	double sqrSum(unsigned int idx, unsigned int lefpos = 0) const;
 	
-	void load(mscds::IArchive& ar, NIntvQueryInt * posquery);
-	void save(mscds::OArchive& ar) const;
+	void load(mscds::InpArchive& ar, NIntvQueryInt * posquery);
+	void save(mscds::OutArchive& ar) const;
 	void clear();
 private:
 	NIntvQueryInt * pq;

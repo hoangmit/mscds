@@ -22,20 +22,20 @@ void RankValArrBuilder::build(RankValArr* out) {
 	vals.clear();
 }
 
-void RankValArrBuilder::build(mscds::OArchive& ar) {
+void RankValArrBuilder::build(mscds::OutArchive& ar) {
 	RankValArr out;
 	build(&out);
 	out.save(ar);
 }
 
-void RankValArr::save(mscds::OArchive& ar) const {
+void RankValArr::save(mscds::OutArchive& ar) const {
 	ar.startclass("rank_array_values", 1);
 	rankv.save(ar.var("rank_values"));
 	vals.save(ar.var("value_list"));
 	ar.endclass();
 }
 
-void RankValArr::load(mscds::IArchive& ar) {
+void RankValArr::load(mscds::InpArchive& ar) {
 	ar.loadclass("rank_array_values");
 	rankv.load(ar.var("rank_values"));
 	vals.load(ar.var("value_list"));

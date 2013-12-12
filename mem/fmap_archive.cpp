@@ -1,4 +1,9 @@
-#include "fmaparchive.h"
+#include "fmap_archive.h"
+
+#define BOOST_DATE_TIME_NO_LIB
+#include <boost/interprocess/file_mapping.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+
 
 #include <stdexcept>
 #include <cstdio>
@@ -6,9 +11,8 @@
 #include <fstream>
 #include <memory>
 
-#define BOOST_DATE_TIME_NO_LIB
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
+#include "impl/file_marker.h"
+#include "local_mem.h"
 
 namespace mscds {
 
@@ -52,22 +56,18 @@ unsigned char IFileMapArchive::loadclass(const std::string &name) {
 	return v >> 24;
 }
 
-IArchive &IFileMapArchive::load_bin(void *ptr, size_t size) {
+
+InpArchive& IFileMapArchive::load_bin(void *ptr, size_t size) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	fm->fi.read((char*)ptr, size);
 	fm->pos += size;
 	return * this;
 }
 
-IArchive &IFileMapArchive::endclass(){
-	/*FileMapImpl * fm = (FileMapImpl *) impl;
-	char buf[5];
-	fm->fi.read(buf, 4);
-	buf[4] = 0;
-	if (strcmp(buf, "cend") != 0) throw ioerror("wrong endclass");
-	fm->pos += 4;*/
+InpArchive &IFileMapArchive::endclass(){
 	return * this;
 }
+
 
 struct FMDeleter {
 	mapped_region * ptr;
@@ -80,17 +80,25 @@ struct FMDeleter {
 	}
 };
 
-SharedPtr IFileMapArchive::load_mem(int type, size_t size) {
-	FileMapImpl * fm = (FileMapImpl *) impl;
+StaticMemRegionPtr IFileMapArchive::load_mem_region() {
+	FileMapImpl * fm = (FileMapImpl *)impl;
+
+	uint32_t header;// = 0x92492400u | align;
+	load_bin((char*)(&header), sizeof(header));
+	if ((header >> 8) != 0x924924) throw ioerror("wrong mem_region start or corrupted data");
+	MemoryAlignmentType align = (MemoryAlignmentType)(header & 0xFF);
+	uint32_t size = 0;
+	load_bin((char*)(&size), sizeof(size));
 	fm->fi.seekg(size, ios_base::cur);
+	std::shared_ptr<void> s;
 	if (size > 0) {
 		mapped_region * rg;
 		rg = new mapped_region(fm->m_file, read_only, fm->pos, size);
 		fm->pos += size;
-		return SharedPtr(rg->get_address(), FMDeleter(rg));
-	} else {
-		return SharedPtr();
+		s = std::shared_ptr<void>(rg->get_address(), FMDeleter(rg));
 	}
+	LocalMemModel alloc;
+	return alloc.adoptMem(size, s);
 }
 
 size_t IFileMapArchive::ipos() const {

@@ -33,14 +33,13 @@ public:
 
 	void clear();
 	
-	
 	std::string to_str() const { return bits.to_str(); }
 
-	void load_aux(IArchive& ar, BitArray& b);
-	void save_aux(OArchive& ar) const;
+	void load_aux(InpArchive& ar, BitArray& b);
+	void save_aux(OutArchive& ar) const;
 
-	void load(IArchive& ar);
-	void save(OArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	const BitArray& getBitArray() const { return bits; }
 	typedef Rank6pBuilder BuilderTp;
 private:
@@ -61,7 +60,7 @@ private:
 class Rank6pBuilder {
 public:
 	static void build(const BitArray& b, Rank6p * o);
-	static void build(const BitArray& b, OArchive& ar);
+	//static void build(const BitArray& b, OutArchive& ar);
 	typedef Rank6p QueryTp;
 private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);

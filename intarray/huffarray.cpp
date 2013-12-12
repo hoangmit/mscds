@@ -112,7 +112,7 @@ void HuffmanModel::loadModel(IWBitStream & is, bool decode_only) {
 }
 
 void HuffmanModel::encode(uint32_t val, OBitStream * out) const {
-	coder::DeltaCoder dc;
+	//coder::DeltaCoder dc;
 	if (freq.size() > 0) {
 		auto it = freqset.find(val);
 		if (it != freqset.end()) {
@@ -120,17 +120,17 @@ void HuffmanModel::encode(uint32_t val, OBitStream * out) const {
 			out->puts(cd);
 		} else {
 			out->puts(hc.encode(0));
-			auto cd = dc.encode(val+1);
+			auto cd = coder::DeltaCoder::encode(val + 1);
 			out->puts(cd);
 		}
 	}else {
-		auto cd = dc.encode(val+1);
+		auto cd = coder::DeltaCoder::encode(val + 1);
 		out->puts(cd);
 	}
 }
 
 uint32_t HuffmanModel::decode(IWBitStream * is) const {
-	coder::DeltaCoder dc;
+	//coder::DeltaCoder dc;
 	unsigned int val = 0;
 	if (freq.size() > 0) {
 		auto a = tc.decode2(is->peek());
@@ -138,12 +138,12 @@ uint32_t HuffmanModel::decode(IWBitStream * is) const {
 		if (a.first > 0)
 			val = freq[a.first - 1];
 		else {
-			a = dc.decode2(is->peek());
+			a = coder::DeltaCoder::decode2(is->peek());
 			val = a.first - 1;
 			is->skipw(a.second);
 		}
 	} else {
-		auto a = dc.decode2(is->peek());
+		auto a = coder::DeltaCoder::decode2(is->peek());
 		val = a.first - 1;
 		is->skipw(a.second);
 	}

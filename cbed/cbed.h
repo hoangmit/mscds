@@ -44,7 +44,7 @@ public:
 	void set_name(const std::string& name);
 
 	void build(BEDChrQuery* data);
-	void build(mscds::OArchive& ar);
+	void build(mscds::OutArchive& ar);
 	void close() {}
 	typedef BEDChrQuery QueryTp;
 	typedef BED_Entry2 DataEntryTp;
@@ -57,8 +57,8 @@ private:
 class BEDChrQuery {
 public:
 	void clear();
-	void load(mscds::IArchive& ar);
-	void save(mscds::OArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void save(mscds::OutArchive& ar) const;
 	void dump_file(std::ostream& fo);
 
 	typedef BEDChrBuilder BuilderTp;

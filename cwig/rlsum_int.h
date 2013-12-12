@@ -8,7 +8,7 @@ namespace app_ds {
 template<typename T>
 class RunLenSumArrIt {
 public:
-	virtual void load(mscds::IArchive& ar) = 0;
+	virtual void load(mscds::InpArchive& ar) = 0;
 
 	virtual T sum(uint32_t pos) const = 0;
 

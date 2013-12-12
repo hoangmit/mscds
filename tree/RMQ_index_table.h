@@ -32,8 +32,8 @@ public:
 	*/
 	std::pair<size_t, size_t> m_idx(size_t st, size_t ed) const;
 	size_t size() const { return bit_size; }
-	void save(OArchive& ar) const;
-	void load(IArchive& ar);
+	void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
 	void clear() { bits.clear(); starts.clear(); len = 0; }
 private:
 	static size_t build_start(size_t len, std::vector<unsigned int> * starts);
@@ -54,8 +54,8 @@ public:
 
 	/** return the list of possible min/max indexes (at most 6 elements) */
 	std::vector<unsigned int> m_idx(size_t st, size_t ed) const;
-	void save(OArchive& ar) const;
-	void load(IArchive& ar);
+	void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
 	void clear() { len = 0; blksize = 0; blockrmq.clear(); subblkrmq.clear(); }
 private:
 	void _find(unsigned int blk, unsigned int st, unsigned int ed, std::vector<unsigned int>& out) const;

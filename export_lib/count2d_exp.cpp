@@ -45,7 +45,7 @@ void Count2DBuilderEx::extract(const std::string &datafile, const std::string &t
 }
 
 void Count2DQueryEx::load(const std::string &datafile, bool fullmemload) {
-	IArchive * fi;
+	InpArchive * fi;
 	if (fullmemload) {
 		IFileArchive * ifa = new IFileArchive();
 		ifa->open_read(datafile);

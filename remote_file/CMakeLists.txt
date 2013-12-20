@@ -24,7 +24,7 @@ ext_bitmap.h memmapfile.h)
 
 ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 
-TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
+TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils ) 
 
 ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
 TARGET_LINK_LIBRARIES(remote_file_example remote_file)

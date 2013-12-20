@@ -11,6 +11,7 @@
 #include <ctime>
 #include <cassert>
 #include <algorithm>
+#include <cstring>
 
 using namespace std;
 

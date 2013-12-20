@@ -31,7 +31,7 @@ namespace mman {
 			int fd;
 		#endif
 		MemoryMappedFile(): mod(0), addr(NULL) {}
-		~MemoryMappedFile() { close(); }
+		~MemoryMappedFile() { unload(); }
 
 		/** \brief creates a memory mapping for file "fname" with the specified length */
 		void create_rw(const char *fname, uint64_t len);
@@ -49,7 +49,7 @@ namespace mman {
 		void resize_rw(size_t new_len);
 
 		/** \brief unload the mapping */
-		void close();
+		void unload();
 		bool is_open() { return mod != 0; }
 	};
 }

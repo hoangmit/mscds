@@ -1,6 +1,8 @@
 #include "ext_bitmap.h"
 #include "memmapfile.h"
 #include <cassert>
+#include <cstring>
+#include <stdexcept>
 
 typedef mman::MemoryMappedFile MappedFile;
 

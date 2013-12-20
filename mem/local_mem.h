@@ -3,6 +3,7 @@
 #include "framework/mem_models.h"
 #include <cassert>
 #include <vector>
+#include <cstring>
 
 namespace mscds {
 

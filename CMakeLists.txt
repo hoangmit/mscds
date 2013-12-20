@@ -32,6 +32,7 @@ else()
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		add_definitions(/wd4244 /wd4018)
 		add_definitions(/D_VARIADIC_MAX=10)
+		add_definitions(-D_WIN32_WINNT=0x0501)
 		#add_definitions(/arch:SSE)
 	endif()
 endif()
@@ -57,15 +58,12 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_LIBRARY zlibstatic)
 
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/netlib)
+set(NETLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/netlib)
+set(NETLIB_LIBRARIES cppnetlib-uri cppnetlib-client-connections)
+
 include_directories(${GTEST_INCLUDE_DIRS})
-
-#add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/Celero)
-#set(CELERO_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/Celero/include)
-#set(CELERO_LIBRARY celero)
-
-#add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/hayai)
-#set(HAYAI_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/hayai)
-#set(HAYAI_LIBRARY hayai_main)
 
 #---Interal Utilities-----------------------------------------------------------------------------
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
@@ -88,6 +86,8 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/codec)
 add_subdirectory(${PROJECT_SOURCE_DIR}/intarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/wavarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/remote_file)
 
 set(CORE_LIBS utils mem bitarray codec intarray wavarray tree)
 

@@ -6,7 +6,7 @@
 
 #include "bitop.h"
 #include "framework/archive.h"
-
+#include "mem/local_mem.h"
 
 #include <stdint.h>
 #include <cstdlib>
@@ -16,7 +16,7 @@
 #include <vector>
 #include <cstring>
 
-#include "mem/local_mem.h"
+
 
 namespace mscds {
 

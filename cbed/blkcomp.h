@@ -95,11 +95,12 @@ private:
 
 	unsigned int maxblksz;
 	size_t entcnt;
+
 	SDArraySml bptr;
 	BitArray bits;
 
 	void prepare_ptr();
-	const char * ptr;
+	//const char * ptr;
 	size_t len;
 
 	SnappyCodec codec;

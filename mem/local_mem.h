@@ -13,7 +13,7 @@ public:
 	LocalStaticMem() : len(0), ptr(nullptr) {}
 	static const uint8_t WORDSZ = 8;
 	bool has_direct_access() const { return true; }
-	bool has_page_access() const { return true; }
+	bool has_window_access() const { return true; }
 	//MemoryAlignmentType alignment() const { return alignment_tp; }
 	MemoryAlignmentType alignment() const { return A8; }
 
@@ -21,16 +21,16 @@ public:
 	const void* get_addr() const { return ptr; }
 	size_t size() const { return len; }
 
-	size_t page_size() const { return len; }
-	PagePtrInfo request_page(size_t i) const {
-		char * addr = (char*)ptr;
-		PagePtrInfo p;
-		p.start_addr = addr + i;
-		p.end_addr = addr + len;
-		p.pid = 0;
-		return p;
+	WindowMem get_window(size_t start, uint32_t len) { 
+		WindowMem m;
+		assert(start + len <= this->len);
+		m.ptr = ptr + start;
+		m.wid = 0;
+		m.wsize = len;
+		return m;
 	}
-	void relase_page(unsigned int id) const {}
+	void release_window(const WindowMem& w) {}
+	uint32_t max_win_size() { return (uint32_t) this->len; }
 
 	uint64_t getword(size_t wp) const { assert(wp < (len + WORDSZ - 1) / WORDSZ); return *(((uint64_t*)ptr) + wp); }
 	char getchar(size_t i) const { assert(i < len); return *(ptr + i); }
@@ -58,20 +58,20 @@ public:
 	static const uint8_t WORDSZ = 8;
 	unsigned int model_id() const { return 2; }
 	bool has_direct_access() const { return true; }
-	bool has_page_access() const { return true; }
+	bool has_window_access() const { return true; }
 	MemoryAlignmentType alignment() const { return A8; }
 	const void* get_addr() const { return data.data(); }
 
-	size_t page_size() const { return sz; }
-	PagePtrInfo request_page(size_t i) const {
-		char * addr = (char*)(data.data());
-		PagePtrInfo p;
-		p.start_addr = addr + i;
-		p.end_addr = addr + sz;
-		p.pid = 0;
-		return p;
+	WindowMem get_window(size_t start, uint32_t len) {
+		WindowMem m;
+		assert(start + len <= size());
+		m.ptr = ((char*)data.data()) + start;
+		m.wid = 0;
+		m.wsize = len;
+		return m;
 	}
-	void relase_page(unsigned int id) const {}
+	void release_window(const WindowMem& w) {}
+	uint32_t max_win_size() { return (uint32_t) size(); }
 
 	uint64_t getword(size_t wp) const { assert(wp < sz / WORDSZ); return data[wp]; }
 	char getchar(size_t i) const { assert(i < sz); return *(((char*)data.data()) + i); }

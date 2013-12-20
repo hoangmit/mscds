@@ -24,7 +24,7 @@ enum MemoryAlignmentType { DEFAULT, A1, A2, A4, A8 };
 
 struct StaticMemRegionAbstract {
 	virtual bool has_direct_access() const = 0;
-	virtual bool has_page_access() const = 0;
+	virtual bool has_window_access() const = 0;
 	virtual MemoryAlignmentType alignment() const = 0;
 
 	virtual ~StaticMemRegionAbstract() {}
@@ -34,17 +34,17 @@ struct StaticMemRegionAbstract {
 	virtual void close() = 0;
 	//direct access 
 	virtual const void* get_addr() const = 0;
-
-	struct PagePtrInfo {
-		char * start_addr;
-		char * end_addr;
-		unsigned int pid;
+	
+	//window access
+	struct WindowMem {
+		uint32_t wid;
+		uint32_t wsize;
+		char* ptr;
 	};
 
-	//page access
-	virtual size_t page_size() const = 0;
-	virtual PagePtrInfo request_page(size_t i) const = 0;
-	virtual void relase_page(unsigned int id) const = 0;
+	virtual WindowMem get_window(size_t start, uint32_t len) = 0;
+	virtual void release_window(const WindowMem& w) = 0;
+	virtual uint32_t max_win_size() = 0;
 
 	//small one time access
 	virtual uint64_t getword(size_t wp) const = 0;
@@ -72,6 +72,7 @@ class StaticMemRegionPtr : public StaticMemRegionAbstract {
 public:
 	StaticMemRegionPtr() : _impl(nullptr) {}
 	StaticMemRegionPtr(std::shared_ptr<StaticMemRegionAbstract> ref) : _ref(ref) { _impl = ref.get();}
+	StaticMemRegionPtr(StaticMemRegionAbstract* ptr) : _impl(ptr) {}
 
 	StaticMemRegionPtr(const StaticMemRegionPtr& mE) = default;
 	StaticMemRegionPtr& operator=(const StaticMemRegionPtr& mE) = default;
@@ -82,7 +83,7 @@ public:
 	~StaticMemRegionPtr() {}
 
 	bool has_direct_access() const { return _impl->has_direct_access(); }
-	bool has_page_access() const { return _impl->has_page_access(); }
+	bool has_window_access() const { return _impl->has_window_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
 
 	unsigned int model_id() const { return _impl->model_id(); }
@@ -91,10 +92,11 @@ public:
 	//direct access 
 	const void* get_addr() const { return _impl->get_addr(); }
 
-	//page access
-	size_t page_size() const { return _impl->page_size(); }
-	PagePtrInfo request_page(size_t i) const { return _impl->request_page(i); }
-	void relase_page(unsigned int id) const { _impl->relase_page(id); }
+	//window access
+	WindowMem get_window(size_t start, uint32_t len) { return _impl->get_window(start, len); }
+	void release_window(const WindowMem& w) { _impl->release_window(w); }
+	uint32_t max_win_size() { return _impl->max_win_size(); }
+
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp);}
@@ -114,6 +116,7 @@ class DynamicMemRegionPtr : public DynamicMemRegionAbstract {
 public:
 	DynamicMemRegionPtr() : _impl(nullptr) {}
 	DynamicMemRegionPtr(std::shared_ptr<DynamicMemRegionAbstract> ref) : _ref(ref) { _impl = ref.get(); }
+	DynamicMemRegionPtr(DynamicMemRegionAbstract* ptr) : _impl(ptr) {}
 	~DynamicMemRegionPtr() {}
 	void resize(size_t size) { _impl->resize(size); }
 	void append(char c) { _impl->append(c); }
@@ -127,7 +130,7 @@ public:
 	DynamicMemRegionPtr& operator=(DynamicMemRegionPtr&& mE) { _impl = mE._impl; _ref = std::move(_ref); }
 
 	bool has_direct_access() const { return _impl->has_direct_access(); }
-	bool has_page_access() const { return _impl->has_page_access(); }
+	bool has_window_access() const { return _impl->has_window_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
 
 	unsigned int model_id() const { return _impl->model_id(); }
@@ -137,9 +140,9 @@ public:
 	const void* get_addr() const { return _impl->get_addr(); }
 
 	//page access
-	size_t page_size() const { return _impl->page_size(); }
-	PagePtrInfo request_page(size_t i) const { return _impl->request_page(i); }
-	void relase_page(unsigned int id) const { _impl->relase_page(id); }
+	WindowMem get_window(size_t start, uint32_t len) { return _impl->get_window(start, len); }
+	void release_window(const WindowMem& w) { _impl->release_window(w); }
+	uint32_t max_win_size() { return _impl->max_win_size(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp); }

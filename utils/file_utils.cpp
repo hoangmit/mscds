@@ -69,7 +69,14 @@ namespace utils {
 		return static_cast<size_t>(f.tellg() - begin_pos);
 	}
 
+	void allocate_file(const std::string& name, size_t size) {
+		FILE *fp = fopen(name.c_str(), "wb");
+		fseek(fp, size, SEEK_SET);
+		fputc('\0', fp);
+		fclose(fp);
+	}
 
+//----------------------------------------------------------------------------------------------------
 
 #if (defined(_WIN32)|| defined(_WIN64))
 	
@@ -158,7 +165,9 @@ namespace utils {
 	}
 
 	std::string get_temp_path() {
-		return "/tmp/";
+		char const * tmpdir = getenv("TMPDIR");
+		if (tmpdir != NULL) return tmpdir;
+		else return P_tmpdir;
 	}
 
 #endif

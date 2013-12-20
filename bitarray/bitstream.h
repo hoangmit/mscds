@@ -5,7 +5,9 @@
 #include <cassert>
 #include <sstream>
 #include "framework/archive.h"
+#include "mem/local_mem.h"
 #include "bitarray.h"
+
 
 namespace mscds {
 
@@ -222,18 +224,21 @@ inline uint64_t IWBitStream::get(uint16_t len) {
 class OByteStream {
 public:
 	OByteStream() {}
-	void put(char c) { os.push_back(c); }
+	void put(char c) { os.append(c); }
 	void puts(const std::string& str) {
-		for (size_t i = 0; i < str.length(); ++i) os.push_back(str[i]);
+		for (size_t i = 0; i < str.length(); ++i) os.append(str[i]);
 	}
 	void puts(const char* str, unsigned int len) {
-		for (size_t i = 0; i < len; ++i) os.push_back(*(str + i));
+		for (size_t i = 0; i < len; ++i) os.append(*(str + i));
 	}
 	size_t length() const { return os.size(); }
-	const char* data_ptr() { return os.data(); }
+	void build(BitArray* out) {
+		LocalMemModel alloc;
+		*out = BitArrayBuilder::adopt(os.size() * 8, alloc.convert(os));
+	}
 	void clear() { os.clear(); }
 private:
-	std::vector<char> os;
+	LocalDynamicMem os;
 };
 
 }//namespace

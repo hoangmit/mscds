@@ -62,13 +62,8 @@ public:
 				add_mem_region(mem.get_addr(), mem.size());
 			}
 			else
-			if (mem.has_page_access()) {
-				size_t p = 0, size = mem.size();
-				while (p < size) {
-					StaticMemRegionPtr::PagePtrInfo info = mem.request_page(p);
-					add_mem_region(info.start_addr, info.end_addr - info.start_addr);
-					mem.relase_page(info.pid);
-				}
+			if (mem.has_window_access()) {
+				throw std::runtime_error("not implemented");
 			}
 			else { throw memory_error("unknown access mode"); }
 		}

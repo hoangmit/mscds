@@ -88,8 +88,7 @@ void BlkCompBuilder::build(BlkCompQuery *data) {
 	data->entcnt = entcnt;
 	data->maxblksz = this->maxblksz;
 	pbd.build(&(data->bptr));
-	//UNDONE
-	//os.build(&(data->bits));
+	os.build(&(data->bits));
 	data->prepare_ptr();
 	entcnt = 0;
 }
@@ -126,7 +125,6 @@ void BlkCompQuery::clear() {
 	len = 0;
 	bptr.clear();
 	bits.clear();
-	ptr = NULL;
 }
 
 void BlkCompQuery::getEnum(unsigned int idx, BlkCompQuery::Enum *e) const {
@@ -175,7 +173,9 @@ void BlkCompQuery::load_blk(unsigned int blk, LineBlock& lnblk) const {
 	//assert();
 	unsigned int st = bptr.prefixsum(blk);
 	unsigned int ed = bptr.prefixsum(blk + 1);
-	codec.uncompress_c(ptr+st, ed-st, &(lnblk.blkmem));
+	//codec.uncompress_c(ptr+st, ed-st, &(lnblk.blkmem));
+	//UNDONE
+	throw std::runtime_error("not implemented");
 	lnblk.post_load();
 }
 

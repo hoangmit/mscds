@@ -1,5 +1,7 @@
 #include "cache_table.h"
 
+#include <algorithm>
+
 namespace utils {
 
 LRU_Policy::OpResultTp LRU_Policy::check(const LRU_Policy::KeyTp &key) {
@@ -95,5 +97,7 @@ void LRU_Policy::init(size_t capacity) {
 	for (unsigned int i = 0; i < _capacity; ++i)
 		freelst.push_back(i);
 }
+
+size_t LRU_Policy::max_capacity() { return std::min(map.max_size(), freelst.max_size()); }
 
 }//namespace

@@ -43,6 +43,9 @@ endif()
 #  .so  = library
 
 #---External packcage------------------------------------------------------------------------------
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTI_THREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 

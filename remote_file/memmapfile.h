@@ -50,6 +50,7 @@ namespace mman {
 
 		/** \brief unload the mapping */
 		void unload();
+
 		bool is_open() { return mod != 0; }
 	};
 }

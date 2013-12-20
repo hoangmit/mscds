@@ -16,6 +16,7 @@ add_library(cppnetlib-uri ${CPP-NETLIB_URI_SRCS})
 
 set(CPP-NETLIB_HTTP_CLIENT_SRCS client.cpp)
 add_library(cppnetlib-client-connections ${CPP-NETLIB_HTTP_CLIENT_SRCS})
+target_link_libraries(cppnetlib-client-connections ${Boost_LIBRARIES})
 
 set_property(TARGET cppnetlib-client-connections PROPERTY FOLDER "ExtLibs")
 

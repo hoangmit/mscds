@@ -3,9 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 project(netlib)
 set(VERSION 0.1.1)
 
-
 #find_package(Boost)
-#FIND_PACKAGE(Boost 1.40 COMPONENTS thread REQUIRED )
+FIND_PACKAGE(Boost 1.50 COMPONENTS thread system  REQUIRED )
 
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
@@ -27,5 +26,5 @@ ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils ) 
 
 ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
-TARGET_LINK_LIBRARIES(remote_file_example remote_file)
+TARGET_LINK_LIBRARIES(remote_file_example remote_file )
 set_property(TARGET remote_file_example PROPERTY FOLDER "Tests")

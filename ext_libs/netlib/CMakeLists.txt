@@ -8,9 +8,12 @@ project(CPP-NETLIB)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTI_THREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-find_package( Boost 1.45.0 REQUIRED system regex date_time thread filesystem chrono )
+find_package( Boost 1.44.0 REQUIRED system regex date_time thread filesystem chrono )
 find_package( OpenSSL )
 find_package( Threads )
+
+MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
+MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARIES}")
 
 #set(CMAKE_VERBOSE_MAKEFILE true)
 

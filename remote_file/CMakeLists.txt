@@ -4,7 +4,7 @@ project(netlib)
 set(VERSION 0.1.1)
 
 #find_package(Boost)
-FIND_PACKAGE(Boost 1.50 COMPONENTS thread system  REQUIRED )
+#FIND_PACKAGE(Boost 1.50 COMPONENTS thread system  REQUIRED )
 
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})

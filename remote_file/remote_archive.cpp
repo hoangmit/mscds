@@ -41,7 +41,7 @@ StaticMemRegionPtr RemoteArchive::load_mem_region() {
 	ret->ptr = nullptr;
 	pos += nsz;
 	file->seekg(ret->fstart + ret->sz);
-	return ret;
+	return StaticMemRegionPtr(ret);
 }
 
 size_t RemoteArchive::ipos() const {

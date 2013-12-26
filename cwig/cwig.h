@@ -73,7 +73,7 @@ public:
 	const ChrNumData& getChr(unsigned int chrid) { return chrs[chrid]; }
 
 	/** \brief loads the data structure from file */
-	void load(const std::string& input);
+	void loadfile(const std::string& input);
 
 	void load(mscds::InpArchive& ar);
 

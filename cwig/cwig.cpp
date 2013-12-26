@@ -3,6 +3,7 @@
 #include "mem/file_archive.h"
 #include "mem/fmap_archive.h"
 #include "utils/str_utils.h"
+#include "remote_file/remote_archive.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -277,11 +278,18 @@ void GenomeNumData::loadinit() {
 	}
 }
 
-void GenomeNumData::load(const std::string &input) {
-	mscds::IFileMapArchive fi;
-	fi.open_read(input);
-	load(fi);
-	fi.close();
+void GenomeNumData::loadfile(const std::string &input) {
+	if (input.length() > 7 && input.substr(0, 7) == "http://") {
+		mscds::RemoteArchive rar;
+		rar.open_url(input);
+		load(rar);
+	}
+	else {
+		mscds::IFileMapArchive fi;
+		fi.open_read(input);
+		load(fi);
+		fi.close();
+	}
 }
 
 void GenomeNumData::load(mscds::InpArchive &ar) {

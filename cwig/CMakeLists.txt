@@ -21,9 +21,7 @@ rlsum_int.h poly_vals.h nintv.h)
 #target_link_libraries(bedgraph2gnt mscdsa)
 
 add_library(cwig ${SRCS} ${HEADERS})
-target_link_libraries(cwig mscdsa)
-
-include_directories(${HAYAI_INCLUDE_DIRS})
+target_link_libraries(cwig mscdsa remote_file)
 
 add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp intv_tests.cpp intv_rand_gen.hpp)
 target_link_libraries(t_cwig cwig utils ${HAYAI_LIBRARY})

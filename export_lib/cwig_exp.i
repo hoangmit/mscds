@@ -138,7 +138,7 @@ public:
 	void dump_bedgraph(const std::string& output);
 
 	/** \brief loads the data structure from file */
-	void load(const std::string& input);
+	void loadfile(const std::string& input);
 	
 	/** \brief gets the id from the chromosome name if it exists,
 	    returns -1 otherwise */

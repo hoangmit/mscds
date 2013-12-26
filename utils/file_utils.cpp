@@ -166,8 +166,11 @@ namespace utils {
 
 	std::string get_temp_path() {
 		char const * tmpdir = getenv("TMPDIR");
-		if (tmpdir != NULL) return tmpdir;
-		else return P_tmpdir;
+		const char * ret;
+		if (tmpdir != NULL) ret = tmpdir;
+		else ret = P_tmpdir;
+		if (ret[strlen(ret) - 1] == '/') return ret;
+		else return std::string(ret) + '/';
 	}
 
 #endif

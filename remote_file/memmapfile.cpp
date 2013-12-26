@@ -175,7 +175,7 @@ void MemoryMappedFile::create_rw(const char *fname, uint64_t len) {
 	char c;
 
 	fd = open(fname,O_RDWR | O_CREAT | O_TRUNC);
-	if (fd == -1) { throw std::runtime_error("mymmap_w: open1");}
+	if (fd == -1) { throw std::runtime_error(std::string("create_w: open ") + fname);}
 	fchmod(fd, 0644);
 	int result = lseek(fd, len-1, SEEK_SET);
 	if (result == -1) {

@@ -27,10 +27,16 @@ public:
 class RemoteFileInt : public RemoteFileInfoInt {
 public:
 	virtual void close() = 0;
-	virtual size_t read(size_t size, char* dest) = 0;
-	virtual void seek(size_t pos) = 0;
-	virtual size_t tell() const = 0;
+	virtual size_t read(char* dest, size_t size) = 0;
+	virtual void seekg(size_t pos) = 0;
+	virtual size_t tellg() const = 0;
+	virtual char peek() = 0;
 	virtual bool eof() const = 0;
+
+	virtual bool has_mapping() { return false; }
+	virtual size_t max_map_size() { return 0; }
+	virtual char* create_map(size_t start, size_t len) { return nullptr; }
+	virtual void release_map(char* ptr) {}
 };
 
 typedef std::shared_ptr<RemoteFileInt> RemoteFileHdl;
@@ -42,6 +48,8 @@ public:
 	RemoteFileRepository();
 	~RemoteFileRepository();
 	RemoteFileRepository(const std::string& dir);
+
+	void change_cache_dir(const std::string& dir);
 	
 	RemoteFileHdl open(const std::string& url, bool refresh_data = false, RemoteCacheType cachetype = FILE_CACHE);
 	

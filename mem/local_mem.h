@@ -22,7 +22,7 @@ public:
 	const void* get_addr() const { return ptr; }
 	size_t size() const { return len; }
 
-	WindowMem get_window(size_t start, uint32_t len) { 
+	WindowMem get_window(size_t start, uint32_t len) const { 
 		WindowMem m;
 		assert(start + len <= this->len);
 		m.ptr = ptr + start;
@@ -30,8 +30,8 @@ public:
 		m.wsize = len;
 		return m;
 	}
-	void release_window(const WindowMem& w) {}
-	uint32_t max_win_size() { return (uint32_t) this->len; }
+	void release_window(WindowMem& w) const {}
+	uint32_t max_win_size() const { return (uint32_t) this->len; }
 
 	uint64_t getword(size_t wp) const { assert(wp < (len + WORDSZ - 1) / WORDSZ); return *(((uint64_t*)ptr) + wp); }
 	char getchar(size_t i) const { assert(i < len); return *(ptr + i); }
@@ -63,7 +63,7 @@ public:
 	MemoryAlignmentType alignment() const { return A8; }
 	const void* get_addr() const { return data.data(); }
 
-	WindowMem get_window(size_t start, uint32_t len) {
+	WindowMem get_window(size_t start, uint32_t len) const {
 		WindowMem m;
 		assert(start + len <= size());
 		m.ptr = ((char*)data.data()) + start;
@@ -71,8 +71,8 @@ public:
 		m.wsize = len;
 		return m;
 	}
-	void release_window(const WindowMem& w) {}
-	uint32_t max_win_size() { return (uint32_t) size(); }
+	void release_window(WindowMem& w) const {}
+	uint32_t max_win_size() const { return (uint32_t) size(); }
 
 	uint64_t getword(size_t wp) const { assert(wp < sz / WORDSZ); return data[wp]; }
 	char getchar(size_t i) const { assert(i < sz); return *(((char*)data.data()) + i); }

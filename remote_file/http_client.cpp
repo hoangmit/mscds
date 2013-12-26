@@ -23,7 +23,7 @@ struct body_handler {
 
 	BOOST_NETWORK_HTTP_BODY_CALLBACK(operator(), range, error) {
 		if (!error) {
-			for (char c : range) {
+			for (const char c : range) {
 				if (size == 0) break;
 				*addr = c;
 				++addr;
@@ -37,34 +37,37 @@ struct body_handler {
 };
 
 struct HttpObjectReq {
+	typedef http::basic_client<http::tags::http_async_8bit_udp_resolve, 1, 1> client_t;
+	client_t client;
+
 	HttpObjectReq() {}
 
 	HttpObjectReq(const std::string& url) { set_url(url); }
 
 	void set_url(const std::string& url) {
 		this->url = url;
-		http::client::options opt;
+		client_t::options opt;
 		opt.follow_redirects(true);
-		client = http::client(opt);
+		client = client_t(opt);
 	}
 
 	void head() {
-		http::client::request request(url);
+		client_t::request request(url);
 		//request << header("Connection", "close");
-		http::client::response response = client.head(request);
+		client_t::response response = client.head(request);
 		req_status = status(response);
 		parse_headers(response);
 	}
 
 	void getdata(size_t start, size_t len, char *dest, bool keepalive = false) {
 		if (len == 0) return;
-		http::client::request request(url);
+		client_t::request request(url);
 		std::ostringstream os;
 		os << "bytes=" << start << '-' << (start + len - 1);
 		request << header("Range", os.str());
 		if (keepalive)
-			request << header("Connection", "keep-alive");
-		http::client::response response = client.get(request, body_handler(len, dest));
+			request << header("Connection", "Keep-Alive");
+		client_t::response response = client.get(request); //body_handler(len, dest)
 		req_status = status(response);
 		if (req_status != 206)
 			throw remoteio_error("wrong http status code");
@@ -78,9 +81,9 @@ struct HttpObjectReq {
 		if (last_range_info.start != start || last_range_info.end != start + len - 1)
 			throw remoteio_error("wrong range");
 
-		//std::string st = static_cast<std::string>(body(response));
-		//if (st.length() != len) throw remoteio_error("wrong length received");
-		//memcpy(dest, st.data(), len);
+		std::string st = static_cast<std::string>(body(response));
+		if (st.length() != len) throw remoteio_error("wrong length received");
+		memcpy(dest, st.data(), len);
 	}
 
 	struct ContentRangeTp {
@@ -166,7 +169,7 @@ struct HttpObjectReq {
 	}
 
 	std::string s_content_length, s_content_range, s_last_modified, s_date, s_etag;
-	void parse_headers(http::client::response& response) {
+	void parse_headers(client_t::response& response) {
 		s_content_length.clear();
 		s_content_range.clear();
 		s_last_modified.clear();
@@ -200,7 +203,6 @@ struct HttpObjectReq {
 
 	std::string url;
 
-	http::client client;
 	unsigned int req_status;
 	size_t total_size;
 	ContentRangeTp last_range_info;

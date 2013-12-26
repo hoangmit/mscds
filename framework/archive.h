@@ -63,9 +63,22 @@ public:
 			}
 			else
 			if (mem.has_window_access()) {
-				throw std::runtime_error("not implemented");
+				size_t p = 0;
+				size_t maxw = mem.max_win_size();
+				while (p < mem.size()) {
+					//mem.get_window(p,)
+				}
 			}
-			else { throw memory_error("unknown access mode"); }
+			else {
+				const unsigned int bufsize = 16 * 1024;
+				char * buffer = new char[bufsize];
+				size_t p = 0;
+				while (p < mem.size()) {
+					mem.read(p, bufsize, buffer);
+					add_mem_region(buffer, bufsize);
+				}
+				delete[] buffer;
+			}
 		}
 		end_mem_region();
 		return *this;

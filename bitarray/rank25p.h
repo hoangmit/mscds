@@ -20,6 +20,9 @@ public:
 	uint64_t selectzero(uint64_t r) const;
 	typedef Rank25pBuilder BuilderTp;
 	void clear() { onecnt = 0; inv.clear(); bits.clear(); }
+
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
 	friend class Rank25pBuilder;
@@ -93,6 +96,28 @@ inline uint64_t Rank25p::selectzero(uint64_t r) const {
 
 inline unsigned int Rank25p::word_rank(size_t idx, unsigned int i) const {
 	return (i != 0) ? popcnt(bits.word(idx) & ((1ULL << i) - 1)) : 0;
+}
+
+
+inline void Rank25p::save(OutArchive &ar) const {
+	ar.startclass("Rank25p", 1);
+	ar.var("bit_len").save(length());
+	ar.var("inventory");
+	inv.save(ar);
+	ar.var("onecnt").save(onecnt);
+	bits.save(ar.var("bits"));
+	ar.endclass();
+}
+
+inline void Rank25p::load(InpArchive &ar) {
+	ar.loadclass("Rank25p");
+	size_t blen;
+	ar.var("bit_len").load(blen);
+	inv.load(ar);
+	ar.var("onecnt").load(onecnt);
+	bits.load(ar.var("bits"));
+	ar.endclass();
+	if (bits.length() != blen) throw std::runtime_error("length mismatch");
 }
 
 

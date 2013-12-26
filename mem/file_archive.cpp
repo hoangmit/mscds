@@ -121,9 +121,8 @@ void OFileArchive::clear() {
 IFileArchive::IFileArchive(): control(NULL), data(NULL), needclose(false), pos(0), buffer(NULL) {}
 
 unsigned char IFileArchive::loadclass(const std::string& name) {
-	if (!control) throw ioerror("stream error");
+	if (!control || !(*control)) throw ioerror("stream error");
 	uint32_t hash = FNV_hash24(name);
-	//unsigned char version = 0;
 	uint32_t v;
 	control->read((char*)&v, sizeof(v));
 	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
@@ -148,6 +147,7 @@ StaticMemRegionPtr IFileArchive::load_mem_region() {
 	LocalMemModel alloc;
 	auto ret = alloc.allocStaticMem2(nsz);
 	data->read((char*)(ret->get_addr()), nsz);
+	pos += nsz;
 	return StaticMemRegionPtr(ret);
 }
 

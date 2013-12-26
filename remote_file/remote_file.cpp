@@ -27,7 +27,7 @@ struct NocacheRemoteFile : RemoteFileInt {
 	time_t update_time() { return info.last_update; }
 
 	void close()  {}
-	size_t read(size_t size, char *dest) {
+	size_t read(char *dest, size_t size) {
 		if (curpos + size > info.filesize)
 			size = curpos + size - info.filesize;
 		hobj.read_once(curpos, size, dest);
@@ -35,8 +35,15 @@ struct NocacheRemoteFile : RemoteFileInt {
 		return size;
 	}
 
-	void seek(size_t pos) { curpos = pos; }
-	size_t tell() const { return curpos; }
+	char peek() {
+		if (curpos >= info.filesize) return 0;
+		char ch;
+		hobj.read_once(curpos, 1, &ch);
+		return ch;
+	}
+
+	void seekg(size_t pos) { curpos = pos; }
+	size_t tellg() const { return curpos; }
 	bool eof() const { return curpos == info.filesize; }
 
 	RemoteFileInfo info;
@@ -58,17 +65,23 @@ struct PrivateMemcacheRemoteFile : RemoteFileInt {
 	time_t update_time() { return info.last_update; }
 
 	void close()  {}
-	size_t read(size_t size, char *dest) {
+	size_t read(char *dest, size_t size) {
 		if (curpos + size > info.filesize)
 			size = curpos + size - info.filesize;
 		hobj.read_once(curpos, size, dest);
-		//get_http_file_data(url(), curpos, size, dest);
 		curpos += size;
 		return size;
 	}
 
-	void seek(size_t pos) { curpos = pos; }
-	size_t tell() const { return curpos; }
+	char peek() {
+		if (curpos >= info.filesize) return 0;
+		char ch;
+		hobj.read_once(curpos, 1, &ch);
+		return ch;
+	}
+
+	void seekg(size_t pos) { curpos = pos; }
+	size_t tellg() const { return curpos; }
 	bool eof() const { return curpos == info.filesize; }
 public:
 	RemoteFileInfo info;
@@ -88,58 +101,36 @@ private:
 
 struct FilecacheRemoteFile : RemoteFileInt {
 public:
-	FilecacheRemoteFile() { info.filesize = 0; curpos = 0; blocksize = 8 * 1024; }
-	FilecacheRemoteFile(const std::string& url, const std::string& prefix, bool refresh_data = false) : _url(url), hobj(url) {
-		info.filesize = 0; curpos = 0; blocksize = 8 * 1024;
-
-		RemoteFileInfo remote_info;
-		hobj.getInfo(remote_info);
-		std::string metafile = prefix + ".meta_info";
-		if (!refresh_data && utils::file_exists(metafile)) {
-			load_files(prefix);
-			if (info != remote_info)
-				throw remoteio_error("remote file information mismatched");
-		}
-		else {
-			info = remote_info;
-			create_files(metafile);
-		}
-		curpos = 0;
-	}
+	FilecacheRemoteFile() { info.filesize = 0; curpos = 0; blocksize = default_block_size; }
+	FilecacheRemoteFile(const std::string& url, const std::string& prefix, bool refresh_data = false);
 
 	std::string url() { return _url; }
 	size_t size() { return info.filesize; }
 	time_t update_time() { return info.last_update; }
 
 	void close()  {}
-	size_t read(size_t size, char *dest);
+	size_t read(char *dest, size_t size);
+	char peek();
 
-	void seek(size_t pos) { curpos = pos; }
-	size_t tell() const { return curpos; }
+
+	void seekg(size_t pos) { curpos = pos; }
+	size_t tellg() const { return curpos; }
 	bool eof() const { return curpos == info.filesize; }
+
+	bool has_mapping() { return true; }
+	size_t max_map_size() { return info.filesize; }
+	char* create_map(size_t start, size_t len) {
+		assert(start + len < info.filesize);
+		return fetch(start, len);
+	}
+	virtual void release_map(char* ptr) {}
+	const unsigned int default_block_size = 16 * 1024;
 private:
 	void load_files(const std::string& prefix);
 	void create_files(const std::string& prefix);
 	static void remove_files(const std::string& prefix);
 private:
-	char* fetch(size_t start, unsigned int len) {
-		assert(start + len <= info.filesize);
-		size_t nstart = start - start % blocksize;
-		size_t end = start + len;
-		unsigned int p = nstart / blocksize;
-		char* ptr = (char*)datafl.addr + nstart;
-		while (nstart < end) {
-			if (!bitmap.getbit(p)) {
-				size_t rqsz = std::min<size_t>(blocksize, info.filesize - nstart);
-				hobj.read_cont(nstart, rqsz, ptr);
-				//get_http_file_data(_url, nstart, rqsz, ptr);
-				bitmap.setbit(p);
-			}
-			ptr += blocksize;
-			nstart += blocksize;
-		}
-		return (char*)datafl.addr + start;
-	}
+	char* fetch(size_t start, unsigned int len);
 
 public:
 	RemoteFileInfo info;
@@ -161,13 +152,38 @@ private:
 	};
 };
 
-size_t FilecacheRemoteFile::read(size_t size, char *dest) {
+FilecacheRemoteFile::FilecacheRemoteFile(const std::string &url, const std::string &prefix, bool refresh_data) : _url(url), hobj(url) {
+	info.filesize = 0; curpos = 0; blocksize = default_block_size;
+
+	RemoteFileInfo remote_info;
+	hobj.getInfo(remote_info);
+	std::string metafile = prefix + ".meta_info";
+	if (!refresh_data && utils::file_exists(metafile)) {
+		load_files(prefix);
+		if (info != remote_info)
+			throw remoteio_error("remote file information mismatched");
+	}
+	else {
+		info = remote_info;
+		create_files(metafile);
+	}
+	curpos = 0;
+}
+
+size_t FilecacheRemoteFile::read(char *dest, size_t size) {
 	if (curpos + size > info.filesize)
 		size = curpos + size - info.filesize;
 	char* ptr = fetch(curpos, size);
 	memcpy(dest, ptr, size);
 	curpos += size;
 	return size;
+}
+
+char FilecacheRemoteFile::peek() {
+	if (curpos >= info.filesize) return 0;
+	char ch;
+	char* ptr = fetch(curpos, 1);
+	return *ptr;
 }
 
 void FilecacheRemoteFile::load_files(const std::string &prefix) {
@@ -201,6 +217,26 @@ void FilecacheRemoteFile::remove_files(const std::string &suffix) {
 	std::remove((suffix + ".data").c_str());
 }
 
+char *FilecacheRemoteFile::fetch(size_t start, unsigned int len) {
+	assert(start + len <= info.filesize);
+	size_t nstart = start - start % blocksize;
+	size_t end = start + len;
+	unsigned int p = nstart / blocksize;
+	char* ptr = (char*)datafl.addr + nstart;
+	while (nstart < end) {
+		if (!bitmap.getbit(p)) {
+			size_t rqsz = std::min<size_t>(blocksize, info.filesize - nstart);
+			hobj.read_cont(nstart, rqsz, ptr);
+			//get_http_file_data(_url, nstart, rqsz, ptr);
+			bitmap.setbit(p);
+		}
+		ptr += blocksize;
+		nstart += blocksize;
+		p += 1;
+	}
+	return (char*)datafl.addr + start;
+}
+
 //---------------------------------------------------------
 
 RemoteFileRepository::RemoteFileRepository(): cachemem(nullptr) {
@@ -215,10 +251,10 @@ RemoteFileHdl RemoteFileRepository::open(const std::string &url, bool refresh_da
 	if (cachetype == NOCACHE) {
 		return std::make_shared<NocacheRemoteFile>(url);
 	}else
-	if (cachetype == PRIVATE_MEM_CACHE) {
-		return std::make_shared<PrivateMemcacheRemoteFile>(url);
-	}else 
-	if (cachetype == FILE_CACHE) {
+		if (cachetype == PRIVATE_MEM_CACHE) {
+			return std::make_shared<PrivateMemcacheRemoteFile>(url);
+		}else
+			if (cachetype == FILE_CACHE) {
 		std::string path = _cache_dir + uri_encode(url);
 		std::shared_ptr<FilecacheRemoteFile> h = std::make_shared<FilecacheRemoteFile>(url, path, refresh_data);
 
@@ -229,6 +265,13 @@ RemoteFileHdl RemoteFileRepository::open(const std::string &url, bool refresh_da
 
 std::string RemoteFileRepository::default_repository() {
 	return utils::get_temp_path();
+}
+
+void RemoteFileRepository::change_cache_dir(const std::string& dir) {
+	if (dir != "")
+		_cache_dir = dir;
+	else
+		_cache_dir = default_repository();
 }
 
 

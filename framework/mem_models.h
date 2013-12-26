@@ -37,23 +37,23 @@ struct StaticMemRegionAbstract {
 	
 	//window access
 	struct WindowMem {
-		uint32_t wid;
+		int32_t wid;
 		uint32_t wsize;
-		char* ptr;
+		const char* ptr;
 	};
 
-	virtual WindowMem get_window(size_t start, uint32_t len) = 0;
-	virtual void release_window(const WindowMem& w) = 0;
-	virtual uint32_t max_win_size() = 0;
+	virtual WindowMem get_window(size_t start, uint32_t len) const = 0;
+	virtual void release_window(WindowMem& w) const = 0;
+	virtual uint32_t max_win_size() const = 0;
 
 	//small one time access
 	virtual uint64_t getword(size_t wp) const = 0;
 	virtual char getchar(size_t i) const = 0;
-	virtual void read(size_t i, size_t rlen, void* dst) const = 0;
 
 	virtual void setword(size_t wp, uint64_t val) = 0;
 	virtual void setchar(size_t i, char c) = 0;
 
+	virtual void read(size_t i, size_t rlen, void* dst) const = 0;
 	virtual void write(size_t i, size_t wlen, const void* dst) = 0;
 };
 
@@ -93,9 +93,9 @@ public:
 	const void* get_addr() const { return _impl->get_addr(); }
 
 	//window access
-	WindowMem get_window(size_t start, uint32_t len) { return _impl->get_window(start, len); }
-	void release_window(const WindowMem& w) { _impl->release_window(w); }
-	uint32_t max_win_size() { return _impl->max_win_size(); }
+	WindowMem get_window(size_t start, uint32_t len) const { return _impl->get_window(start, len); }
+	void release_window(WindowMem& w) const { _impl->release_window(w); }
+	uint32_t max_win_size() const { return _impl->max_win_size(); }
 
 
 	//small one time access
@@ -140,9 +140,9 @@ public:
 	const void* get_addr() const { return _impl->get_addr(); }
 
 	//page access
-	WindowMem get_window(size_t start, uint32_t len) { return _impl->get_window(start, len); }
-	void release_window(const WindowMem& w) { _impl->release_window(w); }
-	uint32_t max_win_size() { return _impl->max_win_size(); }
+	WindowMem get_window(size_t start, uint32_t len) const { return _impl->get_window(start, len); }
+	void release_window(WindowMem& w) const { _impl->release_window(w); }
+	uint32_t max_win_size() const { return _impl->max_win_size(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp); }

@@ -154,10 +154,9 @@ private:
 
 FilecacheRemoteFile::FilecacheRemoteFile(const std::string &url, const std::string &prefix, bool refresh_data) : _url(url), hobj(url) {
 	info.filesize = 0; curpos = 0; blocksize = default_block_size;
-
 	RemoteFileInfo remote_info;
 	hobj.getInfo(remote_info);
-	std::string metafile = prefix + ".meta_info";
+	std::string metafile = prefix;
 	if (!refresh_data && utils::file_exists(metafile)) {
 		load_files(prefix);
 		if (info != remote_info)

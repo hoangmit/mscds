@@ -143,7 +143,7 @@ struct HttpObjectReq {
 	bool last_modified(time_t& last_update) {
 		if (s_last_modified.empty()) return false;
 		struct tm tmx;
-		if (strptime(s_last_modified.c_str(), "%a, %d %b %Y %H:%M:%S %Z", &tmx) == 0) {
+		if (strptime(s_last_modified.c_str(), "%a, %d %b %Y %H:%M:%S %Z", &tmx) == NULL) {
 			throw remoteio_error("cannot parse last-modified string");
 		}
 		tmx.tm_isdst = -1;
@@ -157,7 +157,7 @@ struct HttpObjectReq {
 	bool date(time_t & rdate) {
 		struct tm tmx;
 		if (s_date.empty()) return false;
-		if (strptime(s_date.c_str(), "%a, %d %b %Y %H:%M:%S %Z", &tmx) == 0) {
+		if (strptime(s_date.c_str(), "%a, %d %b %Y %H:%M:%S %Z", &tmx) == NULL) {
 			throw remoteio_error("cannot parse last-modified string");
 		}
 		tmx.tm_isdst = -1;
@@ -195,9 +195,9 @@ struct HttpObjectReq {
 				s_etag = h.second;
 			}else
 			{}
-			std::cout << ss << " \t" << h.second << std::endl;
+			//std::cout << ss << " \t" << h.second << std::endl;
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 
 

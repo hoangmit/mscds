@@ -412,8 +412,8 @@ strptime(const char *buf, const char *fmt, struct tm *timeptr) {
 				timeptr->tm_year = ret - tm_year_base;
 				buf = s;
 				break;
-			//case 'Z':
-			//	abort();
+			case 'Z':
+				break;
 			case '\0':
 				--fmt;
 				/* FALLTHROUGH */

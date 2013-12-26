@@ -118,7 +118,12 @@ namespace utils {
 		if (dwRetVal == 0 || dwRetVal > dwBufSize) {
 			throw std::runtime_error("GetTempPath failed");
 		}
-		return string(lpPathBuffer);
+		std::string ret = string(lpPathBuffer);
+		if (ret.length() > 0) {
+			if (ret[ret.length() - 1] == '/') return ret;
+			else return ret + '/';
+		}
+		else return "./";
 	}
 	
 #else
@@ -166,11 +171,13 @@ namespace utils {
 
 	std::string get_temp_path() {
 		char const * tmpdir = getenv("TMPDIR");
-		const char * ret;
+		std::string ret;
 		if (tmpdir != NULL) ret = tmpdir;
 		else ret = P_tmpdir;
-		if (ret[strlen(ret) - 1] == '/') return ret;
-		else return std::string(ret) + '/';
+		if (ret.length() > 0) {
+			if (ret[ret.length() - 1] == '/') return ret;
+			else return ret + '/';
+		} else return "./";
 	}
 
 #endif

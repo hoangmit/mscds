@@ -5,9 +5,11 @@
 
 cmake_minimum_required(VERSION 2.6)
 project(CPP-NETLIB)
-set(Boost_USE_STATIC_LIBS ON)
+
+#set(Boost_USE_STATIC_LIBS ON)
+#set(Boost_USE_STATIC_RUNTIME ON)
 set(Boost_USE_MULTI_THREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+
 find_package( Boost 1.44.0 REQUIRED system regex date_time thread filesystem chrono )
 find_package( OpenSSL )
 find_package( Threads )

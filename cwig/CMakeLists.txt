@@ -24,7 +24,7 @@ add_library(cwig ${SRCS} ${HEADERS})
 target_link_libraries(cwig mscdsa remote_file)
 
 add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp intv_tests.cpp intv_rand_gen.hpp)
-target_link_libraries(t_cwig cwig utils ${HAYAI_LIBRARY})
+target_link_libraries(t_cwig cwig utils)
 set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 set_property(TARGET t_cwig PROPERTY FOLDER "Tests")
 

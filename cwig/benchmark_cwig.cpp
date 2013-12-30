@@ -78,6 +78,7 @@ double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 		unsigned int p1 = rand() % lp[chr];
 		unsigned int p2 = rand() % lp[chr];
 		if (p1 > p2) swap(p1, p2);
+		if (p1 == p2) if (p1 > 0) p1--; else p2++;
 		cq.min_value(p1, p2);
 	}
 	double qps = nqrs / tm.current();
@@ -88,10 +89,11 @@ double test1(GenomeNumData& qs, unsigned int nqrs = 2000000) {
 
 void random_query(const string& name) {
 	GenomeNumData qs;
-	mscds::IFileMapArchive fi;
-	fi.open_read(outpath + name);
 	cout << "Loading ... " << name << endl;
-	qs.load(fi);
+	string fullpath = name;
+	if (fullpath.find('/') == std::string::npos)
+		fullpath = outpath + fullpath;
+	qs.loadfile(fullpath);
 	
 	cout << qs.chromosome_count() << " chromosomes " << endl;
 
@@ -177,7 +179,8 @@ int main(int argc, const char* argv[]) {
 	c->add("CWIG.INT_STORAGE", "2");
 	c->add("CWIG.VALUE_STORAGE", "5");
 	const char* testv[] = {"", "b", "C:/temp/wgEncodeFsuRepliChipBg02esWaveSignalRep1.bedGraph", "C:/temp/wgEncodeFsuRepliChipBg02esWaveSignalRep1.cwig"};
-	return run(4, testv);
+	const char* testx[] = {"", "r", "http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeOpenChromChipGm19240CtcfSig.cwig" };
+	return run(3, testx);
 	//return run(3, testv);
 	testfile_wrong();
 	return 0;

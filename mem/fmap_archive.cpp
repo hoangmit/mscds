@@ -47,13 +47,7 @@ void IFileMapArchive::close() {
 unsigned char IFileMapArchive::loadclass(const std::string &name) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	if (!fm->fi) throw ioerror("stream error");
-	uint32_t hash = FNV_hash24(name);
-	//unsigned char version = 0;
-	uint32_t v;
-	fm->fi.read((char*)&v, sizeof(v));
-	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
-	fm->pos += sizeof(v);
-	return v >> 24;
+	return FileMaker::check_class_start(*this, name);
 }
 
 
@@ -65,9 +59,9 @@ InpArchive& IFileMapArchive::load_bin(void *ptr, size_t size) {
 }
 
 InpArchive &IFileMapArchive::endclass(){
+	FileMaker::check_class_end(*this);
 	return * this;
 }
-
 
 struct FMDeleter {
 	mapped_region * ptr;
@@ -82,13 +76,8 @@ struct FMDeleter {
 
 StaticMemRegionPtr IFileMapArchive::load_mem_region() {
 	FileMapImpl * fm = (FileMapImpl *)impl;
-
-	uint32_t header;// = 0x92492400u | align;
-	load_bin((char*)(&header), sizeof(header));
-	if ((header >> 8) != 0x924924) throw ioerror("wrong mem_region start or corrupted data");
-	MemoryAlignmentType align = (MemoryAlignmentType)(header & 0xFF);
-	uint32_t size = 0;
-	load_bin((char*)(&size), sizeof(size));
+	MemoryAlignmentType align;
+	uint32_t size = FileMaker::check_mem_start(*this, align);
 	fm->fi.seekg(size, ios_base::cur);
 	std::shared_ptr<void> s;
 	if (size > 0) {

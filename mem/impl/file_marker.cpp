@@ -2,23 +2,47 @@
 
 namespace mscds {
 
-/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
-static const uint32_t InitialFNV = 2166136261U;
-static const uint32_t FNVMultiple = 16777619;
 
-/* Fowler / Noll / Vo (FNV) Hash */
-uint32_t FNV_hash32(const std::string& s) {
-	uint32_t hash = InitialFNV;
-	for (size_t i = 0; i < s.length(); i++) {
-		hash = hash ^ (s[i]);       /* xor the low 8 bits */
-		hash = hash * FNVMultiple;  /* multiply by the magic number */
-	}
-	return hash;
+void FileMaker::class_start(OutArchive &out, const std::string &name, unsigned char version) {
+	uint32_t v = FNV_hash::hash24(name) | (((uint32_t)version) << 24);
+	out.save_bin((char*)&v, sizeof(v));
 }
 
-uint32_t FNV_hash24(const std::string& s) {
-	uint32_t hash = FNV_hash32(s);
-	return (hash >> 24) ^ (hash & 0xFFFFFFU);
+void FileMaker::class_end(OutArchive &out) {}
+
+unsigned char FileMaker::check_class_start(InpArchive &inp, const std::string &name) {
+	uint32_t hash = FNV_hash::hash24(name);
+	uint32_t v;
+	inp.load_bin(&v, sizeof(v));
+	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
+	return v >> 24;
 }
+
+bool FileMaker::check_class_end(InpArchive &inp) {
+	return true;
+}
+
+void FileMaker::mem_start(OutArchive &out, size_t size, MemoryAlignmentType align) {
+	if ((size >> 32) != 0) throw memory_error("unsupported big size mem");
+	uint32_t header = 0x92492400u | align;
+	out.save_bin((char*)(&header), sizeof(header));
+	uint32_t nsz = (uint32_t)size;
+	out.save_bin((char*)(&nsz), sizeof(nsz));
+}
+
+
+size_t FileMaker::check_mem_start(InpArchive &inp, MemoryAlignmentType &t) {
+	uint32_t header=0;// = 0x92492400u | align;
+	inp.load_bin((char*)(&header), sizeof(header));
+
+	if ((header >> 8) != 0x924924)
+		throw ioerror("wrong mem_region start or corrupted data");
+	MemoryAlignmentType align = (MemoryAlignmentType) (header & 0xFF);
+	uint32_t nsz = 0;
+	inp.load_bin((char*)(&nsz), sizeof(nsz));
+	return nsz;
+}
+
+
 
 }

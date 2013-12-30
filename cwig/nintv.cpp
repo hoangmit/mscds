@@ -433,7 +433,8 @@ NIntvGap::PosType NIntvGap::find_rlen(PosType val) const {
 }
 
 NIntvGap::PosType NIntvGap::int_psrlen(PosType i) const {
-	return start.select(i + 1) - rgap.prefixsum(i);
+	if (i == 0) return 0;
+	else return start.select(i) - rgap.prefixsum(i + 1);
 }
 
 void NIntvGap::getEnum(PosType idx, Enum * e) const {

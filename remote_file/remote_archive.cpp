@@ -8,12 +8,7 @@ RemoteArchive::RemoteArchive() {}
 
 unsigned char RemoteArchive::loadclass(const std::string &name) {
 	if (!file) throw ioerror("stream error");
-	uint32_t hash = FNV_hash24(name);
-	uint32_t v;
-	file->read((char*)&v, sizeof(v));
-	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
-	pos += sizeof(v);
-	return v >> 24;
+	return FileMaker::check_class_start(*this, name);
 }
 
 InpArchive &RemoteArchive::load_bin(void *ptr, size_t size) {
@@ -23,17 +18,13 @@ InpArchive &RemoteArchive::load_bin(void *ptr, size_t size) {
 }
 
 InpArchive &RemoteArchive::endclass() {
+	FileMaker::check_class_end(*this);
 	return * this;
 }
 
 StaticMemRegionPtr RemoteArchive::load_mem_region() {
-	uint32_t header = 0;// = 0x92492400u | align;
-	file->read((char*)(&header), sizeof(header));
-	if ((header >> 8) != 0x924924)
-		throw ioerror("wrong mem_region start or corrupted data");
-	MemoryAlignmentType align = (MemoryAlignmentType)(header & 0xFF);
-	uint32_t nsz = 0;
-	file->read((char*)(&nsz), sizeof(nsz));
+	MemoryAlignmentType align;
+	uint32_t nsz = FileMaker::check_mem_start(*this, align);
 	auto ret = std::make_shared<RemoteMem>();
 	ret->file = this->file;
 	ret->fstart = file->tellg();

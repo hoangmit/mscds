@@ -31,10 +31,13 @@ void test_intervals(const std::vector<std::pair<unsigned int, unsigned int> >& r
 	StructTp r;
 	bd.build(&r);
 	ASSERT_EQ(rng.size(), r.length());
+	size_t pslen = 0;
 	for (size_t i = 0; i < rng.size(); ++i) {
 		ASSERT_EQ(rng[i].first, r.int_start(i));
 		ASSERT_EQ(rng[i].second, r.int_end(i));
 		ASSERT_EQ(rng[i].second - rng[i].first, r.int_len(i));
+		ASSERT_EQ(pslen, r.int_psrlen(i));
+		pslen += rng[i].second - rng[i].first;
 		auto px = r.int_startend(i);
 		ASSERT(rng[i].first == px.first && rng[i].second == px.second);
 	}
@@ -71,14 +74,14 @@ void test_intervals(const std::vector<std::pair<unsigned int, unsigned int> >& r
 	ASSERT_EQ(rng.size() - 1, v);
 }
 
-TEST(intv, basic1) {
+TEST(intv, start_len1) {
 	const int len = 11;
 	int A[len] = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	vector<int> Av(A,A+len);
 	test_intervals<NIntv>(convert2pair(genInp(Av)));
 }
 
-TEST(intv, basic2) {
+TEST(intv, start_len2) {
 	int len = 10000;
 	for (size_t i = 0; i < 100; ++i) {
 		vector<int> A = gen_density(len);
@@ -146,7 +149,7 @@ TEST(intv, gap4) {
 	cout << endl;
 }
 
-
+//------------------------------------------------------------------------
 using namespace utils;
 
 class QueryFixture {

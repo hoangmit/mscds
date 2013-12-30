@@ -1,20 +1,44 @@
 #pragma once
 
+#include "framework/archive.h"
+
 #include <string>
 #include <stdint.h>
+
 namespace mscds {
 
 class FileMaker {
-	static unsigned char class_start_marker_width();
-	static uint64_t create_marker(const std::string& name, unsigned char version);
-	static unsigned char check_start_class_marker(const std::string& name, uint64_t word);
+public:
+	static void class_start(OutArchive& out, const std::string& name, unsigned char version);
+	static void class_end(OutArchive& out);
+	static unsigned char check_class_start(InpArchive& inp, const std::string& name);
+	static bool check_class_end(InpArchive& inp);
 
-	static unsigned char mem_region_start_marker_width();
-	static uint64_t create_mem_region_start_marker(const std::string& name, unsigned char version);
-	static bool check_mem_region_start_marker(uint64_t);
+	static void mem_start(OutArchive& out, size_t size, MemoryAlignmentType t);
+	static size_t check_mem_start(InpArchive& inp, MemoryAlignmentType& t);
 };
 
-uint32_t FNV_hash32(const std::string& s);
-uint32_t FNV_hash24(const std::string& s);
+/* Fowler / Noll / Vo (FNV) Hash */
+struct FNV_hash {
+
+	/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
+	static const uint32_t InitialFNV = 2166136261U;
+	static const uint32_t FNVMultiple = 16777619;
+
+	static uint32_t hash32(const std::string& s) {
+		uint32_t hash = InitialFNV;
+		for (size_t i = 0; i < s.length(); i++) {
+			hash = hash ^ (s[i]);       /* xor the low 8 bits */
+			hash = hash * FNVMultiple;  /* multiply by the magic number */
+		}
+		return hash;
+	}
+
+	static uint32_t hash24(const std::string& s)  {
+		uint32_t hash = hash32(s);
+		return (hash >> 24) ^ (hash & 0xFFFFFFU);
+	}
+};
+
 
 }//namespace

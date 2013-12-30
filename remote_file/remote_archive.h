@@ -29,7 +29,7 @@ public:
 
 	void release_window(WindowMem& w) const;
 
-	uint32_t max_win_size() const { return file->max_map_size(); }
+	uint32_t max_win_size() const { return (uint32_t) file->max_map_size(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { uint64_t val; read(wp*sizeof(uint64_t), sizeof(uint64_t), &val); return val; }

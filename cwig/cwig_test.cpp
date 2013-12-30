@@ -42,7 +42,6 @@ TEST(cwig, chrbychr1) {
 	GenomeNumData d;
 	bd.build(&d);
 	ASSERT_EQ(-1.0 * 100, d.getChr(0).sum(2100));
-	cout << '.';
 }
 
 TEST(cwig, chrbychr2) {
@@ -71,7 +70,6 @@ TEST(cwig, chrbychr2) {
 	GenomeNumData d;
 	bd.build(&d);
 	ASSERT_EQ(0.1 * 100, d.getChr(1).sum(3600));
-	cout << '.';
 }
 
 TEST(cwig, chrbychr3) {
@@ -98,7 +96,6 @@ TEST(cwig, chrbychr3) {
 	d.load(fi);
 
 	ASSERT_EQ(0.01 * 100, d.getChr(1).sum(3600));
-	cout << '.';
 }
 
 TEST(cwig, bedgraph1) {
@@ -127,7 +124,6 @@ TEST(cwig, bedgraph1) {
 	d.load(fi);
 
 	ASSERT_EQ(0.01 * 100, d.getChr(1).sum(3600));
-	cout << '.';
 }
 
 
@@ -153,10 +149,9 @@ TEST(cwig, mix) {
 	ASSERT_EQ(5, d.getChr(0).count_intervals());
 	ASSERT_EQ(3, d.getChr(1).count_intervals());
 	ASSERT_EQ(1, d.getChr(2).count_intervals());
-	cout << '.';
 }
 
-TEST(cwig, strarr1) {
+TEST(cwig, DISABLED_strarr1) {
 	const char* A[10] = { "", "", "abc", "defx", "", "eg", "", "", "xagtg", ""};
 	StringArrBuilder bd;
 	for (int i = 0; i < 10; ++i) 
@@ -169,7 +164,7 @@ TEST(cwig, strarr1) {
 	}
 }
 
-TEST(cwig, annotation) {
+TEST(cwig, DISABLED_annotation) {
 	const char* input[9] =
 		{"chr19 2000 2300 -1.0",
 		"chr19 2300 2600 -0.75 abc",
@@ -280,15 +275,11 @@ using namespace utils;
 
 
 int main(int argc, char* argv[]) {
-
 	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
-	
-
 
 	//::testing::GTEST_FLAG(filter) = "";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
-
 
 	BenchmarkRegister::run_all();
 

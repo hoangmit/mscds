@@ -90,6 +90,7 @@ StringArr::StringArr() { clear(); }
 
 const char *StringArr::get(unsigned int i) const {
 	assert(i < cnt);
+	return nullptr;
 	uint64_t ps = 0;
 	uint64_t v = start.lookup(i, ps);
 	if (v == 0) return ptrs + ps;

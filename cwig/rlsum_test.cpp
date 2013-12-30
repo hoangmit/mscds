@@ -106,7 +106,6 @@ void test_rlsum_tb_1() {
 
 	vector<int> Av(A, A + len);
 	test_rlsum_basic_vec<RunLenSumArray, false>(Av);
-	cout << ".";
 }
 
 template<typename RunLenSumArray>
@@ -122,7 +121,6 @@ void test_rlsum_tb_2() {
 
 	vector<int> Av(A, A + len);
 	test_rlsum_basic_vec<RunLenSumArray, true>(Av);
-	cout << ".";
 }
 
 TEST(rlsum, tb_1) {

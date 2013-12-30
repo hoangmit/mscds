@@ -17,17 +17,14 @@ using namespace std;
 namespace mscds {
 
 OutArchive& OFileArchive::startclass(const std::string& name, unsigned char version) {
-	uint32_t v = FNV_hash24(name) | (((uint32_t)version) << 24);
-	control->write((char*)&v, sizeof(v));
-	pos += sizeof(v);
+	FileMaker::class_start(*this, name, version);
 	openclass++;
 	return * this;
 }
 
 OutArchive& OFileArchive::endclass() { 
+	FileMaker::class_end(*this);
 	closeclass++;
-	//out->write("cend", 4);
-	//pos+=4;
 	return * this;
 }
 
@@ -42,12 +39,8 @@ size_t OFileArchive::opos() const {
 }
 
 OutArchive &OFileArchive::start_mem_region(size_t size, MemoryAlignmentType align) {
-	if ((size >> 32) != 0) throw memory_error("unsupported big size mem");
 	cur_mem_region = size;
-	uint32_t header = 0x92492400u | align;
-	control->write((char*)(&header), sizeof(header));
-	uint32_t nsz = (uint32_t)size;
-	control->write((char*)(&nsz), sizeof(nsz));
+	FileMaker::mem_start(*this, size, align);
 	return *this;
 }
 
@@ -122,12 +115,7 @@ IFileArchive::IFileArchive(): control(NULL), data(NULL), needclose(false), pos(0
 
 unsigned char IFileArchive::loadclass(const std::string& name) {
 	if (!control || !(*control)) throw ioerror("stream error");
-	uint32_t hash = FNV_hash24(name);
-	uint32_t v;
-	control->read((char*)&v, sizeof(v));
-	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
-	pos += sizeof(v);
-	return v >> 24;
+	return FileMaker::check_class_start(*this, name);
 }
 
 InpArchive& IFileArchive::load_bin(void *ptr, size_t size) {
@@ -137,17 +125,11 @@ InpArchive& IFileArchive::load_bin(void *ptr, size_t size) {
 }
 
 StaticMemRegionPtr IFileArchive::load_mem_region() {
-	uint32_t header=0;// = 0x92492400u | align;
-	control->read((char*)(&header), sizeof(header));
-	if ((header >> 8) != 0x924924)
-		throw ioerror("wrong mem_region start or corrupted data");
-	MemoryAlignmentType align = (MemoryAlignmentType) (header & 0xFF);
-	uint32_t nsz = 0;
-	control->read((char*)(&nsz), sizeof(nsz));
+	MemoryAlignmentType align;
+	uint32_t nsz = FileMaker::check_mem_start(*this, align);
 	LocalMemModel alloc;
 	auto ret = alloc.allocStaticMem2(nsz);
 	data->read((char*)(ret->get_addr()), nsz);
-	pos += nsz;
 	return StaticMemRegionPtr(ret);
 }
 
@@ -155,7 +137,8 @@ size_t IFileArchive::ipos() const {
 	return pos;
 }
 
-InpArchive& IFileArchive::endclass() { 
+InpArchive& IFileArchive::endclass() {
+	FileMaker::check_class_end(*this);
 	return * this;
 }
 

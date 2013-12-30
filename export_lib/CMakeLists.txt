@@ -9,6 +9,7 @@ if((NOT WIN32) AND UNIX)
 
 	add_python_module(count2d_exp mscdsa)
 	add_python_module(cwig_exp cwig mscdsa)
-
-	add_java_module(cwig_exp cwig mscdsa)
+	if (Java_FOUND)
+		add_java_module(cwig_exp cwig mscdsa)
+	endif()
 endif()

@@ -53,17 +53,18 @@ endmacro()
 
 
 macro(swig_java_init)
-	find_package(SWIG REQUIRED)
+	find_package(SWIG)
 	include(${SWIG_USE_FILE})
-	find_package(Java REQUIRED)
-	find_package(JNI REQUIRED)
+	find_package(Java)
+	find_package(JNI)
 
 	#cmake 2.6 patch 
 	find_program(Java_JAVAC_EXECUTABLE NAMES javac HINTS ${_JAVA_HINTS} PATHS ${_JAVA_PATHS})
 	find_program(Java_JAR_EXECUTABLE NAMES jar HINTS ${_JAVA_HINTS} PATHS ${_JAVA_PATHS})
 	message(STATUS "Java include path: ${JAVA_INCLUDE_PATH}")
-
-	include_directories(${JAVA_INCLUDE_PATH} ${JNI_INCLUDE_DIRS})
+	if (Java_FOUND AND JNI_FOUND)
+		include_directories(${JAVA_INCLUDE_PATH} ${JNI_INCLUDE_DIRS})
+	endif()
 endmacro()
 
 macro(add_java_module MOD_NAME LIBS)

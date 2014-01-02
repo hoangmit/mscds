@@ -47,7 +47,7 @@ void IFileMapArchive::close() {
 unsigned char IFileMapArchive::loadclass(const std::string &name) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	if (!fm->fi) throw ioerror("stream error");
-	return FileMaker::check_class_start(*this, name);
+	return FileMarker::check_class_start(*this, name);
 }
 
 
@@ -59,7 +59,7 @@ InpArchive& IFileMapArchive::load_bin(void *ptr, size_t size) {
 }
 
 InpArchive &IFileMapArchive::endclass(){
-	FileMaker::check_class_end(*this);
+	FileMarker::check_class_end(*this);
 	return * this;
 }
 
@@ -77,7 +77,7 @@ struct FMDeleter {
 StaticMemRegionPtr IFileMapArchive::load_mem_region() {
 	FileMapImpl * fm = (FileMapImpl *)impl;
 	MemoryAlignmentType align;
-	FileMaker::check_mem_start(*this, align);
+	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;
 	load_bin(&nsz, sizeof(nsz));
 	fm->fi.seekg(nsz, ios_base::cur);

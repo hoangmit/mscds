@@ -17,13 +17,13 @@ using namespace std;
 namespace mscds {
 
 OutArchive& OFileArchive::startclass(const std::string& name, unsigned char version) {
-	FileMaker::class_start(*this, name, version);
+	FileMarker::class_start(*this, name, version);
 	openclass++;
 	return * this;
 }
 
 OutArchive& OFileArchive::endclass() { 
-	FileMaker::class_end(*this);
+	FileMarker::class_end(*this);
 	closeclass++;
 	return * this;
 }
@@ -40,7 +40,7 @@ size_t OFileArchive::opos() const {
 
 OutArchive &OFileArchive::start_mem_region(size_t size, MemoryAlignmentType align) {
 	cur_mem_region = size;
-	FileMaker::mem_start(*this, align);
+	FileMarker::mem_start(*this, align);
 	uint32_t sz = size;
 	save_bin(&sz, sizeof(sz));
 	return *this;
@@ -115,7 +115,7 @@ IFileArchive::IFileArchive(): control(NULL), data(NULL), needclose(false), pos(0
 
 unsigned char IFileArchive::loadclass(const std::string& name) {
 	if (!control || !(*control)) throw ioerror("stream error");
-	return FileMaker::check_class_start(*this, name);
+	return FileMarker::check_class_start(*this, name);
 }
 
 InpArchive& IFileArchive::load_bin(void *ptr, size_t size) {
@@ -126,7 +126,7 @@ InpArchive& IFileArchive::load_bin(void *ptr, size_t size) {
 
 StaticMemRegionPtr IFileArchive::load_mem_region() {
 	MemoryAlignmentType align;
-	FileMaker::check_mem_start(*this, align);
+	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;
 	load_bin((char*)&nsz, sizeof(nsz));
 	LocalMemModel alloc;
@@ -140,7 +140,7 @@ size_t IFileArchive::ipos() const {
 }
 
 InpArchive& IFileArchive::endclass() {
-	FileMaker::check_class_end(*this);
+	FileMarker::check_class_end(*this);
 	return * this;
 }
 

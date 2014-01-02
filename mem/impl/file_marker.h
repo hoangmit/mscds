@@ -7,7 +7,7 @@
 
 namespace mscds {
 
-class FileMaker {
+class FileMarker {
 public:
 
 	struct HeaderBlock {

@@ -1,5 +1,7 @@
 #include "remote_file.h"
+
 #include "remote_archive.h"
+#include "remote_archive2.h"
 
 #include "mem/file_archive.h"
 
@@ -142,9 +144,9 @@ struct Remote_sdarray {
 struct Remote_cwig {
 
 	void test_remote_file() {
-		app_ds::ChrNumData remote;
-
-		RemoteArchive rfi;
+		app_ds::GenomeNumData remote;
+		//20-25 second to load
+		RemoteArchive2 rfi;
 		utils::Timer tm;
 
 		rfi.open_url("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeOpenChromChipGm19240CtcfSig.cwig", "", true);

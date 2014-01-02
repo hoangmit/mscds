@@ -8,7 +8,7 @@ RemoteArchive::RemoteArchive() {}
 
 unsigned char RemoteArchive::loadclass(const std::string &name) {
 	if (!file) throw ioerror("stream error");
-	return FileMaker::check_class_start(*this, name);
+	return FileMarker::check_class_start(*this, name);
 }
 
 InpArchive &RemoteArchive::load_bin(void *ptr, size_t size) {
@@ -18,13 +18,13 @@ InpArchive &RemoteArchive::load_bin(void *ptr, size_t size) {
 }
 
 InpArchive &RemoteArchive::endclass() {
-	FileMaker::check_class_end(*this);
+	FileMarker::check_class_end(*this);
 	return * this;
 }
 
 StaticMemRegionPtr RemoteArchive::load_mem_region() {
 	MemoryAlignmentType align;
-	FileMaker::check_mem_start(*this, align);
+	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz = 0;
 	load_bin(&nsz, sizeof(nsz));
 	auto ret = std::make_shared<RemoteMem>();

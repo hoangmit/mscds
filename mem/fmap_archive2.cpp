@@ -32,14 +32,14 @@ void IFileMapArchive2::open_read(const std::string &fname) {
 
 	fm->fi.open(fname.c_str(), ios::binary);
 	if (!fm->fi) throw ioerror("open file: " + fname);
-	FileMaker::HeaderBlock hd;
+	FileMarker::HeaderBlock hd;
 	fm->fi.read((char*)&hd, sizeof(hd));
 	size_t dp, cp;
-	FileMaker::check_file_header(hd, dp, cp);
+	FileMarker::check_file_header(hd, dp, cp);
 	fm->data_start = 0 + dp;
 	auto control_pos = 0 + cp;
 	fm->fi.seekg(control_pos);
-	FileMaker::check_control_start(*this);
+	FileMarker::check_control_start(*this);
 
 	fm->m_file = file_mapping(fname.c_str(), read_only);
 }
@@ -56,7 +56,7 @@ void IFileMapArchive2::close() {
 unsigned char IFileMapArchive2::loadclass(const std::string &name) {
 	FileMapImpl2 * fm = (FileMapImpl2 *) impl;
 	if (!fm->fi) throw ioerror("stream error");
-	return FileMaker::check_class_start(*this, name);
+	return FileMarker::check_class_start(*this, name);
 }
 
 
@@ -67,7 +67,7 @@ InpArchive& IFileMapArchive2::load_bin(void *ptr, size_t size) {
 }
 
 InpArchive &IFileMapArchive2::endclass(){
-	FileMaker::check_class_end(*this);
+	FileMarker::check_class_end(*this);
 	return * this;
 }
 
@@ -85,7 +85,7 @@ struct FMDeleter2 {
 StaticMemRegionPtr IFileMapArchive2::load_mem_region() {
 	FileMapImpl2 * fm = (FileMapImpl2 *)impl;
 	MemoryAlignmentType align;
-	FileMaker::check_mem_start(*this, align);
+	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;
 	load_bin(&nsz, sizeof(nsz));
 	uint64_t ptrx;

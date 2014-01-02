@@ -18,13 +18,13 @@ using namespace std;
 namespace mscds {
 
 OutArchive& OFileArchive2::startclass(const std::string& name, unsigned char version) {
-	FileMaker::class_start(*this, name, version);
+	FileMarker::class_start(*this, name, version);
 	openclass++;
 	return * this;
 }
 
 OutArchive& OFileArchive2::endclass() { 
-	FileMaker::class_end(*this);
+	FileMarker::class_end(*this);
 	closeclass++;
 	return * this;
 }
@@ -41,7 +41,7 @@ OutArchive& OFileArchive2::save_bin(const void* ptr, size_t size) {
 
 OutArchive &OFileArchive2::start_mem_region(size_t size, MemoryAlignmentType align) {
 	cur_mem_region = size;
-	FileMaker::mem_start(*this, align);
+	FileMarker::mem_start(*this, align);
 	if (size >> 32 > 0) throw ioerror("too big region");
 	uint32_t sz = (uint32_t)size;
 	save_bin(&sz, sizeof(sz));
@@ -74,11 +74,11 @@ void OFileArchive2::open_write(const std::string& fname) {
 	if (buffer == NULL)
 		buffer = new char[BUFSIZE];
 	data.rdbuf()->pubsetbuf(buffer, BUFSIZE);
-	FileMaker::HeaderBlock hd;
-	FileMaker::file_header(hd);
+	FileMarker::HeaderBlock hd;
+	FileMarker::file_header(hd);
 	data.write((char*)&hd, sizeof(hd));
-	pointer_pos = 0 + offsetof(FileMaker::HeaderBlock, control_ptr);
-	FileMaker::control_start(*this);
+	pointer_pos = 0 + offsetof(FileMarker::HeaderBlock, control_ptr);
+	FileMarker::control_start(*this);
 	sz_data = 0;
 	sz_control = 0;
 }
@@ -104,7 +104,6 @@ void OFileArchive2::post_process() {
 }
 
 void OFileArchive2::close() {
-	
 	if (cur_mem_region > 0) throw ioerror("need close mem region");
 
 	if (openclass != closeclass) 
@@ -138,7 +137,7 @@ IFileArchive2::IFileArchive2(): data(NULL), needclose(false),
 
 unsigned char IFileArchive2::loadclass(const std::string& name) {
 	if (!data || !(*data)) throw ioerror("stream error");
-	return FileMaker::check_class_start(*this, name);
+	return FileMarker::check_class_start(*this, name);
 }
 
 InpArchive& IFileArchive2::load_bin(void *ptr, size_t size) {
@@ -150,7 +149,7 @@ InpArchive& IFileArchive2::load_bin(void *ptr, size_t size) {
 
 StaticMemRegionPtr IFileArchive2::load_mem_region() {
 	MemoryAlignmentType align;
-	FileMaker::check_mem_start(*this, align);
+	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;
 	load_bin(&nsz, sizeof(nsz));
 	uint64_t ptrx;
@@ -167,7 +166,7 @@ size_t IFileArchive2::ipos() const {
 }
 
 InpArchive& IFileArchive2::endclass() {
-	FileMaker::check_class_end(*this);
+	FileMarker::check_class_end(*this);
 	return * this;
 }
 
@@ -183,13 +182,13 @@ void IFileArchive2::open_read(const std::string& fname) {
 	needclose = true;
 	size_t dpos, cpos;
 	size_t xpos = data->tellg();
-	FileMaker::HeaderBlock hd;
+	FileMarker::HeaderBlock hd;
 	fin->read((char*)&hd, sizeof(hd));
-	FileMaker::check_file_header(hd, dpos, cpos);
+	FileMarker::check_file_header(hd, dpos, cpos);
 	data_start = xpos + dpos;
 	control_pos = xpos + cpos;
 	data->seekg(control_pos);
-	FileMaker::check_control_start(*this);
+	FileMarker::check_control_start(*this);
 }
 
 /*void IFileArchive2::assign_read(std::istream * i) {

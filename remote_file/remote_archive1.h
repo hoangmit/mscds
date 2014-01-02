@@ -8,7 +8,7 @@
 #include <string>
 
 namespace mscds {
-class RemoteArchive;
+class RemoteArchive1;
 class RemoteArchive2;
 
 class RemoteMem : public StaticMemRegionAbstract {
@@ -45,14 +45,14 @@ private:
 	RemoteFileHdl file;
 	size_t fstart, sz;
 	char* ptr;
-	friend class RemoteArchive;
+	friend class RemoteArchive1;
 	friend class RemoteArchive2;
 };
 
-class RemoteArchive : public InpArchive {
+class RemoteArchive1 : public InpArchive {
 public:
-	RemoteArchive();
-	~RemoteArchive() { close(); }
+	RemoteArchive1();
+	~RemoteArchive1() { close(); }
 
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);

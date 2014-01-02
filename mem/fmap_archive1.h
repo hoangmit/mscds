@@ -9,10 +9,10 @@
 namespace mscds {
 struct FileMapImpl;
 
-class IFileMapArchive: public InpArchive {
+class IFileMapArchive1: public InpArchive {
 public:
-	IFileMapArchive(): impl(NULL) {}
-	~IFileMapArchive() {close();}
+	IFileMapArchive1(): impl(NULL) {}
+	~IFileMapArchive1() {close();}
 
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);

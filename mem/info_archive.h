@@ -11,21 +11,21 @@ namespace mscds {
 
 class IMemArchive;
 
-class OMemArchive : public OFileArchive {
+class OMemArchive : public OFileArchive1 {
 public:
-	OMemArchive() : OFileArchive() {
+	OMemArchive() : OFileArchive1() {
 		ss = std::make_shared<std::stringstream>(std::ios::binary | std::ios::in | std::ios::out);
 		assign_write(ss.get());
 	}
 private:
 	std::shared_ptr<std::stringstream> ss;
-	OFileArchive ar;
+	OFileArchive1 ar;
 	friend class IMemArchive;
 };
 
-class IMemArchive : public IFileArchive {
+class IMemArchive : public IFileArchive1 {
 public:
-	IMemArchive(OMemArchive& in) : IFileArchive() {
+	IMemArchive(OMemArchive& in) : IFileArchive1() {
 		this->ss = in.ss;
 		assign_read(ss.get());
 	}

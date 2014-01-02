@@ -55,7 +55,7 @@ struct Remote_rank6 {
 		}
 		Rank6p qs;
 		bd.build(ba, &qs);
-		OFileArchive fo;
+		OFileArchive1 fo;
 		fo.open_write("C:/temp/rank6p.bin");
 		qs.save(fo);
 		fo.close();
@@ -64,9 +64,9 @@ struct Remote_rank6 {
 	void test_remote_file() {
 		Rank6p local, remote;
 
-		IFileArchive fi;
+		IFileArchive1 fi;
 		fi.open_read("C:/temp/rank6p.bin");
-		RemoteArchive rfi;
+		RemoteArchive2 rfi;
 		rfi.open_url("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/rank6p.bin", "", true);
 
 		local.load(fi);
@@ -105,7 +105,7 @@ struct Remote_sdarray {
 		SDArraySml qs;
 		bd.build(&qs);
 
-		OFileArchive fo;
+		OFileArchive1 fo;
 		fo.open_write("/tmp/sdarray.bin");
 		qs.save(fo);
 		fo.close();
@@ -114,9 +114,9 @@ struct Remote_sdarray {
 	void test_remote_file() {
 		SDArraySml local, remote;
 		
-		IFileArchive fi;
+		IFileArchive1 fi;
 		fi.open_read("/tmp/sdarray.bin");
-		RemoteArchive rfi;
+		RemoteArchive1 rfi;
 		utils::Timer tm;
 		
 		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/sdarray.bin", "", true);

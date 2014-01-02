@@ -13,7 +13,7 @@
 namespace mscds {
 
 
-class OFileArchive: public OutArchive {
+class OFileArchive1: public OutArchive {
 public:
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
 
@@ -27,8 +27,8 @@ public:
 
 	void open_write(const std::string& fname);
 	void assign_write(std::ostream * o);
-	OFileArchive();
-	~OFileArchive() {close();}
+	OFileArchive1();
+	~OFileArchive1() {close();}
 	void close();
 private:
 	void clear();
@@ -41,10 +41,10 @@ private:
 	char * buffer;
 };
 
-class IFileArchive: public InpArchive {
+class IFileArchive1: public InpArchive {
 public:
-	IFileArchive();
-	~IFileArchive() { close(); }
+	IFileArchive1();
+	~IFileArchive1() { close(); }
 
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);

@@ -189,13 +189,13 @@ void test_SDA2_rnd() {
 
 	for (int i = 0; i < len; ++i)
 		bd.add(A[i]);
-	OFileArchive ofa;
+	OFileArchive2 ofa;
 	string fname = utils::tempfname();
 	ofa.open_write(fname);
 	bd.build(ofa);
 	ofa.close();
 
-	IFileArchive ifa;
+	IFileArchive2 ifa;
 	SDArrayQuery d2;
 	ifa.open_read(fname);
 	d2.load(ifa);

@@ -241,7 +241,7 @@ void test_bp2(const BitArray& b, int blksize) {
 	bps.save(fo);
 	bps.clear();
 	fo.close();
-	IFileArchive fi;
+	IFileArchive2 fi;
 	fi.open_read(fn);
 	bps.load(fi);
 	fi.close();

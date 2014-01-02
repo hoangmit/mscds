@@ -26,7 +26,7 @@ struct FileMapImpl {
 	size_t pos;
 };
 
-void IFileMapArchive::open_read(const std::string &fname) {
+void IFileMapArchive1::open_read(const std::string &fname) {
 	close();
 	FileMapImpl * fm = new FileMapImpl();
 	impl = fm;
@@ -36,7 +36,7 @@ void IFileMapArchive::open_read(const std::string &fname) {
 	fm->m_file = file_mapping(fname.c_str(), read_only);
 }
 
-void IFileMapArchive::close() {
+void IFileMapArchive1::close() {
 	if (impl != NULL) {
 		FileMapImpl * fm = (FileMapImpl *) impl;
 		delete fm;
@@ -44,21 +44,21 @@ void IFileMapArchive::close() {
 	}
 }
 
-unsigned char IFileMapArchive::loadclass(const std::string &name) {
+unsigned char IFileMapArchive1::loadclass(const std::string &name) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	if (!fm->fi) throw ioerror("stream error");
 	return FileMarker::check_class_start(*this, name);
 }
 
 
-InpArchive& IFileMapArchive::load_bin(void *ptr, size_t size) {
+InpArchive& IFileMapArchive1::load_bin(void *ptr, size_t size) {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	fm->fi.read((char*)ptr, size);
 	fm->pos += size;
 	return * this;
 }
 
-InpArchive &IFileMapArchive::endclass(){
+InpArchive &IFileMapArchive1::endclass(){
 	FileMarker::check_class_end(*this);
 	return * this;
 }
@@ -74,7 +74,7 @@ struct FMDeleter {
 	}
 };
 
-StaticMemRegionPtr IFileMapArchive::load_mem_region() {
+StaticMemRegionPtr IFileMapArchive1::load_mem_region() {
 	FileMapImpl * fm = (FileMapImpl *)impl;
 	MemoryAlignmentType align;
 	FileMarker::check_mem_start(*this, align);
@@ -92,11 +92,11 @@ StaticMemRegionPtr IFileMapArchive::load_mem_region() {
 	return alloc.adoptMem(nsz, s);
 }
 
-size_t IFileMapArchive::ipos() const {
+size_t IFileMapArchive1::ipos() const {
 	return ((FileMapImpl *) impl)->pos;
 }
 
-bool IFileMapArchive::eof() const {
+bool IFileMapArchive1::eof() const {
 	FileMapImpl * fm = (FileMapImpl *) impl;
 	return fm->fi.eof();
 }

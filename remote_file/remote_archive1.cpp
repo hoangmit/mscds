@@ -4,25 +4,25 @@
 
 namespace mscds {
 
-RemoteArchive::RemoteArchive() {}
+RemoteArchive1::RemoteArchive1() {}
 
-unsigned char RemoteArchive::loadclass(const std::string &name) {
+unsigned char RemoteArchive1::loadclass(const std::string &name) {
 	if (!file) throw ioerror("stream error");
 	return FileMarker::check_class_start(*this, name);
 }
 
-InpArchive &RemoteArchive::load_bin(void *ptr, size_t size) {
+InpArchive &RemoteArchive1::load_bin(void *ptr, size_t size) {
 	file->read((char*)ptr, size);
 	pos += size;
 	return *this;
 }
 
-InpArchive &RemoteArchive::endclass() {
+InpArchive &RemoteArchive1::endclass() {
 	FileMarker::check_class_end(*this);
 	return * this;
 }
 
-StaticMemRegionPtr RemoteArchive::load_mem_region() {
+StaticMemRegionPtr RemoteArchive1::load_mem_region() {
 	MemoryAlignmentType align;
 	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz = 0;
@@ -37,11 +37,11 @@ StaticMemRegionPtr RemoteArchive::load_mem_region() {
 	return StaticMemRegionPtr(ret);
 }
 
-size_t RemoteArchive::ipos() const {
+size_t RemoteArchive1::ipos() const {
 	return pos;
 }
 
-void RemoteArchive::open_url(const std::string& url, const std::string& cache_dir, bool refresh) {
+void RemoteArchive1::open_url(const std::string& url, const std::string& cache_dir, bool refresh) {
 	if (file) {
 		throw ioerror("close before open");
 	}
@@ -50,11 +50,11 @@ void RemoteArchive::open_url(const std::string& url, const std::string& cache_di
 	pos = 0;
 }
 
-void RemoteArchive::close() {
+void RemoteArchive1::close() {
 	file->close();
 }
 
-bool RemoteArchive::eof() const {
+bool RemoteArchive1::eof() const {
 	return file->eof();
 }
 

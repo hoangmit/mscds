@@ -280,7 +280,7 @@ void GenomeNumData::loadinit() {
 
 void GenomeNumData::loadfile(const std::string &input) {
 	if (input.length() > 7 && input.substr(0, 7) == "http://") {
-		mscds::RemoteArchive rar;
+		mscds::RemoteArchive2 rar;
 		rar.open_url(input);
 		load(rar);
 	}

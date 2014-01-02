@@ -61,13 +61,13 @@ void testinp_str1(InpArchive& inp) {
 //-----------------------------------------------
 
 TEST(farchive, file) {
-	OFileArchive fo;
+	OFileArchive1 fo;
 	std::stringstream sbuf;
 	fo.assign_write(&sbuf);
 	testout1(fo);
 	fo.close();
 	
-	IFileArchive fi;
+	IFileArchive1 fi;
 	fi.assign_read(&sbuf);
 	testinp1(fi);
 	fi.close();
@@ -76,12 +76,12 @@ TEST(farchive, file) {
 
 TEST(farchive, file_map) {
 	string filename = utils::tempfname();
-	OFileArchive fo;
+	OFileArchive1 fo;
 	fo.open_write(filename);
 	testout1(fo);
 	fo.close();
 
-	IFileMapArchive fi;
+	IFileMapArchive1 fi;
 	fi.open_read(filename);
 	testinp1(fi);
 	fi.close();

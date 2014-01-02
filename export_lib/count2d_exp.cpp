@@ -1,7 +1,7 @@
 
 #include "count2d_exp.h"
-#include "mem/file_archive.h"
-#include "mem/fmap_archive.h"
+#include "mem/file_archive2.h"
+#include "mem/fmap_archive2.h"
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +26,7 @@ void Count2DBuilderEx::build(const std::string &textinput, const std::string &da
 	}
 	fi.close();
 
-	OFileArchive fo;
+	OFileArchive2 fo;
 	fo.open_write(datafile);
 	bd.build(input, fo);
 	fo.close();
@@ -34,7 +34,7 @@ void Count2DBuilderEx::build(const std::string &textinput, const std::string &da
 
 void Count2DBuilderEx::extract(const std::string &datafile, const std::string &textfile) {
 	throw runtime_error("function is not fully implemented yet");
-	IFileArchive fi;
+	IFileArchive2 fi;
 	q.load(fi);
 	fi.close();
 	ofstream fo(textfile.c_str());
@@ -47,11 +47,11 @@ void Count2DBuilderEx::extract(const std::string &datafile, const std::string &t
 void Count2DQueryEx::load(const std::string &datafile, bool fullmemload) {
 	InpArchive * fi;
 	if (fullmemload) {
-		IFileArchive * ifa = new IFileArchive();
+		IFileArchive2 * ifa = new IFileArchive2();
 		ifa->open_read(datafile);
 		fi = ifa;
 	}else {
-		IFileMapArchive *fma = new IFileMapArchive();
+		IFileMapArchive2 *fma = new IFileMapArchive2();
 		fma->open_read(datafile);
 		fi = fma;
 	}

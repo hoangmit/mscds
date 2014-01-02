@@ -22,7 +22,7 @@ using namespace boost::interprocess;
 struct FileMapImpl2 {
 	file_mapping m_file;
 	std::ifstream fi;
-	size_t data_start;
+	size_t data_start, control_start;
 };
 
 void IFileMapArchive2::open_read(const std::string &fname) {
@@ -40,7 +40,7 @@ void IFileMapArchive2::open_read(const std::string &fname) {
 	auto control_pos = 0 + cp;
 	fm->fi.seekg(control_pos);
 	FileMarker::check_control_start(*this);
-
+	fm->control_start = fm->fi.tellg();
 	fm->m_file = file_mapping(fname.c_str(), read_only);
 }
 

@@ -29,7 +29,7 @@ public:
 private:
 	RemoteFileRepository rep;
 	RemoteFileHdl file;
-	size_t data_start, control_pos;
+	size_t data_start, control_start, control_pos;
 };
 
 }//namespace

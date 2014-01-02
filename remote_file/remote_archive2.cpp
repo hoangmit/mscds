@@ -58,6 +58,7 @@ void RemoteArchive2::open_url(const std::string& url, const std::string& cache_d
 	data_start = xpos + dpos;
 	control_pos = xpos + cpos;
 	FileMarker::check_control_start(*this);
+	control_start = control_pos;
 }
 
 void RemoteArchive2::close() {

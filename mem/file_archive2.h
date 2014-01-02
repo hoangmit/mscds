@@ -39,6 +39,7 @@ private:
 	std::ostringstream control;
 	std::ofstream data;
 	uint64_t sz_data, sz_control;
+	uint32_t sz_align_gap;
 	size_t pointer_pos;
 
 	char * buffer;
@@ -64,7 +65,7 @@ public:
 private:
 	bool needclose;
 	std::istream * data;
-	size_t data_start, control_pos;
+	size_t data_start, control_pos, control_start;
 	char * buffer;
 };
 

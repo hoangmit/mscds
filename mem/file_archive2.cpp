@@ -46,6 +46,11 @@ OutArchive &OFileArchive2::start_mem_region(size_t size, MemoryAlignmentType ali
 	uint32_t sz = (uint32_t)size;
 	save_bin(&sz, sizeof(sz));
 	save_bin(&sz_data, sizeof(sz_data));
+	unsigned int al = memory_alignment_value(align);
+	while (data.tellp() % al != 0) {
+		data.put(0);
+		sz_align_gap++;
+	}
 	return *this;
 }
 
@@ -68,7 +73,7 @@ OutArchive &OFileArchive2::end_mem_region() {
 void OFileArchive2::open_write(const std::string& fname) {
 	close();
 	clear();
-	data.open(fname.c_str());
+	data.open(fname.c_str(), ios::binary);
 	if (!data.is_open()) throw ioerror("cannot open file to write: " + fname);
 	const unsigned int BUFSIZE = 512 * 1024;
 	if (buffer == NULL)
@@ -83,12 +88,12 @@ void OFileArchive2::open_write(const std::string& fname) {
 	sz_control = 0;
 }
 
-
 OFileArchive2::OFileArchive2(): openclass(0), closeclass(0), buffer(NULL),
 	cur_mem_region(0) {}
 
 void OFileArchive2::post_process() {
 	size_t cp = data.tellp();
+	assert(cp == sz_data + sizeof(FileMarker::HeaderBlock) + sz_align_gap);
 	// round to next multipel of 4
 	size_t np = cp + 3 - (cp - 1) % 4;
 	while (np > cp) {
@@ -122,6 +127,7 @@ void OFileArchive2::close() {
 void OFileArchive2::clear() {
 	sz_data = 0;
 	sz_control = 0;
+	sz_align_gap = 0;
 	openclass = 0;
 	closeclass = 0;
 	cur_mem_region = 0;
@@ -189,6 +195,7 @@ void IFileArchive2::open_read(const std::string& fname) {
 	control_pos = xpos + cpos;
 	data->seekg(control_pos);
 	FileMarker::check_control_start(*this);
+	control_start = control_pos;
 }
 
 /*void IFileArchive2::assign_read(std::istream * i) {

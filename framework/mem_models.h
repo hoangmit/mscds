@@ -22,6 +22,18 @@ private:
 
 enum MemoryAlignmentType { DEFAULT, A1, A2, A4, A8 };
 
+inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
+	switch (t) {
+	case DEFAULT: return 1;
+	case A1: return 1;
+	case A4: return 4;
+	case A8: return 8;
+	default:
+		throw std::runtime_error("unknown value");
+	}
+	return 0;
+}
+
 struct StaticMemRegionAbstract {
 	virtual bool has_direct_access() const = 0;
 	virtual bool has_window_access() const = 0;

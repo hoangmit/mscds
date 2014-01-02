@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cstddef>
 
 #include "impl/file_marker.h"
 #include "local_mem.h"
@@ -73,7 +74,6 @@ void OFileArchive2::open_write(const std::string& fname) {
 	if (buffer == NULL)
 		buffer = new char[BUFSIZE];
 	data.rdbuf()->pubsetbuf(buffer, BUFSIZE);
-	control = std::ostringstream();
 	FileMaker::HeaderBlock hd;
 	FileMaker::file_header(hd);
 	data.write((char*)&hd, sizeof(hd));
@@ -126,6 +126,9 @@ void OFileArchive2::clear() {
 	openclass = 0;
 	closeclass = 0;
 	cur_mem_region = 0;
+	control.str("");
+	control.clear();
+	data.close();
 }
 
 //---------------------------------------------------------------------------

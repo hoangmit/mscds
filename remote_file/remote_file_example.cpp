@@ -104,7 +104,7 @@ struct Remote_sdarray {
 		bd.build(&qs);
 
 		OFileArchive fo;
-		fo.open_write("C:/temp/sdarray.bin");
+		fo.open_write("/tmp/sdarray.bin");
 		qs.save(fo);
 		fo.close();
 	}
@@ -113,7 +113,7 @@ struct Remote_sdarray {
 		SDArraySml local, remote;
 		
 		IFileArchive fi;
-		fi.open_read("C:/temp/sdarray.bin");
+		fi.open_read("/tmp/sdarray.bin");
 		RemoteArchive rfi;
 		utils::Timer tm;
 		

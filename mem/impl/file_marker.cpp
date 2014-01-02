@@ -1,4 +1,5 @@
 #include "file_marker.h"
+#include <cstring>
 
 namespace mscds {
 

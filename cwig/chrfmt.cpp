@@ -1,5 +1,6 @@
 #include "chrfmt.h"
-#include "mem/file_archive.h"
+#include "mem/file_archive2.h"
+#include "mem/info_archive.h"
 #include "utils/modp_numtoa.h"
 
 #include <cstdio>

@@ -65,16 +65,6 @@ private:
 	char * buffer;
 };
 
-void save_str(OutArchive& ar, const std::string& st);
-std::string load_str(InpArchive& ar);
-
-template<typename T>
-inline void save_to_file(const T& a, const std::string& name) {
-	OFileArchive ar;
-	ar.open_write(name);
-	a.save(ar);
-	ar.close();
-}
 
 }//namespace
 

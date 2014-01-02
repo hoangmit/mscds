@@ -1,6 +1,6 @@
 
-#include "file_archive.h"
-#include "fmap_archive.h"
+#include "file_archive2.h"
+#include "fmap_archive2.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"
 

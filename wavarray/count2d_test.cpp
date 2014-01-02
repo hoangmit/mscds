@@ -1,7 +1,7 @@
 
 
 #include "count2d.h"
-#include "mem/fmap_archive.h"
+#include "mem/fmap_archive2.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"
 #include <cassert>
@@ -108,13 +108,13 @@ TEST(count2d, test3) {
 		for (int j = 0; j < n; ++j)
 			if (matrix[i][j])
 				list.push_back(Point(i, j));
-	OFileArchive fo;
+	OFileArchive2 fo;
 	string fname = (utils::get_temp_path() + "temp_sx");;
 	fo.open_write(fname);
 	bd.build(list, fo);
 	fo.close();
 
-	IFileMapArchive fi;
+	IFileMapArchive2 fi;
 	fi.open_read(fname);
 	Count2DQuery cq;
 	cq.load(fi);

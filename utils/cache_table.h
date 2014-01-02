@@ -121,6 +121,7 @@ private:
 	std::unordered_map<KeyTp, unsigned int> map;
 };
 
+/*
 class TwowayAssociateCachePolicy : public CacheTablePolicyInterface {
 public:
 	TwowayAssociateCachePolicy() {}
@@ -192,7 +193,7 @@ private:
 
 	std::vector<uint32_t> table;
 	size_t _size;
-};
+};*/
 
 
 }//namespace

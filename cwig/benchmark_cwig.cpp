@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include "cwig.h"
-#include "mem/fmap_archive.h"
+#include "mem/fmap_archive2.h"
 #include "mem/info_archive.h"
 #include "utils/utest.h"
 #include "utils/param.h"
@@ -48,7 +48,7 @@ void build(const string& inpname, const string& outfile) {
 		fox.close();
 	}
 	{
-		mscds::OFileArchive fo2;
+		mscds::OFileArchive2 fo2;
 		fo2.open_write(outpath + outfile);
 		qs.save(fo2);
 		fo2.close();
@@ -104,7 +104,7 @@ void random_query(const string& name) {
 
 void extract(const string& inp, const string& out) {
 	GenomeNumData qs;
-	IFileMapArchive fi;
+	IFileMapArchive2 fi;
 	fi.open_read(inp);
 	cout << "Loading ... " << endl;
 	qs.load(fi);
@@ -114,7 +114,7 @@ void extract(const string& inp, const string& out) {
 
 void testfile_wrong() {
 	string filename = "C:/temp/wgEncodeUwTfbsWi38InputStdRawRep1.C2.V5.P2";
-	mscds::IFileMapArchive fi;
+	mscds::IFileMapArchive2 fi;
 	fi.open_read(filename);
 	GenomeNumData qs;
 	qs.load(fi);

@@ -82,7 +82,7 @@ std::vector<LRU_Policy::EntryInfoTp> LRU_Policy::get_data() {
 void LRU_Policy::resize_capacity(size_t new_cap) {
 	assert(new_cap > 0);
 	if (new_cap >= _capacity) {
-		for (unsigned int i = _capacity; i < new_cap; ++i)
+		for (size_t i = _capacity; i < new_cap; ++i)
 			freelst.push_back(i);
 		_capacity = new_cap;
 	}

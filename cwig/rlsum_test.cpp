@@ -2,7 +2,7 @@
 
 #include "nintv.h"
 #include "rlsum_trivbin.h"
-#include "mem/file_archive.h"
+#include "mem/file_archive2.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
 #include "RLSum6.h"
@@ -35,12 +35,12 @@ void test_rlsum_basic_vec(const vector<int>& A) {
 		bd.build(&y);
 	}else {
 		string fn = utils::get_temp_path() + "test_file2f";
-		OFileArchive fo;
+		OFileArchive2 fo;
 		fo.open_write(fn);
 		bd.build(fo);
 		fo.close();
 
-		IFileArchive fi;
+		IFileArchive2 fi;
 		fi.open_read(fn);
 		y.load(fi);
 		fi.close();

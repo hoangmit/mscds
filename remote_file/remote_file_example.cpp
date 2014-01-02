@@ -1,9 +1,9 @@
 #include "remote_file.h"
 
-#include "remote_archive.h"
+#include "remote_archive1.h"
 #include "remote_archive2.h"
 
-#include "mem/file_archive.h"
+#include "mem/file_archive1.h"
 
 #include "bitarray/rank6p.h"
 #include "intarray/sdarray_sml.h"

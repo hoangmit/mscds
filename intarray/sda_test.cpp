@@ -1,6 +1,6 @@
 
 #include "sdarray.h"
-#include "mem/file_archive.h"
+#include "mem/file_archive2.h"
 #include "mem/info_archive.h"
 #include "utils/utest.h"
 #include "utils/file_utils.h"

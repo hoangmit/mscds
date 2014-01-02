@@ -1,6 +1,7 @@
 #pragma once
 
 #include "genomedata.h"
+#include "mem/fmap_archive2.h"
 #include <stdexcept>
 
 namespace app_ds {
@@ -90,7 +91,7 @@ inline int GenomeData::getChrId(const std::string& chrname) const {
 }
 
 inline void GenomeData::load(const std::string &inputfile) {
-	mscds::IFileMapArchive fi;
+	mscds::IFileMapArchive2 fi;
 	fi.open_read(inputfile);
 	load(fi);
 	fi.close();

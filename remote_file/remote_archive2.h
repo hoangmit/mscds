@@ -4,13 +4,12 @@
 #include "framework/mem_models.h"
 #include "framework/archive.h"
 #include "remote_file.h"
-#include "remote_archive.h"
+#include "remote_archive1.h"
 
 #include <string>
 
 namespace mscds {
 class RemoteArchive2;
-
 
 class RemoteArchive2 : public InpArchive {
 public:

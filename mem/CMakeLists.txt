@@ -6,11 +6,11 @@ project(mem)
 include_directories(${Boost_INCLUDE_DIRS})
 
 
-set(SRCS file_archive.cpp fmap_archive.cpp impl/file_marker.cpp info_archive.cpp
+set(SRCS file_archive1.cpp fmap_archive1.cpp impl/file_marker.cpp info_archive.cpp
 file_archive2.cpp
 fmap_archive2.cpp
 )
-set(HEADERS file_archive.h fmap_archive.h impl/file_marker.h info_archive.h
+set(HEADERS file_archive1.h fmap_archive1.h impl/file_marker.h info_archive.h
 local_mem.h
 ../framework/archive.h ../framework/mem_models.h
 file_archive2.h

@@ -1,7 +1,8 @@
 #include "cbed.h"
 #include "utils/file_utils.h"
-#include "mem/file_archive.h"
-#include "mem/fmap_archive.h"
+#include "mem/file_archive2.h"
+#include "mem/fmap_archive2.h"
+#include "mem/info_archive.h"
 #include "utils/str_utils.h"
 #include <iostream>
 #include <fstream>

@@ -1,4 +1,4 @@
-#include "file_archive.h"
+#include "file_archive1.h"
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -181,30 +181,5 @@ bool IFileArchive::eof() const {
 	return control->eof();
 }
 
-//----------------------------------------------------------------------------
-void save_str(OutArchive& ar, const std::string& st) {
-	if (st.length() > 0xFFFF) throw ioerror("string too long");
-	uint32_t v = (0x7374u << 16) | (st.length() & 0xFFFF); //"st"
-	ar.save_bin(&v, sizeof(v));
-	if (st.length() > 0)
-		ar.save_mem_region(st.c_str(), st.length());
-}
-
-std::string load_str(InpArchive& ar) {
-	uint32_t v = 0;
-	ar.load_bin(&v, sizeof(v));
-	if ((v >> 16) != 0x7374u) throw ioerror("wrong string id");
-	size_t len = v & 0xFFFF;
-	char * st;
-	st = new char[len + 1];
-	if (len > 0) {
-		auto mem = ar.load_mem_region();// &v, 4 - (len % 4));
-		mem.read(0, len, st);
-		st[len] = 0;
-	}
-	std::string ret(st, st + len);
-	delete[] st;
-	return ret;
-}
 
 } //namespace mscds

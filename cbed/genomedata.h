@@ -5,7 +5,6 @@
 
 
 #include "utils/param.h"
-#include "mem/fmap_archive.h"
 #include "framework/archive.h"
 #include "cbed.h"
 

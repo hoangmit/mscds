@@ -4,7 +4,7 @@
 #define __FILE_MAP_ARCHIVE2_H_
 
 #include "framework/mem_models.h"
-#include "file_archive.h"
+#include "file_archive2.h"
 
 namespace mscds {
 struct FileMapImpl2;

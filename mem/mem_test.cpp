@@ -4,13 +4,16 @@
 #include "utils/file_utils.h"
 #include "utils/utest.h"
 
-#include "file_archive.h"
-#include "fmap_archive.h"
-
-#include "local_mem.h"
+#include "file_archive1.h"
+#include "fmap_archive1.h"
 
 #include "file_archive2.h"
 #include "fmap_archive2.h"
+
+#include "info_archive.h"
+
+#include "local_mem.h"
+
 #include "remote_file/remote_archive2.h"
 
 using namespace std;

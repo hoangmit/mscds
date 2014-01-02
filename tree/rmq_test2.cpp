@@ -9,7 +9,7 @@
 #include <cassert>
 #include "utils/benchmark.h"
 
-#include "mem/file_archive.h"
+#include "mem/file_archive2.h"
 #include "mem/info_archive.h"
 #ifndef WIN32
 #include <unistd.h>

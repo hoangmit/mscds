@@ -4,8 +4,8 @@
 #include "blkcomp.h"
 
 #include "framework/archive.h"
-#include "mem/file_archive.h"
-#include "mem/fmap_archive.h"
+#include "mem/file_archive2.h"
+#include "mem/fmap_archive2.h"
 #include "mem/info_archive.h"
 
 #include "cbed.h"
@@ -59,7 +59,7 @@ void build_ext(const string& inp, const string& out) {
 	while (std::getline(file, line)) {
 		bd.add(line);
 	}
-	mscds::OFileArchive fout;
+	mscds::OFileArchive2 fout;
 	fout.open_write(out);
 	bd.build(fout);
 	fout.close();
@@ -258,7 +258,7 @@ void buildfile(const string& inp, const string& out) {
 	}
 	GenomeData qs;
 	bd.build(&qs);
-	mscds::OFileArchive fout;
+	mscds::OFileArchive2 fout;
 	fout.open_write(out);
 	qs.save(fout);
 	fout.close();
@@ -266,7 +266,7 @@ void buildfile(const string& inp, const string& out) {
 
 void extractfile(const string& inp, const string& out) {
 	GenomeData qs;
-	IFileMapArchive ar;
+	IFileMapArchive2 ar;
 	ar.open_read(inp);
 	qs.load(ar);
 	qs.dump_file(out);

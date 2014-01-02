@@ -2,7 +2,7 @@
 
 
 #include "framework/archive.h"
-#include "file_archive.h"
+#include "file_archive1.h"
 
 #include <memory>
 #include <sstream>
@@ -76,5 +76,8 @@ inline size_t estimate_data_size(const T& a) {
 	ar.close();
 	return ar.opos();
 }
+
+void save_str(OutArchive& ar, const std::string& st);
+std::string load_str(InpArchive& ar);
 
 }//namespace

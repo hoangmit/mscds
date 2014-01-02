@@ -1,9 +1,9 @@
 #include "cwig.h"
 #include "utils/file_utils.h"
-#include "mem/file_archive.h"
-#include "mem/fmap_archive.h"
+#include "mem/file_archive2.h"
+#include "mem/fmap_archive2.h"
 #include "utils/str_utils.h"
-#include "remote_file/remote_archive.h"
+#include "remote_file/remote_archive2.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -98,7 +98,7 @@ void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::s
 	char buffer[BUFSIZE];
 	std::ifstream fi(input.c_str());
 	fi.rdbuf()->pubsetbuf(buffer, BUFSIZE);
-	mscds::OFileArchive fo;
+	mscds::OFileArchive2 fo;
 	fo.open_write(output);
 	build_bedgraph(fi, fo, minmax_query, annotation);
 	fo.close();
@@ -171,7 +171,7 @@ void GenomeNumDataBuilder::buildtemp(const std::string& name) {
 	std::string fn = utils::tempfname();
 	ChrNumData data;
 	buildchr(name, list[0], &data);
-	mscds::OFileArchive fo;
+	mscds::OFileArchive2 fo;
 	fo.open_write(fn);
 	data.save(fo);
 	fo.close();
@@ -205,7 +205,7 @@ void GenomeNumDataBuilder::build(GenomeNumData *data) {
 		assert(tmpfn.size() == numchr);
 		size_t i = 0;
 		for (auto fni = tmpfn.begin(); fni != tmpfn.end(); ++fni) {
-			mscds::IFileArchive fi;
+			mscds::IFileArchive2 fi;
 			fi.open_read(*fni);
 			data->chrs[i].load(fi);
 			i++;
@@ -245,7 +245,7 @@ void GenomeNumDataBuilder::build(mscds::OutArchive &ar) {
 		assert(tmpfn.size() == numchr);
 		size_t i = 0;
 		for (auto fni = tmpfn.begin(); fni != tmpfn.end(); ++fni) {
-			mscds::IFileMapArchive fi;
+			mscds::IFileMapArchive2 fi;
 			fi.open_read(*fni);
 			data.chrs[i].load(fi);
 			i++;
@@ -285,7 +285,7 @@ void GenomeNumData::loadfile(const std::string &input) {
 		load(rar);
 	}
 	else {
-		mscds::IFileMapArchive fi;
+		mscds::IFileMapArchive2 fi;
 		fi.open_read(input);
 		load(fi);
 		fi.close();

@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <functional>
 
-#include "mem/file_archive.h"
+#include "mem/file_archive2.h"
 #include "mem/info_archive.h"
 
 #include "utils/str_utils.h"
@@ -235,7 +235,7 @@ void test_bp2(const BitArray& b, int blksize) {
 		}
 	BP_aux bps;
 	bps.build(b, blksize);
-	OFileArchive fo;
+	OFileArchive2 fo;
 	string fn = utils::tempfname();
 	fo.open_write(fn);
 	bps.save(fo);

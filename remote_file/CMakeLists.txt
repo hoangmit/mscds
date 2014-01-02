@@ -16,14 +16,14 @@ INCLUDE_DIRECTORIES(${NETLIB_INCLUDE_DIRS})
 
 SET(SRCS remote_file.cpp strptime.cpp http_client.cpp 
 ext_bitmap.cpp memmapfile.cpp
-remote_archive.cpp
+remote_archive1.cpp
 remote_archive2.cpp
 )
 
 SET(HEADERS remote_file.h strptime.h
 remote_file_impl.h http_client.h
 ext_bitmap.h memmapfile.h
-remote_archive.h
+remote_archive1.h
 remote_archive2.h
 )
 

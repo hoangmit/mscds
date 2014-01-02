@@ -8,6 +8,9 @@
 
 #include <iostream>
 #include <ctime>
+#include "utils/utils.h"
+
+#include "cwig/cwig.h"
 
 using namespace std;
 using namespace mscds;
@@ -108,14 +111,19 @@ struct Remote_sdarray {
 
 	void test_remote_file() {
 		SDArraySml local, remote;
-
+		
 		IFileArchive fi;
 		fi.open_read("C:/temp/sdarray.bin");
 		RemoteArchive rfi;
-		rfi.open_url("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/sdarray.bin", "", true);
-
+		utils::Timer tm;
+		
+		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/sdarray.bin", "", true);
+		
+		
 		local.load(fi);
 		remote.load(rfi);
+
+		cout << "Load in: " << tm.current() << endl;
 
 		for (unsigned int i = 0; i < len; ++i) {
 			auto lcb = local.lookup(i);
@@ -125,9 +133,33 @@ struct Remote_sdarray {
 				throw runtime_error("wrong");
 			}
 		}
+		
+		
+		cout << "total time = " << tm.total() << endl;
 	}
 };
 
+struct Remote_cwig {
+
+	void test_remote_file() {
+		app_ds::ChrNumData remote;
+
+		RemoteArchive rfi;
+		utils::Timer tm;
+
+		rfi.open_url("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeOpenChromChipGm19240CtcfSig.cwig", "", true);
+
+		remote.load(rfi);
+
+		cout << "Load in: " << tm.current() << endl;
+
+		for (unsigned int i = 0; i < 10; ++i) {
+		}
+
+
+		cout << "total time = " << tm.total() << endl;
+	}
+};
 
 int main() {
 	//example1();
@@ -137,6 +169,9 @@ int main() {
 
 	Remote_sdarray sda;
 	//sda.create_remote_file();
-	sda.test_remote_file();
+	//sda.test_remote_file();
+
+	Remote_cwig cw;
+	cw.test_remote_file();
 	return 0;
 }

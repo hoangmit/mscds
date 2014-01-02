@@ -24,7 +24,9 @@ InpArchive &RemoteArchive::endclass() {
 
 StaticMemRegionPtr RemoteArchive::load_mem_region() {
 	MemoryAlignmentType align;
-	uint32_t nsz = FileMaker::check_mem_start(*this, align);
+	FileMaker::check_mem_start(*this, align);
+	uint32_t nsz = 0;
+	load_bin(&nsz, sizeof(nsz));
 	auto ret = std::make_shared<RemoteMem>();
 	ret->file = this->file;
 	ret->fstart = file->tellg();

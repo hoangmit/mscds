@@ -17,12 +17,14 @@ INCLUDE_DIRECTORIES(${NETLIB_INCLUDE_DIRS})
 SET(SRCS remote_file.cpp strptime.cpp http_client.cpp 
 ext_bitmap.cpp memmapfile.cpp
 remote_archive.cpp
+remote_archive2.cpp
 )
 
 SET(HEADERS remote_file.h strptime.h
 remote_file_impl.h http_client.h
 ext_bitmap.h memmapfile.h
 remote_archive.h
+remote_archive2.h
 )
 
 
@@ -31,5 +33,5 @@ ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
 
 ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
-TARGET_LINK_LIBRARIES(remote_file_example remote_file bitarray intarray mem)
+TARGET_LINK_LIBRARIES(remote_file_example remote_file mscdsa cwig)
 set_property(TARGET remote_file_example PROPERTY FOLDER "Tests")

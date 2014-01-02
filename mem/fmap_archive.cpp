@@ -77,17 +77,19 @@ struct FMDeleter {
 StaticMemRegionPtr IFileMapArchive::load_mem_region() {
 	FileMapImpl * fm = (FileMapImpl *)impl;
 	MemoryAlignmentType align;
-	uint32_t size = FileMaker::check_mem_start(*this, align);
-	fm->fi.seekg(size, ios_base::cur);
+	FileMaker::check_mem_start(*this, align);
+	uint32_t nsz;
+	load_bin(&nsz, sizeof(nsz));
+	fm->fi.seekg(nsz, ios_base::cur);
 	std::shared_ptr<void> s;
-	if (size > 0) {
+	if (nsz > 0) {
 		mapped_region * rg;
-		rg = new mapped_region(fm->m_file, read_only, fm->pos, size);
-		fm->pos += size;
+		rg = new mapped_region(fm->m_file, read_only, fm->pos, nsz);
+		fm->pos += nsz;
 		s = std::shared_ptr<void>(rg->get_address(), FMDeleter(rg));
 	}
 	LocalMemModel alloc;
-	return alloc.adoptMem(size, s);
+	return alloc.adoptMem(nsz, s);
 }
 
 size_t IFileMapArchive::ipos() const {

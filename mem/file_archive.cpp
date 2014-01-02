@@ -40,7 +40,9 @@ size_t OFileArchive::opos() const {
 
 OutArchive &OFileArchive::start_mem_region(size_t size, MemoryAlignmentType align) {
 	cur_mem_region = size;
-	FileMaker::mem_start(*this, size, align);
+	FileMaker::mem_start(*this, align);
+	uint32_t sz = size;
+	save_bin(&sz, sizeof(sz));
 	return *this;
 }
 
@@ -61,6 +63,7 @@ OutArchive &OFileArchive::end_mem_region() {
 
 void OFileArchive::open_write(const std::string& fname) {
 	close();
+	clear();
 	std::ofstream * fout = (new std::ofstream(fname.c_str(), std::ios::binary));
 	if (!fout->is_open()) throw ioerror("cannot open file to write: " + fname);
 	const unsigned int BUFSIZE = 512 * 1024;
@@ -70,9 +73,6 @@ void OFileArchive::open_write(const std::string& fname) {
 	control = fout;
 	data = fout;
 	needclose = true;
-	pos = 0;
-	openclass = 0;
-	closeclass = 0;
 }
 
 void OFileArchive::assign_write(std::ostream * o) {
@@ -126,7 +126,9 @@ InpArchive& IFileArchive::load_bin(void *ptr, size_t size) {
 
 StaticMemRegionPtr IFileArchive::load_mem_region() {
 	MemoryAlignmentType align;
-	uint32_t nsz = FileMaker::check_mem_start(*this, align);
+	FileMaker::check_mem_start(*this, align);
+	uint32_t nsz;
+	load_bin((char*)&nsz, sizeof(nsz));
 	LocalMemModel alloc;
 	auto ret = alloc.allocStaticMem2(nsz);
 	data->read((char*)(ret->get_addr()), nsz);
@@ -185,9 +187,7 @@ void save_str(OutArchive& ar, const std::string& st) {
 	uint32_t v = (0x7374u << 16) | (st.length() & 0xFFFF); //"st"
 	ar.save_bin(&v, sizeof(v));
 	if (st.length() > 0)
-		ar.save_bin(st.c_str(), st.length());
-	v = 0;
-	ar.save_bin(&v, 4 - (st.length() % 4));
+		ar.save_mem_region(st.c_str(), st.length());
 }
 
 std::string load_str(InpArchive& ar) {
@@ -198,12 +198,10 @@ std::string load_str(InpArchive& ar) {
 	char * st;
 	st = new char[len + 1];
 	if (len > 0) {
-		ar.load_bin(st, len);
+		auto mem = ar.load_mem_region();// &v, 4 - (len % 4));
+		mem.read(0, len, st);
 		st[len] = 0;
 	}
-	v = 0;
-	ar.load_bin(&v, 4 - (len % 4));
-	if (v != 0) { delete[] st; throw ioerror("wrong ending");}
 	std::string ret(st, st + len);
 	delete[] st;
 	return ret;

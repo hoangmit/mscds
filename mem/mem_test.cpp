@@ -9,6 +9,10 @@
 
 #include "local_mem.h"
 
+#include "file_archive2.h"
+#include "fmap_archive2.h"
+#include "remote_file/remote_archive2.h"
+
 using namespace std;
 using namespace mscds;
 
@@ -41,6 +45,17 @@ void testinp1(InpArchive& inp) {
 
 	inp.endclass();
 }
+
+void testout_str1(OutArchive& out) {
+	save_str(out, "a");
+}
+
+void testinp_str1(InpArchive& inp) {
+	std::string s = load_str(inp);
+	ASSERT_EQ(std::string("a"), s);
+}
+
+//-----------------------------------------------
 
 TEST(farchive, file) {
 	OFileArchive fo;
@@ -81,7 +96,45 @@ TEST(local_mem, test1) {
 		ASSERT_EQ(dm.getchar(i), sm.getchar(i));
 }
 
+TEST(farchive2, normal_file) {
+	string filename = utils::tempfname();
+	OFileArchive2 fo;
+	fo.open_write(filename);
+	testout1(fo);
+	fo.close();
+
+	IFileArchive2 fi;
+	fi.open_read(filename);
+	testinp1(fi);
+	fi.close();
+}
+
+TEST(farchive2, fmap_file) {
+	string filename = utils::tempfname();
+	OFileArchive2 fo;
+	fo.open_write(filename);
+	testout1(fo);
+	fo.close();
+
+	IFileMapArchive2 fi;
+	fi.open_read(filename);
+	testinp1(fi);
+	fi.close();
+}
+
+TEST(farchive2, remote_file) {
+
+	std::string urlp = "http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/test1.bin";
+	RemoteArchive2 fi;
+	fi.open_url(urlp, "", true);
+	testinp1(fi);
+	fi.close();
+}
+
+
+
 int main(int argc, char* argv[]) {
+	//::testing::GTEST_FLAG(filter) = "farchive2.*";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;

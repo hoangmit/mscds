@@ -9,6 +9,7 @@
 
 namespace mscds {
 class RemoteArchive;
+class RemoteArchive2;
 
 class RemoteMem : public StaticMemRegionAbstract {
 public:
@@ -45,6 +46,7 @@ private:
 	size_t fstart, sz;
 	char* ptr;
 	friend class RemoteArchive;
+	friend class RemoteArchive2;
 };
 
 class RemoteArchive : public InpArchive {

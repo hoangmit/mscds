@@ -1,4 +1,5 @@
 
+#include "utils/str_utils.h"
 #include "http_client.h"
 #include "remote_file.h"
 #include "strptime.h"
@@ -70,7 +71,7 @@ struct HttpObjectReq {
 		client_t::response response = client.get(request); //body_handler(len, dest)
 		req_status = status(response);
 		if (req_status != 206)
-			throw remoteio_error("wrong http status code");
+			throw remoteio_error(std::string("wrong http status code: ") + utils::tostr(req_status));
 		parse_headers(response);
 		size_t ctl = 0;
 		if (content_length(ctl)) {

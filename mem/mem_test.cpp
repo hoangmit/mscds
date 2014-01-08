@@ -51,11 +51,17 @@ void testinp1(InpArchive& inp) {
 
 void testout_str1(OutArchive& out) {
 	save_str(out, "a");
+	save_str(out, "bb");
+	save_str(out, "ccc");
 }
 
 void testinp_str1(InpArchive& inp) {
 	std::string s = load_str(inp);
 	ASSERT_EQ(std::string("a"), s);
+	s = load_str(inp);
+	ASSERT_EQ(std::string("bb"), s);
+	s = load_str(inp);
+	ASSERT_EQ(std::string("ccc"), s);
 }
 
 //-----------------------------------------------

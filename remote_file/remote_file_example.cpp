@@ -4,6 +4,7 @@
 #include "remote_archive2.h"
 
 #include "mem/file_archive1.h"
+#include "mem/file_archive2.h"
 
 #include "bitarray/rank6p.h"
 #include "intarray/sdarray_sml.h"
@@ -142,10 +143,10 @@ struct Remote_sdarray {
 };
 
 struct Remote_cwig {
-
 	void test_remote_file() {
 		app_ds::GenomeNumData remote;
 		//20-25 second to load
+
 		RemoteArchive2 rfi;
 		utils::Timer tm;
 
@@ -163,6 +164,40 @@ struct Remote_cwig {
 	}
 };
 
+struct Remote_cwig2 {
+	void create_remote_file() {
+		app_ds::GenomeNumDataBuilder bd;
+		bd.build_bedgraph("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.bedGraph", "C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+	}
+
+	void test_remote_file() {
+		app_ds::GenomeNumData remote, local;
+		//20-25 second to load
+		IFileArchive2 fi;
+		fi.open_read("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+
+		RemoteArchive2 rfi;
+		utils::Timer tm;
+
+		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
+
+		local.load(fi);
+		remote.load(rfi);
+
+		cout << "Load in: " << tm.current() << endl;
+
+		const app_ds::ChrNumData & cq2 = local.getChr(1);
+		cq2.avg(1, 2);
+
+		const app_ds::ChrNumData & cq = remote.getChr(1);
+		cq.avg(1, 2);
+
+
+
+		cout << "total time = " << tm.total() << endl;
+	}
+};
+
 int main() {
 	//example1();
 	Remote_rank6 t;
@@ -173,7 +208,8 @@ int main() {
 	//sda.create_remote_file();
 	//sda.test_remote_file();
 
-	Remote_cwig cw;
+	Remote_cwig2 cw;
+	cw.create_remote_file();
 	cw.test_remote_file();
 	return 0;
 }

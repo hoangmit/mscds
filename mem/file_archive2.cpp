@@ -45,12 +45,13 @@ OutArchive &OFileArchive2::start_mem_region(size_t size, MemoryAlignmentType ali
 	if (size >> 32 > 0) throw ioerror("too big region");
 	uint32_t sz = (uint32_t)size;
 	save_bin(&sz, sizeof(sz));
-	save_bin(&sz_data, sizeof(sz_data));
 	unsigned int al = memory_alignment_value(align);
 	while (data.tellp() % al != 0) {
 		data.put(0);
 		sz_align_gap++;
 	}
+	uint64_t vx = sz_data + sz_align_gap;
+	save_bin(&vx, sizeof(vx));
 	return *this;
 }
 
@@ -86,6 +87,7 @@ void OFileArchive2::open_write(const std::string& fname) {
 	FileMarker::control_start(*this);
 	sz_data = 0;
 	sz_control = 0;
+	sz_align_gap = 0;
 }
 
 OFileArchive2::OFileArchive2(): openclass(0), closeclass(0), buffer(NULL),

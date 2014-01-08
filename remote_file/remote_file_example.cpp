@@ -209,7 +209,7 @@ int main() {
 	//sda.test_remote_file();
 
 	Remote_cwig2 cw;
-	cw.create_remote_file();
+	//cw.create_remote_file();
 	cw.test_remote_file();
 	return 0;
 }

@@ -4,18 +4,9 @@
 #include <memory>
 #include <stdexcept>
 
-namespace mscds {
+#include "error.h"
 
-class remoteio_error : public ::std::exception {
-public:
-	remoteio_error() {}
-	~remoteio_error() throw() {}
-	remoteio_error(const remoteio_error& other) : msg(other.msg) {}
-	remoteio_error(const std::string& _msg) : msg(_msg) {}
-	const char* what() const throw() { return msg.c_str(); }
-private:
-	std::string msg;
-};
+namespace mscds {
 
 class RemoteFileInfoInt {
 public:
@@ -37,6 +28,8 @@ public:
 	virtual size_t max_map_size() { return 0; }
 	virtual char* create_map(size_t start, size_t len) { return nullptr; }
 	virtual void release_map(char* ptr) {}
+	virtual size_t hit_count() const { return 0; }
+	virtual size_t total_count() const { return 0; }
 };
 
 typedef std::shared_ptr<RemoteFileInt> RemoteFileHdl;

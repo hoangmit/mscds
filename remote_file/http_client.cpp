@@ -1,7 +1,7 @@
 
 #include "utils/str_utils.h"
 #include "http_client.h"
-#include "remote_file.h"
+#include "error.h"
 #include "strptime.h"
 
 #define BOOST_DATE_TIME_NO_LIB

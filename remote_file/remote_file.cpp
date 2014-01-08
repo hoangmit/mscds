@@ -125,6 +125,8 @@ public:
 	}
 	virtual void release_map(char* ptr) {}
 	const unsigned int default_block_size = 16 * 1024;
+	size_t hit_count() const { return _hit_count; }
+	size_t total_count() const { return _total_count; }
 private:
 	void load_files(const std::string& prefix);
 	void create_files(const std::string& prefix);
@@ -143,6 +145,7 @@ public:
 	
 	friend class RemoteFileRepository;
 	size_t curpos;
+	uint32_t _hit_count, _total_count;
 private:
 	struct MetaInfo {
 		uint64_t urlhash;
@@ -167,6 +170,8 @@ FilecacheRemoteFile::FilecacheRemoteFile(const std::string &url, const std::stri
 		create_files(metafile);
 	}
 	curpos = 0;
+	_hit_count = 0;
+	_total_count = 0;
 }
 
 size_t FilecacheRemoteFile::read(char *dest, size_t size) {
@@ -229,6 +234,10 @@ char *FilecacheRemoteFile::fetch(size_t start, unsigned int len) {
 			//get_http_file_data(_url, nstart, rqsz, ptr);
 			bitmap.setbit(p);
 		}
+		else {
+			_hit_count++;
+		}
+		_total_count++;
 		ptr += blocksize;
 		nstart += blocksize;
 		p += 1;

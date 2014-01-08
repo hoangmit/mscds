@@ -26,6 +26,7 @@ public:
 
 	virtual PosType length() const = 0;
 
+	virtual std::pair<PosType, PosType> find_cover(PosType pos) const = 0;
 	virtual PosType rank_interval(PosType pos) const = 0;
 };
 

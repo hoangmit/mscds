@@ -178,9 +178,8 @@ struct Remote_cwig2 {
 
 		RemoteArchive2 rfi;
 		utils::Timer tm;
-
+		//wgEncodeOpenChromChipGm19240CtcfSig wgEncodeBroadHistoneK562Chd4mi2Sig wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5
 		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
-
 		local.load(fi);
 		remote.load(rfi);
 
@@ -189,12 +188,11 @@ struct Remote_cwig2 {
 		const app_ds::ChrNumData & cq2 = local.getChr(1);
 		cq2.avg(1, 2);
 
-		const app_ds::ChrNumData & cq = remote.getChr(1);
-		cq.avg(1, 2);
-
-
+		//const app_ds::ChrNumData & cq = remote.getChr(1);
+		//cq.avg(1, 2);
 
 		cout << "total time = " << tm.total() << endl;
+		rfi.inspect("", cout);
 	}
 };
 

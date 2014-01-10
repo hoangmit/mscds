@@ -70,5 +70,9 @@ bool RemoteArchive2::eof() const {
 	return file->eof();
 }
 
+void RemoteArchive2::inspect(const std::string &param, std::ostream &out) const {
+	file->inspect(param, out);
+}
+
 
 }

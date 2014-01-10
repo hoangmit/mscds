@@ -30,6 +30,7 @@ public:
 	virtual void release_map(char* ptr) {}
 	virtual size_t hit_count() const { return 0; }
 	virtual size_t total_count() const { return 0; }
+	virtual void inspect(const std::string& param, std::ostream& out) const {}
 };
 
 typedef std::shared_ptr<RemoteFileInt> RemoteFileHdl;

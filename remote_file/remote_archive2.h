@@ -26,6 +26,7 @@ public:
 	void open_url(const std::string& url, const std::string& cache_dir = "", bool refresh = false);
 	void close();
 	bool eof() const;
+	void inspect(const std::string& param, std::ostream& out) const;
 private:
 	RemoteFileRepository rep;
 	RemoteFileHdl file;

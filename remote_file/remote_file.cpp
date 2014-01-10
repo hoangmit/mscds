@@ -127,6 +127,10 @@ public:
 	const unsigned int default_block_size = 16 * 1024;
 	size_t hit_count() const { return _hit_count; }
 	size_t total_count() const { return _total_count; }
+	void inspect(const std::string& param, std::ostream& out) const {
+		out << "total_page_request = " << _total_count << std::endl;
+		out << "hit_count = " << _hit_count << std::endl;
+	}
 private:
 	void load_files(const std::string& prefix);
 	void create_files(const std::string& prefix);

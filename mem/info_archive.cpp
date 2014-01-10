@@ -161,8 +161,16 @@ void save_str(OutArchive& ar, const std::string& st) {
 	if (st.length() > 0xFFFF) throw ioerror("string too long");
 	uint32_t v = (0x7374u << 16) | (st.length() & 0xFFFF); //"st"
 	ar.save_bin(&v, sizeof(v));
-	if (st.length() > 0)
-		ar.save_mem_region(st.c_str(), st.length());
+	static const unsigned int MINLEN = 8;
+	if (st.length() > 0) {
+		if (st.length() > MINLEN) {
+			ar.save_mem_region(st.c_str(), st.length());
+		} else {
+			uint64_t v;
+			memcpy(&v, st.data(), st.length());
+			ar.save_bin(&v, sizeof(v));
+		}
+	}
 }
 
 std::string load_str(InpArchive& ar) {
@@ -170,15 +178,19 @@ std::string load_str(InpArchive& ar) {
 	ar.load_bin(&v, sizeof(v));
 	if ((v >> 16) != 0x7374u) throw ioerror("wrong string id");
 	size_t len = v & 0xFFFF;
-	char * st;
-	st = new char[len + 1];
+	static const unsigned int MINLEN = 8;
+	std::vector<char> st(std::max<size_t>(len, MINLEN) + 1);
 	if (len > 0) {
-		auto mem = ar.load_mem_region();// &v, 4 - (len % 4));
-		mem.read(0, len, st);
+		if (len > MINLEN) {
+			auto mem = ar.load_mem_region();// &v, 4 - (len % 4));
+			mem.read(0, len, st.data());
+		}
+		else {
+			ar.load_bin(st.data(), len);
+		}
 		st[len] = 0;
 	}
-	std::string ret(st, st + len);
-	delete[] st;
+	std::string ret(st.begin(), st.begin() + len);
 	return ret;
 }
 

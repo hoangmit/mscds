@@ -184,9 +184,8 @@ std::string load_str(InpArchive& ar) {
 		if (len > MINLEN) {
 			auto mem = ar.load_mem_region();// &v, 4 - (len % 4));
 			mem.read(0, len, st.data());
-		}
-		else {
-			ar.load_bin(st.data(), len);
+		} else {
+			ar.load_bin(st.data(), MINLEN);
 		}
 		st[len] = 0;
 	}

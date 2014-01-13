@@ -1,6 +1,7 @@
 
 #include "remote_archive2.h"
 #include "mem/impl/file_marker.h"
+#include <iostream>
 
 namespace mscds {
 

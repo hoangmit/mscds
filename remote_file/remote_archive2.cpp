@@ -71,6 +71,7 @@ bool RemoteArchive2::eof() const {
 }
 
 void RemoteArchive2::inspect(const std::string &param, std::ostream &out) const {
+	out << "control_segment_pos = " << control_pos - control_start << std::endl;
 	file->inspect(param, out);
 }
 

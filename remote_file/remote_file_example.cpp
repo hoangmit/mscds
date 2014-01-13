@@ -5,6 +5,7 @@
 
 #include "mem/file_archive1.h"
 #include "mem/file_archive2.h"
+#include "mem/info_archive.h"
 
 #include "bitarray/rank6p.h"
 #include "intarray/sdarray_sml.h"
@@ -107,9 +108,16 @@ struct Remote_sdarray {
 		bd.build(&qs);
 
 		OFileArchive1 fo;
-		fo.open_write("/tmp/sdarray.bin");
+		fo.open_write("C:/temp/sdarray.bin");
 		qs.save(fo);
 		fo.close();
+
+		OClassInfoArchive ifo;
+		qs.save(ifo);
+		ifo.close();
+		ofstream info("C:/temp/sdarray.xml");
+		info << ifo.printxml();
+		info.close();
 	}
 
 	void test_remote_file() {
@@ -167,7 +175,17 @@ struct Remote_cwig {
 struct Remote_cwig2 {
 	void create_remote_file() {
 		app_ds::GenomeNumDataBuilder bd;
-		bd.build_bedgraph("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.bedGraph", "C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+		ifstream fi("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.bedGraph");
+		OClassInfoArchive info;
+		OFileArchive2 fo;
+		fo.open_write("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+		OBindArchive fb(fo, info);
+		bd.build_bedgraph(fi, fb);
+		fi.clear();
+		fb.close();
+		ofstream outinfo("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.xml");
+		outinfo << info.printxml() << endl;
+		outinfo.close();
 	}
 
 	void test_remote_file() {
@@ -179,7 +197,7 @@ struct Remote_cwig2 {
 		RemoteArchive2 rfi;
 		utils::Timer tm;
 		//wgEncodeOpenChromChipGm19240CtcfSig wgEncodeBroadHistoneK562Chd4mi2Sig wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5
-		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
+		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeOpenChromChipGm19240CtcfSig.cwig", "", true);
 		local.load(fi);
 		remote.load(rfi);
 
@@ -188,8 +206,8 @@ struct Remote_cwig2 {
 		const app_ds::ChrNumData & cq2 = local.getChr(1);
 		cq2.avg(1, 2);
 
-		//const app_ds::ChrNumData & cq = remote.getChr(1);
-		//cq.avg(1, 2);
+		const app_ds::ChrNumData & cq = remote.getChr(1);
+		cq.avg(1, 2);
 
 		cout << "total time = " << tm.total() << endl;
 		rfi.inspect("", cout);
@@ -207,7 +225,7 @@ int main() {
 	//sda.test_remote_file();
 
 	Remote_cwig2 cw;
-	//cw.create_remote_file();
-	cw.test_remote_file();
+	cw.create_remote_file();
+	//cw.test_remote_file();
 	return 0;
 }

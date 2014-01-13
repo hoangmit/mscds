@@ -52,7 +52,7 @@ public:
 	  * 
 	  */
 	void build_bedgraph(const std::string& input, const std::string& output,
-		bool minmax_query = true, bool annotation = false);
+		bool minmax_query = true, bool annotation = false, bool output_structure_file=false);
 	void clear();
 private:
 	std::map<std::string, unsigned int> chrid;

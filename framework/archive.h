@@ -115,6 +115,7 @@ public:
 	virtual size_t ipos() const = 0;
 	virtual bool eof() const = 0;
 	virtual void close() {}
+	virtual void inspect(const std::string& param, std::ostream& out) const {}
 	//virtual ArchiveProp properties() = 0;
 };
 

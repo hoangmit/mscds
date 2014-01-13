@@ -224,5 +224,8 @@ bool IFileArchive2::eof() const {
 	return data->eof();
 }
 
+void IFileArchive2::inspect(const std::string &param, std::ostream &out) const {
+	out << "control_segment_pos = " << control_pos - control_start << std::endl;
+}
 
 } //namespace mscds

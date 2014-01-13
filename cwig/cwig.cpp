@@ -79,7 +79,6 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OutArchive& a
 		unsigned int i = 0;
 		while (i < line.length() && std::isspace(line[i])) ++i;
 		if (i == line.size() || line[i] == '#') continue;
-		//line = utils::trim(line); if (line.empty()) continue; if (line[0] == '#') continue;
 		BED_Entry b;
 		if (annotation) b.parse_ann(line);
 		else b.quick_parse(line, curchr);
@@ -93,7 +92,7 @@ void GenomeNumDataBuilder::build_bedgraph(std::istream& fi, mscds::OutArchive& a
 }
 
 void GenomeNumDataBuilder::build_bedgraph(const std::string &input, const std::string &output,
-										  bool minmax_query, bool annotation) {
+	bool minmax_query, bool annotation, bool output_structure_file) {
 	const unsigned int BUFSIZE = 512 * 1024;
 	char buffer[BUFSIZE];
 	std::ifstream fi(input.c_str());

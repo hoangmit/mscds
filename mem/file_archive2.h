@@ -62,6 +62,7 @@ public:
 	//void assign_read(std::istream * i);
 	void close();
 	bool eof() const;
+	void inspect(const std::string& param, std::ostream& out) const;
 private:
 	bool needclose;
 	std::istream * data;

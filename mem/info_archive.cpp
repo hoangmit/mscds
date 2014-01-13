@@ -14,66 +14,86 @@ namespace mscds {
 struct CInfoNode;
 typedef std::shared_ptr<CInfoNode> PInfoNode;
 struct CInfoNode {
-	CInfoNode(): total(0), version(0) {}
-	struct VarInfo {
-		VarInfo(): size(0), childidx(0), sval(0), is_static(true) {}
-		VarInfo(const string& s): name(s), size(0), childidx(0), sval(0), is_static(true) {}
-		std::string name;
-		size_t size;
-		int childidx;
-		uint64_t sval;
-		bool is_static;
-	};
-	std::vector<VarInfo> lst;
-	std::vector<PInfoNode> children;
-	std::string type;
-	size_t total;
+	std::string name;
+	std::string clstype;
+
+	size_t size;
+	uint64_t sval;
+
+	enum NodeType {CLASS_NODE, DATA_NODE, MEM_REGION_NODE};
+	NodeType node_type;
+	
+	size_t totalsize;
 	unsigned int desclasscnt;
 	int version;
+
+	std::vector<PInfoNode> lst;
+
+	CInfoNode(): size(0), totalsize(0), desclasscnt(0) {}
+	CInfoNode(const std::string& _name) : size(0), totalsize(0), desclasscnt(0), name(_name) {}
+
+
 	void finalize() {
-		desclasscnt = 0;
-		total = 0;
-		for (auto it = children.begin(); it != children.end(); ++it) (*it)->finalize();
+		if (node_type == CInfoNode::CLASS_NODE)
+			desclasscnt = 1;
+		else
+			desclasscnt = 0;
+		totalsize = 0;
 		for (auto it = lst.begin(); it != lst.end(); ++it) {
-			if (it->childidx > 0) {
-				it->size += children[it->childidx - 1]->total;
-				desclasscnt += children[it->childidx - 1]->desclasscnt + 1;
+			if ((*it)->node_type == CInfoNode::CLASS_NODE) {
+				(*it)->finalize();
+				desclasscnt += (*it)->desclasscnt;
+				totalsize += (*it)->totalsize;
+			} else {
+				totalsize += (*it)->size;
 			}
-			total += it->size;
 		}
 	}
 
-	void printxml(std::ostream& ss, const string& vname) {
-		ss << "<class name=\"" << vname << "\" size=\'" << total
-			  << "\' clscnt=\'" << (desclasscnt+1) << "\' type=\"" << type << "\">";
-		for (auto it = lst.begin(); it != lst.end(); ++it) {
-			if (it->childidx > 0) {
-				children[it->childidx - 1]->printxml(ss, it->name);
-			}else {
-				if (it->is_static) {
-					ss << "<data name=\"" << it->name << "\" size=\'" << it->size << "\'";
-					if (it->size <= 8)
-						ss << " val=\'" << it->sval << '\'';
-					ss << " />";
-				} else {
-					ss << "<memory_region name=\"" << it->name << "\" size=\'" << it->size << "\'";
-					ss << " />";
-				}
+	void printxml(std::ostream& ss) {
+		switch (node_type) {
+		case CInfoNode::CLASS_NODE:
+			ss << "<class name=\"" << name << "\" size=\'" << totalsize
+				<< "\' clscnt=\'" << desclasscnt << "\' type=\"" << clstype << "\">";
+			for (auto it = lst.begin(); it != lst.end(); ++it) {
+				(*it)->printxml(ss);
 			}
+			ss << "</class>";
+			break;
+		case CInfoNode::DATA_NODE:
+			ss << "<data name=\"" << name << "\" size=\'" << size << "\'";
+			if (size <= 8)
+				ss << " val=\'" << sval << '\'';
+			ss << " />";
+			break;
+		case CInfoNode::MEM_REGION_NODE:
+			ss << "<memory_region name=\"" << name << "\" size=\'" << size << "\'";
+			ss << " />";
+			break;
 		}
-		ss << "</class>";
 	}
 };
 
 struct ClassListInfo  {
 	PInfoNode cur;
 	std::stack<PInfoNode> parents;
+
+	void flush() {
+		if (cur->size > 0) {
+			parents.top()->lst.push_back(cur);
+			cur = std::make_shared<CInfoNode>();
+			cur->node_type = CInfoNode::DATA_NODE;
+		}
+	}
 };
 
 OClassInfoArchive::OClassInfoArchive(): pos(0) {
 	impl = new ClassListInfo();
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	x.cur = std::make_shared<CInfoNode>(CInfoNode());
+	x.cur = std::make_shared<CInfoNode>();
+	x.cur->node_type = CInfoNode::DATA_NODE;
+	x.parents.push(std::make_shared<CInfoNode>("root"));
+	x.parents.top()->node_type = CInfoNode::CLASS_NODE;
 	finalized = false;
 }
 
@@ -85,41 +105,48 @@ OClassInfoArchive::~OClassInfoArchive() {
 
 OutArchive& OClassInfoArchive::var(const std::string& name) {
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	x.cur->lst.push_back(CInfoNode::VarInfo(name));
+	assert(x.cur->node_type == CInfoNode::DATA_NODE);
+	x.flush();
+	x.cur->name = name;
 	return *this;
+}
+
+OutArchive& OClassInfoArchive::var(const char* name) {
+	return var(std::string(name));
 }
 
 OutArchive& OClassInfoArchive::save_bin(const void* ptr, size_t size) {
 	pos += size;
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
-		x.cur->lst.push_back(CInfoNode::VarInfo());
-	CInfoNode::VarInfo & v = x.cur->lst.back();
-	if (size <= 8 && v.size == 0 && v.childidx == 0 && v.is_static)
+	assert(x.cur->node_type == CInfoNode::DATA_NODE);
+	auto & v = *(x.cur);
+	if (size <= 8 && v.size == 0) {
+		v.sval = 0;
 		memcpy(&(v.sval), ptr, std::min<size_t>(size, 8u));
+	}
 	v.size += size;
 	return *this;
 }
 
 OutArchive& OClassInfoArchive::startclass(const std::string& name, unsigned char version) {
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (x.cur->lst.empty())
-		x.cur->lst.push_back(CInfoNode::VarInfo());
-	if (x.cur->lst.back().size != 0 || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
-		x.cur->lst.push_back(CInfoNode::VarInfo());
-	x.cur->lst.back().childidx = (int)x.cur->children.size() + 1;
-	x.cur->children.push_back(PInfoNode(new CInfoNode()));
-	x.parents.push(x.cur);
-	x.cur = x.cur->children.back();
-	x.cur->type = name;
-	x.cur->version = version;
+	auto newnode = std::make_shared<CInfoNode>(name);
+	if (x.cur->size == 0 && !x.cur->name.empty())
+		newnode->name = x.cur->name;
+	else 
+		x.flush();
+	newnode->node_type = CInfoNode::CLASS_NODE;
+	newnode->version = version;
+	newnode->clstype = name;
+	x.parents.top()->lst.push_back(newnode);
+	x.parents.push(newnode);
 	return *this;
 }
 
 OutArchive& OClassInfoArchive::endclass() {
 	ClassListInfo& x = *((ClassListInfo*)impl);
 	if (x.parents.empty()) throw ioerror("too many endclass");
-	x.cur = x.parents.top();
+	x.flush();
 	x.parents.pop();
 	return *this;
 }
@@ -127,11 +154,9 @@ OutArchive& OClassInfoArchive::endclass() {
 OutArchive& OClassInfoArchive::start_mem_region(size_t size, MemoryAlignmentType) {
 	pos += size;
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (x.cur->lst.empty() || x.cur->lst.back().childidx != 0 && x.cur->lst.back().is_static)
-		x.cur->lst.push_back(CInfoNode::VarInfo());
-	CInfoNode::VarInfo & v = x.cur->lst.back();
-	v.is_static = false;
-	v.size = size;
+	x.flush();
+	x.cur->size = size;
+	x.cur->node_type = CInfoNode::MEM_REGION_NODE;
 	return *this;
 }
 OutArchive& OClassInfoArchive::add_mem_region(const void* ptr, size_t size) {
@@ -143,16 +168,19 @@ OutArchive& OClassInfoArchive::end_mem_region() {
 
 void OClassInfoArchive::close() {
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (!x.parents.empty()) throw ioerror("not enough endclass");
+	if (!x.parents.size() != 1 && x.parents.top()->name != "root")
+		throw ioerror("not enough endclass");
 	finalized = true;
-	x.cur->finalize();
+	x.parents.top()->finalize();
 }
 
 std::string OClassInfoArchive::printxml() {
 	std::ostringstream ss;
 	ClassListInfo& x = *((ClassListInfo*)impl);
 	if (!finalized) close();
-	x.cur->printxml(ss, "root");
+	if (!x.parents.size() != 1 && x.parents.top()->name != "root")
+		throw ioerror("not enough endclass");
+	x.parents.top()->printxml(ss);
 	return ss.str();
 }
 

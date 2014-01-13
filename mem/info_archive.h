@@ -54,6 +54,7 @@ public:
 	OClassInfoArchive();
 	~OClassInfoArchive();
 	OutArchive& var(const std::string& name);
+	OutArchive& var(const char* name);
 	OutArchive& save_bin(const void* ptr, size_t size);
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
 	OutArchive& endclass();
@@ -67,6 +68,25 @@ private:
 	uint64_t pos;
 	bool finalized;
 	void* impl;
+};
+
+class OBindArchive : public OutArchive {
+public:
+	OBindArchive(OutArchive& first, OutArchive& second): a1(first), a2(second) {}
+	OutArchive& var(const std::string& name) { a1.var(name); a2.var(name); return *this; }
+	OutArchive& var(const char* name)  { a1.var(name); a2.var(name); return *this; }
+	OutArchive& startclass(const std::string& name, unsigned char version = 1) { a1.startclass(name); a2.startclass(name); return *this; }
+	OutArchive& endclass() { a1.endclass(); a2.endclass(); return *this; }
+	OutArchive& save_bin(const void* ptr, size_t size) { a1.save_bin(ptr, size); a2.save_bin(ptr, size); return *this; }
+	size_t opos() const { return a1.opos(); }
+
+	OutArchive& start_mem_region(size_t size, MemoryAlignmentType mt = A4) { a1.start_mem_region(size, mt);  a2.start_mem_region(size, mt);  return *this; }
+	OutArchive& add_mem_region(const void* ptr, size_t size)  { a1.add_mem_region(ptr, size); a2.add_mem_region(ptr, size); return *this; }
+	OutArchive& end_mem_region() { a1.end_mem_region(); a2.end_mem_region(); return *this; }
+	void close() { a1.close(); a2.close(); }
+private:
+	OutArchive & a1;
+	OutArchive & a2;
 };
 
 template<typename T>

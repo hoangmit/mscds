@@ -278,7 +278,7 @@ void GenomeNumData::loadinit() {
 }
 
 void GenomeNumData::loadfile(const std::string &input) {
-	if (input.length() > 7 && input.substr(0, 7) == "http://") {
+	if (input.length() >= 8 && (input.substr(0, 7) == "http://" || input.substr(0, 8) == "https://")) {
 		mscds::RemoteArchive2 rar;
 		rar.open_url(input);
 		load(rar);

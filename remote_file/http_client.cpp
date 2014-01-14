@@ -222,8 +222,15 @@ void HttpFileObj::getInfo(RemoteFileInfo &info) {
 	HttpObjectReq * hobj = (HttpObjectReq *) impl;
 	if (hobj == nullptr) throw remoteio_error("http object is not created");
 	hobj->head();
-	if (!hobj->content_length(info.filesize))
-		throw remoteio_error("unable to find file size");
+	if (!hobj->content_length(info.filesize)) {
+		try {
+			char buff[2];
+			hobj->getdata(0, 1, buff, false);
+			info.filesize = hobj->last_range_info.total;
+		} catch (remoteio_error&) {
+			throw remoteio_error("unable to find file size");
+		}
+	}
 
 	if (!hobj->last_modified(info.last_update))
 		if (!hobj->date(info.last_update))

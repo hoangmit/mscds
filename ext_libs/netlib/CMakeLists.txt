@@ -24,6 +24,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 if (OPENSSL_FOUND)
+	add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif()
 

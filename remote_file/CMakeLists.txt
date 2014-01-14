@@ -7,6 +7,14 @@ set(VERSION 0.1.1)
 #FIND_PACKAGE(Boost 1.50 COMPONENTS thread system  REQUIRED )
 
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+find_package(OpenSSL)
+if (OPENSSL_FOUND)
+    add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+endif()
+
+
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 INCLUDE_DIRECTORIES(${NETLIB_INCLUDE_DIRS})
@@ -31,6 +39,10 @@ remote_archive2.h
 ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 
 TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
+
+if (OPENSSL_FOUND)
+	TARGET_LINK_LIBRARIES(remote_file ${OPENSSL_LIBRARIES})
+endif()
 
 ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
 TARGET_LINK_LIBRARIES(remote_file_example remote_file mscdsa cwig)

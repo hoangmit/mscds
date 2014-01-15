@@ -35,3 +35,4 @@ set_target_properties(tbm_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT
 set_property(TARGET tbm_cwig PROPERTY FOLDER "Tests")
 
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/ctools/)

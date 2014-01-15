@@ -63,7 +63,7 @@ void RemoteArchive2::open_url(const std::string& url, const std::string& cache_d
 }
 
 void RemoteArchive2::close() {
-	file->close();
+	if (file) file->close();
 }
 
 bool RemoteArchive2::eof() const {

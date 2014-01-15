@@ -2,7 +2,7 @@
 #include "mem/file_archive2.h"
 #include "mem/info_archive.h"
 
-#include "stringarr.h"
+#include "string/stringarr.h"
 #include "intarray/sdarray_sml.h"
 
 #include "utils/str_utils.h"

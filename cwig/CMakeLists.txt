@@ -5,13 +5,13 @@ project(cwig)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SRCS chrfmt.cpp cwig.cpp stringarr.cpp
+set(SRCS chrfmt.cpp cwig.cpp
 RLSum6.cpp 
 SampledSum.h
 rank_vals.h
 poly_vals.cpp nintv.cpp)
 
-set(HEADERS chrfmt.h cwig.h stringarr.h 
+set(HEADERS chrfmt.h cwig.h 
 RLSum6.h 
 SampledSum.cpp
 rank_vals.cpp
@@ -22,6 +22,7 @@ rlsum_int.h poly_vals.h nintv.h)
 
 add_library(cwig ${SRCS} ${HEADERS})
 target_link_libraries(cwig mscdsa remote_file)
+set_property(TARGET cwig PROPERTY FOLDER "Apps")
 
 add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp intv_tests.cpp intv_rand_gen.hpp)
 target_link_libraries(t_cwig cwig utils)

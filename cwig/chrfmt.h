@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include "RLSum6.h"
 #include "tree/RMQ_sct.h"
-#include "stringarr.h"
+#include "string/stringarr.h"
 #include "framework/archive.h"
 #include "valrange.h"
 

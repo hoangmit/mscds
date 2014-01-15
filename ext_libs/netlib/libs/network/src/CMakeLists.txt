@@ -11,8 +11,8 @@ include_directories(${CPP-NETLIB_SOURCE_DIR})
 set(CPP-NETLIB_URI_SRCS uri/uri.cpp uri/schemes.cpp)
 add_library(cppnetlib-uri ${CPP-NETLIB_URI_SRCS})
 
-#set(CPP-NETLIB_HTTP_SERVER_SRCS server_request_parsers_impl.cpp)
-#add_library(cppnetlib-server-parsers ${CPP-NETLIB_HTTP_SERVER_SRCS})
+set(CPP-NETLIB_HTTP_SERVER_SRCS server_request_parsers_impl.cpp)
+add_library(cppnetlib-server-parsers ${CPP-NETLIB_HTTP_SERVER_SRCS})
 
 set(CPP-NETLIB_HTTP_CLIENT_SRCS client.cpp)
 add_library(cppnetlib-client-connections ${CPP-NETLIB_HTTP_CLIENT_SRCS})
@@ -24,5 +24,7 @@ endif()
 set_property(TARGET cppnetlib-client-connections PROPERTY FOLDER "ExtLibs")
 
 set_property(TARGET cppnetlib-uri PROPERTY FOLDER "ExtLibs")
+
+set_property(TARGET cppnetlib-server-parsers PROPERTY FOLDER "ExtLibs")
 
 

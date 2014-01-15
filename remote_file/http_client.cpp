@@ -176,6 +176,7 @@ struct HttpObjectReq {
 		s_last_modified.clear();
 		s_date.clear();
 		auto hs = headers(response);
+		//std::cout << "STATUS " << req_status << std::endl;
 		for (auto& h : hs) {
 			//name is not case-sensitivity
 			std::string ss = h.first;

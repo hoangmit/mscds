@@ -14,6 +14,7 @@ set(HEADERS cbed.h genomedata.h genomedata.hxx blkcomp.h intv.h)
 
 add_library(cbed ${SRCS} ${HEADERS})
 target_link_libraries(cbed mscdsa extcodec)
+set_property(TARGET cbed PROPERTY FOLDER "Apps")
 
 add_executable(t_cbed cbed_test.cpp)
 target_link_libraries(t_cbed cbed utils)

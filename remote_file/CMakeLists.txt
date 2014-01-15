@@ -38,12 +38,13 @@ remote_archive2.h
 
 ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 
-TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
-
 if (OPENSSL_FOUND)
-	TARGET_LINK_LIBRARIES(remote_file ${OPENSSL_LIBRARIES})
+	TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils ${OPENSSL_LIBRARIES})
+else()
+	TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
 endif()
 
 ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
 TARGET_LINK_LIBRARIES(remote_file_example remote_file mscdsa cwig)
 set_property(TARGET remote_file_example PROPERTY FOLDER "Tests")
+

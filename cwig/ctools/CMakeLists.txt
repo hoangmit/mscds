@@ -19,10 +19,34 @@ target_link_libraries(cwigInfo  ${LIBS})
 add_executable(cwig2bedgraph cwig2bedgraph.cpp)
 target_link_libraries(cwig2bedgraph ${LIBS})
 
+add_executable(cwig_benchmark cwig_benchmark.cpp)
+target_link_libraries(cwig_benchmark ${LIBS})
+
+
+
+
 set_property(TARGET bedgraph2cwig PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwigSummary PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwigInfo PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig2bedgraph PROPERTY FOLDER "Apps/cTools")
+set_property(TARGET cwig_benchmark PROPERTY FOLDER "Apps/cTools")
 
 
 
+
+find_package(OpenSSL)
+if (OPENSSL_FOUND)
+    add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+	set(SERVER_LIBS ${LIBS} ${OPENSSL_LIBRARIES} cppnetlib-uri cppnetlib-server-parsers )
+else()
+	set(SERVER_LIBS ${LIBS} cppnetlib-uri cppnetlib-server-parsers )
+endif()
+
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+
+INCLUDE_DIRECTORIES(${NETLIB_INCLUDE_DIRS})
+
+add_executable(cwig_server url_parser.cpp url_parser.h cwig_server.cpp)
+TARGET_LINK_LIBRARIES(cwig_server ${Boost_LIBRARIES} ${SERVER_LIBS}) 
+set_property(TARGET cwig_server PROPERTY FOLDER "Apps/cTools")

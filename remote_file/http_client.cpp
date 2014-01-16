@@ -38,7 +38,7 @@ struct body_handler {
 };
 
 struct HttpObjectReq {
-	typedef http::basic_client<http::tags::http_async_8bit_udp_resolve, 1, 1> client_t;
+	typedef http::basic_client<http::tags::http_keepalive_8bit_tcp_resolve, 1, 1> client_t;
 	client_t client;
 
 	HttpObjectReq() {}
@@ -60,7 +60,7 @@ struct HttpObjectReq {
 		parse_headers(response);
 	}
 
-	void getdata(size_t start, size_t len, char *dest, bool keepalive = false) {
+	void getdata(size_t start, size_t len, char *dest, bool keepalive = true) {
 		if (len == 0) return;
 		client_t::request request(url);
 		std::ostringstream os;

@@ -51,6 +51,7 @@ struct file_cache {
 		cache.emplace_front(path, app_ds::GenomeNumData());
 		auto pos = table.insert(std::make_pair(path, cache.begin()));
 		assert(pos.second);
+		std::cout << " Loading : " << path << std::endl;
 		try {
 			cache.begin()->second.loadfile(doc_root_ + path);
 		} catch (std::runtime_error& ) {
@@ -134,9 +135,11 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 	: file_cache_(cache) {}
 
 	void operator()(std::string const & path, server::connection_ptr connection) {
+		std::cout << path << " ";
 		app_ds::chrom_intv_op res;
-		bool xx = app_ds::parse_url_query(path, res);
-		bool ok = file_cache_.has(res.file);
+		bool ok = app_ds::parse_url_query(path, res);
+		if (!ok) { error(connection, "Wrong query format"); return; }
+		ok = file_cache_.has(res.file);
 		if (!ok)
 			ok = file_cache_.load(res.file);
 		if (ok) {
@@ -158,6 +161,7 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 		connection->set_status(server::connection::ok);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
 		connection->write(data);
+		std::cout << " OK" << std::endl;
 	}
 
 	void error(server::connection_ptr connection, const std::string& msg) {
@@ -168,6 +172,7 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 		connection->set_status(server::connection::internal_server_error);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
 		connection->write("Error: " + msg);
+		std::cout << " ERR" << std::endl;
 	}
 
 	void not_found(server::connection_ptr connection) {
@@ -178,6 +183,7 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 		connection->set_status(server::connection::not_found);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
 		connection->write("File Not Found!");
+		std::cout << " NOT_FOUND" << std::endl;
 	}
 
 
@@ -213,13 +219,16 @@ struct request_server {
 };
 
 int main(int argc, char * argv[]) {
-	file_cache cache(".");
+	file_cache cache("./");
+	std::cout << "Starting server... ";
 	request_server handler(cache);
 	server::options options(handler);
 	server instance(
 		options.thread_pool(boost::make_shared<network::utils::thread_pool>(4))
 		.address("0.0.0.0")
 		.port("8000"));
+	std::cout << std::endl;
 	instance.run();
 	return 0;
 }
+

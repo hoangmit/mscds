@@ -124,7 +124,7 @@ public:
 		return fetch(start, len);
 	}
 	virtual void release_map(char* ptr) {}
-	const unsigned int default_block_size = 16 * 1024;
+	static const unsigned int default_block_size = 16 * 1024;
 	size_t hit_count() const { return _hit_count; }
 	size_t total_count() const { return _total_count; }
 	void inspect(const std::string& param, std::ostream& out) const {

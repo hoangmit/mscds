@@ -7,7 +7,12 @@
 using namespace std;
 using namespace app_ds;
 
-
+template<typename T>
+void printarr(const std::vector<T>& arr) {
+	for (auto it = arr.begin(); it != arr.end(); ++it)
+		cout << *it << "  ";
+	cout << endl;
+}
 
 int main(int argc, char* argv[]) {
 	if (argc != 6 && argc != 7) {
@@ -33,28 +38,16 @@ int main(int argc, char* argv[]) {
 	string cmd(argv[1]);
 	auto arr = qs.getChr(chr);
 	if (cmd == "avg") {
-		auto arr = qs.getChr(chr).avg_batch(start, end, sz);
-		for (auto it = arr.begin(); it != arr.end(); ++it)
-			cout << *it << "  ";
-		cout << endl;
+		printarr(qs.getChr(chr).avg_batch(start, end, sz));
 	} else
 	if (cmd == "cov") {
-		auto arr = qs.getChr(chr).coverage_batch(start, end, sz);
-		for (auto it = arr.begin(); it != arr.end(); ++it)
-			cout << *it << "  ";
-		cout << endl;
+		printarr(qs.getChr(chr).coverage_batch(start, end, sz));
 	} else
 	if (cmd == "min") {
-		auto arr = qs.getChr(chr).min_value_batch(start, end, sz);
-		for (auto it = arr.begin(); it != arr.end(); ++it)
-			cout << *it << "  ";
-		cout << endl;
+		printarr(qs.getChr(chr).min_value_batch(start, end, sz));
 	} else
 	if (cmd == "max") {
-		auto arr = qs.getChr(chr).max_value_batch(start, end, sz);
-		for (auto it = arr.begin(); it != arr.end(); ++it)
-			cout << *it << "  ";
-		cout << endl;
+		printarr(qs.getChr(chr).max_value_batch(start, end, sz));
 	} else
 	if (cmd == "lst") {
 		auto & chrds = qs.getChr(chr);

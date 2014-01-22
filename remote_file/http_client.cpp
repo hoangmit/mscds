@@ -38,7 +38,7 @@ struct body_handler {
 };
 
 struct HttpObjectReq {
-	typedef http::basic_client<http::tags::http_keepalive_8bit_tcp_resolve, 1, 1> client_t;
+	typedef http::basic_client<http::tags::http_keepalive_8bit_udp_resolve, 1, 1> client_t;
 	client_t client;
 
 	HttpObjectReq() {}
@@ -169,7 +169,7 @@ struct HttpObjectReq {
 		return true;
 	}
 
-	std::string s_content_length, s_content_range, s_last_modified, s_date, s_etag;
+	std::string s_content_length, s_content_range, s_last_modified, s_date, s_etag, s_connection;
 	void parse_headers(client_t::response& response) {
 		s_content_length.clear();
 		s_content_range.clear();
@@ -196,12 +196,14 @@ struct HttpObjectReq {
 			if ("etag" == ss) {
 				s_etag = h.second;
 			}else
+			if ("connection" == ss) {
+				s_connection = h.second;
+			} else
 			{}
 			//std::cout << ss << " \t" << h.second << std::endl;
 		}
 		//std::cout << std::endl;
 	}
-
 
 	std::string url;
 
@@ -352,4 +354,3 @@ std::string uri_encode(const std::string & sSrc)
 	delete[] pStart;
 	return sResult;
 }
-

@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 project(export_lib)
 
 
-if((NOT WIN32) AND UNIX)
+if (
+
+if(BUILD_EXT_API)
 	swig_python_init()
 	swig_java_init()
 

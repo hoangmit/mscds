@@ -13,6 +13,9 @@ target_link_libraries(bedgraph2cwig ${LIBS})
 add_executable(cwigSummary cwig_summary.cpp)
 target_link_libraries(cwigSummary ${LIBS})
 
+add_executable(cwigSummaryBatch cwig_summary_batch.cpp)
+target_link_libraries(cwigSummaryBatch ${LIBS})
+
 add_executable(cwigInfo cwig_info.cpp)
 target_link_libraries(cwigInfo  ${LIBS})
 
@@ -23,15 +26,12 @@ add_executable(cwig_benchmark cwig_benchmark.cpp)
 target_link_libraries(cwig_benchmark ${LIBS})
 
 
-
-
 set_property(TARGET bedgraph2cwig PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwigSummary PROPERTY FOLDER "Apps/cTools")
+set_property(TARGET cwigSummaryBatch PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwigInfo PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig2bedgraph PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig_benchmark PROPERTY FOLDER "Apps/cTools")
-
-
 
 
 find_package(OpenSSL)

@@ -23,12 +23,7 @@ if (NOT CMAKE_BUILD_TYPE)
 	  FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-include(cmake/function.cmake)
-include(cmake/MergeStaticLibraries.cmake)
-fix_compiler_flags() #defined inside function.cmake
-
-#setup directory
+### setup directory-------------------------------------------
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
    CACHE PATH "Single Directory for all Executables.")
 
@@ -36,15 +31,25 @@ set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
 	CACHE PATH "Directory for testings executables")
 set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 	CACHE PATH "Directory for python modules")
-
+#  .exe = runtime
+#  .dll = runtime
+#  .lib = archive  (either import lib or static lib)
+#  .a   = archive
+#  .so  = library
+	
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (CMAKE_COMPILER_IS_GNUCC)
 	message(STATUS "GCC version: ${CMAKE_C_COMPILER_VERSION}")
 endif()
 
+### Common compiler flags
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(cmake/function.cmake)
+include(cmake/MergeStaticLibraries.cmake)
+fix_compiler_flags() #defined inside function.cmake
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -O3 -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g" CACHE STRING "CMake CXX Flags")
 else()
 	if(MSVC)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -54,11 +59,16 @@ else()
 		#add_definitions(/arch:SSE)
 	endif()
 endif()
-#  .exe = runtime
-#  .dll = runtime
-#  .lib = archive  (either import lib or static lib)
-#  .a   = archive
-#  .so  = library
+
+### Build PYTHON and JAVA API extension settings
+option(BUILD_EXT_API "Build Python and Java API" ON)
+if (WIN32)
+	set(BUILD_EXT_API OFF)
+	#(NOT WIN32) AND UNIX
+endif()
+if (BUILD_EXT_API AND CMAKE_COMPILER_IS_GNUCC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" CACHE STRING "CMake CXX Flags")
+endif()
 
 #---External packcage------------------------------------------------------------------------------
 set(Boost_USE_MULTI_THREADED ON)
@@ -73,7 +83,6 @@ find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARIES}")
-
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/gtest) #${PROJECT_BINARY_DIR}/ext_libs/gtest
 set(GTEST_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/gtest/include)
@@ -108,7 +117,6 @@ set(COMMON_LIBS mem utils)
 ########################################################
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/extcodec)
-
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/bitarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/codec)

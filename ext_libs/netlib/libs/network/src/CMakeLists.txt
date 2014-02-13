@@ -52,3 +52,9 @@ install(TARGETS cppnetlib-client-connections
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
+
+set_property(TARGET cppnetlib-client-connections PROPERTY FOLDER "ExtLibs")
+
+set_property(TARGET cppnetlib-uri PROPERTY FOLDER "ExtLibs")
+
+set_property(TARGET cppnetlib-server-parsers PROPERTY FOLDER "ExtLibs")

@@ -71,7 +71,7 @@ struct HttpObjectReq {
 		client_t::response response = client.get(request); //body_handler(len, dest)
 		req_status = status(response);
 		if (req_status != 206)
-			throw remoteio_error(std::string("wrong http status code: ") + utils::tostr(req_status));
+			throw remoteio_error(std::string("wrong http status code: ") + utils::tostr(req_status) + "  (" + utils::tostr(start) + ","+utils::tostr(len)+")");
 		parse_headers(response);
 		size_t ctl = 0;
 		if (content_length(ctl)) {

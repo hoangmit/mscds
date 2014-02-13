@@ -230,7 +230,7 @@ int main(int argc, char * argv[]) {
 	server instance(
 		options.thread_pool(boost::make_shared<network::utils::thread_pool>(4))
 		.address("0.0.0.0")
-		.port("8000"));
+		.port("8080"));
 	std::cout << std::endl;
 	instance.run();
 	return 0;

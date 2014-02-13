@@ -49,7 +49,7 @@ include(cmake/function.cmake)
 include(cmake/MergeStaticLibraries.cmake)
 fix_compiler_flags() #defined inside function.cmake
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g" CACHE STRING "CMake CXX Flags")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
 else()
 	if(MSVC)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -64,11 +64,16 @@ endif()
 option(BUILD_EXT_API "Build Python and Java API" ON)
 if (WIN32)
 	set(BUILD_EXT_API OFF)
-	#(NOT WIN32) AND UNIX
 endif()
-if (BUILD_EXT_API AND CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" CACHE STRING "CMake CXX Flags")
+
+if (BUILD_EXT_API)
+    set(BUILD_DYNAMIC_CODE ON) # for dynamic library in Linux
 endif()
+if (BUILD_DYNAMIC_CODE AND CMAKE_COMPILER_IS_GNUCC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
+
+MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 #---External packcage------------------------------------------------------------------------------
 set(Boost_USE_MULTI_THREADED ON)
@@ -77,7 +82,13 @@ set(Boost_NO_SYSTEM_PATHS ON)
 if(MSVC)
 	set(Boost_USE_STATIC_LIBS ON)
 endif()
-set(Boost_USE_STATIC_RUNTIME ON)
+#set(Boost_USE_STATIC_RUNTIME OFF)
+if (BUILD_DYNAMIC_CODE)
+    set(Boost_USE_STATIC_LIBS OFF)
+else()
+    set(Boost_USE_STATIC_RUNTIME ON)
+    set(Boost_USE_STATIC_LIBS ON)
+endif()
 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})

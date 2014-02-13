@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 project(export_lib)
 
 
-if (
 
 if(BUILD_EXT_API)
 	swig_python_init()

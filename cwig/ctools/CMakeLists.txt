@@ -9,21 +9,27 @@ set(LIBS cwig mscdsa)
 
 add_executable(bedgraph2cwig bedgraph2cwig.cpp)
 target_link_libraries(bedgraph2cwig ${LIBS})
+strip_target(bedgraph2cwig)
 
 add_executable(cwigSummary cwig_summary.cpp)
 target_link_libraries(cwigSummary ${LIBS})
+strip_target(cwigSummary)
 
 add_executable(cwigSummaryBatch cwig_summary_batch.cpp)
 target_link_libraries(cwigSummaryBatch ${LIBS})
+strip_target(cwigSummaryBatch)
 
 add_executable(cwigInfo cwig_info.cpp)
 target_link_libraries(cwigInfo  ${LIBS})
+strip_target(cwigInfo)
 
 add_executable(cwig2bedgraph cwig2bedgraph.cpp)
 target_link_libraries(cwig2bedgraph ${LIBS})
+strip_target(cwig2bedgraph)
 
 add_executable(cwig_benchmark cwig_benchmark.cpp)
 target_link_libraries(cwig_benchmark ${LIBS})
+strip_target(cwig_benchmark)
 
 
 set_property(TARGET bedgraph2cwig PROPERTY FOLDER "Apps/cTools")
@@ -52,4 +58,5 @@ TARGET_LINK_LIBRARIES(cwig_server ${Boost_LIBRARIES} ${SERVER_LIBS})
 if (UNIX)
     TARGET_LINK_LIBRARIES(cwig_server -lrt)
 endif()
+strip_target(cwig_server)
 set_property(TARGET cwig_server PROPERTY FOLDER "Apps/cTools")

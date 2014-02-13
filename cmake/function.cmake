@@ -143,3 +143,12 @@ macro (add_test_files)
         set (TEST_FILES ${TEST_FILES} PARENT_SCOPE)
     endif()
 endmacro()
+
+macro (strip_target target_name)
+    if (UNIX)
+    	ADD_CUSTOM_COMMAND(TARGET ${target_name} POST_BUILD
+    		COMMAND ${CMAKE_STRIP} $<TARGET_FILE:${target_name}>
+    		COMMENT "Strip target: ${target_name}"
+    	)
+    endif()
+endmacro()

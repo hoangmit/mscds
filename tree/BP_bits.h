@@ -64,7 +64,7 @@ public:
 class BP_aux;
 
 BitArray find_pioneers(const BitArray& bp, size_t blksize);
-std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize);
+std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize);
 
 /**
 Implementation of balance parathesis operations based on:

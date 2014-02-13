@@ -33,22 +33,37 @@ class BitArray {
 public:
 	const static unsigned int WORDLEN = 64;
 
-	void setbits(size_t bitindex, uint64_t value, unsigned int len);
+	/** set one bit at "bitindex" with "value" */
 	void setbit(size_t bitindex, bool value);
-
-	uint64_t bits(size_t bitindex, unsigned int len) const;
-	bool bit(size_t bitindex) const;
-	bool operator[](size_t i) const { return bit(i); }
-	uint8_t byte(size_t pos) const;
-
-	uint64_t count_one() const;
+	/** set a few bits start at "bitindex" with length "len", the values of those bits
+	are given by the "value" input word */
+	void setbits(size_t bitindex, uint64_t value, unsigned int len);
+	/** set 64 bits start at 64*"pos" with the input word "val" */
+	void setword(size_t pos, uint64_t val);
+	/** fill the array */
 	void fillzero();
 	void fillone();
+	/** clear the bitarray and free memory */
+	void clear();
 
-	void setword(size_t pos, uint64_t val);
-	uint64_t word(size_t pos) const;
+	/** return the length of the array */
 	size_t length() const { return bitlen; }
+	/** return the number of words */
 	size_t word_count() const;
+	/** count how many one inside the array */
+	uint64_t count_one() const;
+
+	/** read one bit */
+	bool bit(size_t bitindex) const;
+	/** read "len" bits from the array start at "bitindex" */
+	/** read one bit (operator version) */
+	bool operator[](size_t i) const { return bit(i); }
+	/** read "len" bits from the array start at "bitindex" */
+	uint64_t bits(size_t bitindex, unsigned int len) const;
+	/** read one byte (8 bits) at "pos"*8 */
+	uint8_t byte(size_t pos) const;
+	/** read one word (64 bits) */
+	uint64_t word(size_t pos) const;
 
 	//--------------------------------------------------
 	BitArray();
@@ -59,13 +74,16 @@ public:
 
 	StaticMemRegionPtr data_ptr() const { return data; }
 
-	void clear();
+	
 	~BitArray();
 
+	/** load the BitArray from InpArchive */
 	InpArchive& load(InpArchive& ar);
+	/** save the BitArray to OutArchive */
 	OutArchive& save(OutArchive& ar) const;
 	OutArchive& save_nocls(OutArchive& ar) const;
 	InpArchive& load_nocls(InpArchive& ar);
+	/** convert to string for debug or display */
 	std::string to_str() const;
 
 	inline static uint64_t ceildiv(uint64_t a, uint64_t b) {

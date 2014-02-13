@@ -42,7 +42,9 @@ OutArchive& OFileArchive2::save_bin(const void* ptr, size_t size) {
 OutArchive &OFileArchive2::start_mem_region(size_t size, MemoryAlignmentType align) {
 	cur_mem_region = size;
 	FileMarker::mem_start(*this, align);
-	if (size >> 32 > 0) throw ioerror("too big region");
+	size_t s2 = size >> 16;
+	s2 >>= 16;
+	if (s2 > 0) throw ioerror("too big region");
 	uint32_t sz = (uint32_t)size;
 	save_bin(&sz, sizeof(sz));
 	unsigned int al = memory_alignment_value(align);

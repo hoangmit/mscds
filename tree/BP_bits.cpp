@@ -9,11 +9,11 @@
 
 namespace mscds {
 
-std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
+std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
 	std::stack<size_t> opens;
 	std::pair<size_t, size_t> lastfar;
 	bool haslast = false;
-	std::vector<size_t> ret;
+	std::vector<uint64_t> ret;
 
 	size_t pioneer_cnt = 0;
 	for (size_t i = 0; i < bp.length(); ++i) {
@@ -57,7 +57,7 @@ std::vector<size_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
 }
 
 BitArray find_pioneers(const BitArray& bp, size_t blksize) {
-	std::vector<size_t> v = find_pioneers_v(bp, blksize);
+	std::vector<uint64_t> v = find_pioneers_v(bp, blksize);
 	BitArray ret = BitArrayBuilder::create(bp.length());
 	ret.fillzero();
 	for (int i = 0; i < v.size(); i++)
@@ -197,7 +197,7 @@ int8_t BP_block::min_op_ex8_t[256] = {
 uint64_t BP_block::forward_scan(uint64_t pos, int64_t excess) const {
 	assert(excess <= 0);
 	assert(excess != 0 || bp.bit(pos));
-	uint64_t endp = std::min(bp.length(), (pos / blksize + 1) * blksize);
+	uint64_t endp = std::min<uint64_t>(bp.length(), (pos / blksize + 1) * blksize);
 	if ((pos & 7) != 0) {
 		uint8_t cbyte = bp.byte(pos >> 3) >> (pos & 7);
 		uint64_t ed1 = std::min(endp, ((pos >> 3) + 1) << 3);
@@ -307,7 +307,7 @@ uint64_t BP_block::min_excess_pos(uint64_t pos, uint64_t endp) const {
 uint64_t BP_block::forward_scan_slow(uint64_t pos, int64_t excess) const {
 	assert(excess <= 0);
 	if (excess == 0 && (!bp.bit(pos))) return NOTFOUND;
-	uint64_t endp = std::min(bp.length(), (pos / blksize + 1) * blksize);
+	uint64_t endp = std::min<uint64_t>(bp.length(), (pos / blksize + 1) * blksize);
 	int64_t e = 0;
 	for (size_t i = pos; i < endp; i++) {
 		if (bp.bit(i)) e += 1;

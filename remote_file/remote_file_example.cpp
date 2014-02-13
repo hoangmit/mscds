@@ -43,7 +43,7 @@ void example1() {
 }
 
 struct Remote_rank6 {
-	const unsigned int len = 10000000;
+	static const unsigned int len = 10000000;
 	std::vector<bool> v;
 
 	void create_remote_file() {
@@ -69,6 +69,7 @@ struct Remote_rank6 {
 		IFileArchive1 fi;
 		fi.open_read("C:/temp/rank6p.bin");
 		RemoteArchive2 rfi;
+
 		rfi.open_url("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/rank6p.bin", "", true);
 
 		local.load(fi);
@@ -93,8 +94,8 @@ struct Remote_rank6 {
 
 
 struct Remote_sdarray {
-	const unsigned int len = 1000000;
-	const unsigned int range = 1000;
+	static const unsigned int len = 1000000;
+	static const unsigned int range = 1000;
 	std::vector<unsigned int> vec;
 
 	void create_remote_file() {
@@ -197,7 +198,9 @@ struct Remote_cwig2 {
 		RemoteArchive2 rfi;
 		utils::Timer tm;
 		//wgEncodeOpenChromChipGm19240CtcfSig wgEncodeBroadHistoneK562Chd4mi2Sig wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5
-		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeOpenChromChipGm19240CtcfSig.cwig", "", true);
+		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
+
+		//rfi.open_url("https://www.dropbox.com/s/2wvbgygau0oqm3s/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
 		local.load(fi);
 		remote.load(rfi);
 
@@ -225,7 +228,12 @@ int main() {
 	//sda.test_remote_file();
 
 	Remote_cwig2 cw;
-	cw.create_remote_file();
-	//cw.test_remote_file();
+	//cw.create_remote_file();
+	try {
+		cw.test_remote_file();
+	}
+	catch (std::exception& e) {
+		cerr << e.what() << endl;
+	}
 	return 0;
 }

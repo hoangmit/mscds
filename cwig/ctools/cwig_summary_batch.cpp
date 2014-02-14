@@ -14,9 +14,71 @@ void printarr(const std::vector<T>& arr) {
 	cout << endl;
 }
 
+
+struct Entry {
+	std::string chrom;
+	unsigned int st, ed;
+	bool changed;
+	Entry() : changed(true) {}
+	void clear() {
+		chrom.clear();
+	}
+
+	void quick_parse(const std::string& s) {
+		const char * p = s.c_str();
+		unsigned int i = 0;
+		while (*p != ' ' && *p != '\t' && i < chrom.length() && i < s.length() && *p == chrom[i]) {
+			++p;
+			++i;
+		}
+		// same chrom name
+		if (i == chrom.length() && chrom.length() > 0 && (*p == ' ' || *p == '\t')) {
+			//this->chrom = pre_chr; // no change
+			this->changed = false;
+		}
+		else {
+			while (*p != ' ' && *p != '\t' && i < s.length()) { ++p; ++i; }
+			this->chrom = std::string(s.c_str(), p);
+			this->changed = true;
+		}
+		if (*p == ' ' || *p == '\t') ++p;
+		else throw std::runtime_error(std::string("error parsing line: ") + s);
+		unsigned int st = 0;
+		while (*p >= '0' && *p <= '9' && i < s.length()) {
+			st = (st * 10) + (*p - '0');
+			++i;
+			++p;
+		}
+		this->st = st;
+		if (*p == ' ' || *p == '\t') ++p;
+		else throw std::runtime_error(std::string("error parsing line: ") + s);
+		unsigned int ed = 0;
+		while (*p >= '0' && *p <= '9' && i < s.length()) {
+			ed = (ed * 10) + (*p - '0');
+			++i;
+			++p;
+		}
+		this->ed = ed;
+	}
+};
+
+template<typename Func>
+void query_file(const std::string& fname, Func fx) {
+	std::string line;
+	std::string chrom;
+	unsigned int start, end;
+	Entry et;
+	ifstream fi(fname.c_str());
+	while (std::getline(fi, line)) {
+		et.quick_parse(line);
+		fx(et.changed, et.chrom, et.st, et.ed);
+	}
+	fi.close();
+}
+
 int main(int argc, char* argv[]) {
 	if (argc != 6 && argc != 7) {
-		cerr << "cwig_summary {avg|cov|min|max|lst} <cwigfile> <bedfile> <size=1>" << endl;
+		cerr << "cwig_summary {avg|cov|min|max} <cwigfile> <bedfile> <size=1>" << endl;
 		return 1;
 	}
 	mscds::IFileMapArchive2 fi;
@@ -37,18 +99,31 @@ int main(int argc, char* argv[]) {
 	}
 	string cmd(argv[1]);
 	auto arr = qs.getChr(chr);
+	unsigned int lastid = 0;
 	if (cmd == "avg") {
-		printarr(qs.getChr(chr).avg_batch(start, end, sz));
+		query_file(argv[3], [&qs,&lastid,sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
+			if (changed) lastid = qs.getChrId(chrom);
+			printarr(qs.getChr(lastid).avg_batch(st, ed, sz));
+		});
 	} else
 	if (cmd == "cov") {
-		printarr(qs.getChr(chr).coverage_batch(start, end, sz));
+		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
+			if (changed) lastid = qs.getChrId(chrom);
+			printarr(qs.getChr(lastid).coverage_batch(st, ed, sz));
+		});
 	} else
 	if (cmd == "min") {
-		printarr(qs.getChr(chr).min_value_batch(start, end, sz));
+		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
+			if (changed) lastid = qs.getChrId(chrom);
+			printarr(qs.getChr(lastid).min_value_batch(st, ed, sz));
+		});
 	} else
 	if (cmd == "max") {
-		printarr(qs.getChr(chr).max_value_batch(start, end, sz));
-	} else
+		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
+			if (changed) lastid = qs.getChrId(chrom);
+			printarr(qs.getChr(lastid).max_value_batch(st, ed, sz));
+		});
+	} /* else
 	if (cmd == "lst") {
 		auto & chrds = qs.getChr(chr);
 		auto rng = chrds.find_intervals(start, end);
@@ -69,7 +144,8 @@ int main(int argc, char* argv[]) {
 		for (unsigned int i = 0; i < arr.size(); ++i)
 			cout << arr[i] << " ";
 		cout << endl;
-	} else {
+	} */
+	else {
 		cerr << "unknow query" << endl;
 	}
 	qs.clear();

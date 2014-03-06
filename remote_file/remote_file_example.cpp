@@ -217,7 +217,14 @@ struct Remote_cwig2 {
 	}
 };
 
+#include "utils/md5.h"
+
 int main() {
+
+	std::cout << utils::MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") << endl;
+
+	return 0;
+
 	//example1();
 	Remote_rank6 t;
 	//t.create_remote_file();

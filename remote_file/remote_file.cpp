@@ -6,6 +6,7 @@
 #include "ext_bitmap.h"
 #include "memmapfile.h"
 #include "utils/file_utils.h"
+#include "utils/md5.h"
 
 #include <unordered_map>
 #include <ctime>
@@ -124,7 +125,7 @@ public:
 		return fetch(start, len);
 	}
 	virtual void release_map(char* ptr) {}
-	static const unsigned int default_block_size = 16 * 1024;
+	static const unsigned int default_block_size = 4 * 8 * 16 * 1024;
 	size_t hit_count() const { return _hit_count; }
 	size_t total_count() const { return _total_count; }
 	void inspect(const std::string& param, std::ostream& out) const {
@@ -235,10 +236,8 @@ char *FilecacheRemoteFile::fetch(size_t start, unsigned int len) {
 		if (!bitmap.getbit(p)) {
 			size_t rqsz = std::min<size_t>(blocksize, info.filesize - nstart);
 			hobj.read_cont(nstart, rqsz, ptr);
-			//get_http_file_data(_url, nstart, rqsz, ptr);
 			bitmap.setbit(p);
-		}
-		else {
+		} else {
 			_hit_count++;
 		}
 		_total_count++;
@@ -267,7 +266,7 @@ RemoteFileHdl RemoteFileRepository::open(const std::string &url, bool refresh_da
 			return std::make_shared<PrivateMemcacheRemoteFile>(url);
 		}else
 			if (cachetype == FILE_CACHE) {
-		std::string path = _cache_dir + uri_encode(url);
+		std::string path = _cache_dir + utils::MD5::hex(url);
 		std::shared_ptr<FilecacheRemoteFile> h = std::make_shared<FilecacheRemoteFile>(url, path, refresh_data);
 
 		return h;

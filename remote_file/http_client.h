@@ -17,5 +17,3 @@ private:
 	std::shared_ptr<void> _impl_ctl;
 };
 
-std::string uri_encode(const std::string & sSrc);
-std::string uri_decode(const std::string & sSrc);

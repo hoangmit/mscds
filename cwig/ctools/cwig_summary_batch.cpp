@@ -66,7 +66,7 @@ template<typename Func>
 void query_file(const std::string& fname, Func fx) {
 	std::string line;
 	std::string chrom;
-	unsigned int start, end;
+	//unsigned int start, end;
 	Entry et;
 	ifstream fi(fname.c_str());
 	while (std::getline(fi, line)) {

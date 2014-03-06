@@ -45,7 +45,8 @@ public:
 
 	void change_cache_dir(const std::string& dir);
 	
-	RemoteFileHdl open(const std::string& url, bool refresh_data = false, RemoteCacheType cachetype = FILE_CACHE);
+	RemoteFileHdl open(const std::string& url, bool refresh_data = false,
+		RemoteCacheType cachetype = FILE_CACHE);
 	
 	size_t clean(unsigned int max_age);
 	std::string cache_dir();

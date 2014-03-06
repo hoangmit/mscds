@@ -36,22 +36,51 @@ private:
 	uint64_t cnt, p_sum, pslast;
 };
 
+/**
+
+SDArray is an array of non-negative integers <math>A[1..m]</math>.
+It provides the following operations:
+*  access any element <math>A[i]</math> in constant time
+*  compute <math>prefix\_sum(i)= \sum_{k=1}^{i-1} A[k]</math> in constant time. (note that <math>prefix\_sum(0)=0</math>)
+*  compute <math>rank(p)</math> returns the minimal index i such that <math>prefix\_sum(i) \geq p</math> in logarithmic time.
+
+Let <math>n=\sum_{k=1}^{m}A[i]</math>. The SDArray should uses about <math>m \log_2 (n/m) + 2m + o(n)</math> bits.
+*/
+
 class SDArraySml {
 public:
 	SDArraySml() { clear(); }
 	~SDArraySml() { clear();  }
-	uint64_t prefixsum(size_t p) const ;
-	uint64_t length() const { return len; }
-	uint64_t lookup(const uint64_t p) const;
-	uint64_t lookup(const uint64_t pos, uint64_t& prev_sum) const;
-	uint64_t rank(uint64_t val) const;
+	/** returns the value of A[i] */
+	uint64_t lookup(const uint64_t i) const;
 
-	std::string to_str(bool psum) const;
-	void dump_text(std::ostream& fo) const;
+	/** returns the value of A[i] and  prev_sum=prefix_sum(i) */
+	uint64_t lookup(const uint64_t i, uint64_t& prev_sum) const;
+
+	/** return the value of prefix_sum(i) */
+	uint64_t prefixsum(size_t i) const;
+
+	/** return the value of rank(p) */
+	uint64_t rank(uint64_t p) const;
+
+	/** clear the array (length becomes 0) */
 	void clear();
+
+	/** save and load functions */
 	void save(OutArchive& ar) const;
 	void load(InpArchive& ar);
+
+	/** to string for debug */
+	std::string to_str(bool psum) const;
+
+	/** returns the sum of all the elements in the array */
 	uint64_t total() const { return sum; }
+
+	/** counts the number of elements in the array */
+	uint64_t length() const { return len; }
+
+	void dump_text(std::ostream& fo) const;
+
 	typedef SDArraySmlBuilder BuilderTp;
 
 	class PSEnum: public EnumeratorInt<uint64_t> {

@@ -13,6 +13,7 @@ modp_numtoa.cpp
 cache_table.cpp
 rand_data.cpp
 benchmark.cpp
+md5.cpp
 )
 
 
@@ -28,6 +29,7 @@ modp_numtoa.h
 cache_table.h
 rand_data.h
 benchmark.h
+md5.h
 )
 
 include_directories(${GTEST_INCLUDE_DIRS})
@@ -38,7 +40,7 @@ target_link_libraries(utils ${GTEST_LIBRARY})
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
 
-add_test_files(cache_table_test.cpp)
+add_test_files(cache_table_test.cpp md5_test.cpp)
 #add_executable(t_cache_table cache_table_test.cpp)
 #target_link_libraries(t_cache_table utils)
 #set_target_properties(t_cache_table PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

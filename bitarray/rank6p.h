@@ -22,14 +22,22 @@ private:
 	BitArray inv;
 	uint64_t onecnt;
 public:
+	/** counts the number of 1 in the range from 1 to (p-1) */
 	uint64_t rank(uint64_t p) const;
+	/** counts the number of 0 in the range from 1 to (p-1) */
 	uint64_t rankzero(uint64_t p) const;
+	/** the position of the (r+1)-th 1-value (from left to right) */
 	uint64_t select(uint64_t r) const;
+	/** the position of the (r+1)-th 0-value (from left to right) */
 	uint64_t selectzero(uint64_t r) const;
+	/** returns the number of 1 in the whole array */
 	uint64_t one_count() const { return onecnt; }
+	/** returns the length of the array */
 	uint64_t length() const { return bits.length(); }
-	bool bit(uint64_t p) const;
+	
+	/** returns the value p-th bit in the bit array */
 	bool access(uint64_t pos) const { return bits[pos]; }
+	bool bit(uint64_t p) const;
 
 	void clear();
 	

@@ -9,6 +9,7 @@
 #include <cctype>
 #include <iterator>
 #include <sstream>
+#include <cmath>
 using namespace std;
 
 namespace utils {

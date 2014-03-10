@@ -1,11 +1,14 @@
 #include "http_headers.h"
 
+#include "error.h"
 
 // Uri encode and decode.
 // RFC1630, RFC1738, RFC2396
 
 #include <string>
 #include <assert.h>
+
+using namespace mscds;
 
 const char HEX2DEC[128] =
 {
@@ -39,8 +42,8 @@ std::string uri_decode(const std::string & sSrc)
 	while (pSrc < SRC_LAST_DEC) {
 		if (*pSrc == '%') {
 			char dec1, dec2;
-			char ch1 = *(pSrc + 1);
-			char ch2 = *(pSrc + 2);
+			unsigned char ch1 = *(pSrc + 1);
+			unsigned char ch2 = *(pSrc + 2);
 			if (ch1 < 128 && -1 != (dec1 = HEX2DEC[ch1])
 				&& ch2 < 128 && -1 != (dec2 = HEX2DEC[ch2]))
 			{

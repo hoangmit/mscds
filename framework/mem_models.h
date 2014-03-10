@@ -140,7 +140,7 @@ public:
 	DynamicMemRegionPtr& operator=(const DynamicMemRegionPtr& mE) = default;
 
 	DynamicMemRegionPtr(DynamicMemRegionPtr&& mE) : _impl(mE._impl), _ref(std::move(mE._ref)) {}
-	DynamicMemRegionPtr& operator=(DynamicMemRegionPtr&& mE) { _impl = mE._impl; _ref = std::move(_ref); }
+	DynamicMemRegionPtr& operator=(DynamicMemRegionPtr&& mE) { _impl = mE._impl; _ref = std::move(_ref); return * this; }
 
 	bool has_direct_access() const { return _impl->has_direct_access(); }
 	bool has_window_access() const { return _impl->has_window_access(); }

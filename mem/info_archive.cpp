@@ -168,7 +168,7 @@ OutArchive& OClassInfoArchive::end_mem_region() {
 
 void OClassInfoArchive::close() {
 	ClassListInfo& x = *((ClassListInfo*)impl);
-	if (!x.parents.size() != 1 && x.parents.top()->name != "root")
+	if (x.parents.size() != 1 || x.parents.top()->name != "root")
 		throw ioerror("not enough endclass");
 	finalized = true;
 	x.parents.top()->finalize();

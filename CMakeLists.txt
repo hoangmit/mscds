@@ -39,25 +39,24 @@ set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
 	
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if (CMAKE_COMPILER_IS_GNUCC)
-	message(STATUS "GCC version: ${CMAKE_C_COMPILER_VERSION}")
-endif()
+
+message(STATUS "C Compiler version: ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "C++ Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
+
 
 ### Common compiler flags
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/function.cmake)
 include(cmake/MergeStaticLibraries.cmake)
 fix_compiler_flags() #defined inside function.cmake
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
-else()
-	if(MSVC)
-		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-		add_definitions(/wd4244 /wd4018)
-		add_definitions(/D_VARIADIC_MAX=10)
-		add_definitions(-D_WIN32_WINNT=0x0501)
-		#add_definitions(/arch:SSE)
-	endif()
+elseif(MSVC)
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	add_definitions(/wd4244 /wd4018)
+	add_definitions(/D_VARIADIC_MAX=10)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	#add_definitions(/arch:SSE)
 endif()
 
 ### Build PYTHON and JAVA API extension settings

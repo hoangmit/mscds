@@ -7,7 +7,7 @@
 using namespace std;
 using namespace mscds;
 
-TEST(watarr, watarr) {
+TEST(watarr, watarr_0) {
 	vector<uint64_t> inp;
 	inp.push_back(1);
 	inp.push_back(2);
@@ -23,7 +23,7 @@ TEST(watarr, watarr) {
 	ASSERT(5 == arr.rank(1, 8));
 }
 
-TEST(wat_1, watarr) {
+TEST(watarr, wat_1) {
 	unsigned int arr[8] = {2, 7, 1, 7, 3, 0, 4, 4};
 	vector<uint64_t> v(arr, arr+8);
 	WatQuery wq;
@@ -43,7 +43,7 @@ TEST(wat_1, watarr) {
 	ASSERT_EQ(7, wq.select(4, 1));
 }
 
-TEST(wat_2, watarr){
+TEST(watarr, wat_2){
 	vector<uint64_t> v;
 	const int range = 8;
 	const int len = 100;
@@ -73,7 +73,26 @@ TEST(wat_2, watarr){
 	}
 }
 
-TEST(wat_access, watarr) {
+#include "bitarray/rrr.h"
+
+TEST(watarr, wat_3){
+	
+	vector<uint64_t> v;
+	for (unsigned int i = 0; i < 9; i++)
+		v.push_back(i + 1);
+	typedef WatQueryGen<RRR> WatQuery2;
+	typedef WatBuilderGen<RRR> WatBuilder2;
+
+	WatQuery2 wq;
+	WatBuilder2 bd;
+	bd.build(v, &wq);
+
+	ASSERT_EQ(1, wq.rank(6, 8));
+}
+
+
+
+TEST(watarr, wat_access) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -95,7 +114,7 @@ TEST(wat_access, watarr) {
 	}
 }
 
-TEST(rank_access_bigrange, watarr) {
+TEST(watarr, rank_access_bigrange) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -117,7 +136,7 @@ TEST(rank_access_bigrange, watarr) {
 	}
 }
 
-TEST(rank_access_smallrange, watarr) {
+TEST(watarr, rank_access_smallrange) {
 	vector<uint64_t> v;
 	int len = 1000;
 	for (int i = 0; i < len; ++i)
@@ -140,7 +159,7 @@ TEST(rank_access_smallrange, watarr) {
 	}
 }
 
-TEST(select_rank, watarr) {
+TEST(watarr, select_rank) {
 	vector<uint64_t> v;
 	int len = 1000, maxval=18;
 	vector<vector<unsigned int> > pos(maxval);
@@ -161,7 +180,7 @@ TEST(select_rank, watarr) {
 	}
 }
 
-TEST(minmax_handmade_test, watarr) {
+TEST(watarr, minmax_handmade_test) {
 	//WatBuilder wb;
 	uint64_t arr[8] = {2, 7, 1, 7, 3, 0, 4, 4};
 	vector<uint64_t> v;
@@ -197,7 +216,7 @@ void manuallist(int min_c, int max_c, int beg_pos, int end_pos, const vector<uin
 	}
 }
 
-TEST(listing, watarr) {
+TEST(watarr, listing) {
 	vector<uint64_t> v;
 	int len = 50, maxval=18;
 	for (int i = 0; i < len; ++i) {
@@ -232,7 +251,7 @@ TEST(listing, watarr) {
 
 //------------------------------------------------------------------------------
 
-TEST(gridquerytest_x, grid) {
+TEST(grid, gridquerytest_x) {
 	vector<uint64_t> inp;
 	for (int i = 0; i < 1000; i++)
 		inp.push_back(i);
@@ -256,7 +275,7 @@ TEST(gridquerytest_x, grid) {
 	}
 }
 
-TEST(querytest1, grid) {
+TEST(grid, querytest1) {
 	vector<uint64_t> inp;
 	inp.push_back(0);
 	inp.push_back(1);
@@ -282,7 +301,7 @@ TEST(querytest1, grid) {
 }
 
 
-TEST(querytest2, grid) {
+TEST(grid, querytest2) {
 	vector<uint64_t> inp;
 	inp.push_back(1);
 	inp.push_back(2);

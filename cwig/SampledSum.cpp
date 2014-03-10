@@ -161,7 +161,7 @@ void SampledSumQuery::Enum::init(unsigned char etype) {
 		type = etype;
 		if (ex != NULL) delete ex;
 		if (etype == 1) ex = new PRValArr::Enum();
-		else if (etype = 2) ex =  new RankValArr::Enum();
+		else if (etype == 2) ex =  new RankValArr::Enum();
 		else throw std::runtime_error("unknown type");
 	}
 }

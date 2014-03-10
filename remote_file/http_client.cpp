@@ -13,6 +13,7 @@
 #include <sstream>
 #include <functional>
 
+using namespace mscds;
 using namespace boost::network;
 using namespace boost::network::http;
 
@@ -81,8 +82,10 @@ struct HttpObjectReq {
 	}
 
 	void stop() {
-		service_->stop();
-		service_.reset();
+		if (service_) {
+			service_->stop();
+			service_.reset();
+		}
 	}
 private:
 	void check_headers(client_t::response& response) {
@@ -111,16 +114,16 @@ private:
 
 //------------------------------------------------------------------------
 
-HttpFileObj::HttpFileObj(): impl(nullptr) {}
+HttpFileObj::HttpFileObj(): pimpl(nullptr) {}
 
 HttpFileObj::HttpFileObj(const std::string &url) {
 	auto ret = std::make_shared<HttpObjectReq>(url);
-	impl = ret.get();
-	_impl_ctl = ret;
+	pimpl = ret.get();
+	pimpl_ctl_ = ret;
 }
 
 void HttpFileObj::getInfo(RemoteFileInfo &info) {
-	HttpObjectReq * hobj = (HttpObjectReq *) impl;
+	HttpObjectReq * hobj = (HttpObjectReq *) pimpl;
 	if (hobj == nullptr) throw remoteio_error("http object is not created");
 	hobj->head();
 	if (!hobj->info_.content_length(info.filesize)) {
@@ -138,16 +141,25 @@ void HttpFileObj::getInfo(RemoteFileInfo &info) {
 			throw remoteio_error("cannot find date or last_modified header");
 }
 
-void HttpFileObj::read_once(size_t start, size_t len, char *dest) {
-	HttpObjectReq * hobj = (HttpObjectReq *) impl;
-	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
-	hobj->getdata(start, len, dest);
-}
 
 void HttpFileObj::read_cont(size_t start, size_t len, char *dest) {
-	HttpObjectReq * hobj = (HttpObjectReq *) impl;
+	HttpObjectReq * hobj = (HttpObjectReq *) pimpl;
 	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
 	hobj->getdata(start, len, dest);
 }
 
+void HttpFileObj::read_cont(size_t start, size_t len, HttpFileObj::CallBack fx) {
+	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
+	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
+	hobj->getdata2(start, len, [fx](boost::iterator_range<const char*> const & range, boost::system::error_code const &error){
+		if (!error) {
+			fx(range.begin(), range.end() - range.begin());
+		}
+	});
+}
+
+void HttpFileObj::stop_read() {
+	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
+	hobj->stop();
+}
 

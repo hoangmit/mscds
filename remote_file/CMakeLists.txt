@@ -26,6 +26,7 @@ SET(SRCS remote_file.cpp strptime.cpp http_client.cpp http_headers.cpp
 ext_bitmap.cpp memmapfile.cpp
 remote_archive1.cpp
 remote_archive2.cpp
+remote_file_impl.cpp
 )
 
 SET(HEADERS remote_file.h strptime.h

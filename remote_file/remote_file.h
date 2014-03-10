@@ -10,9 +10,9 @@ namespace mscds {
 
 class RemoteFileInfoInt {
 public:
-	virtual std::string url() = 0;
-	virtual size_t size() = 0;
-	virtual time_t update_time() = 0;
+	virtual std::string url() const = 0;
+	virtual size_t size() const = 0;
+	virtual time_t update_time() const = 0;
 };
 
 class RemoteFileInt : public RemoteFileInfoInt {

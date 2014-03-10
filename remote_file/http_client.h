@@ -1,19 +1,34 @@
 
 #pragma once
 
-#include "remote_file_impl.h"
+
 #include <string>
 #include <memory>
+#include <functional>
+
+struct RemoteFileInfo {
+	size_t filesize;
+	time_t last_update;
+	bool operator==(const RemoteFileInfo& other) const {
+		return filesize == other.filesize && last_update == other.last_update;
+	}
+	bool operator!=(const RemoteFileInfo& other) const { return !(*this == other); }
+};
+
+
 
 struct HttpFileObj {
 public:
+	typedef std::function<void(const char*, size_t)> CallBack;
+
 	HttpFileObj();
 	HttpFileObj(const std::string& url);
 	void getInfo(RemoteFileInfo& info);
-	void read_once(size_t start, size_t len, char* dest);
 	void read_cont(size_t start, size_t len, char* dest);
+	void read_cont(size_t start, size_t len, CallBack fx);
+	void stop_read();
 private:
-	void* impl;
-	std::shared_ptr<void> _impl_ctl;
+	void* pimpl;
+	std::shared_ptr<void> pimpl_ctl_;
 };
 

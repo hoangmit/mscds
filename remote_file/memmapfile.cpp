@@ -54,7 +54,7 @@ void MemoryMappedFile::load_r(const char *fname) {
 	this->h2 = h;
 }
 
-void MemoryMappedFile::unload() {
+void MemoryMappedFile::close() {
 	if (this->mod != 0) {		
 		UnmapViewOfFile(addr);
 		CloseHandle(h2);
@@ -275,7 +275,7 @@ void MemoryMappedFile::resize_rw(size_t new_len){
 	//return m->addr;
 }
 
-void MemoryMappedFile::unload() {
+void MemoryMappedFile::close() {
 	if (this->mod != 0) {
 		if (munmap(this->addr,this->len)==-1) {
 			throw std::runtime_error("munmap 1:");

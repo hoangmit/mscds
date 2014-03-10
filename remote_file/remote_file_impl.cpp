@@ -178,6 +178,88 @@ void ParallelDataFetcher::RangeDataRequest::receive(const char *data, size_t len
 	}
 }
 
+char *ParallelDataFetcher::fetch(size_t start, size_t len) {
+	if (len == 0 || full_data) return (char*)fc.start_ptr() + start;
+	//std::cout << "fetch: " << start << ", " << len << std::endl;
+	assert(start + len <= fc.info.filesize);
+
+	size_t end_blk = ((start + len - 1) / fc.blocksize) + 1;
+	size_t start_blk = start / fc.blocksize;
+
+	std::vector<std::pair<size_t, size_t> > vt;
+	{
+		std::lock_guard<std::mutex> lg(write_mt);
+		vt = scan(start_blk, end_blk);
+	}
+	if (vt.size() > 1) {
+		for (unsigned int i = 0; i < vt.size() - 1; ++i)
+			dispatch_request(vt[i].first, vt[i].second, vt[i].second);
+	}
+	bool contt = false;
+	if (vt.size() > 0) {
+		auto & last = vt[vt.size() - 1];
+		if (end_blk - last.second < max_gap_size) {
+			dispatch_request(last.first, last.second, last.second + max_forward_size);
+			contt = true;
+		}
+		else
+			dispatch_request(last.first, last.second, last.second);
+	}
+	if (!contt) {
+		size_t x = find_first_free();
+		if (!full_data)
+			dispatch_request(x, x, x + max_forward_size);
+	}
+	return (char*)fc.start_ptr() + start;
+}
+
+void ParallelDataFetcher::dispatch_request(size_t start, size_t end, size_t end_opt) {
+	//std::cout << "dispatch " << start << ", " << end << ", " << end_opt << std::endl;
+	while (opt_jobs.size() > 1)
+		kill_one_job();
+	std::shared_ptr<RangeDataRequest> rd = std::make_shared<RangeDataRequest>();
+	rd->init(&fc, &write_mt, start, end, end_opt);
+	rd->hobj.reset(new HttpFileObj(url()));
+	std::future<void> cj = rd->done_job.get_future();
+	size_t st = rd->fc->start_blk(start);
+	size_t ed = rd->fc->start_blk(end_opt);
+	//using namespace std::placeholders;
+	std::async(std::launch::async, [rd, st, ed]() {
+		rd->hobj->read_cont(st, ed - st, [rd](const char* ptr, size_t len){
+			rd->receive(ptr, len);
+		});
+	});
+	cj.wait();
+	opt_jobs.push(rd);
+}
+
+bool ParallelDataFetcher::is_optional_running() {
+	return !opt_jobs.empty();
+}
+
+void ParallelDataFetcher::kill_one_job() {
+	auto j = opt_jobs.front();
+	j->stop();
+	opt_jobs.pop();
+}
+
+void ParallelDataFetcher::cancel_optional() {
+	while (!opt_jobs.empty()) {
+		kill_one_job();
+	}
+}
+
+size_t ParallelDataFetcher::find_first_free() {
+	std::lock_guard<std::mutex> lg(write_mt);
+	while (scan_ptx < fc.count_blk() && fc.check_blk(scan_ptx)) ++scan_ptx;
+	if (scan_ptx < fc.count_blk())
+		return scan_ptx;
+	else {
+		full_data = true;
+		return 0;
+	}
+}
+
 std::vector<std::pair<size_t, size_t> > ParallelDataFetcher::scan(size_t stb, size_t edb) {
 	std::vector<std::pair<size_t, size_t> > dl_intv;
 	size_t p = stb;
@@ -203,5 +285,7 @@ std::vector<std::pair<size_t, size_t> > ParallelDataFetcher::scan(size_t stb, si
 	}
 	return dl_intv;
 }
+
+void mscds::ParallelDataFetcher::RangeDataRequest::stop() { std::lock_guard<std::mutex> lg(*mt); hobj->stop_read(); }
 
 }//namespace

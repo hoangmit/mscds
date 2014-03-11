@@ -78,8 +78,10 @@ FilecacheRemoteFile::FilecacheRemoteFile(const std::string &url, const std::stri
 }*/
 
 void FilecacheRemoteFile::inspect(const std::string &param, std::ostream &out) const {
-	out << "total_page_request = " << fc.total_count_ << std::endl;
-	out << "hit_count = " << fc.hit_count_ << std::endl;
+	out << "page download = " << fc.total_count_ << std::endl;
+	out << "page hit  = " << fc.hit_count_ << std::endl;
+	out << "page skip = " << fc.skip_count_ << std::endl;
+	out << "request count = " << fc.req_count_ << std::endl;
 }
 
 size_t FilecacheRemoteFile::read(char *dest, size_t size) {
@@ -205,7 +207,7 @@ char *ParallelDataFetcher::fetch(size_t start, size_t len) {
 		else
 			dispatch_request(last.first, last.second, last.second);
 	}
-	if (!contt) {
+	if (!contt && opt_jobs.size() == 0) {
 		size_t x = find_first_free();
 		if (!full_data)
 			dispatch_request(x, x, x + max_forward_size);
@@ -214,19 +216,20 @@ char *ParallelDataFetcher::fetch(size_t start, size_t len) {
 }
 
 void ParallelDataFetcher::dispatch_request(size_t start, size_t end, size_t end_opt) {
-	//std::cout << "dispatch " << start << ", " << end << ", " << end_opt << std::endl;
-	while (opt_jobs.size() > 1)
-		kill_one_job();
+	//std::cout << "\n" << "dispatch " << start << ", " << end << ", " << end_opt << std::endl;
+	while (opt_jobs.size() > 1) kill_one_job();
+	fc.req_count_++;
 	std::shared_ptr<RangeDataRequest> rd = std::make_shared<RangeDataRequest>();
 	rd->init(&fc, &write_mt, start, end, end_opt);
 	rd->hobj.reset(new HttpFileObj(url()));
 	std::future<void> cj = rd->done_job.get_future();
 	size_t st = rd->fc->start_blk(start);
 	size_t ed = rd->fc->start_blk(end_opt);
+	RangeDataRequest* tmp = rd.get();
 	//using namespace std::placeholders;
-	std::async(std::launch::async, [rd, st, ed]() {
-		rd->hobj->read_cont(st, ed - st, [rd](const char* ptr, size_t len){
-			rd->receive(ptr, len);
+	std::async(std::launch::async, [tmp, st, ed]() {
+		tmp->hobj->read_cont(st, ed - st, [tmp](const char* ptr, size_t len){
+			tmp->receive(ptr, len);
 		});
 	});
 	cj.wait();

@@ -102,11 +102,11 @@ private:
 struct FileCache {
 	FileCache() : open_(false), blocksize(default_block_size),
 		n_blocks(0), filesize_(0),
-		hit_count_(0), skip_count_(0), total_count_(0) { }
+		hit_count_(0), skip_count_(0), total_count_(0), req_count_(0) {}
 	/*size_t hit_count() const { return hit_count_; }
 	size_t total_count() const { return total_count_; } */
 
-	uint32_t hit_count_, skip_count_, total_count_;
+	uint32_t hit_count_, skip_count_, total_count_, req_count_;
 
 	void load_files(const std::string& prefix);
 	void create_files(const std::string& prefix);
@@ -224,11 +224,11 @@ struct ParallelDataFetcher {
 
 
 	ParallelDataFetcher(FileCache& fc_) : fc(fc_) { init(); }
-	ParallelDataFetcher(FileCache& fc_, const std::string& url) : fc(fc_), url_(url), h1(url) { init(); }
+	ParallelDataFetcher(FileCache& fc_, const std::string& url) : fc(fc_), url_(url) { init(); }
 
 	char* fetch(size_t start, size_t len);
 	std::string url() const { return url_; }
-	void getInfo(RemoteFileInfo& inf) { h1.getInfo(inf); }
+	void getInfo(RemoteFileInfo& inf) { HttpFileObj h1(url_); h1.getInfo(inf); }
 
 private:
 	void init() { scan_ptx = 0; full_data = false; }
@@ -254,7 +254,7 @@ private:
 	const uint32_t max_forward_size = 1024;	
 
 private:
-	HttpFileObj h1;
+	//HttpFileObj h1;
 	std::string url_;
 	FileCache& fc;
 };
@@ -264,6 +264,9 @@ struct FilecacheRemoteFile : RemoteFileInt {
 public:
 	FilecacheRemoteFile() : df(fc) { fc.info.filesize = 0; curpos = 0; }
 	FilecacheRemoteFile(const std::string& url, const std::string& prefix, bool refresh_data = false);
+	~FilecacheRemoteFile() {
+		//std::cout << "destruction" << std::endl;
+	}
 
 	std::string url() const { return df.url(); }
 	size_t size() const { return fc.info.filesize; }
@@ -284,10 +287,10 @@ public:
 
 	void inspect(const std::string& param, std::ostream& out) const;
 private:
-
+	FileCache fc;
 	ParallelDataFetcher df;
 	//SimpleDataFetcher df;
-	FileCache fc;
+	
 	friend class RemoteFileRepository;
 	size_t curpos;
 };

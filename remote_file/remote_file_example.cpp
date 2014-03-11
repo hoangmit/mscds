@@ -193,22 +193,23 @@ struct Remote_cwig2 {
 		app_ds::GenomeNumData remote, local;
 		//20-25 second to load
 		IFileArchive2 fi;
-		fi.open_read("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+		fi.open_read("C:/sharehost/wgEncodeBroadHistoneK562Chd4mi2Sig.cwig");
 
 		RemoteArchive2 rfi;
 		utils::Timer tm;
 		//wgEncodeOpenChromChipGm19240CtcfSig wgEncodeBroadHistoneK562Chd4mi2Sig wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5
-		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
-
+		rfi.open_url("http://10.217.22.87/bigWig/wgEncodeBroadHistoneK562Chd4mi2Sig.cwig", "", true);
+		cout << "load" << endl;
+	
 		//rfi.open_url("https://www.dropbox.com/s/2wvbgygau0oqm3s/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
 		local.load(fi);
 		remote.load(rfi);
 
-		cout << "Load in: " << tm.current() << endl;
+		cout << "Load_in: " << tm.current() << endl;
 
 		const app_ds::ChrNumData & cq2 = local.getChr(1);
 		cq2.avg(1, 2);
-
+		cout << "q2" << endl;
 		const app_ds::ChrNumData & cq = remote.getChr(1);
 		cq.avg(1, 2);
 
@@ -222,8 +223,6 @@ struct Remote_cwig2 {
 int main() {
 
 	std::cout << utils::MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") << endl;
-
-	return 0;
 
 	//example1();
 	Remote_rank6 t;

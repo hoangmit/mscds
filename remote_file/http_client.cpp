@@ -91,7 +91,10 @@ private:
 	void check_headers(client_t::response& response) {
 		info_.clear();
 		auto hds = headers(response);
-		for (auto& h : hds) info_.check_header(h.first, h.second);
+		for (auto& h : hds) {
+			//std::cout << h.first << ": " << h.second << std::endl;
+			info_.check_header(h.first, h.second);
+		}
 	}
 
 	void check_req_info(size_t start, size_t len, client_t::response& response) {
@@ -114,9 +117,16 @@ private:
 
 //------------------------------------------------------------------------
 
-HttpFileObj::HttpFileObj(): pimpl(nullptr) {}
+HttpFileObj::HttpFileObj(): pimpl(nullptr) {
+}
+
+HttpFileObj::~HttpFileObj() {
+	//std::cout << "delete_http" << "(" << id_ << ")" << std::endl;
+}
 
 HttpFileObj::HttpFileObj(const std::string &url) {
+	//id_ = rand() % 100000;
+	//std::cout << "create_http" << "(" << id_ <<")" << std::endl;
 	auto ret = std::make_shared<HttpObjectReq>(url);
 	pimpl = ret.get();
 	pimpl_ctl_ = ret;
@@ -143,6 +153,7 @@ void HttpFileObj::getInfo(RemoteFileInfo &info) {
 
 
 void HttpFileObj::read_cont(size_t start, size_t len, char *dest) {
+	//std::cout << "read_http " << start << " - " << len << std::endl;
 	HttpObjectReq * hobj = (HttpObjectReq *) pimpl;
 	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
 	hobj->getdata(start, len, dest);
@@ -150,6 +161,7 @@ void HttpFileObj::read_cont(size_t start, size_t len, char *dest) {
 
 void HttpFileObj::read_cont(size_t start, size_t len, HttpFileObj::CallBack fx) {
 	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
+	//std::cout << "read_http " << start << " - " << len << std::endl;
 	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
 	hobj->getdata2(start, len, [fx](boost::iterator_range<const char*> const & range, boost::system::error_code const &error){
 		if (!error) {
@@ -159,6 +171,7 @@ void HttpFileObj::read_cont(size_t start, size_t len, HttpFileObj::CallBack fx) 
 }
 
 void HttpFileObj::stop_read() {
+	//std::cout << "stop_http" << "(" << id_ << ")" << std::endl;
 	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
 	hobj->stop();
 }

@@ -77,17 +77,15 @@ void query_file(const std::string& fname, Func fx) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc != 5 && argc != 6) {
+	if (argc != 4 && argc != 5) {
 		cerr << "cwig_summary {avg|cov|min|max} <cwigfile> <bedfile> <size=1>" << endl;
 		return 1;
 	}
 	mscds::IFileMapArchive2 fi;
 	fi.open_read(argv[2]);
 	
-	unsigned int start = atoi(argv[4]);
-	unsigned int end = atoi(argv[5]);
 	unsigned int sz = 1;
-	if (argc == 7) sz = atoi(argv[6]);
+	if (argc == 5) sz = atoi(argv[4]);
 	
 	GenomeNumData qs;
 	qs.load(fi);

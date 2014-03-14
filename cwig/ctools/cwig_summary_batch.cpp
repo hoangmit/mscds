@@ -90,30 +90,44 @@ int main(int argc, char* argv[]) {
 	GenomeNumData qs;
 	qs.load(fi);
 	
+	int chr = qs.getChrId(argv[3]);
+	if (chr == -1) {
+		cerr << "cannot find chromosome" << endl;
+		return 1;
+	}
 	string cmd(argv[1]);
+	auto arr = qs.getChr(chr);
 	unsigned int lastid = 0;
 	if (cmd == "avg") {
 		query_file(argv[3], [&qs,&lastid,sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
 			if (changed) lastid = qs.getChrId(chrom);
-			printarr(qs.getChr(lastid).avg_batch(st, ed, sz));
+			if (lastid != -1)
+				printarr(qs.getChr(lastid).avg_batch(st, ed, sz));
+			else std::cout << 0 << std::endl;
 		});
 	} else
 	if (cmd == "cov") {
 		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
 			if (changed) lastid = qs.getChrId(chrom);
-			printarr(qs.getChr(lastid).coverage_batch(st, ed, sz));
+			if (lastid != -1)
+				printarr(qs.getChr(lastid).coverage_batch(st, ed, sz));
+			else std::cout << 0 << std::endl;
 		});
 	} else
 	if (cmd == "min") {
 		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
 			if (changed) lastid = qs.getChrId(chrom);
-			printarr(qs.getChr(lastid).min_value_batch(st, ed, sz));
+			if (lastid != -1)
+				printarr(qs.getChr(lastid).min_value_batch(st, ed, sz));
+			else std::cout << 0 << std::endl;
 		});
 	} else
 	if (cmd == "max") {
 		query_file(argv[3], [&qs, &lastid, sz](bool changed, std::string& chrom, unsigned int st, unsigned int ed) {
 			if (changed) lastid = qs.getChrId(chrom);
-			printarr(qs.getChr(lastid).max_value_batch(st, ed, sz));
+			if (lastid != -1)
+				printarr(qs.getChr(lastid).max_value_batch(st, ed, sz));
+			else std::cout << 0 << std::endl;
 		});
 	} /* else
 	if (cmd == "lst") {

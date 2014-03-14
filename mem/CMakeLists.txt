@@ -19,7 +19,9 @@ fmap_archive2.h
 add_library(mem ${SRCS} ${HEADERS})
 target_link_libraries(mem utils)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
-
+if (CMAKE_COMPILER_IS_GNUCC)
+	target_link_libraries(mem -lrt)
+endif()
 
 add_test_files(filemap_test.cpp)
 #add_executable(t_mem filemaptest.cpp)

@@ -15,6 +15,8 @@ set(PYTHON_LIBRARY "/usr/lib64/libpython2.6.so")
 project(mscds)
 set(VERSION 0.1.1)
 
+#-Options-----------------------------------------------------------------------------------------
+
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -22,42 +24,6 @@ if (NOT CMAKE_BUILD_TYPE)
 	  "Choose the type of build, options are: None Debug Release."
 	  FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
-
-### setup directory-------------------------------------------
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
-   CACHE PATH "Single Directory for all Executables.")
-
-set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
-	CACHE PATH "Directory for testings executables")
-set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
-	CACHE PATH "Directory for python modules")
-#  .exe = runtime
-#  .dll = runtime
-#  .lib = archive  (either import lib or static lib)
-#  .a   = archive
-#  .so  = library
-	
-SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
-
-
-message(STATUS "C Compiler version: ${CMAKE_C_COMPILER_VERSION}")
-message(STATUS "C++ Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
-
-
-### Common compiler flags
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-include(cmake/function.cmake)
-include(cmake/MergeStaticLibraries.cmake)
-fix_compiler_flags() #defined inside function.cmake
-if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
-elseif(MSVC)
-	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(/wd4244 /wd4018)
-	add_definitions(/D_VARIADIC_MAX=10)
-	add_definitions(-D_WIN32_WINNT=0x0501)
-	#add_definitions(/arch:SSE)
-endif()
 
 ### Build PYTHON and JAVA API extension settings
 option(BUILD_EXT_API "Build Python and Java API" ON)
@@ -73,6 +39,40 @@ if (BUILD_DYNAMIC_CODE AND CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+
+#-------------------------------------------------------------------------------------------------
+### Common compiler flags
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(cmake/function.cmake)
+include(cmake/MergeStaticLibraries.cmake)
+fix_compiler_flags() #defined inside function.cmake
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+elseif(MSVC)
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	add_definitions(/wd4244 /wd4018)
+	add_definitions(/D_VARIADIC_MAX=10)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+	#add_definitions(/arch:SSE)
+endif()
+
+### setup directory-------------------------------------------
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
+   CACHE PATH "Single Directory for all Executables.")
+set(TEST_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests
+	CACHE PATH "Directory for testings executables")
+set(MODULE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/modules
+	CACHE PATH "Directory for python modules")
+#  .exe = runtime
+#  .dll = runtime
+#  .lib = archive  (either import lib or static lib)
+#  .a   = archive
+#  .so  = library
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+
+message(STATUS "C Compiler version: ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "C++ Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 #---External packcage------------------------------------------------------------------------------
 set(Boost_USE_MULTI_THREADED ON)
@@ -94,6 +94,9 @@ include_directories(${Boost_INCLUDE_DIRS})
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARIES}")
 
+
+#------------------------------------------------------------------------------------------------
+
 add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/gtest) #${PROJECT_BINARY_DIR}/ext_libs/gtest
 set(GTEST_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/gtest/include)
 set(GTEST_LIBRARY gtest)
@@ -112,6 +115,7 @@ set(NETLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/netlib)
 set(NETLIB_LIBRARIES cppnetlib-uri cppnetlib-client-connections)
 
 include_directories(${GTEST_INCLUDE_DIRS})
+
 
 #---Interal Utilities-----------------------------------------------------------------------------
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/runtests.py ${TEST_OUTPUT_DIRECTORY}/runtests.py COPYONLY)
@@ -166,5 +170,4 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cwig)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
-
 

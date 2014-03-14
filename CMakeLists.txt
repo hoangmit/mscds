@@ -26,19 +26,22 @@ if (NOT CMAKE_BUILD_TYPE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 ### Build PYTHON and JAVA API extension settings
-option(BUILD_EXT_API "Build Python and Java API" ON)
+option(BUILD_EXT_API "Build Python and Java API" OFF)
+
 if (WIN32)
 	set(BUILD_EXT_API OFF)
 endif()
 
 if (BUILD_EXT_API)
     set(BUILD_DYNAMIC_CODE ON) # for dynamic library in Linux
+else()
+    set(BUILD_DYNAMIC_CODE OFF)
 endif()
 if (BUILD_DYNAMIC_CODE AND CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 if (CMAKE_COMPILER_IS_GNUCC AND NOT BUILD_DYNAMIC_CODE)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
 endif()
 
 MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
@@ -50,7 +53,7 @@ include(cmake/function.cmake)
 include(cmake/MergeStaticLibraries.cmake)
 fix_compiler_flags() #defined inside function.cmake
 if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g -pthread")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
 elseif(MSVC)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 	add_definitions(/wd4244 /wd4018)

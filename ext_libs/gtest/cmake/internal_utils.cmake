@@ -138,6 +138,7 @@ function(cxx_library_with_type name type cxx_flags)
   endif()
   if (CMAKE_USE_PTHREADS_INIT)
     #target_link_libraries(${name} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${name} "-pthread")
   endif()
 endfunction()
 

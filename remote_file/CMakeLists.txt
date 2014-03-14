@@ -39,10 +39,14 @@ error.h
 
 ADD_LIBRARY(remote_file ${SRCS} ${HEADERS})
 
+TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils)
+
 if (OPENSSL_FOUND)
-	TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils ${OPENSSL_LIBRARIES})
-else()
-	TARGET_LINK_LIBRARIES(remote_file ${Boost_LIBRARIES} ${NETLIB_LIBRARIES} utils) 
+	TARGET_LINK_LIBRARIES(remote_file ${OPENSSL_LIBRARIES})
+endif()
+	 
+if (CMAKE_COMPILER_IS_GNUCC)
+    TARGET_LINK_LIBRARIES(remote_file -lrt -pthread)
 endif()
 
 MESSAGE(STATUS "lib in use: ${Boost_LIBRARIES}")

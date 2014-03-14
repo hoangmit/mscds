@@ -77,7 +77,7 @@ void query_file(const std::string& fname, Func fx) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc != 6 && argc != 7) {
+	if (argc != 5 && argc != 6) {
 		cerr << "cwig_summary {avg|cov|min|max} <cwigfile> <bedfile> <size=1>" << endl;
 		return 1;
 	}

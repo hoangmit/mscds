@@ -137,7 +137,7 @@ function(cxx_library_with_type name type cxx_flags)
       COMPILE_DEFINITIONS "GTEST_CREATE_SHARED_LIBRARY=1")
   endif()
   if (CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(${name} ${CMAKE_THREAD_LIBS_INIT})
+    #target_link_libraries(${name} ${CMAKE_THREAD_LIBS_INIT})
   endif()
 endfunction()
 

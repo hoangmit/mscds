@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.6)
 
 project(cwig)
 
-
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(SRCS chrfmt.cpp cwig.cpp

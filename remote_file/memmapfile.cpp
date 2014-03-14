@@ -179,18 +179,18 @@ void MemoryMappedFile::create_rw(const char *fname, uint64_t len) {
 	fchmod(fd, 0644);
 	int result = lseek(fd, len-1, SEEK_SET);
 	if (result == -1) {
-		close(fd);/* free(m); */
+		::close(fd);/* free(m); */
 		throw std::runtime_error("Error calling lseek() to 'stretch' the file");
     }
 	result = write(fd, "", 1);
 	if (result != 1) {
-		close(fd);/*free(m); */
+		::close(fd);/*free(m); */
 		throw std::runtime_error("Error writing last byte of the file");
 	}
 	lseek(fd, 0, SEEK_SET);
 
 	base = (caddr_t)mmap(0,len,PROT_READ | PROT_WRITE,MAP_SHARED,fd,0);
-	if (base==MAP_FAILED) {close(fd); throw std::runtime_error("mymmap_w");}
+	if (base==MAP_FAILED) {::close(fd); throw std::runtime_error("mymmap_w");}
 	this->addr = (void *)base;
 	this->fd = fd;
 	this->len = len;
@@ -211,7 +211,7 @@ void MemoryMappedFile::load_rw(const char *fname) {
 	stat(fname, &statbuf);
 	len = statbuf.st_size;
 	base = (caddr_t)mmap(0,len,PROT_READ | PROT_WRITE,MAP_SHARED,fd,0);
-	if (base==MAP_FAILED) {close(fd);  throw std::runtime_error("mymmap_w");}
+	if (base==MAP_FAILED) {::close(fd);  throw std::runtime_error("mymmap_w");}
 	this->addr = (void *)base;
 	this->fd = fd;
 	this->len = len;
@@ -280,7 +280,7 @@ void MemoryMappedFile::close() {
 		if (munmap(this->addr,this->len)==-1) {
 			throw std::runtime_error("munmap 1:");
 		}
-		close(this->fd);
+		::close(this->fd);
 		this->addr = NULL;
 		this->mod = 0;
 	}

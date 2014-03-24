@@ -15,7 +15,7 @@ remap_dt.h
 blkarray.hpp diffarray.hpp
 transform_utils.hpp
 contextfree_models.hpp
-blkgroup_array.hpp
+blkgroup_array.h
 sdarray_block.h
 )
 

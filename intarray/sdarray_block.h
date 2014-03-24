@@ -24,7 +24,8 @@ public:
 	ValueType lookup(unsigned int p, ValueType& prev_sum) const;
 	unsigned int rank(ValueType val) const;
 
-	void clear() { vals.clear(); bits.clear(); width = 0; select_hints = 0; blkptr = 0; }
+	void clear() { lastpt = ~0ULL; vals.clear(); bits.clear(); width = 0; select_hints = 0; blkptr = 0; }
+	SDArrayBlock() { clear(); }
 private:
 	unsigned int select_hi(uint64_t hints, uint64_t start, uint32_t off) const;
 	unsigned int scan_hi_bits(uint64_t start, uint32_t res) const;
@@ -41,6 +42,8 @@ private:
 
 	uint16_t width;
 	uint64_t select_hints;
+
+	size_t lastpt;
 
 	size_t blkptr;
 	BitArray bits;

@@ -83,13 +83,11 @@ public:
 	}
 
 	void loadBlock(BitArray& ba, size_t pt, size_t) {
-		IWBitStream inp;
-		inp.init(ba, pt);
-		w = inp.get(8);
+		w = ba.bits(pt, 8);
 		start_.resize(1);
 		start_[0] = 0;
 		for (unsigned i = 0; i < count_; ++i)
-			start_.push_back(start_.back() + inp.get(w));
+			start_.push_back(start_.back() + ba.bits(pt + 8 + i * w, w)); 
 		valid = true;
 	}
 
@@ -115,6 +113,7 @@ class BlockBuilder;
 
 class BlockMemManager {
 public:
+	void clear() { summary.clear(); data.clear(); blkcnt = 0; str_cnt = 0; }
 	size_t blkCount() const { return blkcnt; }
 
 	BitRange getGlobal(unsigned int id) {
@@ -130,12 +129,16 @@ public:
 
 	BitRange getData(size_t blk, unsigned int id) {
 		assert(blk < blkcnt);
-		size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
-		stp *= 8;
-		stp += summary_chunk_size * 8 - sizeof(uint64_t) * 8;
-		uint64_t ptrx = summary.bits(stp, 64);
-		bptr.loadBlock(data, ptrx, 0);
-		size_t base = ptrx + bptr.ptr_space();
+		if (last_blk != blk) {
+			size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
+			stp *= 8;
+			stp += summary_chunk_size * 8 - sizeof(uint64_t)* 8;
+			uint64_t ptrx = summary.bits(stp, 64);
+			bptr.loadBlock(data, ptrx, 0);
+			last_blk = blk;
+			last_ptrx = ptrx;
+		}
+		size_t base = last_ptrx + bptr.ptr_space();
 		return BitRange(&data, base + bptr.start(id), bptr.length(id));
 	}
 	void save(mscds::OutArchive& ar) const {
@@ -165,6 +168,7 @@ private:
 		return out;
 	}
 	void init();
+	
 private://essensial data
 	BitArray summary;
 	BitArray data;
@@ -172,6 +176,8 @@ private://essensial data
 	size_t blkcnt;
 	size_t str_cnt;
 private:
+	size_t last_blk;
+	uint64_t last_ptrx;
 	std::vector<std::string> info;
 	size_t summary_chunk_size, global_struct_size, header_size;
 	FixBlockPtr bptr;

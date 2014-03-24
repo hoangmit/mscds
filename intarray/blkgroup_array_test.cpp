@@ -1,9 +1,12 @@
 
 
 #include "sdarray.h"
+#include "sdarray_sml.h"
 #include "sdarray_block.h"
 
 #include "bitarray/bitstream.h"
+
+#include "utils/benchmark.h"
 
 #include "blkgroup_array.h"
 #include <cstdlib>
@@ -36,7 +39,7 @@ void sdarray_block__test1() {
 	for (unsigned i = 0; i < n; ++i) {
 		auto l = r.lookup(i);
 		assert(l == bdl.lookup(i));
-		uint64_t ps1, ps2;
+		uint64_t ps1, ps2 = 0;
 		ps1 = r.prefixsum(i);
 		assert(ps1 == bdl.prefixsum(i));
 		/*{
@@ -277,6 +280,7 @@ struct TwoSDA_v2 {
 	}
 	BlockMemManager mng;
 	unsigned int cnt = 0;
+	void clear() { mng.clear(); }
 };
 
 void test2() {
@@ -305,12 +309,100 @@ void test2() {
 		assert(rawval[i].first == x.lookup(i));
 		assert(rawval[i].second == y.lookup(i));
 	}
+
+	
+}
+//--------------------------------------------------------------------------
+
+
+struct StmFix : public SharedFixtureItf {
+	void SetUp(int size) {
+		if (size <= 0) { size = 500000; }
+		// generate test cases and data structure here
+		unsigned int range = 500;
+
+		SDArrayBuilder bd1;
+		SDArraySmlBuilder bd2;
+		sdx.init();
+		
+		for (unsigned i = 0; i < size; ++i) {
+			unsigned val = rand() % range;
+			vals.push_back(val);
+			bd1.add(val);
+			bd2.add(val);
+			sdx.add(val, val);
+		}
+		bd1.build(&sd1);
+		bd2.build(&sd2);
+		sdx.build();
+		this->size = size;
+	}
+	
+
+	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); sdx.clear();}
+
+	unsigned size;
+	std::vector<unsigned> vals;
+	SDArrayQuery sd1;
+	SDArraySml sd2;
+	TwoSDA_v2 sdx;
+};
+
+
+void vector_null(StmFix * fix) {
+	unsigned vx = 101;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->vals[i];
+	}
 }
 
+void sdarray_64(StmFix * fix) {
+	unsigned vx = 101;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd1.lookup(i);
+	}
+}
+
+void sdarray_512(StmFix * fix) {
+	unsigned vx = 101;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd2.lookup(i);
+	}
+}
+
+void sdarray_fuse0(StmFix * fix) {
+	SDArrayFuse x(fix->sdx.mng, 0);
+	unsigned vx = 101;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= x.lookup(i);
+	}
+}
+
+void sdarray_fuse1(StmFix * fix) {
+	SDArrayFuse x(fix->sdx.mng, 1);
+	unsigned vx = 101;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= x.lookup(i);
+	}
+}
+
+BENCHMARK_SET(sdarray_benchmark) {
+	Benchmarker<StmFix> bm;
+	bm.n_samples = 3;
+	//bm.add("vector", vector_null, 100);
+	bm.add("sdarray(64)", sdarray_64, 20);
+	bm.add("sdarray(512)", sdarray_512, 20);
+	bm.add("sdarray_fuse0", sdarray_fuse0, 10);
+	bm.add("sdarray_fuse1", sdarray_fuse1, 10);
+
+	bm.run_all();
+	bm.report(0); // <-- baseline
+}
 
 int main(int argc, char* argv[]) {
 	test1();
 	test2();
+	BenchmarkRegister::run_all();
 	return 0;
 	for (unsigned i = 0; i < 1000; i++)
 		sdarray_block__test1();

@@ -46,12 +46,13 @@ void SDArrayBlock::saveBlock(OBitStream *bits) {
 }
 
 void SDArrayBlock::loadBlock(const BitArray &ba, size_t pt) {
-	IWBitStream in;
-	in.init(ba, pt);
-	width = in.get(7);
-	select_hints = in.get(64);
-	this->bits = ba;
-	blkptr = pt + 7 + 64;
+	if (pt != lastpt) {
+		this->bits = ba;
+		width = ba.bits(pt, 7);
+		select_hints = ba.bits(pt + 7, 64);
+		blkptr = pt + 7 + 64;
+		lastpt = pt;
+	}
 }
 
 SDArrayBlock::ValueType SDArrayBlock::prefixsum(unsigned int p) const {

@@ -24,7 +24,7 @@ target_link_libraries(intarray bitarray codec utils)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
 add_executable(blkgroup_array_test blkgroup_array_test.cpp)
-target_link_libraries(blkgroup_array_test intarray ${COMMON_LIBS})
+target_link_libraries(blkgroup_array_test intarray utils ${COMMON_LIBS})
 set_target_properties(blkgroup_array_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 set_property(TARGET blkgroup_array_test PROPERTY FOLDER "Tests")
 

@@ -22,6 +22,9 @@ void BlockMemManager::init() {
 	global_ps = prefixsum_vec(global_sizes);
 	global_struct_size = global_ps.back();
 	summary_chunk_size = summary_ps.back() + sizeof(uint64_t);
+
+	last_blk =  ~0ULL;
+	last_ptrx = ~0ULL;
 }
 
 unsigned int BlockBuilder::register_struct(size_t global_size, size_t summary_blk_size, const std::string &str_info) {
@@ -97,9 +100,9 @@ void BlockBuilder::build(BlockMemManager *mng) {
 	header.build(&mng->summary);
 	data.build(&mng->data);
 	mng->blkcnt = blkcnt;
-	mng->init();
 	mng->info = info;
 	mng->str_cnt = summary_sizes.size();
+	mng->init();
 }
 
 BlockBuilder::BlockBuilder() : blkcnt(0), finish_reg(false) {

@@ -34,8 +34,7 @@ struct MemRange {
 
 struct BitRange {
 	BitRange() : ba(nullptr), start(0), len(0) {}
-	BitRange(BitRange&& other) : ba(other.ba), start(other.start), len(other.len) {}
-	BitRange(BitRange& other) : ba(other.ba), start(other.start), len(other.len) {}
+	BitRange(const BitRange& other) : ba(other.ba), start(other.start), len(other.len) {}
 	BitRange(BitArray* ba_, size_t start_, size_t len_) : ba(ba_), start(start_), len(len_) {}
 
 	uint64_t bits(size_t start_, size_t len_) const {

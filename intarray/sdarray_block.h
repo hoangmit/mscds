@@ -95,7 +95,6 @@ private:
 //template<typename BlockManager>
 class SDArrayFuse {
 public:
-	typedef BlockMemManager BlockMemManager;
 	typedef SDArrayBlock BlockType;
 	typedef SDArrayBlock::ValueType ValueType;
 

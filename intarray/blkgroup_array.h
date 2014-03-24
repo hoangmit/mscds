@@ -119,7 +119,7 @@ public:
 	size_t blkCount() const { return blkcnt; }
 
 	BitRange getGlobal(unsigned int id) {
-		return BitRange();
+		return BitRange(&summary, header_size * 8, global_struct_size * 8);
 	}
 
 	BitRange getSummary(size_t blk, unsigned int id) {

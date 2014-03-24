@@ -24,6 +24,18 @@ void BlockMemManager::init() {
 	summary_chunk_size = summary_ps.back() + sizeof(uint64_t);
 }
 
+unsigned int BlockBuilder::register_struct(size_t global_size, size_t summary_blk_size, const std::string &str_info) {
+	summary_sizes.push_back(summary_blk_size);
+	global_sizes.push_back(global_size);
+	summary_chunk_size += summary_blk_size;
+	info.push_back(str_info);
+	return summary_sizes.size() - 1;
+}
+
+OBitStream &BlockBuilder::globalStructData() {
+	return header;
+}
+
 void BlockBuilder::init_data() {
 	//initialize variables
 	finish_reg = true; start_ptr = 0;

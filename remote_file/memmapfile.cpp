@@ -202,6 +202,7 @@ void MemoryMappedFile::load_rw(const char *fname) {
 	int fd;
 	caddr_t base;
 	char c;
+	size_t flen;
 	struct stat statbuf;
 	//m = (MMAP*) malloc(sizeof(*m));
 	//if (m==NULL) {throw std::runtime_error("mymmap_w malloc");  }
@@ -209,12 +210,12 @@ void MemoryMappedFile::load_rw(const char *fname) {
 	if (fd == -1) { throw std::runtime_error("mymmap_w: open1");}
 	fchmod(fd, 0644);
 	stat(fname, &statbuf);
-	len = statbuf.st_size;
+	flen = statbuf.st_size;
 	base = (caddr_t)mmap(0,len,PROT_READ | PROT_WRITE,MAP_SHARED,fd,0);
 	if (base==MAP_FAILED) {::close(fd);  throw std::runtime_error("mymmap_w");}
 	this->addr = (void *)base;
 	this->fd = fd;
-	this->len = len;
+	this->len = flen;
 	this->mod = 3;
 	//return m;
 }

@@ -31,14 +31,14 @@ void MemoryMappedFile::load_r(const char *fname) {
 	if (is_open()) throw std::runtime_error("still open");
 	void *base;
 	HANDLE fd,h;
-	size_t len;
+	size_t flen;
 	fd = CreateFile(fname,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL,NULL);
 	if (fd==INVALID_HANDLE_VALUE) {
 		throw std::runtime_error("createfile");
 	}	
 	//len = GetFileSize(fd,0) - 1;len++;
-	len = GetFileSize(fd,NULL);
+	flen = GetFileSize(fd,NULL);
 	h = CreateFileMapping(fd, NULL, PAGE_READONLY, 0, 0, NULL);
 	if (h==NULL) {
 		throw std::runtime_error("createfilemapping");
@@ -49,7 +49,7 @@ void MemoryMappedFile::load_r(const char *fname) {
 	}
 	this->mod = 1;
 	this->addr = base;
-	this->len = len;
+	this->len = flen;
 	this->h1 = fd;
 	this->h2 = h;
 }

@@ -45,7 +45,7 @@ void SDArrayBlock::saveBlock(OBitStream *bits) {
 	vals.clear();
 }
 
-void SDArrayBlock::loadBlock(BitArray &ba, size_t pt) {
+void SDArrayBlock::loadBlock(const BitArray &ba, size_t pt) {
 	IWBitStream in;
 	in.init(ba, pt);
 	width = in.get(7);

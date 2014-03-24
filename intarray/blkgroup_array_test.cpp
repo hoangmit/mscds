@@ -59,11 +59,11 @@ struct MockBlk {
 		bs->puts(v, 16);
 	}
 
-	void loadBlock(BitRange& br) {
+	void loadBlock(const BitRange& br) {
 		loadBlock(*br.ba, br.start, br.len);
 	}
 
-	void loadBlock(BitArray& ba, size_t pt, size_t len) {
+	void loadBlock(const BitArray& ba, size_t pt, size_t len) {
 		uint64_t x;
 		assert(64 + 16 == len);
 		x = ba.bits(pt, 64);

@@ -17,7 +17,7 @@ public:
 	typedef unsigned int IndexType;
 	void add(ValueType v);
 	void saveBlock(OBitStream* bits);
-	void loadBlock(BitArray & ba, size_t pt);
+	void loadBlock(const BitArray & ba, size_t pt);
 
 	ValueType prefixsum(unsigned int  p) const;
 	ValueType lookup(unsigned int p) const;

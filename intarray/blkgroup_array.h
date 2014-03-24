@@ -101,6 +101,7 @@ public:
 	unsigned int end(unsigned int i) const { return start_[i+1]; }
 	unsigned int length(unsigned int i) const { return start_[i+1] - start_[i]; }
 	
+	void clear() { valid = false; start_.clear(); }
 
 private:
 	bool valid;
@@ -113,7 +114,6 @@ class BlockBuilder;
 
 class BlockMemManager {
 public:
-	void clear() { summary.clear(); data.clear(); blkcnt = 0; str_cnt = 0; }
 	size_t blkCount() const { return blkcnt; }
 
 	BitRange getGlobal(unsigned int id) {
@@ -131,8 +131,8 @@ public:
 		assert(blk < blkcnt);
 		if (last_blk != blk) {
 			size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
+			stp += summary_chunk_size - sizeof(uint64_t);
 			stp *= 8;
-			stp += summary_chunk_size * 8 - sizeof(uint64_t)* 8;
 			uint64_t ptrx = summary.bits(stp, 64);
 			bptr.loadBlock(data, ptrx, 0);
 			last_blk = blk;
@@ -159,6 +159,14 @@ public:
 		data.load(ar);
 		ar.endclass();
 	}
+	void clear() {
+		bptr.clear();
+		global_ps.clear(); summary_ps.clear();
+		summary.clear(); data.clear();
+
+		blkcnt = 0; str_cnt = 0;
+	}
+
 private:
 	static std::vector<unsigned int> prefixsum_vec(const std::vector<unsigned int>& v) {
 		std::vector<unsigned int> out(v.size() + 1);
@@ -199,6 +207,12 @@ public:
 	void finish_block();
 	void build(BlockMemManager* mng);
 	BlockBuilder();
+	void clear() {
+		start_ptr = 0;
+		blkcnt = 0;
+		finish_reg = false;
+		summary_chunk_size = 0;
+	}
 private:
 	std::vector<std::string> info;
 	std::vector<unsigned int> summary_sizes, global_sizes;

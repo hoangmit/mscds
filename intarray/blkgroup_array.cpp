@@ -96,6 +96,7 @@ void BlockBuilder::finish_block() {
 void BlockBuilder::build(BlockMemManager *mng) {
 	if (header.length() != (header_size + global_struct_size) * 8)
 		throw std::runtime_error("size mismatch");
+	summary.close();
 	header.append(summary);
 	header.build(&mng->summary);
 	data.build(&mng->data);

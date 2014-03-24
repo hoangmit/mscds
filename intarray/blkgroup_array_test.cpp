@@ -254,6 +254,7 @@ struct TwoSDA_v2 {
 		bd2.register_struct();
 		cnt = 0;
 		bd.init_data();
+		blkcntx = 0;
 	}
 
 	void add(unsigned int x, unsigned int y) {
@@ -263,6 +264,7 @@ struct TwoSDA_v2 {
 		if (cnt == 512) {
 			finish_block();
 			cnt = 0;
+			blkcntx++;
 		}
 	}
 
@@ -278,6 +280,7 @@ struct TwoSDA_v2 {
 		bd2.build();
 		bd.build(&mng);
 	}
+	unsigned int blkcntx;
 	BlockMemManager mng;
 	unsigned int cnt = 0;
 	void clear() { mng.clear(); }

@@ -133,14 +133,19 @@ inline void OBitStream::put1(uint16_t len) {
 
 inline void OBitStream::puts(uint64_t v, uint16_t len) {
 	assert(len <= WORDLEN);
+	assert(j < WORDLEN);
+	assert(j != 0 || cur == 0);
 	if (len == 0) return ;
 	v &= (~0ull) >> (WORDLEN - len);
 	cur |= (v << j);
 	if (j + len >= WORDLEN) {
 		os.append(cur);
-		cur = (v >> (WORDLEN - j));
+		uint16_t rem = (WORDLEN - j);
 		j -= WORDLEN - len;
-	} else j += len;
+		if (j == 0) cur = 0;
+		else cur = v >> rem;		
+	} else
+		j += len;
 	bitlen += len;
 }
 

@@ -14,7 +14,6 @@ public:
 	LocalStaticMem() : len(0), ptr(nullptr) {}
 	static const uint8_t WORDSZ = 8;
 	bool has_direct_access() const { return true; }
-	bool has_window_access() const { return true; }
 	//MemoryAlignmentType alignment() const { return alignment_tp; }
 	MemoryAlignmentType alignment() const { return A8; }
 
@@ -22,16 +21,6 @@ public:
 	const void* get_addr() const { return ptr; }
 	size_t size() const { return len; }
 
-	WindowMem get_window(size_t start, uint32_t len) const { 
-		WindowMem m;
-		assert(start + len <= this->len);
-		m.ptr = ptr + start;
-		m.wid = 0;
-		m.wsize = len;
-		return m;
-	}
-	void release_window(WindowMem& w) const {}
-	uint32_t max_win_size() const { return (uint32_t) this->len; }
 
 	uint64_t getword(size_t wp) const { assert(wp < (len + WORDSZ - 1) / WORDSZ); return *(((uint64_t*)ptr) + wp); }
 	char getchar(size_t i) const { assert(i < len); return *(ptr + i); }
@@ -44,6 +33,7 @@ public:
 		len = 0;
 		ptr = nullptr;
 	}
+	void scan(size_t i, size_t rlen, CallBack cb) const { assert(i + rlen <= len); cb(ptr + i, rlen); }
 	~LocalStaticMem() { close(); }
 private:
 	size_t len;
@@ -59,28 +49,18 @@ public:
 	static const uint8_t WORDSZ = 8;
 	unsigned int model_id() const { return 2; }
 	bool has_direct_access() const { return true; }
-	bool has_window_access() const { return true; }
 	MemoryAlignmentType alignment() const { return A8; }
 	const void* get_addr() const { return data.data(); }
 
-	WindowMem get_window(size_t start, uint32_t len) const {
-		WindowMem m;
-		assert(start + len <= size());
-		m.ptr = ((char*)data.data()) + start;
-		m.wid = 0;
-		m.wsize = len;
-		return m;
-	}
-	void release_window(WindowMem& w) const {}
-	uint32_t max_win_size() const { return (uint32_t) size(); }
 
 	uint64_t getword(size_t wp) const { assert(wp < sz / WORDSZ); return data[wp]; }
 	char getchar(size_t i) const { assert(i < sz); return *(((char*)data.data()) + i); }
-	void read(size_t i, size_t rlen, void* dest) const { assert(i + rlen <= sz); memcpy(dest, data.data() + i, rlen); }
+	void read(size_t i, size_t rlen, void* dest) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); memcpy(dest, ptr + i, rlen); }
+	void scan(size_t i, size_t rlen, CallBack cb) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); cb(ptr + i, rlen); }
 
 	void setword(size_t wp, uint64_t val) { assert(wp < sz / WORDSZ); data[wp] = val; }
 	void setchar(size_t i, char c) { assert(i < sz);  char* ptr = ((char*)data.data()); *(ptr + i) = c; }
-	void write(size_t i, size_t wlen, const void* src) { assert(i + wlen <= sz); memcpy(data.data() + i, src, wlen); }
+	void write(size_t i, size_t wlen, const void* src) { assert(i + wlen <= sz); char* ptr = ((char*)data.data());  memcpy(ptr + i, src, wlen); }
 
 	void close() { sz = 0; data.clear(); }
 
@@ -97,6 +77,15 @@ public:
 		resize(len + sz);
 		write(oldsz, len, ptr);
 	}
+
+	void append(StaticMemRegionAbstract& other) {
+		size_t oldsz = sz;
+		size_t len = other.size();
+		resize(len + sz);
+		char* ptr = ((char*)data.data());
+		other.read(0, len, ptr + oldsz);
+	}
+
 	size_t size() const { return sz; }
 
 	void resize(size_t size) { if (size > 0) { sz = size; data.resize(1 + ((size - 1) / WORDSZ)); } else close(); }

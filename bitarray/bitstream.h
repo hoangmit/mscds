@@ -18,6 +18,8 @@ public:
 
 	void put0();
 	void put1();
+	void put0(uint16_t len);
+	void put1(uint16_t len);
 	void put(bool bit);
 	void puts(uint64_t v, uint16_t len);
 	void puts(const std::pair<uint64_t, uint16_t>& code);
@@ -26,6 +28,11 @@ public:
 
 	void clear();
 	void close();
+
+	bool is_accessiable() const;
+
+	void append(OBitStream& other);
+
 	std::string to_str() const;
 
 	size_t length() const { return bitlen; }
@@ -58,24 +65,37 @@ public:
 		init(b.data_ptr(), b.length(), 0);
 	}
 
+	// important
 	void init(StaticMemRegionPtr _data, size_t blen, size_t start_idx = 0);
+
 	void init(const BitArray& b, size_t start_idx = 0) {
 		init(b.data_ptr(), b.length(), start_idx);
 	}
 
 	void clear();
+
+	// important
 	void skipw(uint16_t len);
 	bool getb();
+
+	/** return the number of 0 bits before the next 1 bit or end of stream;
+	    consume all the 0 bits and the last 1 bit */
+	unsigned int scan_next1();
+
+	/** return the number of 0 bits before the next 0 bit */
+	unsigned int scan_next0();
+
 	uint64_t get(uint16_t len);
 	uint64_t get();
 	uint64_t peek() const { return cur; }
 
 	//const uint64_t* current_ptr() { return ptr; }
 	bool empty() const { return blen == 0; }
+	size_t extracted() const { return _extracted; }
 	void close() { clear(); }
 private:
 	uint64_t cur, nxt;
-	size_t blen;
+	size_t blen, _extracted;
 	uint16_t j;
 	size_t ptr;
 	StaticMemRegionPtr data;
@@ -86,6 +106,30 @@ private:
 inline void OBitStream::put0() { pushout(); }
 inline void OBitStream::put1() { cur |= (1ull << j);  pushout(); }
 inline void OBitStream::put(bool bit) { if (bit) put1(); else put0(); }
+
+inline void OBitStream::put0(uint16_t len) {
+	uint64_t v = 0;
+	if (len < WORDLEN - j) puts(v, len);
+	else {
+		auto ln = WORDLEN - j;
+		puts(v, ln);
+		len -= ln;
+		while (len >= WORDLEN) { puts(v); len -= WORDLEN; }
+		puts(v, len);
+	}
+}
+
+inline void OBitStream::put1(uint16_t len) {
+	uint64_t v = ~0ull;
+	if (len < WORDLEN - j) puts(v, len);
+	else {
+		auto ln = WORDLEN - j;
+		puts(v, ln);
+		len -= ln;
+		while (len >= WORDLEN) { puts(v); len -= WORDLEN; }
+		puts(v, len);
+	}
+}
 
 inline void OBitStream::puts(uint64_t v, uint16_t len) {
 	assert(len <= WORDLEN);
@@ -105,9 +149,14 @@ inline void OBitStream::puts(const std::pair<uint64_t, uint16_t>& code) {
 }
 
 inline void OBitStream::puts(uint64_t v) {
-	cur |= (v << j);
-	os.append(cur);
-	cur = (v >> (WORDLEN - j));
+	if (j > 0) {
+		cur |= (v << j);
+		os.append(cur);
+		cur = (v >> (WORDLEN - j));
+	} else {
+		os.append(v);
+		cur = 0;
+	}
 	bitlen += WORDLEN;
 }
 
@@ -128,6 +177,22 @@ inline void OBitStream::close() {
 		os.append(cur);
 		j = 0;
 		cur = 0;	
+	}
+}
+
+inline bool OBitStream::is_accessiable() const { return (j == 0); }
+
+inline void OBitStream::append(OBitStream &other) {
+	if (!other.is_accessiable()) throw std::runtime_error("cannot extract");
+	size_t px = 0, i = 0;
+	while (px + WORDLEN < other.length()) {
+		puts(other.os.getword(i));
+		i++;
+		px += WORDLEN;
+	}
+	if (px < other.length()) {
+		uint64_t v = other.os.getword(i);
+		puts(v, other.length() - px);
 	}
 }
 
@@ -170,6 +235,7 @@ inline void IWBitStream::init(StaticMemRegionPtr _data, size_t blen, size_t star
 	nxt = 0;
 	j = 0;
 	skipw(start_idx % WORDLEN);
+	_extracted = 0;
 }
 
 inline void IWBitStream::clear() {
@@ -177,6 +243,7 @@ inline void IWBitStream::clear() {
 	cur = nxt = 0;
 	blen = 0;
 	ptr = 0;
+	_extracted = 0;
 	data.close();
 }
 
@@ -205,6 +272,28 @@ inline void IWBitStream::skipw(uint16_t len) {
 		}
 	}
 	blen -= len;
+	_extracted += len;
+}
+
+inline unsigned int IWBitStream::scan_next1() {
+	unsigned int c = 0;
+	while (j > 0) {
+		if (!getb()) c++;
+		else return c;
+	}
+	assert(j == 0);
+	while (cur == 0 && blen > WORDLEN) {
+		c += WORDLEN;
+		skipw(WORDLEN);
+	}
+	while (!getb() && !empty()) c++;
+	return c;
+}
+
+inline unsigned int IWBitStream::scan_next0() {
+	unsigned int c = 0;
+	while (getb() && !empty()) c++;
+	return c;
 }
 
 inline bool IWBitStream::getb() {
@@ -219,6 +308,8 @@ inline uint64_t IWBitStream::get(uint16_t len) {
 	skipw(len);
 	return v;
 }
+
+
 //----------------------------------------------------------------
 
 class OByteStream {

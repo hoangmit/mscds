@@ -7,6 +7,7 @@ deltacoder.cpp
 fibcoder.cpp
 golomb_coder.cpp
 huffman_code.cpp
+vbyte.cpp
 )
 
 set(HEADER
@@ -17,6 +18,7 @@ golomb_coder.h
 huffman_code.h
 huffman_adp.hpp
 arithmetic_code.hpp
+vbyte.h
 )
 
 
@@ -41,4 +43,5 @@ add_test_files(test_compression_framework.cpp)
 #target_link_libraries(t_compression_fw codec utils intarray)
 #set_target_properties(t_compression_fw PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
-
+#add_library(codec_stream codec_adapter.h)
+#target_link_libraries(codec_stream codec bitarray)

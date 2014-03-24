@@ -157,12 +157,12 @@ void SDArrayBuilder::build(SDArrayQuery * out) {
 	out->size_ = this->size_;
 	out->sum_ = this->sum_;
 	if (B_.size() > 0) {
-		BitArrayBuilder bd;
-		out->B_ = bd.create(B_.size() * 64, (char*)(B_.data()));
+		//BitArrayBuilder bd;
+		out->B_ = BitArrayBuilder::create(B_.size() * 64, (char*)(B_.data()));
 	}
 	if (Ltable_.size() > 0) {
-		BitArrayBuilder bd;
-		out->Ltable_ = bd.create(Ltable_.size() * 64, (char*)(Ltable_.data()));
+		//BitArrayBuilder bd;
+		out->Ltable_ = BitArrayBuilder::create(Ltable_.size() * 64, (char*)(Ltable_.data()));
 	}
 	clear();
 }

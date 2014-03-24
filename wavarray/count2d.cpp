@@ -45,8 +45,8 @@ void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
 	sort(list.begin(), list.end());
 	for (unsigned int i = 0; i < list.size(); ++i)
 		wlst.push_back(out->SY.rank(list[i].y));
-	WatBuilder bd;
-	bd.build(wlst, &out->wq);
+	//WatBuilder bd;
+	WatBuilder::build(wlst, &out->wq);
 }
 
 void Count2DBuilder::build(std::vector<Point>& list, OutArchive& ar) {

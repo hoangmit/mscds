@@ -30,3 +30,5 @@ add_test_files(rmq_test2.cpp)
 #target_link_libraries(t_rmq_test2 tree utils ${COMMON_LIBS} ${HAYAI_LIBRARY})
 #set_target_properties(t_rmq_test2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 #set_property(TARGET t_rmq_test2 PROPERTY FOLDER "Tests")
+
+add_benchmark_files(rmq_benchmark.cpp)

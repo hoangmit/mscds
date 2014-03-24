@@ -15,7 +15,6 @@ class RemoteMem : public StaticMemRegionAbstract {
 public:
 	RemoteMem() : ptr(nullptr), sz(0) {}
 	bool has_direct_access() const { return false; }
-	bool has_window_access() const { return true;  }
 	MemoryAlignmentType alignment() const;
 
 	~RemoteMem() {}
@@ -26,12 +25,6 @@ public:
 	//direct access 
 	const void* get_addr() const { return nullptr; }
 
-	WindowMem get_window(size_t start, uint32_t len) const;
-
-	void release_window(WindowMem& w) const;
-
-	uint32_t max_win_size() const { return (uint32_t) file->max_map_size(); }
-
 	//small one time access
 	uint64_t getword(size_t wp) const { uint64_t val; read(wp*sizeof(uint64_t), sizeof(uint64_t), &val); return val; }
 	char getchar(size_t i) const { char val; read(i, 1, &val); return val; }
@@ -40,6 +33,7 @@ public:
 	void setchar(size_t i, char c) { write(i, 1, &c); }
 
 	void read(size_t i, size_t rlen, void* dst) const;
+	void scan(size_t i, size_t len, CallBack cb) const;
 	void write(size_t i, size_t wlen, const void* dst);
 private:
 	RemoteFileHdl file;

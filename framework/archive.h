@@ -49,6 +49,7 @@ public:
 	virtual OutArchive& save(int32_t v)  { return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save(uint64_t v) { return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save(int64_t v)  { return save_bin(&v, sizeof(v)); }
+	//virtual OutArchive& save(size_t v) { return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
 	//--------------------------------------------------------------------
@@ -61,15 +62,15 @@ public:
 			if (mem.has_direct_access()) {
 				add_mem_region(mem.get_addr(), mem.size());
 			}
-			else
-			if (mem.has_window_access()) {
-				size_t p = 0;
-				size_t maxw = mem.max_win_size();
-				while (p < mem.size()) {
-					//mem.get_window(p,)
-				}
-			}
 			else {
+				mem.scan(0, mem.size(), [this](const void*p, size_t len)->bool {
+					this->add_mem_region(p, len);
+					return true;
+				});
+			}
+
+			/*{
+				//copy by buffering
 				const unsigned int bufsize = 16 * 1024;
 				char * buffer = new char[bufsize];
 				size_t p = 0;
@@ -78,7 +79,7 @@ public:
 					add_mem_region(buffer, bufsize);
 				}
 				delete[] buffer;
-			}
+			}*/
 		}
 		end_mem_region();
 		return *this;
@@ -106,6 +107,7 @@ public:
 	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); }
 	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); }
 	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); }
+	//virtual InpArchive& load(size_t& v) { return load_bin(&v, sizeof(v)); }
 	
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 

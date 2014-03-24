@@ -55,8 +55,14 @@ fix_compiler_flags() #defined inside function.cmake
 if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
 elseif(MSVC)
-	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(/wd4244 /wd4018)
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+	# 'expression': unreferenced local variable
+	#add_definitions(/wd4101)
+	# 'conversion' conversion from 'type1' to 'type2', possible loss of data
+	add_definitions(/wd4244)
+	add_definitions(/wd4267)
+	# 'expression' : signed/unsigned mismatch
+	add_definitions(/wd4018)
 	add_definitions(/D_VARIADIC_MAX=10)
 	add_definitions(-D_WIN32_WINNT=0x0501)
 	#add_definitions(/arch:SSE)

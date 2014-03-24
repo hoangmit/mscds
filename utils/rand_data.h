@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 inline std::string generate_str(size_t len, const std::string& alph = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
 	std::string out;

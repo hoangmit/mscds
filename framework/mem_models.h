@@ -5,6 +5,7 @@
 #include <cassert>
 #include <string>
 #include <stdexcept>
+#include <functional>
 
 namespace mscds {
 
@@ -37,7 +38,6 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 
 struct StaticMemRegionAbstract {
 	virtual bool has_direct_access() const = 0;
-	virtual bool has_window_access() const = 0;
 	virtual MemoryAlignmentType alignment() const = 0;
 
 	virtual ~StaticMemRegionAbstract() {}
@@ -48,17 +48,6 @@ struct StaticMemRegionAbstract {
 	//direct access 
 	virtual const void* get_addr() const = 0;
 	
-	//window access
-	struct WindowMem {
-		int32_t wid;
-		uint32_t wsize;
-		const char* ptr;
-	};
-
-	virtual WindowMem get_window(size_t start, uint32_t len) const = 0;
-	virtual void release_window(WindowMem& w) const = 0;
-	virtual uint32_t max_win_size() const = 0;
-
 	//small one time access
 	virtual uint64_t getword(size_t wp) const = 0;
 	virtual char getchar(size_t i) const = 0;
@@ -68,6 +57,10 @@ struct StaticMemRegionAbstract {
 
 	virtual void read(size_t i, size_t rlen, void* dst) const = 0;
 	virtual void write(size_t i, size_t wlen, const void* dst) = 0;
+
+	// return true to continue, return false to break
+	typedef std::function<bool(const void* p, size_t len)> CallBack;
+	virtual void scan(size_t i, size_t len, CallBack cb) const = 0;
 };
 
 struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
@@ -75,6 +68,7 @@ struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
 	virtual void append(char c) = 0;
 	virtual void append(uint64_t word) = 0;
 	virtual void append(const void * ptr, size_t len) = 0;
+	virtual void append(StaticMemRegionAbstract& other) = 0;
 	//note that window may be invalidated after resize or append
 };
 
@@ -96,7 +90,6 @@ public:
 	~StaticMemRegionPtr() {}
 
 	bool has_direct_access() const { return _impl->has_direct_access(); }
-	bool has_window_access() const { return _impl->has_window_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
 
 	unsigned int model_id() const { return _impl->model_id(); }
@@ -104,12 +97,6 @@ public:
 	void close() { if (_impl != nullptr) { _impl->close(); _impl = nullptr; } }
 	//direct access 
 	const void* get_addr() const { return _impl->get_addr(); }
-
-	//window access
-	WindowMem get_window(size_t start, uint32_t len) const { return _impl->get_window(start, len); }
-	void release_window(WindowMem& w) const { _impl->release_window(w); }
-	uint32_t max_win_size() const { return _impl->max_win_size(); }
-
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp);}
@@ -120,6 +107,7 @@ public:
 	void setchar(size_t i, char c) { _impl->setchar(i, c); }
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
+	void scan(size_t i, size_t len, CallBack cb) const { _impl->scan(i, len, cb); }
 protected:
 	StaticMemRegionAbstract * _impl;
 	std::shared_ptr<StaticMemRegionAbstract> _ref;
@@ -135,6 +123,7 @@ public:
 	void append(char c) { _impl->append(c); }
 	void append(uint64_t word) { _impl->append(word); }
 	void append(const void * ptr, size_t len) { _impl->append(ptr, len); }
+	void append(StaticMemRegionAbstract& other) { _impl->append(other); }
 	//--------------------------------------------------------------
 	DynamicMemRegionPtr(const DynamicMemRegionPtr& mE) = default;
 	DynamicMemRegionPtr& operator=(const DynamicMemRegionPtr& mE) = default;
@@ -143,7 +132,6 @@ public:
 	DynamicMemRegionPtr& operator=(DynamicMemRegionPtr&& mE) { _impl = mE._impl; _ref = std::move(_ref); return * this; }
 
 	bool has_direct_access() const { return _impl->has_direct_access(); }
-	bool has_window_access() const { return _impl->has_window_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
 
 	unsigned int model_id() const { return _impl->model_id(); }
@@ -151,11 +139,6 @@ public:
 	void close() { _impl->close(); }
 	//direct access 
 	const void* get_addr() const { return _impl->get_addr(); }
-
-	//page access
-	WindowMem get_window(size_t start, uint32_t len) const { return _impl->get_window(start, len); }
-	void release_window(WindowMem& w) const { _impl->release_window(w); }
-	uint32_t max_win_size() const { return _impl->max_win_size(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp); }
@@ -166,6 +149,7 @@ public:
 	void setchar(size_t i, char c) { _impl->setchar(i, c); }
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
+	void scan(size_t i, size_t len, CallBack cb) const { _impl->scan(i, len, cb); }
 protected:
 	DynamicMemRegionAbstract * _impl;
 	std::shared_ptr<DynamicMemRegionAbstract> _ref;

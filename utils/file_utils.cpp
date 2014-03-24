@@ -11,13 +11,16 @@
 	#include <io.h>
 	#include <direct.h>
 #else
-#include <fcntl.h> 
-#include <stdlib.h>
-#include <stdio.h> 
-#include <sys/sendfile.h> 
-#include <sys/stat.h> 
-#include <sys/types.h> 
-#include <unistd.h> 
+	#ifdef __APPLE__
+	#elif __linux
+		#include <sys/sendfile.h> 
+	#endif
+	#include <fcntl.h> 
+	#include <stdlib.h>
+	#include <stdio.h> 
+	#include <sys/stat.h> 
+	#include <sys/types.h> 
+	#include <unistd.h> 
 #endif
 
 namespace utils {
@@ -133,23 +136,6 @@ namespace utils {
 		return (stat(filename.c_str(),&st) == 0);
 	}
 
-	void copyfile(const std::string& src, const std::string& dst) {
-		int read_fd; 
-		int write_fd; 
-		struct stat stat_buf; 
-		off_t offset = 0; 
-		 
-		read_fd = open (src.c_str(), O_RDONLY);
-		if (read_fd == -1) throw std::runtime_error("cannot open file");
-		fstat(read_fd, &stat_buf); 
-		write_fd = open (dst.c_str(), O_WRONLY | O_CREAT, stat_buf.st_mode);
-		if (write_fd == -1) throw std::runtime_error("cannot copy file");
-		sendfile(write_fd, read_fd, &offset, stat_buf.st_size);
-		// == -1) throw std::runtime_error("cannot copy file");
-		close(read_fd); 
-		close(write_fd); 
-	}
-
 	bool make_dir(const std::string& name) {
 		return mkdir(name.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IXOTH) == 0;
 	}
@@ -180,6 +166,35 @@ namespace utils {
 		} else return "./";
 	}
 
+
+#ifdef __linux
+	void copyfile(const std::string& src, const std::string& dst) {
+		int read_fd; 
+		int write_fd; 
+		struct stat stat_buf; 
+		off_t offset = 0; 
+		 
+		read_fd = open (src.c_str(), O_RDONLY);
+		if (read_fd == -1) throw std::runtime_error("cannot open file");
+		fstat(read_fd, &stat_buf); 
+		write_fd = open (dst.c_str(), O_WRONLY | O_CREAT, stat_buf.st_mode);
+		if (write_fd == -1) throw std::runtime_error("cannot copy file");
+		sendfile(write_fd, read_fd, &offset, stat_buf.st_size);
+		// == -1) throw std::runtime_error("cannot copy file");
+		close(read_fd); 
+		close(write_fd); 
+	}
+#else
+	void copyfile(const std::string& src, const std::string& dst) {
+		ifstream fi(src.c_str(), ios::binary);
+		if (!fi) throw runtime_error("cannot copy file");
+		ofstream fo(dst.c_str(), ios::binary); // to overwrite use flags: ios::trunc|ios::binary
+		if (!fo) throw runtime_error("cannot copy file");
+		fo << fi.rdbuf();
+		if(!fo) throw runtime_error("cannot copy file");
+	}
+#endif
+
 #endif
 	
 }
@@ -198,13 +213,5 @@ namespace utils {
 		boost::filesystem::copy_file(src, dst);
 	}	
 	
-	void copyfile_generic(const std::string& src, const std::string& dst) {
-		ifstream fi(src.c_str(), ios::binary);
-		if (!fi) throw runtime_error("cannot copy file");
-		ofstream fo(dst.c_str(), ios::binary); // to overwrite use flags: ios::trunc|ios::binary
-		if (!fo) throw runtime_error("cannot copy file");
-		fo << fi.rdbuf();
-		if(!fo) throw runtime_error("cannot copy file");
-	}
 }
 */

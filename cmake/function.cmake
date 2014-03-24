@@ -144,6 +144,28 @@ macro (add_test_files)
     endif()
 endmacro()
 
+macro (add_benchmark_files)
+    file (RELATIVE_PATH _relPath "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    #foreach (_src ${ARGN})
+    #    if (_relPath)
+    #        list (APPEND BENCHMARK_FILES "${_relPath}/${_src}")
+    #    else()
+    #        list (APPEND BENCHMARK_FILES "${_src}")
+    #    endif()
+    #endforeach()
+	foreach(src ${ARGN})
+		if(NOT IS_ABSOLUTE "${src}")
+			get_filename_component(src "${src}" ABSOLUTE)
+		endif()
+		list(APPEND BENCHMARK_FILES "${src}")
+	endforeach()
+	
+    if (_relPath)
+        # propagate BENCHMARK_FILES to parent directory
+        set (BENCHMARK_FILES ${BENCHMARK_FILES} PARENT_SCOPE)
+    endif()
+endmacro()
+
 macro (strip_target target_name)
     if (UNIX)
     	ADD_CUSTOM_COMMAND(TARGET ${target_name} POST_BUILD

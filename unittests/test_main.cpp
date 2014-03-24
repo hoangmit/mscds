@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[]) {
 
-	//::testing::GTEST_FLAG(filter) = "watarr.*";
+	//::testing::GTEST_FLAG(filter) = "bitstream.scan";
 	::testing::InitGoogleTest(&argc, argv); 
 	int rs = RUN_ALL_TESTS();
 	return rs;

@@ -112,6 +112,57 @@ void test_ibitstream(int len, int idx) {
 	is.close();
 }
 
+void test_append(int l1, int l2) {
+	OBitStream o1, o2;
+	string debug;
+	for (int i = 0; i < l1; ++i)
+		if (rand() % 2 == 1) { o1.put1(); debug.append("1"); }
+		else { o1.put0();  debug.append("0"); }
+	for (int i = 0; i < l2; ++i)
+		if (rand() % 2 == 1) { o2.put1(); debug.append("1"); }
+		else { o2.put0();  debug.append("0"); }
+	o2.close();
+	o1.append(o2);
+	o1.close();
+	string ost = o1.to_str();
+	ASSERT_EQ(debug, ost);
+}
+
+
+void test_put_scan1(unsigned int n, unsigned int range) {
+	std::vector<unsigned> runlen(n);
+	for (unsigned i = 0; i < n; ++i) {
+		runlen[i] = rand() % range;
+	}
+	OBitStream out;
+	for (unsigned i = 0; i < n; ++i) {
+		out.put0(runlen[i]);
+		out.put1();
+	}
+	out.close();
+	IWBitStream in(out);
+	for (unsigned i = 0; i < n; ++i) {
+		unsigned int l = in.scan_next1();
+		ASSERT_EQ(runlen[i], l);
+	}
+}
+
+void test_put_scan0(unsigned int n, unsigned int range) {
+	std::vector<unsigned> runlen(n);
+	for (unsigned i = 0; i < n; ++i) {
+		runlen[i] = rand() % range;
+	}
+	OBitStream out;
+	for (unsigned i = 0; i < n; ++i) {
+		out.put1(runlen[i]);
+		out.put0();
+	}
+	out.close();
+	IWBitStream in(out);
+	for (unsigned i = 0; i < n; ++i) {
+		ASSERT_EQ(runlen[i], in.scan_next0());
+	}
+}
 
 TEST(bitstream, inp) {
 	for (int i = 0; i < 1000; i++) {
@@ -133,13 +184,26 @@ TEST(bitstream, bitarray) {
 	cout << endl;
 }
 
-
 TEST(bitstream, out) {
 	for (int i = 0; i < 500; i++) {
 		test_obitstream(1022 + rand() % 64);
 		if (i % 100 == 0) cout << '.';
 	}
 	cout << endl;
+}
+
+TEST(bitstream, append) {
+	for (int i = 0; i < 129; ++i)
+		for (int j = 0; j < 129; ++j)
+			test_append(i, j);
+}
+
+TEST(bitstream, scan) {
+	for (int i = 0; i < 1000; ++i) {
+		test_put_scan1(rand() % 8 + 125, 10);
+		test_put_scan0(rand() % 8 + 125, 68);
+		test_put_scan1(rand() % 8 + 64*8*3 - 2, 66);
+	}
 }
 
 

@@ -62,30 +62,31 @@ MemoryAlignmentType RemoteMem::alignment() const {
 	return DEFAULT;
 }
 
-RemoteMem::WindowMem RemoteMem::get_window(size_t start, uint32_t len) const {
-	WindowMem ret;
-	if (file->has_mapping()) {
-		ret.wid = 1;
-		ret.ptr = file->create_map(start, len);
-	} else {
-		ret.wid = -1;
-		char * px = new char[len];
-		read(start, len, px);
-		ret.ptr = px;
-	}
-	ret.wsize = len;
-	return ret;
-}
-
-void RemoteMem::release_window(WindowMem &w) const {
-	if (w.wid < 0) delete[](w.ptr);
-}
 
 void RemoteMem::read(size_t i, size_t rlen, void *dst) const {
 	assert(i + rlen <= this->sz);
 	file->seekg(i + fstart);
 	file->read((char*)dst, rlen);
 }
+
+void RemoteMem::scan(size_t i, size_t rlen, RemoteMem::CallBack cb) const {
+	assert(i + rlen <= this->sz);
+	if (rlen == 0) return;
+	file->seekg(i + fstart);
+	static const size_t BUFSIZE = 8 * 1024;
+	char buffer[BUFSIZE];
+	size_t p = 0;
+	while (p + BUFSIZE < rlen) {
+		file->read(buffer, BUFSIZE);
+		if (!cb(buffer, BUFSIZE))
+			return ;
+		p += BUFSIZE;
+	}
+	assert(rlen - p <= BUFSIZE);
+	file->read(buffer, rlen - p);
+	cb(buffer, BUFSIZE);
+}
+
 
 void RemoteMem::write(size_t i, size_t wlen, const void *dst) {
 	throw ioerror("cannot write");

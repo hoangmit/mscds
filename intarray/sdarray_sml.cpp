@@ -54,7 +54,6 @@ const uint16_t SDArraySmlBuilder::SUBB_PER_BLK = 7;
 const uint64_t SDArraySml::BLKSIZE = 512;
 const uint64_t SDArraySml::SUBB_SIZE = 74;//=(ceil(BLKSIZE/SUBB_PER_BLK))
 
-
 void SDArraySmlBuilder::clear() {
 	vals.clear();
 	table.clear();
@@ -78,7 +77,7 @@ void SDArraySmlBuilder::build_blk(){
 	uint64_t blkinfo = (uint64_t)begPos;
 
 	//lower bits
-	uint64_t width = ceillog2(1+vals.back() / vals.size());
+	uint64_t width = ceillog2(1 + vals.back()/vals.size());
 	assert(width < (1ULL << 7));
 
 	for (size_t p = 0; p < vals.size(); ++p)
@@ -597,8 +596,6 @@ std::string SDRankSelectSml::to_str() const {
 	ss << '}';
 	return ss.str();
 }
-
-
 
 
 }//namespace

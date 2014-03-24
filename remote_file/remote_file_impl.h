@@ -250,8 +250,8 @@ private:
 	}
 
 	std::vector<std::pair<size_t, size_t> > scan(size_t stb, size_t edb);
-	const uint32_t max_gap_size = 1024;
-	const uint32_t max_forward_size = 1024;	
+	static const uint32_t max_gap_size = 1024;
+	static const uint32_t max_forward_size = 1024;	
 
 private:
 	//HttpFileObj h1;

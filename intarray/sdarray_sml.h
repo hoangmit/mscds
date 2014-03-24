@@ -137,7 +137,6 @@ private:
 	
 	// cache to speed up the case: select(rank(p))
 	mutable int64_t c_select, c_rank, c_preselect; 
-	
 
 	friend class SDArraySmlBuilder;
 	static const uint64_t BLKSIZE;

@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace app_ds {
+namespace mscds {
 
 
 void StringArrBuilder::add(const std::string &s) {
@@ -34,11 +34,11 @@ void StringArrBuilder::build(StringArr *out) {
 	out->cnt = store.size();
 	assert((os.length() + 63) / 64 == (out->tlen + 7) / 8);
 	size_t arrlen = (out->tlen + 7)/ 8;
-	//out->ba = BitArray::create(os.data_ptr(), arrlen);
-	//UNDONE
-	//std::copy(, os.data_ptr() + arrlen, (uint64_t*)out->ba.get());
+	out->ba = os.build();
 	bd.build(&(out->start));
-	//out->ptrs = (const char*) out->ba.get();
+	if (out->ba.memory_type() != mscds::MAP_ON_REQUEST && out->ba.memory_type() != mscds::FULL_MAPPING)
+		throw mscds::memory_error("not supported memory type");
+	out->ptrs = (const char*) out->ba.get_addr();
 	store.clear();
 }
 
@@ -54,6 +54,7 @@ void StringArr::save(mscds::OutArchive &ar) const {
 	if (cnt > 0) {
 		ar.var("length").save(tlen);
 		start.save(ar.var("start"));
+		ar.save_mem(ba);
 		//ar.save_bin(ba.get(), ((tlen + 7) / 8)*8);
 	}
 	ar.endclass();
@@ -65,20 +66,27 @@ void StringArr::load(mscds::InpArchive &ar) {
 	if (cnt > 0) {
 		ar.var("length").load(tlen);
 		start.load(ar.var("start"));
+		ba = ar.load_mem_region(mscds::MAP_ON_REQUEST);
+		if (ba.memory_type() != mscds::MAP_ON_REQUEST && ba.memory_type() != mscds::FULL_MAPPING)
+			throw mscds::memory_error("not supported memory type");
 		//ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
+		ptrs = (const char*)ba.get_addr();
+		if (tlen > ba.size())
+			throw mscds::memory_error("wrong size");
 	} else {
-		//ba.reset();
+		ba.close();
 		start.clear();
 		tlen = 0;
+		ptrs = nullptr;
 	}
 	ar.endclass();
-	//ptrs = (const char*) ba.get();
+	
 }
 
 void StringArr::clear() {
 	cnt = tlen = 0;
 	ptrs = NULL;
-	//ba.reset();
+	ba.close();
 	start.clear();
 }
 
@@ -90,7 +98,6 @@ StringArr::StringArr() { clear(); }
 
 const char *StringArr::get(unsigned int i) const {
 	assert(i < cnt);
-	return nullptr;
 	uint64_t ps = 0;
 	uint64_t v = start.lookup(i, ps);
 	if (v == 0) return ptrs + ps;

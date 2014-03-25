@@ -59,7 +59,7 @@ public:
 	virtual OutArchive& save_mem(const StaticMemRegionAbstract& mem) {
 		start_mem_region(mem.size());
 		if (mem.size() > 0) {
-			if (mem.has_direct_access()) {
+			if (FULL_MAPPING == mem.memory_type()) {
 				add_mem_region(mem.get_addr(), mem.size());
 			}
 			else {
@@ -68,18 +68,6 @@ public:
 					return true;
 				});
 			}
-
-			/*{
-				//copy by buffering
-				const unsigned int bufsize = 16 * 1024;
-				char * buffer = new char[bufsize];
-				size_t p = 0;
-				while (p < mem.size()) {
-					mem.read(p, bufsize, buffer);
-					add_mem_region(buffer, bufsize);
-				}
-				delete[] buffer;
-			}*/
 		}
 		end_mem_region();
 		return *this;
@@ -97,6 +85,8 @@ public:
 
 class InpArchive {
 public:
+	
+
 	virtual ~InpArchive() {}
 	virtual InpArchive& var(const std::string&) { return *this; }
 	virtual InpArchive& var(const char*) { return *this; }
@@ -112,7 +102,7 @@ public:
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 
 	// BoundedMemRegion is defined in mem_models.h
-	virtual StaticMemRegionPtr load_mem_region() = 0;
+	virtual StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = WORD_ACCESS) = 0;
 	
 	virtual size_t ipos() const = 0;
 	virtual bool eof() const = 0;

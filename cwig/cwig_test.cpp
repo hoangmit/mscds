@@ -151,18 +151,6 @@ TEST(cwig, mix) {
 	ASSERT_EQ(1, d.getChr(2).count_intervals());
 }
 
-TEST(cwig, DISABLED_strarr1) {
-	const char* A[10] = { "", "", "abc", "defx", "", "eg", "", "", "xagtg", ""};
-	StringArrBuilder bd;
-	for (int i = 0; i < 10; ++i) 
-		bd.add(A[i]);
-	StringArr sa;
-	bd.build(&sa);
-	for (int i = 0; i < 10; ++i) {
-		const char * p =  sa.get(i);
-		ASSERT_EQ(0, strcmp(A[i], p));
-	}
-}
 
 TEST(cwig, DISABLED_annotation) {
 	const char* input[9] =

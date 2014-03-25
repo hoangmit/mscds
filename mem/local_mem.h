@@ -18,7 +18,10 @@ public:
 	MemoryAlignmentType alignment() const { return A8; }
 
 	unsigned int model_id() const { return 1; }
+	MemoryAccessType memory_type() const { return FULL_MAPPING; }
 	const void* get_addr() const { return ptr; }
+	bool request_map(size_t start, size_t len) { return true; }
+	
 	size_t size() const { return len; }
 
 
@@ -48,10 +51,10 @@ class LocalDynamicMem : public DynamicMemRegionAbstract {
 public:
 	static const uint8_t WORDSZ = 8;
 	unsigned int model_id() const { return 2; }
-	bool has_direct_access() const { return true; }
+	MemoryAccessType memory_type() const { return WORD_ACCESS; }
 	MemoryAlignmentType alignment() const { return A8; }
 	const void* get_addr() const { return data.data(); }
-
+	bool request_map(size_t start, size_t len) { return true; }
 
 	uint64_t getword(size_t wp) const { assert(wp < sz / WORDSZ); return data[wp]; }
 	char getchar(size_t i) const { assert(i < sz); return *(((char*)data.data()) + i); }

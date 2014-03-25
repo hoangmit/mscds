@@ -124,7 +124,7 @@ InpArchive& IFileArchive1::load_bin(void *ptr, size_t size) {
 	return *this;
 }
 
-StaticMemRegionPtr IFileArchive1::load_mem_region() {
+StaticMemRegionPtr IFileArchive1::load_mem_region(MemoryAccessType mtp) {
 	MemoryAlignmentType align;
 	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;

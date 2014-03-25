@@ -17,7 +17,6 @@
 #include <cstring>
 
 
-
 namespace mscds {
 
 class BitArray;
@@ -73,7 +72,6 @@ public:
 	BitArray& operator=(BitArray&& mE) { bitlen = mE.bitlen; data = std::move(mE.data); return *this; }
 
 	StaticMemRegionPtr data_ptr() const { return data; }
-
 	
 	~BitArray();
 

@@ -320,7 +320,7 @@ void test2() {
 
 struct StmFix : public SharedFixtureItf {
 	void SetUp(int size) {
-		if (size <= 0) { size = 500000; }
+		if (size <= 0) { size = 50000; }
 		// generate test cases and data structure here
 		unsigned int range = 500;
 

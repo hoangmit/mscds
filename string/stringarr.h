@@ -7,7 +7,7 @@
 #include <string>
 #include <deque>
 
-namespace app_ds {
+namespace mscds {
 
 class StringArr;
 

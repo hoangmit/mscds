@@ -14,7 +14,7 @@ class RemoteArchive2;
 class RemoteMem : public StaticMemRegionAbstract {
 public:
 	RemoteMem() : ptr(nullptr), sz(0) {}
-	bool has_direct_access() const { return false; }
+	
 	MemoryAlignmentType alignment() const;
 
 	~RemoteMem() {}
@@ -22,8 +22,10 @@ public:
 	unsigned int model_id() const { return 0; }
 	size_t size() const { return sz; }
 	void close() {}
-	//direct access 
+
 	const void* get_addr() const { return nullptr; }
+	MemoryAccessType memory_type() const { return WORD_ACCESS; }
+	bool request_map(size_t start, size_t len) { return false; }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { uint64_t val; read(wp*sizeof(uint64_t), sizeof(uint64_t), &val); return val; }
@@ -51,7 +53,7 @@ public:
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);
 	InpArchive& endclass();
-	StaticMemRegionPtr load_mem_region();
+	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = WORD_ACCESS);
 
 	size_t ipos() const;
 

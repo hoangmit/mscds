@@ -15,6 +15,7 @@ local_mem.h
 ../framework/archive.h ../framework/mem_models.h
 file_archive2.h
 fmap_archive2.h
+save_load_test.h
 )
 add_library(mem ${SRCS} ${HEADERS})
 target_link_libraries(mem utils)

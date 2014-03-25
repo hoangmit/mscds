@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-project(cwig)
+project(string_struct)
 
 
 set(SRCS stringarr.cpp)
@@ -14,3 +14,4 @@ set(HEADERS stringarr.h)
 add_library(string ${SRCS} ${HEADERS})
 target_link_libraries(string bitarray intarray)
 
+add_test_files(stringarr_test.cpp)

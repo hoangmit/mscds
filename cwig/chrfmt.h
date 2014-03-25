@@ -31,7 +31,7 @@ private:
 	minmaxop_t minmax_opt;
 
 	bool has_annotation;
-	StringArrBuilder annbd;
+	mscds::StringArrBuilder annbd;
 };
 
 class ChrNumData {
@@ -101,7 +101,7 @@ public:
 
 private:
 	ChrNumValType vals;
-	StringArr annotations;
+	mscds::StringArr annotations;
 	mscds::RMQ_sct min, max;
 
 	bool has_annotation;

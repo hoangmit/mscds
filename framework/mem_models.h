@@ -36,17 +36,21 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	return 0;
 }
 
+enum MemoryAccessType { WORD_ACCESS = 0, MAP_ON_REQUEST, FULL_MAPPING };
+
 struct StaticMemRegionAbstract {
-	virtual bool has_direct_access() const = 0;
 	virtual MemoryAlignmentType alignment() const = 0;
+	virtual MemoryAccessType memory_type() const = 0;
+	// FULL_MAPPING and MAP_ON_REQUEST
+	virtual const void* get_addr() const = 0;
+	// MAP_ON_REQUEST
+	virtual bool request_map(size_t start, size_t len) = 0;
 
 	virtual ~StaticMemRegionAbstract() {}
 
 	virtual unsigned int model_id() const { return 0; }
 	virtual size_t size() const = 0;
 	virtual void close() = 0;
-	//direct access 
-	virtual const void* get_addr() const = 0;
 	
 	//small one time access
 	virtual uint64_t getword(size_t wp) const = 0;
@@ -89,14 +93,17 @@ public:
 
 	~StaticMemRegionPtr() {}
 
-	bool has_direct_access() const { return _impl->has_direct_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
+	MemoryAccessType memory_type() const { return _impl->memory_type(); }
+	//direct access 
+	const void* get_addr() const { return _impl->get_addr(); }
+	bool request_map(size_t start, size_t len) { return _impl->request_map(start, len); }
+
 
 	unsigned int model_id() const { return _impl->model_id(); }
 	size_t size() const { return _impl->size(); }
 	void close() { if (_impl != nullptr) { _impl->close(); _impl = nullptr; } }
-	//direct access 
-	const void* get_addr() const { return _impl->get_addr(); }
+
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp);}
@@ -131,14 +138,15 @@ public:
 	DynamicMemRegionPtr(DynamicMemRegionPtr&& mE) : _impl(mE._impl), _ref(std::move(mE._ref)) {}
 	DynamicMemRegionPtr& operator=(DynamicMemRegionPtr&& mE) { _impl = mE._impl; _ref = std::move(_ref); return * this; }
 
-	bool has_direct_access() const { return _impl->has_direct_access(); }
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
+	MemoryAccessType memory_type() const { return _impl->memory_type(); }
+	//direct access 
+	const void* get_addr() const { return _impl->get_addr(); }
+	bool request_map(size_t start, size_t len) { return _impl->request_map(start, len); }
 
 	unsigned int model_id() const { return _impl->model_id(); }
 	size_t size() const { return _impl->size(); }
 	void close() { _impl->close(); }
-	//direct access 
-	const void* get_addr() const { return _impl->get_addr(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp); }

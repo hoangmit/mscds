@@ -39,6 +39,7 @@ public:
 	size_t word_count() const { return os.size(); }
 
 	void build(BitArray* out);
+	StaticMemRegionPtr build();
 private:
 	friend class IWBitStream;
 	
@@ -204,6 +205,12 @@ inline void OBitStream::build(BitArray* out) {
 	close();
 	LocalMemModel alloc;
 	*out = BitArrayBuilder::adopt(bitlen, alloc.convert(os));
+}
+
+inline StaticMemRegionPtr OBitStream::build() {
+	close();
+	LocalMemModel alloc;
+	return alloc.convert(os);
 }
 
 inline std::string OBitStream::to_str() const {

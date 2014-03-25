@@ -82,7 +82,7 @@ struct FMDeleter2 {
 	}
 };
 
-StaticMemRegionPtr IFileMapArchive2::load_mem_region() {
+StaticMemRegionPtr IFileMapArchive2::load_mem_region(MemoryAccessType mtp) {
 	FileMapImpl2 * fm = (FileMapImpl2 *)impl;
 	MemoryAlignmentType align;
 	FileMarker::check_mem_start(*this, align);

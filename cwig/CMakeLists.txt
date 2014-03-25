@@ -10,7 +10,7 @@ SampledSum.cpp
 rank_vals.cpp
 poly_vals.cpp
 intv/nintv.cpp
-intv/intv_fuse.cpp
+intv/nintv_fuse.cpp
 )
 
 set(HEADERS chrfmt.h cwig.h 
@@ -19,7 +19,7 @@ SampledSum.h
 rank_vals.h
 rlsum_int.h poly_vals.h
 intv/nintv.h
-intv/intv_fuse.h
+intv/nintv_fuse.h
 )
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})

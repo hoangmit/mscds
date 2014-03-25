@@ -1,10 +1,15 @@
 #pragma once
 
 #include "nintv.h"
-#include "cwig/valrange.h"
 #include <vector>
 #include <deque>
 
+struct ValRangeInfo {
+	ValRangeInfo() {}
+	ValRangeInfo(unsigned _st, unsigned _ed, int _val) : st(_st), ed(_ed), val(_val) {}
+	unsigned int st, ed;
+	int val;
+};
 
 
 inline std::vector<int> gen_density(int len, unsigned int val_range = 5) {
@@ -27,20 +32,20 @@ inline std::vector<int> gen_density(int len, unsigned int val_range = 5) {
 	return ret;
 }
 
-inline std::deque<app_ds::ValRange> genInp(const std::vector<int>& A) {
-	std::deque<app_ds::ValRange> inp;
+inline std::deque<ValRangeInfo> genInp(const std::vector<int>& A) {
+	std::deque<ValRangeInfo> inp;
 	int len = A.size();
 	int lastv = 0, start;
 	for (int i = 0; i < len; i++) {
 		if (A[i] != lastv) {
 			if (lastv != 0)
-				inp.push_back(app_ds::ValRange(start, i, lastv));
+				inp.emplace_back(start, i, lastv);
 			start = i;
 		}
 		lastv = A[i];
 	}
 	if (lastv != 0)
-		inp.push_back(app_ds::ValRange(start, len, lastv));
+		inp.emplace_back(start, len, lastv);
 	return inp;
 }
 

@@ -17,11 +17,21 @@ using namespace std;
 using namespace mscds;
 using namespace app_ds;
 
+std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
+	std::deque<ValRange> out(inp.size());
+	for (unsigned i = 0; i < out.size(); ++i) {
+		const ValRangeInfo& v = inp[i];
+		out[i].st = v.st;
+		out[i].ed = v.ed;
+		out[i].val = v.val;
+	}
+	return out;
+}
 
 template<typename StructTp, bool tofile>
 void test_rlsum_basic_vec(const vector<int>& A) {
 	unsigned int len = A.size();
-	std::deque<ValRange> inp = genInp(A);
+	std::deque<ValRange> inp = convertVR(genInp(A));
 	vector<int> S(len+1);
 	S[0] = 0;
 	for (int i = 1; i <= len; i++)

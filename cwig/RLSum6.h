@@ -9,7 +9,7 @@
 #include "poly_vals.h"
 #include "SampledSum.h"
 
-#include "nintv.h"
+#include "intv/nintv.h"
 #include "valrange.h"
 
 #include "intarray/sdarray_sml.h"

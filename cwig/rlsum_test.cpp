@@ -1,6 +1,6 @@
 
 
-#include "nintv.h"
+#include "intv/nintv.h"
 #include "rlsum_trivbin.h"
 #include "mem/file_archive2.h"
 #include "utils/file_utils.h"
@@ -8,7 +8,7 @@
 #include "RLSum6.h"
 
 
-#include "intv_rand_gen.hpp"
+#include "intv/intv_rand_gen.hpp"
 
 #include <vector>
 #include <sstream>

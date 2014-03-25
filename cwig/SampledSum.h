@@ -5,7 +5,7 @@
 #include "poly_vals.h"
 #include "rank_vals.h"
 #include "valrange.h"
-#include "nintv.h"
+#include "intv/nintv.h"
 
 #include <deque>
 

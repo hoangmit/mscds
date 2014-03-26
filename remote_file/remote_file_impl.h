@@ -116,7 +116,7 @@ struct FileCache {
 	bool is_open() const { return open_; }
 
 	uint32_t blocksize;
-	static const unsigned int default_block_size = 16 * 1024;
+	static const unsigned int default_block_size = 8 * 4 * 16 * 1024;
 	RemoteFileInfo info;
 	bool check_blk(size_t p) const { return bitmap.getbit(p); }
 	void set_blk(size_t p) { bitmap.setbit(p); }
@@ -288,8 +288,8 @@ public:
 	void inspect(const std::string& param, std::ostream& out) const;
 private:
 	FileCache fc;
-	ParallelDataFetcher df;
-	//SimpleDataFetcher df;
+	//ParallelDataFetcher df;
+	SimpleDataFetcher df;
 	
 	friend class RemoteFileRepository;
 	size_t curpos;

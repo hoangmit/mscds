@@ -21,6 +21,7 @@ public:
 	void put0(uint16_t len);
 	void put1(uint16_t len);
 	void put(bool bit);
+	void put_byte(uint8_t v) { puts(v,8); }
 	void puts(uint64_t v, uint16_t len);
 	void puts(const std::pair<uint64_t, uint16_t>& code);
 	void puts(uint64_t v);

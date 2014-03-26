@@ -56,7 +56,8 @@ class SDArrayFuseBuilder {
 public:
 	SDArrayFuseBuilder(BlockBuilder& _bd) : bd(_bd) {}
 	void register_struct() {
-		id = bd.register_struct(16, 8);
+		sid = bd.register_summary(16, 8); // bytes
+		did = bd.register_data_block();
 		cnt = 0;
 		sum = 0;
 		blkcnt = 0;
@@ -69,27 +70,31 @@ public:
 		blkcnt++;
 	}
 
-	void finish_block() {
+	void set_block_data() {
 		if (blkcnt > 0) {
 			uint64_t v = sum;
-			OBitStream& d1 = bd.start_struct(id, MemRange::wrap(v));
+			bd.set_summary(sid, MemRange::wrap(v));
+			OBitStream& d1 = bd.start_data(did);
 			blk.saveBlock(&d1);
-			bd.finish_struct();
+			bd.end_data();
 			blkcnt = 0;
 		}
 	}
 
 	void build() {
-		finish_block();
-		auto & a = bd.globalStructData();
-		a.puts(cnt, 64);
-		a.puts(sum, 64);
+		set_block_data();
+		struct {
+			uint64_t cnt, sum;
+		} data;
+		data.cnt = cnt;
+		data.sum = sum;
+		bd.set_global(sid, MemRange::wrap(data));
 	}
 
 	unsigned int blk_size() const { return 512; }
 private:
 	SDArrayBlock blk;
-	unsigned int id;
+	unsigned int sid, did;
 	BlockBuilder & bd;
 	uint64_t sum, cnt;
 	int blkcnt;
@@ -132,7 +137,7 @@ public:
 	unsigned int rank(ValueType val) const {
 		if (val > total_sum()) return length();
 		uint64_t lo = 0;
-		uint64_t hi = mng.blkCount();
+		uint64_t hi = mng->blkCount();
 		while (lo < hi) {
 			uint64_t mid = lo + (hi - lo) / 2;
 			if (getSum(mid) < val) lo = mid + 1;
@@ -141,22 +146,29 @@ public:
 		if (lo == 0) return 0;
 		lo--;
 		assert(val > getSum(lo));
-		assert(lo < mng.blkCount() || val <= getSum(lo + 1));
+		assert(lo < mng->blkCount() || val <= getSum(lo + 1));
 		loadBlk(lo);
 		ValueType ret = lo * SDArrayBlock::BLKSIZE + blk.rank(val - getSum(lo));
 		return ret;
 	}
-
-	SDArrayFuse(BlockMemManager& mng_, unsigned id_) : mng(mng_), id(id_) {}
+	SDArrayFuse() : mng(nullptr) {}
+	void init(BlockMemManager& mng_, unsigned sid_, unsigned did_) {
+		mng = &mng_;
+		sid = sid_;
+		did = did_;
+		load_global();
+	}
+	SDArrayFuse(BlockMemManager& mng_, unsigned sid_, unsigned did_):
+		mng(&mng_), sid(sid_), did(did_) { load_global(); }
 	uint64_t length() const { return len; }
 
 private:
-	unsigned int id;
-	BlockMemManager& mng;
+	unsigned int sid, did;
+	BlockMemManager* mng;
 	uint64_t len, sum;
 
 	void load_global() {
-		auto br = mng.getGlobal(id);
+		auto br = mng->getGlobal(sid);
 		len = br.bits(0, 64);
 		sum = br.bits(64, 64);
 	}
@@ -164,12 +176,12 @@ private:
 	uint64_t total_sum() const { return sum; }
 
 	uint64_t getSum(size_t i) const {
-		auto br = mng.getSummary(i, id);
+		auto br = mng->getSummary(i, sid);
 		return br.bits(0, 64);
 	}
 
 	void loadBlk(size_t i) const {
-		auto br = mng.getData(i, id);
+		auto br = mng->getData(i, did);
 		blk.loadBlock(*br.ba, br.start);
 	}
 

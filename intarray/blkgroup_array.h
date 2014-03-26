@@ -29,6 +29,11 @@ struct MemRange {
 
 	template<typename T>
 	static MemRange wrap(T& t) { return MemRange((char*) &t, sizeof(T)); }
+	template<typename T>
+	static MemRange wrap2(T& t, size_t len) {
+		assert(len <= sizeof(T) * CHAR_BIT);
+		MemRange((char*)&t, sizeof(T));
+	}
 };
 
 
@@ -47,9 +52,45 @@ struct BitRange {
 		ba->setbits(start + start_, value, len_);
 	}
 
+	BitRange inc_front(unsigned int l) const {
+		assert(l <= len);
+		return BitRange(ba, start + l, len - l);
+	}
+
 	BitArray* ba;
 	size_t start, len;
 };
+
+//----------------------------------------------------------------------
+
+struct VBytePtr {
+	std::vector<unsigned int> vals;
+	void add(unsigned int v) { vals.push_back(v); }
+	void _build();
+	void _init();
+	void saveArray(OBitStream* bs) {
+		VByteArray::append(*bs, vals.size());
+	}
+	void saveData(OBitStream * bs) {
+		for (unsigned int i = 0; i < vals.size(); ++i)
+			VByteArray::append(*bs, vals[i]);
+	}
+
+	void loadArray(BitRange& br) {}
+	void loadData(unsigned int len, BitRange& br) {}
+
+	unsigned int get(unsigned int id) { return vals[id]; }
+	void clear() { vals.clear(); }
+};
+
+struct FixWidthPtr {
+
+};
+
+struct FixSumPtr {
+
+};
+//----------------------------------------------------------------------
 
 class FixBlockPtr {
 public:
@@ -116,18 +157,18 @@ class BlockMemManager {
 public:
 	size_t blkCount() const { return blkcnt; }
 
-	BitRange getGlobal(unsigned int id) {
+	BitRange getGlobal(unsigned int gid) {
 		return BitRange(&summary, header_size * 8, global_struct_size * 8);
 	}
 
-	BitRange getSummary(size_t blk, unsigned int id) {
+	BitRange getSummary(size_t blk, unsigned int sid) {
 		assert(blk < blkcnt);
 		size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
 		stp *= 8;
-		return BitRange(&summary, stp + summary_ps[id] * 8, (summary_ps[id + 1] - summary_ps[id]) *8);
+		return BitRange(&summary, stp + summary_ps[sid] * 8, (summary_ps[sid + 1] - summary_ps[sid]) * 8);
 	}
 
-	BitRange getData(size_t blk, unsigned int id) {
+	BitRange getData(size_t blk, unsigned int did) {
 		assert(blk < blkcnt);
 		if (last_blk != blk) {
 			size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
@@ -139,8 +180,9 @@ public:
 			last_ptrx = ptrx;
 		}
 		size_t base = last_ptrx + bptr.ptr_space();
-		return BitRange(&data, base + bptr.start(id), bptr.length(id));
+		return BitRange(&data, base + bptr.start(did), bptr.length(did));
 	}
+
 	void save(mscds::OutArchive& ar) const {
 		ar.startclass("fusion_block_manager", 1);
 		ar.var("struct_count").save(str_cnt);
@@ -150,6 +192,7 @@ public:
 		data.save(ar.var("data" + s));
 		ar.endclass();
 	}
+
 	void load(mscds::InpArchive& ar) {
 		ar.loadclass("fusion_block_manager");
 		ar.var("struct_count").load(str_cnt);
@@ -195,24 +238,27 @@ private:
 
 class BlockBuilder {
 public:
-	unsigned int register_struct(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
+	unsigned int register_data_block();
+	unsigned int register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
 
 	//-----------------------------------------------------
-	OBitStream& globalStructData();
+	void set_global(unsigned int sid, const MemRange& r);
 
 	void init_data();
 
-	OBitStream& start_struct(unsigned int id, const MemRange& r);
-	void finish_struct();
-	void finish_block();
+	void start_block();
+
+	void set_summary(unsigned int sid, const MemRange& r);
+
+	OBitStream& start_data(unsigned int did);
+	void end_data();
+
+	void end_block();
+
 	void build(BlockMemManager* mng);
+
 	BlockBuilder();
-	void clear() {
-		start_ptr = 0;
-		blkcnt = 0;
-		finish_reg = false;
-		summary_chunk_size = 0;
-	}
+	void clear();
 private:
 	std::vector<std::string> info;
 	std::vector<unsigned int> summary_sizes, global_sizes;
@@ -221,8 +267,10 @@ private:
 	OBitStream header, summary, data, buffer;
 
 	size_t blkcnt;
-	size_t cid, last_pos;
+	size_t scid, bcid, gcid, last_pos;
 	uint64_t start_ptr;
+
+	size_t n_data_block;
 	
 	size_t summary_chunk_size, global_struct_size, header_size;
 	bool finish_reg;

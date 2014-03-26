@@ -81,24 +81,27 @@ struct MockBlk {
 struct MockBlkBd {
 	MockBlkBd(BlockBuilder& bd_) : bd(bd_) {}
 	void register_struct() {
-		bd.register_struct(1, 2);
+		sid = bd.register_summary(1, 2);
+		did = bd.register_data_block();
 	}
 
-	void finish_block() {
+	void set_block_data() {
 		uint16_t tt;
 		tt = 1;
-		OBitStream& d1 = bd.start_struct(0, MemRange::wrap(tt));
+		bd.set_summary(sid, MemRange::wrap(tt));
+		OBitStream& d1 = bd.start_data(did);
 		blk.v = 1;
 		blk.saveBlock(&d1);
-		bd.finish_struct();
+		bd.end_data();
 	}
 
 	void build() {
-		bd.globalStructData().put0(8);
+		uint8_t v = 0;
+		bd.set_global(sid, MemRange::wrap(v));
 	}
 
 	MockBlk blk;
-	unsigned int id;
+	unsigned int sid, did;
 	BlockBuilder & bd;
 };
 
@@ -109,40 +112,48 @@ struct MockBigSt {
 	MockBlk b1, b2;
 
 	void buildall() {
-		bd.register_struct(1,2);
-		bd.register_struct(1,2);
+		bd.register_summary(1, 2);
+		bd.register_data_block();
+		bd.register_summary(1, 2);
+		bd.register_data_block();
 		
 		bd.init_data();
-		bd.globalStructData().put0(2 * 8);
+		uint8_t v = 0;
+		bd.set_global(0, MemRange::wrap(v));
+		bd.set_global(1, MemRange::wrap(v));
 
 		uint16_t tt;
 		tt = 1;
-		OBitStream& d1 = bd.start_struct(0, MemRange::wrap(tt));
+		bd.set_summary(0, MemRange::wrap(tt));
+		OBitStream& d1 = bd.start_data(0);
 		b1.v = 1;
 		b1.saveBlock(&d1);
-		bd.finish_struct();
+		bd.end_data();
 
 		tt = 2;
-		OBitStream& d2 = bd.start_struct(1, MemRange::wrap(tt));
+		bd.set_summary(1, MemRange::wrap(tt));
+		OBitStream& d2 = bd.start_data(1);
 		b2.v = 3;
 		b2.saveBlock(&d2);
-		bd.finish_struct();
+		bd.end_data();
 
-		bd.finish_block();
+		bd.end_block();
 		//--------------------------------
 		tt = 3;
-		OBitStream& d3 = bd.start_struct(0, MemRange::wrap(tt));
+		bd.set_summary(0, MemRange::wrap(tt));
+		OBitStream& d3 = bd.start_data(0);
 		b1.v = 5;
 		b1.saveBlock(&d3);
-		bd.finish_struct();
+		bd.end_data();
 
 		tt = 4;
-		OBitStream& d4 = bd.start_struct(1, MemRange::wrap(tt));
+		bd.set_summary(1, MemRange::wrap(tt));
+		OBitStream& d4 = bd.start_data(1);
 		b2.v = 7;
 		b2.saveBlock(&d4);
-		bd.finish_struct();
+		bd.end_data();
 
-		bd.finish_block();
+		bd.end_block();
 		//--------------------------------
 		bd.build(&mng);
 	}
@@ -201,8 +212,10 @@ public:
 		//  8 bytes for total sum
 		//header
 		//  8 bytes for sum
-		bd.register_struct(16,8);
-		bd.register_struct(16,8);
+		bd.register_summary(16, 8);
+		bd.register_data_block();
+		bd.register_summary(16, 8);
+		bd.register_data_block();
 		bd.init_data();
 	}
 
@@ -214,32 +227,38 @@ public:
 		++cnt;
 		++total;
 		if (cnt == BLKSIZE) {
-			finish_block();
+			end_block();
 		}
 	}
 
-	void finish_block() {
+	void end_block() {
 		uint64_t v = sum1;
-		OBitStream& d1 = bd.start_struct(0, MemRange::wrap(v)); 
+		bd.set_summary(0, MemRange::wrap(v)); 
+		OBitStream& d1 = bd.start_data(0);
 		b1.saveBlock(&d1);
-		bd.finish_struct();
+		bd.end_data();
 
 		v = sum2;
-		OBitStream& d2 = bd.start_struct(1, MemRange::wrap(v));
+		bd.set_summary(1, MemRange::wrap(v));
+		OBitStream& d2 = bd.start_data(1);
 		b2.saveBlock(&d2);
-		bd.finish_struct();
+		bd.end_data();
 
-		bd.finish_block();
+		bd.end_block();
 		cnt = 0;
 	}
 
 	void build() {
-		if (cnt > 0) finish_block();
-		auto & a = bd.globalStructData();
-		a.puts(cnt, 64);
-		a.puts(sum1, 64);
-		a.puts(cnt, 64);
-		a.puts(sum2, 64);
+		if (cnt > 0) end_block();
+		struct {
+			uint64_t cnt, sum;
+		} data;
+		data.cnt = cnt;
+		data.sum = sum1;
+		bd.set_global(0, MemRange::wrap(data));
+		data.cnt = cnt;
+		data.sum = sum2;
+		bd.set_global(1, MemRange::wrap(data));
 		bd.build(&mng);
 	}
 };
@@ -262,20 +281,20 @@ struct TwoSDA_v2 {
 		bd2.add(y);
 		cnt++;
 		if (cnt == 512) {
-			finish_block();
+			end_block();
 			cnt = 0;
 			blkcntx++;
 		}
 	}
 
-	void finish_block() {
-		bd1.finish_block();
-		bd2.finish_block();
-		bd.finish_block();
+	void end_block() {
+		bd1.set_block_data();
+		bd2.set_block_data();
+		bd.end_block();
 	}
 
 	void build() {
-		finish_block();
+		end_block();
 		bd1.build();
 		bd2.build();
 		bd.build(&mng);
@@ -303,8 +322,8 @@ void test2() {
 
 	arr.build();
 
-	SDArrayFuse x(arr.mng, 0);
-	SDArrayFuse y(arr.mng, 1);
+	SDArrayFuse x(arr.mng, 0, 0);
+	SDArrayFuse y(arr.mng, 1, 1);
 	SDArrayQuery q1, q2;
 	t1.build(&q1);
 	t2.build(&q2);
@@ -316,6 +335,7 @@ void test2() {
 	
 }
 //--------------------------------------------------------------------------
+// Benchmark
 
 
 struct StmFix : public SharedFixtureItf {
@@ -374,7 +394,7 @@ void sdarray_512(StmFix * fix) {
 }
 
 void sdarray_fuse0(StmFix * fix) {
-	SDArrayFuse x(fix->sdx.mng, 0);
+	SDArrayFuse x(fix->sdx.mng, 0, 0);
 	unsigned vx = 101;
 	for (unsigned i = 0; i < fix->size; ++i) {
 		vx ^= x.lookup(i);
@@ -382,7 +402,7 @@ void sdarray_fuse0(StmFix * fix) {
 }
 
 void sdarray_fuse1(StmFix * fix) {
-	SDArrayFuse x(fix->sdx.mng, 1);
+	SDArrayFuse x(fix->sdx.mng, 1, 1);
 	unsigned vx = 101;
 	for (unsigned i = 0; i < fix->size; ++i) {
 		vx ^= x.lookup(i);
@@ -405,9 +425,9 @@ BENCHMARK_SET(sdarray_benchmark) {
 int main(int argc, char* argv[]) {
 	test1();
 	test2();
-	BenchmarkRegister::run_all();
-	return 0;
 	for (unsigned i = 0; i < 1000; i++)
 		sdarray_block__test1();
+	BenchmarkRegister::run_all();
+	
 	return 0;
 }

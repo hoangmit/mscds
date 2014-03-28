@@ -29,7 +29,7 @@ public:
 
 	static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
-	void setup(mscds::BlockMemManager& mng_);
+	void setup(mscds::BlockMemManager& mng_, mscds::StructIDList& lst);
 private:
 	const static unsigned int BLKSIZE = 512;
 	struct LGBlk_t {
@@ -60,7 +60,7 @@ public:
 	void add(unsigned int st, unsigned int ed);
 	void set_block_data();
 	void build_struct();
-	void deploy(FuseNIntvInterBlock * out);
+	void deploy(mscds::StructIDList& lst);
 private:
 	void _build_block();
 	void _build_block_type(bool store_len);
@@ -86,7 +86,7 @@ class NIntvFuseBuilder;
 class NIntvFuseQuery {
 public:
 	FuseNIntvInterBlock b;
-	void init();
+	void init(mscds::StructIDList& lst);
 
 	void save(mscds::OutArchive& ar) const;
 	void load(mscds::InpArchive& ar);

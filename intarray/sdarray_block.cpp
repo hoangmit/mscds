@@ -234,9 +234,10 @@ void SDArrayFuseBuilder::build_struct() {
 	bd.set_global(sid, MemRange::wrap(data));
 }
 
-void SDArrayFuseBuilder::deploy(SDArrayFuse *out) {
-	out->sid = sid;
-	out->did = did;
+void SDArrayFuseBuilder::deploy(StructIDList& lst) {
+	lst.addId("sdarray");
+	lst.add(sid);
+	lst.add(did);
 }
 
 }

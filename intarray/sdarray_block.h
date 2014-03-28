@@ -64,7 +64,7 @@ public:
 	void add_incnum(uint64_t val);
 	void set_block_data();
 	void build_struct();
-	void deploy(SDArrayFuse* out);
+	void deploy(StructIDList& lst);
 
 	unsigned int blk_size() const { return 512; }
 private:
@@ -130,8 +130,11 @@ public:
 		else return ret - 1;
 	}
 	SDArrayFuse() : mng(nullptr) {}
-	void setup(BlockMemManager& mng_) {
+	void setup(BlockMemManager& mng_, StructIDList& lst) {
 		mng = &mng_;
+		lst.checkId("sdarray");
+		sid = lst.get();
+		did = lst.get();
 		assert(sid > 0);
 		assert(did > 0);
 		load_global();

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include <stdexcept>
+#include <queue>
 
 namespace mscds {
 
@@ -177,6 +178,29 @@ private:
 	bool finish_reg;
 };
 
+class StructIDList {
+public:
+	void addId(const std::string& name) {
+		_lst.push(-1);
+	}
+	void checkId(const std::string& name) {
+		int v = _lst.front();
+		_lst.pop();
+		if (v != -1) throw std::runtime_error("failed");
+	}
+	void add(unsigned int id) {
+		_lst.push((int)id);
+	}
+	unsigned int get() {
+		int v = (int)_lst.front();
+		assert(v > 0);
+		_lst.pop();
+		return (unsigned int)v;
+	}
+
+	std::queue<int> _lst;
+};
+
 class BlockFactory: public BlockBuilder {
 
 };
@@ -234,6 +258,7 @@ public:
 		//std::string s = std::accumulate(info.begin(), info.end(), std::string());
 		data.load(ar);
 		ar.endclass();
+		init();
 	}
 	void clear() {
 		bptr.clear();

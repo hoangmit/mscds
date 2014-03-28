@@ -250,8 +250,11 @@ struct MockInterBlkQr {
 	MockBlk blk;
 	BlockMemManager * mng;
 
-	void setup(BlockMemManager& _mng) {
+	void setup(BlockMemManager& _mng, StructIDList& lst) {
 		mng = &_mng;
+		lst.checkId("mock");
+		sid = lst.get();
+		did = lst.get();
 		assert(sid > 0);
 		assert(did > 0);
 	}
@@ -293,9 +296,10 @@ struct MockInterBlkBd {
 		bd.set_global(sid, MemRange::wrap(v));
 	}
 
-	void deploy(MockInterBlkQr * qs) {
-		qs->sid = sid;
-		qs->did = did;
+	void deploy(StructIDList& lst) {
+		lst.addId("mock");
+		lst.add(sid);
+		lst.add(did);
 	}
 
 	void clear() { sid = 0; did = 0; }
@@ -312,10 +316,10 @@ struct TwoSDA_Query {
 	MockInterBlkQr mock;
 	SDArrayFuse x, y;
 
-	void init() {
-		mock.setup(mng);
-		x.setup(mng);
-		y.setup(mng);
+	void init(StructIDList& lst) {
+		mock.setup(mng, lst);
+		x.setup(mng, lst);
+		y.setup(mng, lst);
 	}
 };
 
@@ -359,10 +363,11 @@ struct TwoSDA_Builder {
 		bd1.build_struct();
 		bd2.build_struct();
 		bd.build(&out->mng);
-		mbx.deploy(&out->mock);
-		bd1.deploy(&out->x);
-		bd2.deploy(&out->y);
-		out->init();
+		StructIDList lst;
+		mbx.deploy(lst);
+		bd1.deploy(lst);
+		bd2.deploy(lst);
+		out->init(lst);
 	}
 	unsigned int blkcntx;
 };

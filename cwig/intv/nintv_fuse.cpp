@@ -37,10 +37,11 @@ void NIntvInterBlkBuilder::build_struct() {
 	bd.set_global(lgsid, mscds::MemRange::wrap(v));
 }
 
-void NIntvInterBlkBuilder::deploy(FuseNIntvInterBlock *out) {
-	start.deploy(&out->start);
-	out->glsid = lgsid;
-	out->gldid = lgdid;
+void NIntvInterBlkBuilder::deploy(mscds::StructIDList& lst) {
+	lst.addId("nintv_fuse");
+	start.deploy(lst);
+	lst.add(lgsid);
+	lst.add(lgdid);
 }
 
 void NIntvInterBlkBuilder::_build_block() {
@@ -164,10 +165,13 @@ FuseNIntvInterBlock::FuseNIntvInterBlock() {
 	gldid = 0;
 }
 
-void FuseNIntvInterBlock::setup(mscds::BlockMemManager &mng_) {
+void FuseNIntvInterBlock::setup(mscds::BlockMemManager &mng_, mscds::StructIDList& lst) {
 	mng = &mng_;
+	lst.checkId("nintv_fuse");
+	start.setup(mng_, lst);
+	glsid = lst.get();
+	gldid = lst.get();
 	assert(glsid > 0 && gldid > 0);
-	start.setup(mng_);
 	loadGlobal();
 }
 
@@ -206,8 +210,9 @@ void NIntvFuseBuilder::build(NIntvFuseQuery *out) {
 		_end_block();
 	iblk.build_struct();
 	bd.build(&out->mng);
-	iblk.deploy(&out->b);
-	out->init();
+	mscds::StructIDList lst;
+	iblk.deploy(lst);
+	out->init(lst);
 }
 
 void app_ds::FuseNIntvInterBlock::loadblock(unsigned int blk) const {
@@ -215,8 +220,8 @@ void app_ds::FuseNIntvInterBlock::loadblock(unsigned int blk) const {
 	lgblk.loadBlock(a);
 }
 
-void NIntvFuseQuery::init() {
-	b.setup(mng);
+void NIntvFuseQuery::init(mscds::StructIDList& lst) {
+	b.setup(mng, lst);
 }
 
 void NIntvFuseQuery::save(mscds::OutArchive &ar) const {
@@ -229,7 +234,12 @@ void NIntvFuseQuery::load(mscds::InpArchive &ar) {
 	int class_version = ar.loadclass("fused_non_overlapped_intervals");
 	mng.load(ar.var("block_data"));
 	ar.endclass();
-	init();
+	//throw std::runtime_error("not implemented");
+	std::cout << "warning: dangerous assignment" << std::endl;
+	mscds::StructIDList lst;
+	std::vector<int> x = {-1, -1, 1, 1, 2, 2};
+	for (auto v : x) lst._lst.push(v);
+	init(lst);
 }
 
 

@@ -193,7 +193,7 @@ void load_normal(const std::string& ds_file, const std::string& qs_file) {
 	}
 	clock_t ed_tm = std::clock();
 	if (x) std::cout << endl;
-	std::cout << endl << (ed_tm - st_tm)*1.0 / CLOCKS_PER_SEC << endl;
+	std::cout << endl << (ed_tm - st_tm)*1000.0 / CLOCKS_PER_SEC << endl;
 }
 
 void load_fusion(const std::string& ds_file, const std::string& qs_file) {
@@ -210,7 +210,7 @@ void load_fusion(const std::string& ds_file, const std::string& qs_file) {
 	}
 	clock_t ed_tm = std::clock();
 	if (x) std::cout << endl;
-	std::cout << endl << (ed_tm - st_tm)*1.0 / CLOCKS_PER_SEC << endl;
+	std::cout << endl << (ed_tm - st_tm)*100.0 / CLOCKS_PER_SEC << endl;
 }
 
 int run_exp(int argc, char* argv[]) {
@@ -242,6 +242,9 @@ int run_exp(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
-	return run_exp(argc, argv);
+	//test_all();
+	load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
+	//return run_exp(argc, argv);
+	return 0;
 }
 

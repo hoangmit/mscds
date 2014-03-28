@@ -54,8 +54,8 @@ void sdarray_block__test1() {
 }
 
 struct MockBlk {
-	const uint64_t header = 0x0102030405060708ull;
-	uint16_t v = 0;
+	const static uint64_t header = 0x0102030405060708ull;
+	uint16_t v;
 
 	void saveBlock(OBitStream * bs) {
 		uint64_t v = header;
@@ -179,7 +179,7 @@ public:
 	size_t sum1, sum2;
 	
 	SDArrayBlock b1, b2;
-	const unsigned BLKSIZE = 512;
+	static const unsigned BLKSIZE = 512;
 
 	size_t cnt, total;
 

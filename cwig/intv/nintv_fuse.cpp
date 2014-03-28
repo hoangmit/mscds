@@ -11,6 +11,7 @@ void NIntvInterBlkBuilder::register_struct() {
 	cnt = 0;
 	blkcntx = 0;
 	lensum = 0;
+	laststart = 0;
 }
 
 void NIntvInterBlkBuilder::add(unsigned int st, unsigned int ed) {
@@ -44,10 +45,9 @@ void NIntvInterBlkBuilder::deploy(FuseNIntvInterBlock *out) {
 
 void NIntvInterBlkBuilder::_build_block() {
 	if (data.size() == 0) return;
-	uint64_t last = 0;
 	for (unsigned i = 0; i < data.size(); ++i) {
-		start.add(data[i].first - last);
-		last = data[i].first;
+		start.add(data[i].first - laststart);
+		laststart = data[i].first;
 	}
 	start.set_block_data();
 	size_t tlen = 0, tgap = 0;
@@ -104,7 +104,7 @@ NIntvQueryInt::PosType FuseNIntvInterBlock::int_len(NIntvQueryInt::PosType i) co
 		return lgblk.lookup(ip);
 	}
 	if (i + 1 == length()) {
-		auto dx = int_start(i) - start.getBlkSum(blk);
+		auto dx = int_start(i) - int_start(i - ip);
 		return lensum + lgblk.prefixsum(ip + 1) - sumc.sum - dx;
 	}
 	if (ip != BLKSIZE - 1) {
@@ -112,7 +112,7 @@ NIntvQueryInt::PosType FuseNIntvInterBlock::int_len(NIntvQueryInt::PosType i) co
 		return start.lookup(i + 1) - lgblk.lookup(ip);
 	} else {
 		auto nx = loadLGSum(blk + 1).sum;
-		auto dx = int_start(i) - start.getBlkSum(blk);
+		auto dx = int_start(i) - int_start(i - ip);
 		return nx + lgblk.prefixsum(BLKSIZE - 1) - sumc.sum - dx;
 	}
 }
@@ -145,7 +145,7 @@ NIntvQueryInt::PosType FuseNIntvInterBlock::int_psrlen(NIntvQueryInt::PosType i)
 	if (sumt.store_len) {
 		return sumt.sum + lgblk.prefixsum(ip);
 	} else {
-		return int_start(i) - start.getBlkSum(blk) + sumt.sum - lgblk.prefixsum(i);
+		return int_start(i) - int_start(i - ip) + sumt.sum - lgblk.prefixsum(ip);
 	}
 }
 

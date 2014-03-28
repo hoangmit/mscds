@@ -437,7 +437,6 @@ struct StmFix : public SharedFixtureItf {
 			queries[i] = i;
 		std::random_shuffle(queries.begin(), queries.end());
 	}
-	
 
 	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear();}
 

@@ -70,7 +70,7 @@ private:
 	mscds::SDArrayBlock lgblk;
 	unsigned int lgsid, lgdid;
 
-	uint64_t lensum;
+	uint64_t lensum, laststart;
 
 	mscds::BlockBuilder& bd;
 	mscds::SDArrayFuseBuilder start;

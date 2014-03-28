@@ -49,25 +49,41 @@ inline std::deque<ValRangeInfo> genInp(const std::vector<int>& A) {
 	return inp;
 }
 
-inline std::vector<std::pair<unsigned int, unsigned int> > gen_intv(unsigned int len, double consec = 0.5, unsigned int intlen = 5) {
-	std::vector<std::pair<unsigned int, unsigned int> > ret;
+typedef std::vector<std::pair<unsigned int, unsigned int> > VecPair;
+
+inline VecPair gen_intv(unsigned len, double consec = 0.5, unsigned intlen = 5, unsigned glen = 5) {
+	VecPair ret;
 	ret.reserve(len);
 	unsigned int thres = consec * 10000;
 
-	unsigned int lasted = rand() % intlen;
+	unsigned int lasted = rand() % glen;
 	for (unsigned int i = 0; i < len; ++i) {
 		unsigned nlen = rand() % intlen + 1;
 		if (rand() % 10000 < thres) {
 			ret.emplace_back(lasted, lasted + nlen);
 			lasted += nlen;
 		} else {
-			unsigned int nst = lasted + 1 + rand() % intlen;
+			unsigned int nst = lasted + 1 + rand() % glen;
 			ret.emplace_back(nst, nst + nlen);
 			lasted = nst + nlen;
 		}
 	}
 	return ret;
 }
+
+inline VecPair gen_intv2(unsigned len, unsigned intlen = 5, unsigned glen = 5) {
+	VecPair ret;
+	ret.reserve(len);
+
+	unsigned int lasted = rand() % glen;
+	for (unsigned int i = 0; i < len; ++i) {
+		unsigned ilen = rand() % intlen + 1;
+		ret.emplace_back(lasted, lasted + ilen);
+		lasted += ilen + rand() % glen;
+	}
+	return ret;
+}
+
 
 inline std::vector<std::pair<unsigned int, unsigned int> > convert2pair(const std::deque<ValRangeInfo>& vec) {
 	std::vector<std::pair<unsigned int, unsigned int> > ret;

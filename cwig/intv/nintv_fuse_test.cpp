@@ -208,13 +208,13 @@ void load_fusion(const std::string& ds_file, const std::string& qs_file) {
 	std::cout << endl << (ed_tm - st_tm)*1.0 / CLOCKS_PER_SEC << endl;
 }
 
-void run_exp(int argc, char* argv[]) {
+int run_exp(int argc, char* argv[]) {
 	if (argc != 5) {
 		std::cout << std::endl;
 		std::cout << "program {B|R} {N|F} input_file1 input_file2" << std::endl;
 		std::cout << "   B: build,  R: run,  N: normal,  F: fusion" << std::endl;
 		std::cout << std::endl;
-		return ;
+		return 1;
 	}
 	if (argv[1] == string("B")) {
 		if (argv[2] == string("N")) {
@@ -222,7 +222,7 @@ void run_exp(int argc, char* argv[]) {
 		} else
 		if (argv[2] == string("F")) {
 			build_fusion(argv[3], argv[4]);
-		} else return ;
+		} else return 1;
 	} else
 	if (argv[1] == string("R")) {
 		if (argv[2] == string("N")) {
@@ -230,8 +230,9 @@ void run_exp(int argc, char* argv[]) {
 		} else
 		if (argv[2] == string("F")) {
 			build_fusion(argv[3], argv[4]);
-		} else return;
-	} else return ;
+		} else return 1;
+	} else return 1;
+	return 0;
 }
 
 

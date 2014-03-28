@@ -2,6 +2,12 @@
 #include "utils/utest.h"
 #include "nintv_fuse.h"
 #include "intv_rand_gen.hpp"
+
+
+
+#include <iostream>
+#include <fstream>
+
 using namespace mscds;
 using namespace std;
 using namespace app_ds;
@@ -104,11 +110,132 @@ void test4() {
 		test3(1023);
 }
 
-int main() {
+void test_all() {
 	test1();
 	test2();
 	test3();
-	//test4();
-	return 0; 
+	test4();
+}
+
+
+#include "nintv.h"
+
+#include "mem/file_archive2.h"
+#include "mem/fmap_archive2.h"
+#include "remote_file/remote_archive2.h"
+#include <ctime>
+
+std::vector<std::pair<unsigned, unsigned> > read_file(const std::string& file) {
+	std::vector<std::pair<unsigned, unsigned> > out;
+	std::ifstream fi(file);
+	while (fi) {
+		std::string chr;
+		unsigned int st, ed;
+		fi >> chr >> st >> ed;
+		if (!fi || chr != "chr1") break;
+		out.emplace_back(st, ed);
+	}
+	return out;
+}
+
+template<typename T>
+void load_data(T& d, const std::string& input) {
+	if (input.length() >= 8 && (input.substr(0, 7) == "http://" || input.substr(0, 8) == "https://")) {
+		mscds::RemoteArchive2 rar;
+		rar.open_url(input);
+		d.load(rar);
+	} else {
+		mscds::IFileMapArchive2 fi;
+		fi.open_read(input);
+		d.load(fi);
+		fi.close();
+	}
+}
+
+void build_normal(const std::string& inp, const std::string& ds) {
+	auto pl = read_file(inp);
+	PNIntvBuilder bd;
+	for (const auto& p : pl) {
+		bd.add(p.first, p.second);
+	}
+	PNIntv qs;
+	bd.build(&qs);
+	save_to_file(qs, ds);
+}
+
+void build_fusion(const std::string& inp, const std::string& ds) {
+	auto pl = read_file(inp);
+	NIntvFuseBuilder bd;
+	for (const auto& p : pl) {
+		bd.add(p.first, p.second);
+	}
+	NIntvFuseQuery qs;
+	bd.build(&qs);
+	save_to_file(qs, ds);
+}
+
+void load_normal(const std::string& ds_file, const std::string& qs_file) {
+	PNIntv qs;
+	load_data(qs, ds_file);
+	auto pl = read_file(qs_file);
+
+	unsigned int x = 1;
+	clock_t st_tm = std::clock();
+	for (const auto& p : pl) {
+		auto t1 = qs.rank_interval(p.first);
+		auto t2 = qs.rank_interval(p.second);
+		x = x ^ t1 ^ t2;
+	}
+	clock_t ed_tm = std::clock();
+	if (x) std::cout << endl;
+	std::cout << endl << (ed_tm - st_tm)*1.0 / CLOCKS_PER_SEC << endl;
+}
+
+void load_fusion(const std::string& ds_file, const std::string& qs_file) {
+	NIntvFuseQuery qs;
+	load_data(qs, ds_file);
+	auto pl = read_file(qs_file);
+
+	unsigned int x = 1;
+	clock_t st_tm = std::clock();
+	for (const auto& p : pl) {
+		auto t1 = qs.b.rank_interval(p.first);
+		auto t2 = qs.b.rank_interval(p.second);
+		x = x ^ t1 ^ t2;
+	}
+	clock_t ed_tm = std::clock();
+	if (x) std::cout << endl;
+	std::cout << endl << (ed_tm - st_tm)*1.0 / CLOCKS_PER_SEC << endl;
+}
+
+void run_exp(int argc, char* argv[]) {
+	if (argc != 5) {
+		std::cout << std::endl;
+		std::cout << "program {B|R} {N|F} input_file1 input_file2" << std::endl;
+		std::cout << "   B: build,  R: run,  N: normal,  F: fusion" << std::endl;
+		std::cout << std::endl;
+		return ;
+	}
+	if (argv[1] == string("B")) {
+		if (argv[2] == string("N")) {
+			build_normal(argv[3], argv[4]);
+		} else
+		if (argv[2] == string("F")) {
+			build_fusion(argv[3], argv[4]);
+		} else return ;
+	} else
+	if (argv[1] == string("R")) {
+		if (argv[2] == string("N")) {
+			load_normal(argv[3], argv[4]);
+		} else
+		if (argv[2] == string("F")) {
+			build_fusion(argv[3], argv[4]);
+		} else return;
+	} else return ;
+}
+
+
+int main(int argc, char* argv[]) {
+	return run_exp(argc, argv);
 }
 

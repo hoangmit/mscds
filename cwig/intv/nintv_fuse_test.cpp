@@ -243,8 +243,8 @@ int run_exp(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 	//test_all();
-	load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
-	//return run_exp(argc, argv);
-	return 0;
+	//load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
+	return run_exp(argc, argv);
+	//return 0;
 }
 

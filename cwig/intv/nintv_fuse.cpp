@@ -162,7 +162,7 @@ void FuseNIntvInterBlock::setup(mscds::BlockMemManager &mng_) {
 }
 
 FuseNIntvInterBlock::LGBlk_t FuseNIntvInterBlock::loadLGSum(unsigned int blk) const {
-	mscds::BitRange & br = mng->getSummary(glsid, blk);
+	mscds::BitRange br = mng->getSummary(glsid, blk);
 	uint64_t d = br.bits(0, 64);
 	LGBlk_t ret;
 	ret.sum = d & ((1ull << 63) - 1);
@@ -201,7 +201,7 @@ void NIntvFuseBuilder::build(NIntvFuseQuery *out) {
 }
 
 void app_ds::FuseNIntvInterBlock::loadblock(unsigned int blk) const {
-	auto & a = mng->getData(gldid, blk);
+	auto a = mng->getData(gldid, blk);
 	lgblk.loadBlock(a);
 }
 

@@ -516,7 +516,8 @@ void sdarray_fuse1_rnd(StmFix * fix) {
 BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
-	//bm.add_remark("number of queries for each run: " + utils::tostr(StmFix::SIZE));
+	auto n = StmFix::SIZE;
+	bm.add_remark("number of queries for each run: " + utils::tostr(n));
 	//bm.add("vector", vector_null, 100);
 	bm.add("sdarray_b64_rnd", sdarray_64, 15);
 	bm.add("sdarray_b512_rnd", sdarray_512, 15);
@@ -530,7 +531,8 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 BENCHMARK_SET(sdarray_seq_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
-	//bm.add_remark("number of queries for each run: " + utils::tostr(StmFix::SIZE));
+	auto n = StmFix::SIZE;
+	bm.add_remark("number of queries for each run: " + utils::tostr(n));
 	//bm.add("vector", vector_null, 100);
 	bm.add("sdarray_b64_seq", sdarray_64, 15);
 	bm.add("sdarray_b512_seq", sdarray_512, 15);

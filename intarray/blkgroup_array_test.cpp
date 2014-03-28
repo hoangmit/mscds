@@ -410,7 +410,7 @@ void test2() {
 
 
 struct StmFix : public SharedFixtureItf {
-	static const unsigned int SIZE = 200000;
+	static const unsigned int SIZE = 2000000;
 	void SetUp(int size) {
 		if (size <= 0) { size = SIZE; }
 		// generate test cases and data structure here
@@ -545,10 +545,10 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 
 
 int main(int argc, char* argv[]) {
-	//test1();
-	//test2();
-	//for (unsigned i = 0; i < 1000; i++)
-	//	sdarray_block__test1();
+	test1();
+	test2();
+	for (unsigned i = 0; i < 1000; i++)
+		sdarray_block__test1();
 	BenchmarkRegister::run_all();
 	
 	return 0;

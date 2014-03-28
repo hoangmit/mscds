@@ -68,3 +68,12 @@ inline std::vector<std::pair<unsigned int, unsigned int> > gen_intv(unsigned int
 	}
 	return ret;
 }
+
+inline std::vector<std::pair<unsigned int, unsigned int> > convert2pair(const std::deque<ValRangeInfo>& vec) {
+	std::vector<std::pair<unsigned int, unsigned int> > ret;
+	ret.reserve(vec.size());
+	for (auto& v : vec) {
+		ret.emplace_back(v.st, v.ed);
+	}
+	return ret;
+}

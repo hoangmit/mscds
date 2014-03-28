@@ -28,7 +28,7 @@ void BlockMemManager::init() {
 }
 
 unsigned int BlockBuilder::register_data_block() {
-	return n_data_block++;
+	return ++n_data_block;
 }
 
 unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info) {
@@ -36,9 +36,8 @@ unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_b
 	global_sizes.push_back(global_size);
 	summary_chunk_size += summary_blk_size;
 	info.push_back(str_info);
-	return summary_sizes.size() - 1;
+	return summary_sizes.size();
 }
-
 
 void BlockBuilder::init_data() {
 	//initialize variables
@@ -65,28 +64,40 @@ void BlockBuilder::init_data() {
 
 void BlockBuilder::start_block() {}
 
+void BlockBuilder::set_global(unsigned int sid) {
+	assert(sid == gcid + 1);
+	if (global_sizes[gcid] > 0)
+		header.put0(8*global_sizes[gcid]);
+	gcid++;
+}
+
 void BlockBuilder::set_global(unsigned int sid, const MemRange& r) {
-	assert(sid == gcid);
+	assert(sid == gcid + 1);
 	assert(r.len <= global_sizes[gcid]);
 	header.puts_c(r.ptr, r.len);
 	if (r.len < global_sizes[gcid])
-		header.put0(global_sizes[gcid] - r.len);
+		header.put0(8*(global_sizes[gcid] - r.len));
 	gcid++;
-	while (gcid < global_sizes.size() && global_sizes[gcid] == 0) gcid++;
+}
+
+void BlockBuilder::set_summary(unsigned int sid) {
+	assert(sid == scid + 1);
+	if (summary_sizes[scid] > 0)
+		summary.put0(8*summary_sizes[scid]);
+	scid++;
 }
 
 void BlockBuilder::set_summary(unsigned int sid, const MemRange& r) {
-	assert(sid == scid);
+	assert(sid == scid + 1);
 	assert(r.len <= summary_sizes[scid]);
 	summary.puts_c(r.ptr, r.len);
 	if (r.len < summary_sizes[scid])
-		summary.put0(summary_sizes[scid] - r.len);
+		summary.put0(8*(summary_sizes[scid] - r.len));
 	scid++;
-	while (scid < summary_sizes.size() && summary_sizes[scid] == 0) scid++;
 }
 
 OBitStream& BlockBuilder::start_data(unsigned int did) {
-	assert(bcid == did);
+	assert(did == bcid + 1);
 	last_pos = buffer.length();
 	return buffer;
 }
@@ -98,7 +109,6 @@ void BlockBuilder::end_data() {
 }
 
 void BlockBuilder::end_block() {
-	while (scid < summary_sizes.size() && summary_sizes[scid] == 0) scid++;
 	assert(scid == summary_sizes.size());
 	assert(bcid == n_data_block);
 	buffer.close();
@@ -115,7 +125,6 @@ void BlockBuilder::end_block() {
 }
 
 void BlockBuilder::build(BlockMemManager *mng) {
-	while (gcid < global_sizes.size() && global_sizes[gcid] == 0) gcid++;
 	assert(gcid == global_sizes.size());
 	if (header.length() != (header_size + global_struct_size) * 8)
 		throw std::runtime_error("size mismatch");

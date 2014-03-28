@@ -43,8 +43,16 @@ struct BitRange {
 	BitRange(BitArray* ba_, size_t start_, size_t len_) : ba(ba_), start(start_), len(len_) {}
 
 	uint64_t bits(size_t start_, size_t len_) const {
-		assert(start_ <= start && start_ + len_ <= start + len);
+		assert(start + start_ + len_ <= start + len);
 		return ba->bits(start + start_, len_);
+	}
+
+	uint8_t byte(unsigned int i = 0) const {
+		return bits(8*i, 8);
+	}
+
+	uint64_t word(unsigned int i = 0) const {
+		return bits(64*i, 64);
 	}
 
 	void setbits(size_t start_, uint64_t value, unsigned int len_) {
@@ -61,35 +69,8 @@ struct BitRange {
 	size_t start, len;
 };
 
-//----------------------------------------------------------------------
 
-struct VBytePtr {
-	std::vector<unsigned int> vals;
-	void add(unsigned int v) { vals.push_back(v); }
-	void _build();
-	void _init();
-	void saveArray(OBitStream* bs) {
-		VByteArray::append(*bs, vals.size());
-	}
-	void saveData(OBitStream * bs) {
-		for (unsigned int i = 0; i < vals.size(); ++i)
-			VByteArray::append(*bs, vals[i]);
-	}
 
-	void loadArray(BitRange& br) {}
-	void loadData(unsigned int len, BitRange& br) {}
-
-	unsigned int get(unsigned int id) { return vals[id]; }
-	void clear() { vals.clear(); }
-};
-
-struct FixWidthPtr {
-
-};
-
-struct FixSumPtr {
-
-};
 //----------------------------------------------------------------------
 
 class FixBlockPtr {
@@ -150,7 +131,55 @@ private:
 	std::vector<unsigned int> start_;
 };
 
-class BlockBuilder;
+class BlockMemManager;
+
+class BlockBuilder {
+public:
+	// register number start from 1
+	unsigned int register_data_block();
+	unsigned int register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
+
+	//-----------------------------------------------------
+
+	void init_data();
+
+	void set_global(unsigned int sid);
+	void set_global(unsigned int sid, const MemRange& r);
+
+	void start_block();
+
+	void set_summary(unsigned int sid);
+	void set_summary(unsigned int sid, const MemRange& r);
+
+	OBitStream& start_data(unsigned int did);
+	void end_data();
+
+	void end_block();
+
+	void build(BlockMemManager* mng);
+
+	BlockBuilder();
+	void clear();
+private:
+	std::vector<std::string> info;
+	std::vector<unsigned int> summary_sizes, global_sizes;
+
+	FixBlockPtr bptr;
+	OBitStream header, summary, data, buffer;
+
+	size_t blkcnt;
+	size_t scid, bcid, gcid, last_pos;
+	uint64_t start_ptr;
+
+	size_t n_data_block;
+
+	size_t summary_chunk_size, global_struct_size, header_size;
+	bool finish_reg;
+};
+
+class BlockFactory: public BlockBuilder {
+
+};
 
 
 class BlockMemManager {
@@ -158,18 +187,22 @@ public:
 	size_t blkCount() const { return blkcnt; }
 
 	BitRange getGlobal(unsigned int gid) {
-		return BitRange(&summary, header_size * 8, global_struct_size * 8);
+		assert(gid > 0 && gid <= global_ps.size());
+		return BitRange(&summary, (header_size + global_ps[gid - 1])*8, (global_ps[gid] - global_ps[gid - 1])*8);
 	}
 
-	BitRange getSummary(size_t blk, unsigned int sid) {
+	BitRange getSummary(unsigned int sid, size_t blk) {
+		assert(sid > 0 && sid <= summary_ps.size());
 		assert(blk < blkcnt);
 		size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
 		stp *= 8;
-		return BitRange(&summary, stp + summary_ps[sid] * 8, (summary_ps[sid + 1] - summary_ps[sid]) * 8);
+		return BitRange(&summary, stp + summary_ps[sid - 1] * 8, (summary_ps[sid] - summary_ps[sid - 1]) * 8);
 	}
 
-	BitRange getData(size_t blk, unsigned int did) {
+	BitRange getData(unsigned int did, size_t blk) {
+		assert(did > 0 && did <= str_cnt);
 		assert(blk < blkcnt);
+		did -= 1;
 		if (last_blk != blk) {
 			size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
 			stp += summary_chunk_size - sizeof(uint64_t);
@@ -220,7 +253,7 @@ private:
 	}
 	void init();
 	
-private://essensial data
+private:   //essensial data
 	BitArray summary;
 	BitArray data;
 	
@@ -236,44 +269,30 @@ private:
 	friend class BlockBuilder;
 };
 
-class BlockBuilder {
-public:
-	unsigned int register_data_block();
-	unsigned int register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
+template<typename B, typename Q>
+struct LiftStBuilder {
 
-	//-----------------------------------------------------
-	void set_global(unsigned int sid, const MemRange& r);
+	BlockBuilder bd;
+	LiftStBuilder(): bd(), data(bd) {}
 
-	void init_data();
+	B data;
 
-	void start_block();
+	void init() {
+		data.register_struct();
+		bd.init_data();
+	}
 
-	void set_summary(unsigned int sid, const MemRange& r);
+	void _end_block() {
+		data.set_block_data();
+		bd.end_block();
+	}
 
-	OBitStream& start_data(unsigned int did);
-	void end_data();
-
-	void end_block();
-
-	void build(BlockMemManager* mng);
-
-	BlockBuilder();
-	void clear();
-private:
-	std::vector<std::string> info;
-	std::vector<unsigned int> summary_sizes, global_sizes;
-
-	FixBlockPtr bptr;
-	OBitStream header, summary, data, buffer;
-
-	size_t blkcnt;
-	size_t scid, bcid, gcid, last_pos;
-	uint64_t start_ptr;
-
-	size_t n_data_block;
-	
-	size_t summary_chunk_size, global_struct_size, header_size;
-	bool finish_reg;
+	void build(Q * out) {
+		data.build();
+		bd.build(&out->mng);
+		data.deploy(&out->data);
+		out->data.init();
+	}
 };
 
 }//namespace

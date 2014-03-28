@@ -29,11 +29,20 @@ add_library(cwig ${SRCS} ${HEADERS})
 target_link_libraries(cwig mscdsa remote_file)
 set_property(TARGET cwig PROPERTY FOLDER "Apps")
 
-add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp
-intv/intv_tests.cpp intv/intv_rand_gen.hpp)
+#add_test_files(intv/intv_tests.cpp)
+#intv/intv_rand_gen.hpp
+ 
+add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp intv/intv_tests.cpp)
 target_link_libraries(t_cwig cwig utils)
 set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 set_property(TARGET t_cwig PROPERTY FOLDER "Tests")
+
+
+add_executable(t_cwig_fuse intv/nintv_fuse_test.cpp)
+target_link_libraries(t_cwig_fuse cwig utils)
+set_target_properties(t_cwig_fuse PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+set_property(TARGET t_cwig_fuse PROPERTY FOLDER "Tests")
+
 
 add_executable(tbm_cwig benchmark_cwig.cpp)
 target_link_libraries(tbm_cwig cwig)

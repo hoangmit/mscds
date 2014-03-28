@@ -34,7 +34,7 @@ void sdarray_block__test1() {
 	out.close();
 	out.build(&ba);
 	SDArrayBlock bdl;
-	bdl.loadBlock(ba, 0);
+	bdl.loadBlock(ba, 0, 0);
 
 	for (unsigned i = 0; i < n; ++i) {
 		auto l = r.lookup(i);
@@ -49,6 +49,7 @@ void sdarray_block__test1() {
 		assert(l == bdl.lookup(i, ps2));
 		assert(ps1 == ps2);
 	}
+	assert(r.prefixsum(n) == bdl.prefixsum(n));
 }
 
 struct MockBlk {
@@ -78,61 +79,38 @@ struct MockBlk {
 	}
 };
 
-struct MockBlkBd {
-	MockBlkBd(BlockBuilder& bd_) : bd(bd_) {}
-	void register_struct() {
-		sid = bd.register_summary(1, 2);
-		did = bd.register_data_block();
-	}
-
-	void set_block_data() {
-		uint16_t tt;
-		tt = 1;
-		bd.set_summary(sid, MemRange::wrap(tt));
-		OBitStream& d1 = bd.start_data(did);
-		blk.v = 1;
-		blk.saveBlock(&d1);
-		bd.end_data();
-	}
-
-	void build() {
-		uint8_t v = 0;
-		bd.set_global(sid, MemRange::wrap(v));
-	}
-
-	MockBlk blk;
-	unsigned int sid, did;
-	BlockBuilder & bd;
-};
-
-
 struct MockBigSt {
 	BlockBuilder bd;
 	BlockMemManager mng;
 	MockBlk b1, b2;
 
 	void buildall() {
-		bd.register_summary(1, 2);
-		bd.register_data_block();
-		bd.register_summary(1, 2);
-		bd.register_data_block();
+		unsigned int idx;
+		idx = bd.register_summary(1, 2);
+		assert(1 == idx);
+		idx = bd.register_data_block();
+		assert(1 == idx);
+		idx = bd.register_summary(1, 2);
+		assert(2 == idx);
+		idx = bd.register_data_block();
+		assert(2 == idx);
 		
 		bd.init_data();
 		uint8_t v = 0;
-		bd.set_global(0, MemRange::wrap(v));
 		bd.set_global(1, MemRange::wrap(v));
+		bd.set_global(2, MemRange::wrap(v));
 
 		uint16_t tt;
 		tt = 1;
-		bd.set_summary(0, MemRange::wrap(tt));
-		OBitStream& d1 = bd.start_data(0);
+		bd.set_summary(1, MemRange::wrap(tt));
+		OBitStream& d1 = bd.start_data(1);
 		b1.v = 1;
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		tt = 2;
-		bd.set_summary(1, MemRange::wrap(tt));
-		OBitStream& d2 = bd.start_data(1);
+		bd.set_summary(2, MemRange::wrap(tt));
+		OBitStream& d2 = bd.start_data(2);
 		b2.v = 3;
 		b2.saveBlock(&d2);
 		bd.end_data();
@@ -140,15 +118,15 @@ struct MockBigSt {
 		bd.end_block();
 		//--------------------------------
 		tt = 3;
-		bd.set_summary(0, MemRange::wrap(tt));
-		OBitStream& d3 = bd.start_data(0);
+		bd.set_summary(1, MemRange::wrap(tt));
+		OBitStream& d3 = bd.start_data(1);
 		b1.v = 5;
 		b1.saveBlock(&d3);
 		bd.end_data();
 
 		tt = 4;
-		bd.set_summary(1, MemRange::wrap(tt));
-		OBitStream& d4 = bd.start_data(1);
+		bd.set_summary(2, MemRange::wrap(tt));
+		OBitStream& d4 = bd.start_data(2);
 		b2.v = 7;
 		b2.saveBlock(&d4);
 		bd.end_data();
@@ -161,24 +139,24 @@ struct MockBigSt {
 	void load_all() {
 		BitRange br;
 
-		b1.loadBlock(mng.getData(0, 0));
+		b1.loadBlock(mng.getData(1, 0));
 		assert(1 == b1.v);
-		br = mng.getSummary(0, 0);
+		br = mng.getSummary(1, 0);
 		assert(1 == br.bits(0, br.len));
 
-		b2.loadBlock(mng.getData(0, 1));
+		b2.loadBlock(mng.getData(2, 0));
 		assert(3 == b2.v);
-		br = mng.getSummary(0, 1);
+		br = mng.getSummary(2, 0);
 		assert(2 == br.bits(0, br.len));
 
-		b1.loadBlock(mng.getData(1, 0));
+		b1.loadBlock(mng.getData(1, 1));
 		assert(5 == b1.v);
-		br = mng.getSummary(1, 0);
+		br = mng.getSummary(1, 1);
 		assert(3 == br.bits(0, br.len));
 
-		b2.loadBlock(mng.getData(1, 1));
+		b2.loadBlock(mng.getData(2, 1));
 		assert(7 == b2.v);
-		br = mng.getSummary(1, 1);
+		br = mng.getSummary(2, 1);
 		assert(4 == br.bits(0, br.len));
 
 	}
@@ -191,9 +169,9 @@ void test1() {
 }
 
 
-class TwoSDA {
+class TwoSDA_v1 {
 public:
-	TwoSDA() {}
+	TwoSDA_v1() {}
 	BlockBuilder bd;
 	BlockMemManager mng;
 
@@ -207,15 +185,16 @@ public:
 	void init() {
 		cnt = 0;
 		total = 0;
-		//global
-		//  8 bytes for cnt,
-		//  8 bytes for total sum
-		//header
-		//  8 bytes for sum
-		bd.register_summary(16, 8);
+		unsigned int idx;
+		idx = bd.register_summary(16, 8);
+		assert(idx == 1);
+		idx = bd.register_data_block();
+		assert(idx == 1);
+
+		idx = bd.register_summary(16, 8);
+		assert(idx == 2);
 		bd.register_data_block();
-		bd.register_summary(16, 8);
-		bd.register_data_block();
+		assert(idx == 2);
 		bd.init_data();
 	}
 
@@ -233,14 +212,14 @@ public:
 
 	void end_block() {
 		uint64_t v = sum1;
-		bd.set_summary(0, MemRange::wrap(v)); 
-		OBitStream& d1 = bd.start_data(0);
+		bd.set_summary(1, MemRange::wrap(v)); 
+		OBitStream& d1 = bd.start_data(1);
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		v = sum2;
-		bd.set_summary(1, MemRange::wrap(v));
-		OBitStream& d2 = bd.start_data(1);
+		bd.set_summary(2, MemRange::wrap(v));
+		OBitStream& d2 = bd.start_data(2);
 		b2.saveBlock(&d2);
 		bd.end_data();
 
@@ -255,20 +234,99 @@ public:
 		} data;
 		data.cnt = cnt;
 		data.sum = sum1;
-		bd.set_global(0, MemRange::wrap(data));
+		bd.set_global(1, MemRange::wrap(data));
 		data.cnt = cnt;
 		data.sum = sum2;
-		bd.set_global(1, MemRange::wrap(data));
+		bd.set_global(2, MemRange::wrap(data));
 		bd.build(&mng);
 	}
 };
 
-struct TwoSDA_v2 {
-	BlockBuilder bd;
-	SDArrayFuseBuilder bd1, bd2;
-	TwoSDA_v2() : bd1(bd), bd2(bd) {}
+
+struct MockInterBlkQr {
+	unsigned int sid, did;
+	MockInterBlkQr(): sid(0), did(0) {}
+	MockBlk blk;
+	BlockMemManager * mng;
+
+	void setup(BlockMemManager& _mng) {
+		mng = &_mng;
+		assert(sid > 0);
+		assert(did > 0);
+	}
+
+	void check(unsigned int blkid) {
+		assert(1 == mng->getGlobal(sid).byte(0));
+		uint64_t x = mng->getSummary(sid, blkid).byte(0);
+		x |= mng->getSummary(sid, blkid).byte(1) << 8;
+		assert(blkid % 1000 == x);
+		blk.loadBlock(mng->getData(did, blkid));
+		assert(blkid == blk.v);
+	}
+
+	void clear() { sid = 0; did = 0; }
+};
+
+struct MockInterBlkBd {
+	unsigned int cnt;
+	MockInterBlkBd(BlockBuilder& bd_): bd(bd_) {}
+	void register_struct() {
+		sid = bd.register_summary(1, 2);
+		did = bd.register_data_block();
+		cnt = 0;
+	}
+
+	void set_block_data() {
+		uint16_t tt;
+		tt = cnt % 1000;
+		bd.set_summary(sid, MemRange::wrap(tt));
+		OBitStream& d1 = bd.start_data(did);
+		blk.v = cnt;
+		blk.saveBlock(&d1);
+		bd.end_data();
+		cnt++;
+	}
+
+	void build_struct() {
+		uint8_t v = 1;
+		bd.set_global(sid, MemRange::wrap(v));
+	}
+
+	void deploy(MockInterBlkQr * qs) {
+		qs->sid = sid;
+		qs->did = did;
+	}
+
+	void clear() { sid = 0; did = 0; }
+
+	MockBlk blk;
+	unsigned int sid, did;
+	BlockBuilder & bd;
+};
+
+
+struct TwoSDA_Query {
+	BlockMemManager mng;
+	void clear() { mng.clear(); mock.clear(); }
+	MockInterBlkQr mock;
+	SDArrayFuse x, y;
 
 	void init() {
+		mock.setup(mng);
+		x.setup(mng);
+		y.setup(mng);
+	}
+};
+
+struct TwoSDA_Builder {
+	BlockBuilder bd;
+	MockInterBlkBd mbx;
+	SDArrayFuseBuilder bd1, bd2;
+	unsigned int cnt;
+	TwoSDA_Builder(): bd1(bd), bd2(bd), mbx(bd) {}
+
+	void init() {
+		mbx.register_struct();
 		bd1.register_struct();
 		bd2.register_struct();
 		cnt = 0;
@@ -281,32 +339,37 @@ struct TwoSDA_v2 {
 		bd2.add(y);
 		cnt++;
 		if (cnt == 512) {
-			end_block();
+			_end_block();
 			cnt = 0;
 			blkcntx++;
 		}
 	}
 
-	void end_block() {
+	void _end_block() {
+		mbx.set_block_data();
 		bd1.set_block_data();
 		bd2.set_block_data();
 		bd.end_block();
 	}
 
-	void build() {
-		end_block();
-		bd1.build();
-		bd2.build();
-		bd.build(&mng);
+	void build(TwoSDA_Query * out) {
+		_end_block();
+		mbx.build_struct();
+		bd1.build_struct();
+		bd2.build_struct();
+		bd.build(&out->mng);
+		mbx.deploy(&out->mock);
+		bd1.deploy(&out->x);
+		bd2.deploy(&out->y);
+		out->init();
 	}
 	unsigned int blkcntx;
-	BlockMemManager mng;
-	unsigned int cnt = 0;
-	void clear() { mng.clear(); }
 };
 
+
+
 void test2() {
-	TwoSDA_v2 arr;
+	TwoSDA_Builder arr;
 	arr.init();
 	SDArrayBuilder t1, t2;
 	std::vector<std::pair<unsigned, unsigned> > rawval;
@@ -320,19 +383,26 @@ void test2() {
 		rawval.push_back(std::make_pair(x, y));
 	}
 
-	arr.build();
-
-	SDArrayFuse x(arr.mng, 0, 0);
-	SDArrayFuse y(arr.mng, 1, 1);
 	SDArrayQuery q1, q2;
 	t1.build(&q1);
 	t2.build(&q2);
-	for (unsigned i = 0; i < n; ++i) {
-		assert(rawval[i].first == x.lookup(i));
-		assert(rawval[i].second == y.lookup(i));
-	}
 
-	
+	TwoSDA_Query qs;
+	arr.build(&qs);
+
+	uint64_t ps1 = 0;
+	uint64_t ps2 = 0;
+
+	for (unsigned i = 0; i < n; ++i) {
+		assert(rawval[i].first == qs.x.lookup(i));
+		assert(rawval[i].second == qs.y.lookup(i));
+		assert(ps1 == qs.x.prefixsum(i));
+		assert(ps2 == qs.y.prefixsum(i));
+		ps1 += rawval[i].first;
+		ps2 += rawval[i].second;
+	}
+	assert(ps1 == qs.x.prefixsum(n));
+	assert(ps2 == qs.y.prefixsum(n));
 }
 //--------------------------------------------------------------------------
 // Benchmark
@@ -346,29 +416,30 @@ struct StmFix : public SharedFixtureItf {
 
 		SDArrayBuilder bd1;
 		SDArraySmlBuilder bd2;
-		sdx.init();
+		TwoSDA_Builder xd;
+		xd.init();
 		
 		for (unsigned i = 0; i < size; ++i) {
 			unsigned val = rand() % range;
 			vals.push_back(val);
 			bd1.add(val);
 			bd2.add(val);
-			sdx.add(val, val);
+			xd.add(val, val);
 		}
 		bd1.build(&sd1);
 		bd2.build(&sd2);
-		sdx.build();
+		xd.build(&qs);
 		this->size = size;
 	}
 	
 
-	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); sdx.clear();}
+	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear();}
 
 	unsigned size;
 	std::vector<unsigned> vals;
 	SDArrayQuery sd1;
 	SDArraySml sd2;
-	TwoSDA_v2 sdx;
+	TwoSDA_Query qs;
 };
 
 
@@ -394,18 +465,16 @@ void sdarray_512(StmFix * fix) {
 }
 
 void sdarray_fuse0(StmFix * fix) {
-	SDArrayFuse x(fix->sdx.mng, 0, 0);
 	unsigned vx = 101;
 	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= x.lookup(i);
+		vx ^= fix->qs.x.lookup(i);
 	}
 }
 
 void sdarray_fuse1(StmFix * fix) {
-	SDArrayFuse x(fix->sdx.mng, 1, 1);
 	unsigned vx = 101;
 	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= x.lookup(i);
+		vx ^= fix->qs.y.lookup(i);
 	}
 }
 

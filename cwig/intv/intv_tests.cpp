@@ -14,14 +14,6 @@
 using namespace std;
 using namespace app_ds;
 
-std::vector<std::pair<unsigned int, unsigned int> > convert2pair(const std::deque<ValRangeInfo>& vec){
-	std::vector<std::pair<unsigned int, unsigned int> > ret;
-	ret.reserve(vec.size());
-	for (auto& v : vec) {
-		ret.emplace_back(v.st, v.ed);
-	}
-	return ret;
-}
 
 template<typename StructTp>
 void test_intervals(const std::vector<std::pair<unsigned int, unsigned int> >& rng, int testid = 0) {

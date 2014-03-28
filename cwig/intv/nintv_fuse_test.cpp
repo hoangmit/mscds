@@ -134,7 +134,9 @@ std::vector<std::pair<unsigned, unsigned> > read_file(const std::string& file) {
 		fi >> chr >> st >> ed;
 		if (!fi || chr != "chr1") break;
 		out.emplace_back(st, ed);
+		fi.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
+	std::cout << "Read " << out.size() << " intervals" << std::endl;
 	return out;
 }
 
@@ -150,6 +152,7 @@ void load_data(T& d, const std::string& input) {
 		d.load(fi);
 		fi.close();
 	}
+	std::cout << "Loaded " << input << std::endl;
 }
 
 void build_normal(const std::string& inp, const std::string& ds) {

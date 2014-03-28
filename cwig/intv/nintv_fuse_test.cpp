@@ -136,6 +136,7 @@ std::vector<std::pair<unsigned, unsigned> > read_file(const std::string& file) {
 		out.emplace_back(st, ed);
 		fi.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
+	fi.close();
 	std::cout << "Read " << out.size() << " intervals" << std::endl;
 	return out;
 }
@@ -169,6 +170,7 @@ void build_normal(const std::string& inp, const std::string& ds) {
 void build_fusion(const std::string& inp, const std::string& ds) {
 	auto pl = read_file(inp);
 	NIntvFuseBuilder bd;
+	bd.init();
 	for (const auto& p : pl) {
 		bd.add(p.first, p.second);
 	}
@@ -232,7 +234,7 @@ int run_exp(int argc, char* argv[]) {
 			load_normal(argv[3], argv[4]);
 		} else
 		if (argv[2] == string("F")) {
-			build_fusion(argv[3], argv[4]);
+			load_fusion(argv[3], argv[4]);
 		} else return 1;
 	} else return 1;
 	return 0;

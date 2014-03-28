@@ -7,6 +7,7 @@
 #include "bitarray/bitstream.h"
 
 #include "utils/benchmark.h"
+#include "utils/str_utils.h"
 
 #include "blkgroup_array.h"
 #include <cstdlib>
@@ -409,8 +410,9 @@ void test2() {
 
 
 struct StmFix : public SharedFixtureItf {
+	static const unsigned int SIZE = 200000;
 	void SetUp(int size) {
-		if (size <= 0) { size = 200000; }
+		if (size <= 0) { size = SIZE; }
 		// generate test cases and data structure here
 		unsigned int range = 500;
 
@@ -514,6 +516,7 @@ void sdarray_fuse1_rnd(StmFix * fix) {
 BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
+	bm.add_remark("number of queries for each run: " + utils::tostr(StmFix::SIZE));
 	//bm.add("vector", vector_null, 100);
 	bm.add("sdarray_b64_rnd", sdarray_64, 15);
 	bm.add("sdarray_b512_rnd", sdarray_512, 15);
@@ -527,8 +530,8 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 BENCHMARK_SET(sdarray_seq_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
+	bm.add_remark("number of queries for each run: " + utils::tostr(StmFix::SIZE));
 	//bm.add("vector", vector_null, 100);
-
 	bm.add("sdarray_b64_seq", sdarray_64, 15);
 	bm.add("sdarray_b512_seq", sdarray_512, 15);
 	bm.add("sdarray_fuse0_seq", sdarray_fuse0, 15);
@@ -540,10 +543,10 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 
 
 int main(int argc, char* argv[]) {
-	test1();
-	test2();
-	for (unsigned i = 0; i < 1000; i++)
-		sdarray_block__test1();
+	//test1();
+	//test2();
+	//for (unsigned i = 0; i < 1000; i++)
+	//	sdarray_block__test1();
 	BenchmarkRegister::run_all();
 	
 	return 0;

@@ -8,6 +8,8 @@
 #include <functional>
 #include <iostream>
 
+#include "utils/str_utils.h"
+
 class BenchmarkRegister {
 public:
 	typedef std::function<void()> VoidFunc;
@@ -50,7 +52,7 @@ public:
 	void add(const std::string& name, FuncType fc, unsigned int nrun = 1);
 	void run_all();
 	void report(int baseline = -1);
-
+	void add_remark(const std::string& remark) { remark_ = remark; }
 private:
 	struct FuncInfo {
 		std::string name;
@@ -65,6 +67,7 @@ private:
 	typedef std::vector<std::pair<std::string, double> > RESVector;
 	RESVector results;
 	std::vector<RESVector> allres;
+	std::string remark_;
 private:
 	void _run_methods(int size, RESVector& results);
 	void _report_methods(const RESVector& results, int baseline = -1);
@@ -143,19 +146,24 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 
 template<typename SharedFixture>
 void Benchmarker<SharedFixture>::report(int baseline) {
+	std::locale comma_locale(std::locale(), new utils::comma_numpunct());
+	std::locale oldLoc = std::cout.imbue(comma_locale);
+	std::cout << std::endl;
+	if (remark_.length() > 0)
+		std::cout << "Remark: " << remark_ << std::endl;
 	if (problemSizes.empty()) {
-		std::cout << std::endl;
 		_report_methods(results, baseline);
 	}
 	else {
 		unsigned int i = 0;
 		for (auto& v : problemSizes) {
-			std::cout << std::endl;
 			std::cout << "Problem size: " << v << std::endl;
 			_report_methods(allres[i], baseline);
 			++i;
+			std::cout << std::endl;
 		}
 	}
+	std::cout.imbue(oldLoc);
 }
 
 template<typename SharedFixture>

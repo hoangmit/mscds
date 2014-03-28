@@ -410,7 +410,7 @@ void test2() {
 
 struct StmFix : public SharedFixtureItf {
 	void SetUp(int size) {
-		if (size <= 0) { size = 50000; }
+		if (size <= 0) { size = 200000; }
 		// generate test cases and data structure here
 		unsigned int range = 500;
 
@@ -430,6 +430,10 @@ struct StmFix : public SharedFixtureItf {
 		bd2.build(&sd2);
 		xd.build(&qs);
 		this->size = size;
+		queries.resize(size);
+		for (unsigned i = 0; i < size; ++i)
+			queries[i] = i;
+		std::random_shuffle(queries.begin(), queries.end());
 	}
 	
 
@@ -437,6 +441,7 @@ struct StmFix : public SharedFixtureItf {
 
 	unsigned size;
 	std::vector<unsigned> vals;
+	std::vector<unsigned int> queries;
 	SDArrayQuery sd1;
 	SDArraySml sd2;
 	TwoSDA_Query qs;
@@ -478,18 +483,61 @@ void sdarray_fuse1(StmFix * fix) {
 	}
 }
 
-BENCHMARK_SET(sdarray_benchmark) {
+void sdarray_64_rnd(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd1.lookup(fix->queries[i]);
+	}
+}
+
+void sdarray_512_rnd(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd2.lookup(fix->queries[i]);
+	}
+}
+
+void sdarray_fuse0_rnd(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->qs.x.lookup(fix->queries[i]);
+	}
+}
+
+void sdarray_fuse1_rnd(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->qs.y.lookup(fix->queries[i]);
+	}
+}
+
+BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	//bm.add("vector", vector_null, 100);
-	bm.add("sdarray(64)", sdarray_64, 20);
-	bm.add("sdarray(512)", sdarray_512, 20);
-	bm.add("sdarray_fuse0", sdarray_fuse0, 10);
-	bm.add("sdarray_fuse1", sdarray_fuse1, 10);
+	bm.add("sdarray_b64_rnd", sdarray_64, 15);
+	bm.add("sdarray_b512_rnd", sdarray_512, 15);
+	bm.add("sdarray_fuse0_rnd", sdarray_fuse0, 15);
+	bm.add("sdarray_fuse1_rnd", sdarray_fuse1, 15);
 
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
+
+BENCHMARK_SET(sdarray_seq_benchmark) {
+	Benchmarker<StmFix> bm;
+	bm.n_samples = 3;
+	//bm.add("vector", vector_null, 100);
+
+	bm.add("sdarray_b64_seq", sdarray_64, 15);
+	bm.add("sdarray_b512_seq", sdarray_512, 15);
+	bm.add("sdarray_fuse0_seq", sdarray_fuse0, 15);
+	bm.add("sdarray_fuse1_seq", sdarray_fuse1, 15);
+
+	bm.run_all();
+	bm.report(0); // <-- baseline
+}
+
 
 int main(int argc, char* argv[]) {
 	test1();

@@ -18,11 +18,10 @@ public:
 
 	PosType int_len(PosType i) const;
 	std::pair<PosType, PosType> find_cover(PosType pos) const;
+	PosType coverage(PosType pos) const;
 
 	PosType rank_interval(PosType pos) const;
-	
 	PosType int_psrlen(PosType i) const;
-
 
 	PosType length() const { return start.length(); }
 	
@@ -40,7 +39,6 @@ private:
 	LGBlk_t loadLGSum(unsigned int blk) const;
 
 	void loadblock(unsigned int blk) const;
-
 	void loadGlobal();
 
 	friend class NIntvInterBlkBuilder;
@@ -89,6 +87,9 @@ class NIntvFuseQuery {
 public:
 	FuseNIntvInterBlock b;
 	void init();
+
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
 private:
 	mscds::BlockMemManager mng;
 	friend class NIntvFuseBuilder;

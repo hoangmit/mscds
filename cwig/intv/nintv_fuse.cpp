@@ -128,6 +128,16 @@ std::pair<NIntvQueryInt::PosType, NIntvQueryInt::PosType> FuseNIntvInterBlock::f
 	else return std::pair<PosType, PosType>(p+1, 0);
 }
 
+NIntvQueryInt::PosType FuseNIntvInterBlock::coverage(NIntvQueryInt::PosType pos) const {
+	uint64_t p = rank_interval(pos);
+	if (p == npos()) return 0;
+	uint64_t sp = int_start(p);
+	assert(sp <= pos);
+	uint64_t ps = int_psrlen(p);
+	PosType rangelen = int_len(p);
+	return std::min<PosType>((pos - sp), rangelen) + ps;
+}
+
 NIntvQueryInt::PosType FuseNIntvInterBlock::rank_interval(NIntvQueryInt::PosType pos) const {
 	uint64_t p = start.rank(pos+1);
 	if (p == 0) return npos();
@@ -207,6 +217,19 @@ void app_ds::FuseNIntvInterBlock::loadblock(unsigned int blk) const {
 
 void NIntvFuseQuery::init() {
 	b.setup(mng);
+}
+
+void NIntvFuseQuery::save(mscds::OutArchive &ar) const {
+	ar.startclass("fused_non_overlapped_intervals", 1);
+	mng.save(ar.var("block_data"));
+	ar.endclass();
+}
+
+void NIntvFuseQuery::load(mscds::InpArchive &ar) {
+	int class_version = ar.loadclass("fused_non_overlapped_intervals");
+	mng.load(ar.var("block_data"));
+	ar.endclass();
+	init();
 }
 
 

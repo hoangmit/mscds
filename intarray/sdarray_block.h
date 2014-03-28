@@ -126,7 +126,8 @@ public:
 		assert(lo < mng->blkCount() || val <= getBlkSum(lo + 1));
 		loadBlk(lo);
 		ValueType ret = lo * SDArrayBlock::BLKSIZE + blk.rank(val - getBlkSum(lo));
-		return ret;
+		if (ret == 0) return 0;
+		else return ret - 1;
 	}
 	SDArrayFuse() : mng(nullptr) {}
 	void setup(BlockMemManager& mng_) {

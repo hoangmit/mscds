@@ -23,6 +23,32 @@ void test_intervals_easy(const std::vector<std::pair<unsigned int, unsigned int>
 	}
 }
 
+template<typename T>
+void rank_cov(const std::vector<std::pair<unsigned int, unsigned int> >& rng, const T& r, int testid = 0) {
+	size_t mlen = rng.back().second;
+	size_t j = 0, jp = r.npos();
+	size_t cnt = 0;
+	for (size_t i = 0; i < mlen; ++i) {
+		if (rng[j].second <= i) ++j;
+		if (rng[j].first <= i) jp = j;
+		auto v = r.rank_interval(i);
+		ASSERT_EQ(jp, v);
+		ASSERT_EQ(cnt, r.coverage(i)) << "test id = " << testid << "   i = " << i << endl;
+		auto p = r.find_cover(i);
+		if (rng[j].first <= i) {
+			++cnt;
+			ASSERT_EQ(j, p.first);
+			ASSERT_EQ(i - rng[j].first + 1, p.second);
+		} else {
+			ASSERT_EQ(j, p.first);
+			ASSERT_EQ(0, p.second);
+		}
+	}
+	ASSERT_EQ(rng.size() - 1, j);
+	auto v = r.rank_interval(mlen);
+	ASSERT_EQ(rng.size() - 1, v);
+}
+
 void test1() {
 	vector<int> Av = {1, 1, 1, 0, 0, 9, 9, 2, 2, 2, 3};
 	auto rng = convert2pair(genInp(Av));
@@ -36,6 +62,7 @@ void test1() {
 	NIntvFuseQuery qs;
 	bd.build(&qs);
 	test_intervals_easy(rng, qs.b);
+	rank_cov(rng, qs.b);
 }
 
 void test2() {
@@ -51,10 +78,10 @@ void test2() {
 	NIntvFuseQuery qs;
 	bd.build(&qs);
 	test_intervals_easy(rng, qs.b);
-
+	rank_cov(rng, qs.b);
 }
 
-void test3() {
+void test3(unsigned int len = 1024) {
 	auto rng = gen_intv2(1024, 50, 50);
 	NIntvFuseBuilder bd;
 	bd.init();
@@ -65,12 +92,23 @@ void test3() {
 	NIntvFuseQuery qs;
 	bd.build(&qs);
 	test_intervals_easy(rng, qs.b);
+	rank_cov(rng, qs.b);
+}
+
+void test4() {
+	for (unsigned i = 0; i < 50; ++i) 
+		test3(1024);
+	for (unsigned i = 0; i < 30; ++i)
+		test3(1025);
+	for (unsigned i = 0; i < 20; ++i)
+		test3(1023);
 }
 
 int main() {
 	test1();
 	test2();
 	test3();
+	//test4();
 	return 0; 
 }
 

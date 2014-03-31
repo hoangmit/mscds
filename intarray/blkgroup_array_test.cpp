@@ -425,6 +425,8 @@ struct StmFix : public SharedFixtureItf {
 		SDArraySmlBuilder bd2;
 		TwoSDA_Builder xd;
 		xd.init();
+
+		uint64_t sum =0;
 		
 		for (unsigned i = 0; i < size; ++i) {
 			unsigned val = rand() % range;
@@ -432,6 +434,7 @@ struct StmFix : public SharedFixtureItf {
 			bd1.add(val);
 			bd2.add(val);
 			xd.add(val, val);
+			sum += val;
 		}
 		bd1.build(&sd1);
 		bd2.build(&sd2);
@@ -441,6 +444,8 @@ struct StmFix : public SharedFixtureItf {
 		for (unsigned i = 0; i < size; ++i)
 			queries[i] = i;
 		std::random_shuffle(queries.begin(), queries.end());
+		for (unsigned int i = 0; i < size; ++i)
+			rankqs.push_back((((unsigned)(rand() % 256) << 8) | (rand() % 256)) % sum);
 	}
 
 	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear();}
@@ -448,6 +453,7 @@ struct StmFix : public SharedFixtureItf {
 	unsigned size;
 	std::vector<unsigned> vals;
 	std::vector<unsigned int> queries;
+	std::vector<unsigned int> rankqs;
 	SDArrayQuery sd1;
 	SDArraySml sd2;
 	TwoSDA_Query qs;
@@ -488,7 +494,7 @@ void sdarray_fuse1(StmFix * fix) {
 		vx ^= fix->qs.y.lookup(i);
 	}
 }
-
+//-------------------------------------------------
 void sdarray_64_rnd(StmFix * fix) {
 	unsigned vx = 121;
 	for (unsigned i = 0; i < fix->size; ++i) {
@@ -517,16 +523,46 @@ void sdarray_fuse1_rnd(StmFix * fix) {
 	}
 }
 
+//-------------------------------------------------
+void sdarray_64_rnd_rank(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd1.find(fix->rankqs[i]);
+	}
+}
+
+void sdarray_512_rnd_rank(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->sd2.rank(fix->rankqs[i]);
+	}
+}
+
+void sdarray_fuse0_rnd_rank(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->qs.x.rank(fix->rankqs[i]);
+	}
+}
+
+void sdarray_fuse1_rnd_rank(StmFix * fix) {
+	unsigned vx = 121;
+	for (unsigned i = 0; i < fix->size; ++i) {
+		vx ^= fix->qs.y.rank(fix->rankqs[i]);
+	}
+}
+
+/*
 BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE;
 	bm.add_remark("number of queries for each run: " + utils::tostr(n));
 	//bm.add("vector", vector_null, 100);
-	bm.add("sdarray_b64_rnd", sdarray_64, 15);
-	bm.add("sdarray_b512_rnd", sdarray_512, 15);
-	bm.add("sdarray_fuse0_rnd", sdarray_fuse0, 15);
-	bm.add("sdarray_fuse1_rnd", sdarray_fuse1, 15);
+	bm.add("sdarray_b64_rnd_access", sdarray_64, 15);
+	bm.add("sdarray_b512_rnd_access", sdarray_512, 15);
+	bm.add("sdarray_fuse0_rnd_access", sdarray_fuse0, 15);
+	bm.add("sdarray_fuse1_rnd_access", sdarray_fuse1, 15);
 
 	bm.run_all();
 	bm.report(0); // <-- baseline
@@ -538,14 +574,31 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 	auto n = StmFix::SIZE;
 	bm.add_remark("number of queries for each run: " + utils::tostr(n));
 	//bm.add("vector", vector_null, 100);
-	bm.add("sdarray_b64_seq", sdarray_64, 15);
-	bm.add("sdarray_b512_seq", sdarray_512, 15);
-	bm.add("sdarray_fuse0_seq", sdarray_fuse0, 15);
-	bm.add("sdarray_fuse1_seq", sdarray_fuse1, 15);
+	bm.add("sdarray_b64_seq_access", sdarray_64, 15);
+	bm.add("sdarray_b512_seq_access", sdarray_512, 15);
+	bm.add("sdarray_fuse0_seq_access", sdarray_fuse0, 15);
+	bm.add("sdarray_fuse1_seq_access", sdarray_fuse1, 15);
 
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
+*/
+
+BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
+	Benchmarker<StmFix> bm;
+	bm.n_samples = 3;
+	auto n = StmFix::SIZE;
+	bm.add_remark("number of queries for each run: " + utils::tostr(n));
+	//bm.add("vector", vector_null, 100);
+	bm.add("sdarray_b64_rnd_rank", sdarray_64_rnd_rank, 15);
+	bm.add("sdarray_b512_rnd_rank", sdarray_512_rnd_rank, 15);
+	bm.add("sdarray_fuse0_rnd_rank", sdarray_fuse0_rnd_rank, 15);
+	bm.add("sdarray_fuse1_rnd_rank", sdarray_fuse1_rnd_rank, 15);
+
+	bm.run_all();
+	bm.report(0); // <-- baseline
+}
+
 
 
 int main(int argc, char* argv[]) {

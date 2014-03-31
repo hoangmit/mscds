@@ -6,7 +6,7 @@ namespace mscds {
 
 static const unsigned int MIN_RATE = 95;
 
-void HuffmanModel::buildModel2(const std::vector<uint32_t> * data) {
+void HuffmanModel::buildModel_old(const std::vector<uint32_t> * data) {
 	freq.clear();
 	freqset.clear();
 	std::unordered_map<uint32_t, unsigned int> cnt;
@@ -29,7 +29,7 @@ void HuffmanModel::buildModel2(const std::vector<uint32_t> * data) {
 	W.push_back(0);
 	unsigned int sum = 0;
 	for (unsigned int i = 0; i < freq.size(); ++i) {
-		auto cc = cnt[freq[i]];
+		auto cc = cnt.at(freq[i]);
 		sum += cc;
 		W.push_back(cc);
 	}
@@ -38,23 +38,19 @@ void HuffmanModel::buildModel2(const std::vector<uint32_t> * data) {
 	tc.build(hc);
 }
 
-void HuffmanModel::buildModel(const std::vector<uint32_t> * data, const Config* conf /* = NULL */) {
+
+void HuffmanModel::buildModel_cnt(unsigned int n,
+		const std::unordered_map<uint32_t, unsigned int> & cnt,
+		unsigned int max_symbol_size) {
 	freq.clear();
 	freqset.clear();
-	std::unordered_map<uint32_t, unsigned int> cnt;
-	for (unsigned int i = 0; i < data->size(); ++i)
-		++cnt[(*data)[i]];
-
-	unsigned int n = data->size();
 
 	std::vector<std::pair<unsigned int, uint32_t> > sfreq;
-	for (auto it = cnt.begin(); it != cnt.end(); ++it) 
+	for (auto it = cnt.begin(); it != cnt.end(); ++it)
 		sfreq.push_back(std::make_pair(it->second, it->first));
 	std::sort(sfreq.begin(), sfreq.end(), std::greater<std::pair<unsigned int, uint32_t> >());
 
 	std::map<uint32_t, uint32_t> remapt;
-	unsigned int max_symbol_size = 127;
-	if (conf != NULL) max_symbol_size = conf->getInt("HUFFDT_MAX_SYM", 127);
 	max_symbol_size = std::max(max_symbol_size, 8u);
 	unsigned rmsize = std::min<unsigned int>(max_symbol_size, sfreq.size());
 	for (unsigned int i = 0; i < rmsize; ++i) {
@@ -67,18 +63,39 @@ void HuffmanModel::buildModel(const std::vector<uint32_t> * data, const Config* 
 	std::vector<uint32_t> W;
 	hc.clear();
 	tc.clear();
-	if (freq.size() == 0) return ;
+	if (freq.size() == 0) return;
 	W.reserve(freq.size() + 1);
 	W.push_back(0);
 	unsigned int sum = 0;
 	for (unsigned int i = 0; i < freq.size(); ++i) {
-		auto cc = cnt[freq[i]];
+		unsigned int cc = cnt.at(freq[i]);
 		sum += cc;
 		W.push_back(cc);
 	}
 	W[0] = n - sum;
 	hc.build(W);
 	tc.build(hc);
+}
+
+void HuffmanModel::buildModel(const std::vector<uint32_t> * data, const Config* conf /* = NULL */) {
+	startBuild(conf);
+	for (auto& v : (*data)) add(v);
+	endBuild();
+}
+
+void HuffmanModel::startBuild(const Config *conf) {
+	mbdata.cnt.clear();
+	mbdata.max_symbol_size = 127;
+	if (conf != NULL) mbdata.max_symbol_size = conf->getInt("HUFFDT_MAX_SYM", 127);
+	mbdata.n = 0;
+}
+
+void HuffmanModel::add(uint32_t val) {
+	++mbdata.cnt[val];
+}
+
+void HuffmanModel::endBuild() {
+	buildModel_cnt(mbdata.n, mbdata.cnt, mbdata.max_symbol_size);
 }
 
 

@@ -90,7 +90,7 @@ std::pair<int8_t, uint8_t> max_excess_word_slow(uint64_t x, uint8_t st, uint8_t 
 }
 
 std::pair<int8_t, uint8_t> max_excess_word(uint64_t x) {
-	register uint64_t byte_excess = x - ((x & 0xAAAAAAAAAAAAAAAAull) >> 1);
+	uint64_t byte_excess = x - ((x & 0xAAAAAAAAAAAAAAAAull) >> 1);
 	byte_excess = (byte_excess & 0x3333333333333333ull) + ((byte_excess >> 2) & 0x3333333333333333ull);
 	byte_excess = (byte_excess + (byte_excess >> 4)) & 0x0F0F0F0F0F0F0F0Full;
 	byte_excess *= 0x0101010101010101ull;
@@ -111,7 +111,7 @@ std::pair<int8_t, uint8_t> max_excess_word(uint64_t x) {
 }
 
 std::pair<int8_t, uint8_t> min_excess_word(uint64_t x) {
-	register uint64_t byte_excess = x - ((x & 0xAAAAAAAAAAAAAAAAull) >> 1);
+	uint64_t byte_excess = x - ((x & 0xAAAAAAAAAAAAAAAAull) >> 1);
 	byte_excess = (byte_excess & 0x3333333333333333ull) + ((byte_excess >> 2) & 0x3333333333333333ull);
 	byte_excess = (byte_excess + (byte_excess >> 4)) & 0x0F0F0F0F0F0F0F0Full;
 	byte_excess *= 0x0101010101010101ull;

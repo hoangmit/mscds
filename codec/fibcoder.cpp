@@ -122,7 +122,7 @@ inline LenTp b11Cnt(NumTp x) {
 }
 
 inline LenTp i1BP(NumTp x, LenTp j) {
-	register NumTp s = x, b, l;
+	NumTp s = x, b, l;
 	s = s-( (s>>1) & 0x5555555555555555ULL);
 	s = (s & 0x3333333333333333ULL) + ((s >> 2) & 0x3333333333333333ULL);
 	s = (s + (s >> 4)) & 0x0F0F0F0F0F0F0F0FULL;

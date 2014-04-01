@@ -57,7 +57,10 @@ class SDArrayFuse;
 
 class SDArrayFuseBuilder {
 public:
-	SDArrayFuseBuilder(BlockBuilder& _bd) : bd(_bd) {}
+	SDArrayFuseBuilder(BlockBuilder& _bd) : bd(&_bd) {}
+	SDArrayFuseBuilder(): bd(nullptr) {}
+
+	void init_bd(BlockBuilder& bd_) { bd = &bd_; }
 	void register_struct();
 
 	void add(uint64_t val);
@@ -71,7 +74,7 @@ private:
 	uint64_t last;
 	SDArrayBlock blk;
 	unsigned int sid, did;
-	BlockBuilder & bd;
+	BlockBuilder * bd;
 	uint64_t sum, cnt, lastsum;
 	int blkcnt;
 };
@@ -162,7 +165,6 @@ private:
 	}
 
 	uint64_t total_sum() const { return sum; }
-
 
 	void loadBlk(size_t i) const {
 		auto br = mng->getData(did, i);

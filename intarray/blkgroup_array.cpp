@@ -80,6 +80,15 @@ void BlockBuilder::set_global(unsigned int sid, const MemRange& r) {
 	gcid++;
 }
 
+void BlockBuilder::set_global(unsigned int sid, const OBitStream& os) {
+	assert(sid == gcid + 1);
+	assert(os.length() <= global_sizes[gcid]);
+	header.append(os);
+	if (os.length() < global_sizes[gcid])
+		header.put0(8*(global_sizes[gcid] - os.length()));
+	gcid++;
+}
+
 void BlockBuilder::set_summary(unsigned int sid) {
 	assert(sid == scid + 1);
 	if (summary_sizes[scid] > 0)

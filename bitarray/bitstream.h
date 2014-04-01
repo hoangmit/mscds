@@ -32,7 +32,7 @@ public:
 
 	bool is_accessiable() const;
 
-	void append(OBitStream& other);
+	void append(const OBitStream& other);
 
 	std::string to_str() const;
 
@@ -188,7 +188,7 @@ inline void OBitStream::close() {
 
 inline bool OBitStream::is_accessiable() const { return (j == 0); }
 
-inline void OBitStream::append(OBitStream &other) {
+inline void OBitStream::append(const OBitStream &other) {
 	if (!other.is_accessiable()) throw std::runtime_error("cannot extract");
 	size_t px = 0, i = 0;
 	while (px + WORDLEN < other.length()) {

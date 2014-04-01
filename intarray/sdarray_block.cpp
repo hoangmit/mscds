@@ -196,8 +196,8 @@ unsigned int SDArrayBlock::scan_hi_zeros(unsigned int start, uint32_t res) const
 }
 
 void SDArrayFuseBuilder::register_struct() {
-	sid = bd.register_summary(16, 8); // bytes
-	did = bd.register_data_block();
+	sid = bd->register_summary(16, 8); // bytes
+	did = bd->register_data_block();
 	cnt = 0;
 	sum = 0;
 	blkcnt = 0;
@@ -215,10 +215,10 @@ void SDArrayFuseBuilder::add(uint64_t val) {
 void SDArrayFuseBuilder::set_block_data() {
 	if (blkcnt > 0) {
 		uint64_t v = lastsum;
-		bd.set_summary(sid, MemRange::wrap(v));
-		OBitStream& d1 = bd.start_data(did);
+		bd->set_summary(sid, MemRange::wrap(v));
+		OBitStream& d1 = bd->start_data(did);
 		blk.saveBlock(&d1);
-		bd.end_data();
+		bd->end_data();
 		blkcnt = 0;
 		lastsum = sum;
 	}
@@ -231,7 +231,7 @@ void SDArrayFuseBuilder::build_struct() {
 	} data;
 	data.cnt = cnt;
 	data.sum = sum;
-	bd.set_global(sid, MemRange::wrap(data));
+	bd->set_global(sid, MemRange::wrap(data));
 }
 
 void SDArrayFuseBuilder::deploy(StructIDList& lst) {

@@ -273,27 +273,31 @@ struct MockInterBlkQr {
 
 struct MockInterBlkBd {
 	unsigned int cnt;
-	MockInterBlkBd(BlockBuilder& bd_): bd(bd_) {}
+	MockInterBlkBd(BlockBuilder& bd_): bd(&bd_) {}
+	MockInterBlkBd(): bd(nullptr) {}
+
+	void init_bd(BlockBuilder& bd_) { bd = & bd_; }
+
 	void register_struct() {
-		sid = bd.register_summary(1, 2);
-		did = bd.register_data_block();
+		sid = bd->register_summary(1, 2);
+		did = bd->register_data_block();
 		cnt = 0;
 	}
 
 	void set_block_data() {
 		uint16_t tt;
 		tt = cnt % 1000;
-		bd.set_summary(sid, MemRange::wrap(tt));
-		OBitStream& d1 = bd.start_data(did);
+		bd->set_summary(sid, MemRange::wrap(tt));
+		OBitStream& d1 = bd->start_data(did);
 		blk.v = cnt;
 		blk.saveBlock(&d1);
-		bd.end_data();
+		bd->end_data();
 		cnt++;
 	}
 
 	void build_struct() {
 		uint8_t v = 1;
-		bd.set_global(sid, MemRange::wrap(v));
+		bd->set_global(sid, MemRange::wrap(v));
 	}
 
 	void deploy(StructIDList& lst) {
@@ -306,7 +310,7 @@ struct MockInterBlkBd {
 
 	MockBlk blk;
 	unsigned int sid, did;
-	BlockBuilder & bd;
+	BlockBuilder * bd;
 };
 
 
@@ -372,8 +376,6 @@ struct TwoSDA_Builder {
 	unsigned int blkcntx;
 };
 
-
-
 void test2() {
 	TwoSDA_Builder arr;
 	arr.init();
@@ -410,9 +412,19 @@ void test2() {
 	assert(ps1 == qs.x.prefixsum(n));
 	assert(ps2 == qs.y.prefixsum(n));
 }
+
+
+void test3() {
+	typedef LiftStBuilder<MockInterBlkBd, SDArrayFuseBuilder, SDArrayFuseBuilder> TwoSDArrv3;
+	TwoSDArrv3 bdx;
+	typedef LiftStQuery<MockInterBlkQr, SDArrayFuse, SDArrayFuse> TwoSDA_v3_Query;
+	TwoSDA_v3_Query qsx;
+	bdx.init();
+	bdx._end_block();
+	bdx.build(&qsx);
+}
 //--------------------------------------------------------------------------
 // Benchmark
-
 
 struct StmFix : public SharedFixtureItf {
 	static const unsigned int SIZE = 2000000;
@@ -494,6 +506,7 @@ void sdarray_fuse1(StmFix * fix) {
 		vx ^= fix->qs.y.lookup(i);
 	}
 }
+
 //-------------------------------------------------
 void sdarray_64_rnd(StmFix * fix) {
 	unsigned vx = 121;
@@ -552,7 +565,6 @@ void sdarray_fuse1_rnd_rank(StmFix * fix) {
 	}
 }
 
-/*
 BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
@@ -582,7 +594,6 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
-*/
 
 BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	Benchmarker<StmFix> bm;
@@ -600,13 +611,20 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 }
 
 
-
-int main(int argc, char* argv[]) {
+void test_all1() {
 	test1();
 	test2();
 	for (unsigned i = 0; i < 1000; i++)
 		sdarray_block__test1();
-	BenchmarkRegister::run_all();
+}
+
+
+
+int main(int argc, char* argv[]) {
+
+	test_all1();
+
+	//BenchmarkRegister::run_all();
 	
 	return 0;
 }

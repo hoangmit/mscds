@@ -54,7 +54,10 @@ private:
 
 class NIntvInterBlkBuilder {
 public:
-	NIntvInterBlkBuilder(mscds::BlockBuilder& _bd): bd(_bd), start(bd), cnt(0) {}
+	NIntvInterBlkBuilder(mscds::BlockBuilder& _bd): bd(&_bd), start(_bd), cnt(0) {}
+	NIntvInterBlkBuilder(): bd(nullptr) {}
+
+	void init_bd(mscds::BlockBuilder& bd_) { bd = &bd_; }
 
 	void register_struct();
 	void add(unsigned int st, unsigned int ed);
@@ -70,7 +73,7 @@ private:
 
 	uint64_t lensum, laststart;
 
-	mscds::BlockBuilder& bd;
+	mscds::BlockBuilder * bd;
 	mscds::SDArrayFuseBuilder start;
 	unsigned int blkcntx, cnt;
 

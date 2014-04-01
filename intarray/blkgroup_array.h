@@ -9,6 +9,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <queue>
+#include <tuple>
 
 namespace mscds {
 
@@ -146,6 +147,7 @@ public:
 
 	void set_global(unsigned int sid);
 	void set_global(unsigned int sid, const MemRange& r);
+	void set_global(unsigned int sid, const OBitStream& r);
 
 	void start_block();
 
@@ -294,29 +296,121 @@ private:
 	friend class BlockBuilder;
 };
 
-template<typename B, typename Q>
-struct LiftStBuilder {
+namespace details {
+	template<int I, class Tuple, typename F> struct for_each_impl {
+		static void for_each(Tuple& t, F f) {
+			for_each_impl<I - 1, Tuple, F>::for_each(t, f);
+			f(std::get<I>(t));
+		}
+	};
+	template<class Tuple, typename F> struct for_each_impl<0, Tuple, F> {
+		static void for_each(Tuple& t, F f) {
+			f(std::get<0>(t));
+		}
+	};
+	template<class Tuple, typename F>
+	void for_each(Tuple& t, F f) {
+		for_each_impl<std::tuple_size<Tuple>::value - 1, Tuple, F>::for_each(t, f);
+	}
+}//namespace
+
+
+class InterBlockBuilderTp {
+public:
+	virtual void init_bd(BlockBuilder& bd) = 0;
+	virtual void register_struct() = 0;
+	virtual void set_block_data() = 0;
+	virtual void build_struct() = 0;
+};
+
+class InterBLockQueryTp {
+public:
+	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
+};
+
+
+
+template<typename ...Types>
+class LiftStQuery {
+private:
+	struct InitQS {
+		BlockMemManager & mng;
+		StructIDList& slst;
+		InitQS(BlockMemManager & _mng, StructIDList & _slst): mng(_mng), slst(_slst) {}
+		template<typename T>
+		void operator()(T& t) { t.setup(mng, slst); }
+	};
+public:
+	BlockMemManager mng;
+
+	std::tuple<Types...> list;
+	void init(StructIDList& slst) {
+		InitQS it(mng, slst);
+		details::for_each(list, it);
+	}
+};
+
+template<typename ...Types>
+class LiftStBuilder {
+public:
+	std::tuple<Types...> list;
 
 	BlockBuilder bd;
-	LiftStBuilder(): bd(), data(bd) {}
-
-	B data;
+private:
+	struct InitBD {
+		BlockBuilder & bd;
+		InitBD(BlockBuilder & _bd): bd(_bd) {}
+		template<typename T>
+		void operator()(T& t) { t.init_bd(bd); }
+	};
+	struct RegStr {
+		template<typename T>
+		void operator()(T& t) { t.register_struct(); }
+	};
+	struct SetStr {
+		template<typename T>
+		void operator()(T& t) { t.set_block_data(); }
+	};
+	struct BuildStr {
+		template<typename T>
+		void operator()(T& t) { t.build_struct(); }
+	};
+	struct DeployStr {
+		StructIDList & lst;
+		DeployStr(StructIDList& _lst): lst(_lst) {}
+		template<typename T>
+		void operator()(T& t) { t.deploy(lst); }
+	};
+public:
+	LiftStBuilder(){
+		InitBD it(bd);
+		details::for_each(list, it);
+	}
 
 	void init() {
-		data.register_struct();
+		RegStr reg;
+		details::for_each(list, reg);
 		bd.init_data();
 	}
 
 	void _end_block() {
-		data.set_block_data();
+		SetStr eblk;
+		details::for_each(list, eblk);
 		bd.end_block();
 	}
 
+	template<typename Q>
 	void build(Q * out) {
-		data.build();
+		BuildStr buildx;
+		details::for_each(list, buildx);
+		
 		bd.build(&out->mng);
-		data.deploy(&out->data);
-		out->data.init();
+
+		StructIDList slst;
+		DeployStr deployX(slst);
+		details::for_each(list, deployX);
+
+		out->init(slst);
 	}
 };
 

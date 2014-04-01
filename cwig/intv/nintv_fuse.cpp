@@ -5,8 +5,8 @@ namespace app_ds {
 void NIntvInterBlkBuilder::register_struct() {
 	start.register_struct();
 
-	lgsid = bd.register_summary(8, 8);
-	lgdid = bd.register_data_block();
+	lgsid = bd->register_summary(8, 8);
+	lgdid = bd->register_data_block();
 
 	cnt = 0;
 	blkcntx = 0;
@@ -34,7 +34,7 @@ void NIntvInterBlkBuilder::build_struct() {
 	set_block_data();
 	start.build_struct();
 	uint64_t v = lensum;
-	bd.set_global(lgsid, mscds::MemRange::wrap(v));
+	bd->set_global(lgsid, mscds::MemRange::wrap(v));
 }
 
 void NIntvInterBlkBuilder::deploy(mscds::StructIDList& lst) {
@@ -78,12 +78,12 @@ void NIntvInterBlkBuilder::_build_block_type(bool store_len) {
 
 	uint64_t v = lensum;
 	if (!store_len) v |= (1ULL << 63);
-	bd.set_summary(lgsid, mscds::MemRange::wrap(v));
-	auto& a = bd.start_data(lgdid);
+	bd->set_summary(lgsid, mscds::MemRange::wrap(v));
+	auto& a = bd->start_data(lgdid);
 	lgblk.saveBlock(&a);
 	for (unsigned i = 0; i < data.size(); ++i)
 		lensum += data[i].second - data[i].first;
-	bd.end_data();
+	bd->end_data();
 }
 
 NIntvQueryInt::PosType FuseNIntvInterBlock::int_start(NIntvQueryInt::PosType i) const { return start.prefixsum(i + 1); }

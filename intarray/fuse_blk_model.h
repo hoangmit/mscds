@@ -15,24 +15,30 @@ class CodeInterBlkBuilder {
 public:
 	void start_model() { model.startBuild(); }
 	void model_add(uint32_t val) { model.add(val); }
+
+
 	void build_model() {
 		model.endBuild();
 		model.saveModel(&model_buffer);
 	}
 
+	void init_bd(BlockBuilder& bd_) {
+		bd = &bd_;
+	}
+
 	void register_struct() {
 		unsigned int bl = (model_buffer.length() + 7) / 8;
-		sid = bd.register_summary(8 + bl, 1);
-		did = bd.register_data_block();
+		sid = bd->register_summary(8 + bl, 1);
+		did = bd->register_data_block();
 
 		cnt = 0;
 	}
 
 	void add(uint32_t val) {
-		model.encode(val, &data_buffer);
-		cnt++;
 		if (cnt % 64 == 0)
 			ptrs.push_back(data_buffer.length());
+		model.encode(val, &data_buffer);
+		cnt++;
 	}
 
 	void set_block_data() {
@@ -40,23 +46,38 @@ public:
 		cnt = 0;
 		//while (ptrs.size() < 9) ptrs.push_back(ptrs.back());
 		unsigned char w = ceillog2(ptrs.back() + 1);
-		bd.set_summary(sid, MemRange::wrap(w));
-		OBitStream& data = bd.start_data(did);
+		bd->set_summary(sid, MemRange::wrap(w));
+		data_buffer.close();
+		OBitStream& data = bd->start_data(did);
 		assert(ptrs.back() <= (1ull << w));
 		unsigned int base = (ptrs.size())* w;
 		for (unsigned int i = 0; i < ptrs.size(); ++i) {
 			data.puts(ptrs[i] + base, w);
 		}
 		data.append(data_buffer);
-		bd.end_data();
+		debug_print();
+		ptrs.clear();
+		data_buffer.clear();
+		bd->end_data();
+	}
+
+	void debug_print(std::ostream& out = std::cout) const {
+		out << "Shortcut pointers: " << '\n';
+		for (auto v : ptrs)
+			out << v << ", ";
+		out << '\n';
+		unsigned w = ceillog2(ptrs.back() + 1);
+		out << "W = " << w << '\n';
+		unsigned int base = (ptrs.size())* w;
+		out << "Base_Shift: " << base << "\n\n";
 	}
 
 	void build_struct() {
 		set_block_data();
-		model_buffer.put(cnt);
+		model_buffer.puts(cnt);
 		model_buffer.close();
 
-		bd.set_global(sid, model_buffer);
+		bd->set_global(sid, model_buffer);
 		model_buffer.clear();
 	}
 
@@ -71,7 +92,7 @@ private:
 	std::vector<uint32_t> ptrs;
 	OBitStream data_buffer, model_buffer;
 	Model model;
-	BlockBuilder bd;
+	BlockBuilder * bd;
 	unsigned int sid, did;
 };
 
@@ -80,6 +101,7 @@ private:
 //template<typename Model>
 class CodeInterBlkQuery {
 public:
+	static const unsigned int elements_per_blk = 512;
 	CodeInterBlkQuery(): mng(nullptr) {}
 	void setup(BlockMemManager& mng_, StructIDList& lst) {
 		mng = &mng_;
@@ -100,11 +122,11 @@ public:
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
 		Enum() {}
-		bool hasNext() const { return true; }
+		bool hasNext() const { return pos <= data->len; }
 		uint64_t next() {
 			auto v = data->model.decode(&is);
 			++pos;
-			if (pos % 512 == 0) move_blk(0);
+			if (pos % elements_per_blk == 0) move_blk(pos / elements_per_blk);
 			return v;
 		}
 	private:
@@ -124,8 +146,8 @@ public:
 	void getEnum(unsigned int pos, Enum * e) const {
 		e->data = this;
 		
-		unsigned int blk = pos / 512;
-		unsigned sbid = pos % 512;
+		unsigned int blk = pos / elements_per_blk;
+		unsigned sbid = pos % elements_per_blk;
 		unsigned int sblk = sbid / SSBLKSIZE;
 		unsigned int px = sbid % SSBLKSIZE;
 		e->pos = pos - px;
@@ -135,9 +157,19 @@ public:
 		unsigned int st = br.bits(sblk * w, w);
 		e->is.init(*br.ba, br.start + st);
 
-		for (unsigned int i = 1; i < px; ++i) e->next();
+		for (unsigned int i = 0; i < px; ++i)
+			e->next();
 	}
-	void inspect(const std::string& cmd, std::ostream& out) const {}
+	void debug_print(unsigned int blk, unsigned sscnt = 8, std::ostream& out = std::cout) const {
+		auto br = mng->getData(did, blk);
+		unsigned int w = get_w(blk);
+		out << "Shortcut pointers: " << '\n';
+		for (unsigned sblk = 0; sblk < sscnt; ++sblk) {
+			unsigned int st = br.bits(sblk * w, w);
+			out << st << ", ";
+		}
+		out << "\n\n";
+	}
 private:
 	static const unsigned int SSBLKSIZE = 64;
 

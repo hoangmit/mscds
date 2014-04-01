@@ -314,6 +314,12 @@ inline bool IWBitStream::getb() {
 	return b;
 }
 
+inline uint64_t IWBitStream::get() {
+	uint64_t v = cur;
+	skipw(64);
+	return v;
+}
+
 inline uint64_t IWBitStream::get(uint16_t len) {
 	if (len == 0) return 0;
 	uint64_t v = cur & ((~0ull) >> (WORDLEN - len));

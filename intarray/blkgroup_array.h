@@ -296,6 +296,21 @@ private:
 	friend class BlockBuilder;
 };
 
+
+class InterBlockBuilderTp {
+public:
+	virtual void init_bd(BlockBuilder& bd) = 0;
+	virtual void register_struct() = 0;
+	virtual void set_block_data() = 0;
+	virtual void build_struct() = 0;
+};
+
+class InterBLockQueryTp {
+public:
+	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
+};
+
+
 namespace details {
 	template<int I, class Tuple, typename F> struct for_each_impl {
 		static void for_each(Tuple& t, F f) {
@@ -315,21 +330,6 @@ namespace details {
 }//namespace
 
 
-class InterBlockBuilderTp {
-public:
-	virtual void init_bd(BlockBuilder& bd) = 0;
-	virtual void register_struct() = 0;
-	virtual void set_block_data() = 0;
-	virtual void build_struct() = 0;
-};
-
-class InterBLockQueryTp {
-public:
-	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
-};
-
-
-
 template<typename ...Types>
 class LiftStQuery {
 private:
@@ -342,18 +342,27 @@ private:
 	};
 public:
 	BlockMemManager mng;
+	typedef std::tuple<Types...> TupleType;
 
-	std::tuple<Types...> list;
+	TupleType list;
 	void init(StructIDList& slst) {
 		InitQS it(mng, slst);
 		details::for_each(list, it);
 	}
+
+
+	template<size_t N>
+	typename std::tuple_element<N, TupleType>::type & g() {
+		return std::get<N>(list);
+	}
+
 };
 
 template<typename ...Types>
 class LiftStBuilder {
 public:
-	std::tuple<Types...> list;
+	typedef std::tuple<Types...> TupleType;
+	TupleType list;
 
 	BlockBuilder bd;
 private:
@@ -398,6 +407,11 @@ public:
 		details::for_each(list, eblk);
 		bd.end_block();
 	}
+
+	template<size_t N>
+	typename std::tuple_element<N, TupleType>::type & g() {
+		return std::get<N>(list);
+	} 
 
 	template<typename Q>
 	void build(Q * out) {

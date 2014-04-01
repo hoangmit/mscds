@@ -423,6 +423,59 @@ void test3() {
 	bdx._end_block();
 	bdx.build(&qsx);
 }
+
+#include "fuse_blk_model.h"
+
+void test4() {
+	const unsigned int n = 1000, r = 100;
+	std::vector<unsigned int> vals;
+	for (unsigned int i = 0; i < n; ++i)
+		if (rand() % 1000 < 20)
+			vals.push_back(2);
+		else vals.push_back(rand() % r);
+
+	LiftStBuilder<CodeInterBlkBuilder> bd;
+	auto& x = bd.g<0>();
+	x.start_model();
+	for (unsigned i = 0; i < n; ++i)
+		x.model_add(vals[i]);
+	x.build_model();
+	bd.init();
+	for (unsigned i = 0; i < n; ++i) {
+		//std::get<0>(bd.list).add(vals[0]);
+		x.add(vals[i]);
+
+		if ((i + 1) % CodeInterBlkQuery::elements_per_blk == 0) {
+			bd._end_block();
+		}
+	}
+
+	LiftStQuery<CodeInterBlkQuery> qs;
+	if (n % CodeInterBlkQuery::elements_per_blk != 0) {
+		bd._end_block();
+	}
+	
+	bd.build(&qs);
+	auto& y = qs.g<0>();
+	y.debug_print(0);
+	y.debug_print(1);
+	for (unsigned i = 0; i < n; ++i) {
+		auto v = y.get(i);
+		assert(vals[i] == v);
+	}
+	{
+		unsigned i = 0;
+		CodeInterBlkQuery::Enum e;
+		y.getEnum(0, &e);
+		while (e.hasNext()) {
+			auto v = e.next();
+			assert(i < vals.size());
+			assert(vals[i] == v);
+			++i;
+		}
+	}
+	
+}
 //--------------------------------------------------------------------------
 // Benchmark
 
@@ -621,8 +674,8 @@ void test_all1() {
 
 
 int main(int argc, char* argv[]) {
-
-	test_all1();
+	//test_all1();
+	test4();
 
 	//BenchmarkRegister::run_all();
 	

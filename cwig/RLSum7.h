@@ -11,6 +11,7 @@
 #include "codec/deltacoder.h"
 
 #include "fused_cwig_block.h"
+#include "intarray/ps_access_blk.h"
 
 #include <deque>
 #include <cmath>

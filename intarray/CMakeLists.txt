@@ -21,6 +21,7 @@ fuse_blk_model.h
 inc_ptrs.h
 inc_ptrs2.h
 inc_ptrs3.h
+ps_access_blk.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})

@@ -18,6 +18,9 @@ contextfree_models.hpp
 blkgroup_array.h
 sdarray_block.h
 fuse_blk_model.h
+inc_ptrs.h
+inc_ptrs2.h
+inc_ptrs3.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})

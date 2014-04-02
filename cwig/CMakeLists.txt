@@ -15,6 +15,8 @@ intv/nintv_fuse.cpp
 
 set(HEADERS chrfmt.h cwig.h 
 RLSum6.h 
+RLSum7.h 
+fused_cwig_block.h
 SampledSum.h
 rank_vals.h
 rlsum_int.h poly_vals.h

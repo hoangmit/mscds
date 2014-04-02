@@ -4,6 +4,8 @@
 #include "bitarray/bitstream.h"
 #include "bitarray/bitop.h"
 
+#include "codec/deltacoder.h"
+
 #include "huffarray.h"
 
 namespace mscds {
@@ -15,7 +17,6 @@ class CodeInterBlkBuilder {
 public:
 	void start_model() { model.startBuild(); }
 	void model_add(uint32_t val) { model.add(val); }
-
 
 	void build_model() {
 		model.endBuild();
@@ -61,6 +62,17 @@ public:
 		bd->end_data();
 	}
 
+	void debug_print_org(std::ostream& out = std::cout) const {
+		out << "Shortcut pointers: " << '\n';
+		for (auto v : ptrs)
+			out << v << ", ";
+		out << '\n';
+		unsigned w = ceillog2(ptrs.back() + 1);
+		out << "W = " << w << '\n';
+		unsigned int base = (ptrs.size())* w;
+		out << "Base_Shift: " << base << "\n\n";
+	}
+
 	void debug_print(std::ostream& out = std::cout) const {
 		out << "Shortcut pointers: " << '\n';
 		for (auto v : ptrs)
@@ -70,6 +82,12 @@ public:
 		out << "W = " << w << '\n';
 		unsigned int base = (ptrs.size())* w;
 		out << "Base_Shift: " << base << "\n\n";
+
+		for (unsigned int i = 1; i < ptrs.size(); ++i) {
+			auto d = ptrs[i] - ptrs[i-1] - 475;
+			out << d << " ";
+		}
+		out << "\n\n";
 	}
 
 	void build_struct() {
@@ -95,7 +113,6 @@ private:
 	BlockBuilder * bd;
 	unsigned int sid, did;
 };
-
 
 
 //template<typename Model>
@@ -160,7 +177,8 @@ public:
 		for (unsigned int i = 0; i < px; ++i)
 			e->next();
 	}
-	void debug_print(unsigned int blk, unsigned sscnt = 8, std::ostream& out = std::cout) const {
+
+	/*void debug_print(unsigned int blk, unsigned sscnt = 8, std::ostream& out = std::cout) const {
 		auto br = mng->getData(did, blk);
 		unsigned int w = get_w(blk);
 		out << "Shortcut pointers: " << '\n';
@@ -169,7 +187,7 @@ public:
 			out << st << ", ";
 		}
 		out << "\n\n";
-	}
+	}*/
 private:
 	static const unsigned int SSBLKSIZE = 64;
 
@@ -189,8 +207,6 @@ private:
 	unsigned int sid, did;
 	BlockMemManager* mng;
 };
-
-
 
 
 }//namespace

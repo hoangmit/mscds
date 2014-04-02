@@ -10,6 +10,8 @@
 #include "utils/str_utils.h"
 
 #include "blkgroup_array.h"
+#include "inc_ptrs2.h"
+#include "inc_ptrs3.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -413,7 +415,6 @@ void test2() {
 	assert(ps2 == qs.y.prefixsum(n));
 }
 
-
 void test3() {
 	typedef LiftStBuilder<MockInterBlkBd, SDArrayFuseBuilder, SDArrayFuseBuilder> TwoSDArrv3;
 	TwoSDArrv3 bdx;
@@ -457,8 +458,8 @@ void test4() {
 	
 	bd.build(&qs);
 	auto& y = qs.g<0>();
-	y.debug_print(0);
-	y.debug_print(1);
+	//y.debug_print(0);
+	//y.debug_print(1);
 	for (unsigned i = 0; i < n; ++i) {
 		auto v = y.get(i);
 		assert(vals[i] == v);
@@ -474,7 +475,55 @@ void test4() {
 			++i;
 		}
 	}
-	
+}
+
+void test_ptr() {
+	const unsigned int n = 64, r = 100, st = 10;
+	FixBlockPtr p1;
+	AxPtr p2;
+	MicroSDPtr p3;
+	std::vector<unsigned int> start(n + 1);
+
+	p1.init(n);
+	p2.init(n);
+	p3.init(n);
+	start[0] = 0;
+	for (unsigned int i = 1; i <= n; ++i) {
+		unsigned v = rand() % r + st;
+		p1.set(i-1,v);
+		p2.set(i-1,v);
+		p3.set(i-1, v);
+		start[i] += start[i-1] + v;
+	}
+	p1._build();
+	p2._build();
+	p3._build();
+	OBitStream os1, os2, os3;
+	p1.saveBlock(&os1);
+	uint8_t w2, w3;
+	p2.saveBlock(&os2, &w2);
+
+	p3.saveBlock(&os3, &w3);
+	os3.close();
+
+	BitArray b1, b2;
+	os1.build(&b1);
+	os2.build(&b2);
+	//BitArray ba(b1);
+	p1.reset();
+	p2.reset();
+	p1.loadBlock(b1, 0, b1.length());
+	p2.loadBlock(b2, 0, b2.length(), w2);
+
+	for (unsigned int i = 0; i <= n; ++i) {
+		unsigned v1 = p1.start(i);
+		unsigned v2 = p2.start(i);
+		assert(start[i] == v1);
+		assert(start[i] == v2);
+	}
+
+	std::cout << "Distance-bit: " << b1.length() << "   PS-bit: " << b2.length() << std::endl;
+
 }
 //--------------------------------------------------------------------------
 // Benchmark
@@ -671,13 +720,13 @@ void test_all1() {
 		sdarray_block__test1();
 }
 
-
-
 int main(int argc, char* argv[]) {
 	//test_all1();
-	test4();
+	//test4();
+	test_ptr();
 
 	//BenchmarkRegister::run_all();
 	
 	return 0;
 }
+

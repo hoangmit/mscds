@@ -6,7 +6,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(SRCS chrfmt.cpp cwig.cpp
 RLSum6.cpp 
-fused_cwig_block.cpp
+fused_intval.cpp
 SampledSum.cpp
 rank_vals.cpp
 poly_vals.cpp
@@ -17,7 +17,7 @@ intv/nintv_fuse.cpp
 set(HEADERS chrfmt.h cwig.h 
 RLSum6.h 
 RLSum7.h 
-fused_cwig_block.h
+fused_intval.h
 SampledSum.h
 rank_vals.h
 rlsum_int.h poly_vals.h

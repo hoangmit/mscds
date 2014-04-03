@@ -256,7 +256,7 @@ std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
 }
 
 
-#include "../fused_cwig_block.h"
+#include "../fused_intval.h"
 
 void test5() {
 	IntValBuilder bd;

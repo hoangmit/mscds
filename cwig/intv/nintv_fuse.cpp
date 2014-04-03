@@ -9,24 +9,26 @@ void NIntvInterBlkBuilder::register_struct() {
 	lgdid = bd->register_data_block();
 
 	cnt = 0;
-	blkcntx = 0;
 	lensum = 0;
 	laststart = 0;
 }
 
 void NIntvInterBlkBuilder::add(unsigned int st, unsigned int ed) {
 	assert(st < ed);
+	assert(!is_full());
 	data.emplace_back(st, ed);
 	cnt++;
-	assert(cnt <= 512);
 }
+
+bool NIntvInterBlkBuilder::is_empty() const { return cnt == 0; }
+
+bool NIntvInterBlkBuilder::is_full() const { return cnt >= 512; }
 
 void NIntvInterBlkBuilder::set_block_data(bool lastblock) {
 	if (cnt == 0) return ;
 	_build_block();
 
 	cnt = 0;
-	blkcntx++;
 	data.clear();
 }
 

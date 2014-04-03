@@ -65,6 +65,8 @@ public:
 
 	void add(uint64_t val);
 	void add_incnum(uint64_t val);
+	bool is_empty() const;
+	bool is_full() const;
 	void set_block_data(bool lastblock = false);
 	void build_struct();
 	void deploy(StructIDList& lst);

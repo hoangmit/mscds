@@ -117,7 +117,6 @@ void test_all() {
 	test4();
 }
 
-
 #include "nintv.h"
 
 #include "mem/file_archive2.h"
@@ -258,34 +257,54 @@ std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
 
 #include "../fused_intval.h"
 
-void test5() {
-	IntValBuilder bd;
-	std::deque<ValRange> all;
-	IntValQuery qs;
-	vector<int> A = gen_density(20);
-	all = convertVR(genInp(A));
 
-	bd.build(all, &qs);
-
+void check(std::deque<ValRange>& all, IntValQuery& qs, unsigned int testid = 0) {
 	double ps = 0;
 	for (size_t i = 0; i < all.size(); ++i) {
-		double v = qs.sum(i);
-		if (ps != v) {
+		double val = qs.access(i);
+		assert(all[i].val == val);
+		double sm = qs.sum(i);
+		if (ps != sm) {
 			std::cout << "wrong at i = " << i << std::endl;
-			std::cout << v << " " << ps << std::endl;
+			std::cout << "exp = " << ps << "   val = " << sm << std::endl;
 		}
-		assert(ps == v);
+		assert(ps == sm);
 		ps += (all[i].ed - all[i].st) * all[i].val;
 	}
 }
 
+void test5(unsigned int len = 20, unsigned int testid = 0) {
+	IntValBuilder bd;
+	std::deque<ValRange> all;
+	IntValQuery qs;
+	auto vp = gen_intv2(len);
+	all.resize(vp.size());
+	for (unsigned int i = 0; i < vp.size(); ++i) {
+		all[i].st = vp[i].first;
+		all[i].ed = vp[i].second;
+		all[i].val = rand() % 100 + 1;
+	}
+
+	bd.build(all, &qs);
+
+	check(all, qs, testid);
+}
+
+void test6() {
+	//test5();
+	test5(70);
+	for (unsigned int i = 0; i < 100; i++) {
+		test5(1000, i);
+		test5(1024, i);
+	}
+}
 
 int main(int argc, char* argv[]) {
 	//test_all();
 	//load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
 	//return run_exp(argc, argv);
-
-	test5();
+	rand();
+	test6();
 	
 	return 0;
 }

@@ -61,6 +61,8 @@ public:
 
 	void register_struct();
 	void add(unsigned int st, unsigned int ed);
+	bool is_empty() const;
+	bool is_full() const;
 	void set_block_data(bool lastblock = false);
 	void build_struct();
 	void deploy(mscds::StructIDList& lst);
@@ -75,7 +77,7 @@ private:
 
 	mscds::BlockBuilder * bd;
 	mscds::SDArrayFuseBuilder start;
-	unsigned int blkcntx, cnt;
+	unsigned int cnt;
 
 	std::vector<std::pair<unsigned int, unsigned int> > data;
 

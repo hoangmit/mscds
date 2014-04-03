@@ -3,6 +3,7 @@
 
 #include "blkgroup_array.h"
 #include "inc_ptrs.h"
+#include "codec/deltacoder.h"
 
 namespace mscds {
 
@@ -11,41 +12,55 @@ public:
 	PtrInterBlkBd(): size(0) {}
 	void init_bd(BlockBuilder& bd_) { bd = &bd_; }
 
+	void init_blk(unsigned int size_) {
+		size = size_;
+		assert(size_ > 0);
+		blk.init(size_ - 1);
+	}
+
 	void register_struct() {
 		assert(size  > 0);
-		sid = bd->register_summary(0,8);
+		sid = bd->register_summary(0,0);
 		did = bd->register_data_block();
 		lastval = 0;
 		firstblkitem = 0;
-		cnt = 0;
-	}
-
-	void init_blk(unsigned int size_) {
-		size = size_;
-		blk.init(size_);
+		bcnt = 0;
 	}
 
 	void add(uint64_t val) {
 		assert(val >= lastval);
-		uint64_t diff = val - lastval;
-		blk.add(diff);
-		val = lastval;
-		cnt++;
-		if (cnt % size == 0) {
+		assert(!is_full());
+		if (bcnt == 0) {
 			firstblkitem = val;
+			lastval = val;
+		} else {
+			uint64_t diff = val - lastval;
+			blk.add(diff);
 		}
+		lastval = val;
+		bcnt++;
 	}
 
+	bool is_empty() const { return bcnt == 0; }
+
+	bool is_full() const { return bcnt >= size; }
+
 	void set_block_data(bool lastblock = false) {
-		while (cnt % size != 0) {
+		while (bcnt < size) {
 			blk.add(0);
-			cnt++;
+			bcnt++;
 		}
 		blk._build();
-		bd->set_summary(sid, MemRange::wrap(firstblkitem));
+		bd->set_summary(sid);
 		auto& a = bd->start_data(did);
+		auto cp = coder::DeltaCoder::encode(firstblkitem + 1);
+		a.puts(cp);
 		blk.saveBlock(&a);
 		bd->end_data();
+		blk.reset();
+		bcnt = 0;
+		firstblkitem = 0;
+		lastval = 0;
 	}
 
 	void build_struct() {
@@ -63,7 +78,8 @@ private:
 	BlockBuilder * bd;
 	FixBlockPtr blk;
 	unsigned int sid, did;
-	unsigned int size, cnt;
+	unsigned int size;
+	unsigned int bcnt;
 };
 
 class PtrInterBlkQs: public InterBLockQueryTp {
@@ -77,19 +93,27 @@ public:
 		size = slst.get();
 		mng = &mng_;
 		lastblk = ~0u;
-		blk.init(size);
 		assert(size > 0);
+		blk.init(size - 1);
 	}
 	uint64_t get(unsigned int p) {
-		load_block(p % size);
-		return blk.start(p) + fv;
+		auto bi = p / size;
+		auto ip = p % size;
+		load_block(bi);
+		if (ip == 0) return fv;
+		else
+			return blk.start(ip) + fv;
 	}
 private:
 	void load_block(unsigned int blkid) {
 		if (lastblk == blkid) return ;
-		fv = mng->getSummary(sid, blkid).bits(0, 64);
+		//fv = mng->getSummary(sid, blkid).bits(0, 64);
 		auto br = mng->getData(did, blkid);
-		blk.loadBlock(*br.ba, br.start, br.len);
+		uint64_t v = br.bits(0, std::min<unsigned>(br.len, 64));
+		auto cp = coder::DeltaCoder::decode2(v);
+		cp.first -= 1;
+		fv = cp.first;
+		blk.loadBlock(*br.ba, br.start + cp.second, br.len - cp.second);
 		lastblk = blkid;
 	}
 

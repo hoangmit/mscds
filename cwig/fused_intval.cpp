@@ -51,8 +51,8 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 		valbd.add(valt);
 		if (it->st < lastst) throw std::runtime_error("overlapping intervals");
 		unsigned int llen = it->ed - it->st;
-		psum += llen * it->val;
-		sqpsum += llen * (it->val*it->val);
+		psum += llen * valt;
+		sqpsum += llen * (valt*valt);
 		lastst = it->st;
 		++i;
 		if (i % 512 == 0) {
@@ -67,7 +67,7 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 }
 
 double IntValQuery::access(unsigned int idx) {
-	return (double)data.g<1>().get(idx) + delta / factor;
+	return ((double)data.g<1>().get(idx) + delta) / factor;
 }
 
 double IntValQuery::sum(unsigned int idx, unsigned int leftpos)  {
@@ -80,9 +80,12 @@ double IntValQuery::sum(unsigned int idx, unsigned int leftpos)  {
 	int64_t cpsum = sumq.get(p) + tlen * delta;
 	size_t base = p * rate;
 	mscds::CodeInterBlkQuery::Enum e;
-	valq.getEnum(base, &e);
-	for (size_t i = 0; i < r; ++i) {
-		cpsum += posq.int_len(base + i) * (e.next() + delta);
+	if (r > 0 || leftpos > 0) {
+		valq.getEnum(base, &e);
+		for (size_t i = 0; i < r; ++i) {
+			auto v = e.next();
+			cpsum += posq.int_len(base + i) * (v + delta);
+		}
 	}
 	if (leftpos > 0) cpsum += (e.next() + delta) * leftpos;
 	return cpsum/(double)factor;

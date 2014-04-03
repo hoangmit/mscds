@@ -246,6 +246,8 @@ class InterBlockBuilderTp {
 public:
 	virtual void init_bd(BlockBuilder& bd) = 0;
 	virtual void register_struct() = 0;
+	virtual bool is_empty() const = 0;
+	virtual bool is_full() const = 0;
 	virtual void set_block_data(bool lastblock) = 0;
 	virtual void build_struct() = 0;
 	virtual void deploy(StructIDList & lst) = 0;
@@ -261,18 +263,18 @@ public:
 
 namespace details {
 	template<int I, class Tuple, typename F> struct for_each_impl {
-		static void for_each(Tuple& t, F f) {
+		static void for_each(Tuple& t, F& f) {
 			for_each_impl<I - 1, Tuple, F>::for_each(t, f);
 			f(std::get<I>(t));
 		}
 	};
 	template<class Tuple, typename F> struct for_each_impl<0, Tuple, F> {
-		static void for_each(Tuple& t, F f) {
+		static void for_each(Tuple& t, F& f) {
 			f(std::get<0>(t));
 		}
 	};
 	template<class Tuple, typename F>
-	void for_each(Tuple& t, F f) {
+	void for_each(Tuple& t, F& f) {
 		for_each_impl<std::tuple_size<Tuple>::value - 1, Tuple, F>::for_each(t, f);
 	}
 }//namespace
@@ -338,6 +340,18 @@ private:
 		template<typename T>
 		void operator()(T& t) { t.deploy(lst); }
 	};
+	struct FullAll {
+		bool val;
+		FullAll(): val(true) {}
+		template<typename T>
+		void operator()(T& t) { val &= t.is_full(); }
+	};
+	struct EmptyAll {
+		bool val;
+		EmptyAll(): val(true) {}
+		template<typename T>
+		void operator()(T& t) { val &= t.is_empty(); }
+	};
 public:
 	LiftStBuilder(){
 		InitBD it(bd);
@@ -348,6 +362,18 @@ public:
 		RegStr reg;
 		details::for_each(list, reg);
 		bd.init_data();
+	}
+
+	bool is_all_full() {
+		FullAll it;
+		details::for_each(list, it);
+		return it.val;
+	}
+
+	bool is_all_empty() {
+		EmptyAll it;
+		details::for_each(list, it);
+		return it.val;
 	}
 
 	void _end_block() {
@@ -363,6 +389,8 @@ public:
 
 	template<typename Q>
 	void build(Q * out) {
+		if (!is_all_empty()) _end_block();
+
 		BuildStr buildx;
 		details::for_each(list, buildx);
 		

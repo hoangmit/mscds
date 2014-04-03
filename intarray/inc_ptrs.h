@@ -59,7 +59,9 @@ public:
 
 	//------------------------------------------------------------------------
 
-	unsigned int start(unsigned int i) const { return start_[i]; }
+	unsigned int start(unsigned int i) const {
+		return start_[i];
+	}
 	unsigned int end(unsigned int i) const { return start_[i+1]; }
 	unsigned int length(unsigned int i) const { return start_[i+1] - start_[i]; }
 	

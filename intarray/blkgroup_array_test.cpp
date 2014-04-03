@@ -286,6 +286,10 @@ struct MockInterBlkBd: public InterBlockBuilderTp {
 		cnt = 0;
 	}
 
+	bool is_empty() const { return false; }
+
+	bool is_full() const { return false; }
+
 	void set_block_data(bool lastblock = false) {
 		uint16_t tt;
 		tt = cnt % 1000;
@@ -428,7 +432,7 @@ void test3() {
 #include "fuse_blk_model.h"
 
 void test4() {
-	const unsigned int n = 1000, r = 100;
+	const unsigned int n = 1001, r = 100;
 	std::vector<unsigned int> vals;
 	for (unsigned int i = 0; i < n; ++i)
 		if (rand() % 1000 < 20)
@@ -446,13 +450,13 @@ void test4() {
 		//std::get<0>(bd.list).add(vals[0]);
 		x.add(vals[i]);
 
-		if ((i + 1) % CodeInterBlkQuery::elements_per_blk == 0) {
+		if (bd.is_all_full()) {
 			bd._end_block();
 		}
 	}
 
 	LiftStQuery<CodeInterBlkQuery> qs;
-	if (n % CodeInterBlkQuery::elements_per_blk != 0) {
+	if (!bd.is_all_empty()) {
 		bd._end_block();
 	}
 	
@@ -475,6 +479,7 @@ void test4() {
 			++i;
 		}
 	}
+	
 }
 
 void test_ptr() {
@@ -721,8 +726,8 @@ void test_all1() {
 }
 
 int main(int argc, char* argv[]) {
-	//test_all1();
-	//test4();
+	test_all1();
+	test4();
 	test_ptr();
 
 	//BenchmarkRegister::run_all();

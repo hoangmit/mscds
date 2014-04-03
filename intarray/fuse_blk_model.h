@@ -13,7 +13,7 @@ namespace mscds {
 typedef HuffmanModel Model;
 
 //template<typename Model>
-class CodeInterBlkBuilder {
+class CodeInterBlkBuilder: public InterBlockBuilderTp {
 public:
 	void start_model() { model.startBuild(); }
 	void model_add(uint32_t val) { model.add(val); }
@@ -35,31 +35,43 @@ public:
 		cnt = 0;
 	}
 
+	bool is_full() const {
+		return cnt >= 512;
+	}
+	bool is_empty() const {
+		return cnt == 0;
+	}
+
 	void add(uint32_t val) {
+		assert(!is_full());
 		if (cnt % 64 == 0)
 			ptrs.push_back(data_buffer.length());
 		model.encode(val, &data_buffer);
 		cnt++;
 	}
 
-	void set_block_data() {
-		if (cnt == 0) return ;
-		cnt = 0;
+	void set_block_data(bool x = false) {
+		if (is_empty()) return;
 		//while (ptrs.size() < 9) ptrs.push_back(ptrs.back());
 		unsigned char w = ceillog2(ptrs.back() + 1);
+		unsigned int base = (ptrs.size())* w;
+		if (base + ptrs.back() >= (1u << w)) {
+			w += 1;
+			base = (ptrs.size())* w;
+		}
 		bd->set_summary(sid, MemRange::wrap(w));
 		data_buffer.close();
 		OBitStream& data = bd->start_data(did);
-		assert(ptrs.back() <= (1ull << w));
-		unsigned int base = (ptrs.size())* w;
 		for (unsigned int i = 0; i < ptrs.size(); ++i) {
 			data.puts(ptrs[i] + base, w);
 		}
+		assert(ptrs.back() + base < (1u << w));
 		data.append(data_buffer);
 		//debug_print();
 		ptrs.clear();
 		data_buffer.clear();
 		bd->end_data();
+		cnt = 0;
 	}
 
 	void debug_print_org(std::ostream& out = std::cout) const {
@@ -91,7 +103,8 @@ public:
 	}
 
 	void build_struct() {
-		set_block_data();
+		if (!is_empty())
+			set_block_data();
 		model_buffer.puts(cnt);
 		model_buffer.close();
 
@@ -153,6 +166,7 @@ public:
 		friend class CodeInterBlkQuery;
 
 		void move_blk(unsigned int blk) {
+			if (!hasNext()) return;
 			auto br = data->mng->getData(data->did, blk);
 			unsigned int w = data->get_w(blk);
 			unsigned int st = br.bits(0, w);

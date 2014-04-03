@@ -205,12 +205,17 @@ void SDArrayFuseBuilder::register_struct() {
 }
 
 void SDArrayFuseBuilder::add(uint64_t val) {
+	assert(!is_full());
 	blk.add(val);
 	sum += val;
 	cnt++;
 	blkcnt++;
 	assert(blkcnt <= blk.BLKSIZE);
 }
+
+bool SDArrayFuseBuilder::is_empty() const { return blkcnt == 0; }
+
+bool SDArrayFuseBuilder::is_full() const { return blkcnt >= blk.BLKSIZE; }
 
 void SDArrayFuseBuilder::set_block_data(bool lastblock) {
 	if (blkcnt > 0) {
@@ -225,7 +230,7 @@ void SDArrayFuseBuilder::set_block_data(bool lastblock) {
 }
 
 void SDArrayFuseBuilder::build_struct() {
-	set_block_data();
+	assert(is_empty());
 	struct {
 		uint64_t cnt, sum;
 	} data;

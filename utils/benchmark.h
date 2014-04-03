@@ -17,7 +17,7 @@ public:
 
 	void* add(const std::string& name, VoidFunc func);
 
-	static void run_all();
+	static void run_all_bm();
 private:
 	BenchmarkRegister() {}
 	static BenchmarkRegister* _inst;

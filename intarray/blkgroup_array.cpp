@@ -16,7 +16,7 @@ void BlockMemManager::init() {
 		summary_sizes.push_back(VByteArray::extract(is));
 	header_size = is.get(16);
 	header_size += 2;
-	assert((header_size * 8) == is.extracted());
+	//assert((header_size * 8) == is.extracted());
 	bptr.init(n);
 	summary_ps = prefixsum_vec(summary_sizes);
 	global_ps = prefixsum_vec(global_sizes);

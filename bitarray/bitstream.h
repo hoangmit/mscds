@@ -78,6 +78,8 @@ public:
 
 	// important
 	void skipw(uint16_t len);
+	void skipw_other(uint16_t len);
+
 	bool getb();
 
 	/** return the number of 0 bits before the next 1 bit or end of stream;
@@ -93,11 +95,12 @@ public:
 
 	//const uint64_t* current_ptr() { return ptr; }
 	bool empty() const { return blen == 0; }
-	size_t extracted() const { return _extracted; }
+	//size_t extracted() const { return _extracted; }
 	void close() { clear(); }
 private:
 	uint64_t cur, nxt;
-	size_t blen, _extracted;
+	size_t blen;
+	//size_t _extracted;
 	uint16_t j;
 	size_t ptr;
 	StaticMemRegionPtr data;
@@ -247,7 +250,7 @@ inline void IWBitStream::init(StaticMemRegionPtr _data, size_t blen, size_t star
 	nxt = 0;
 	j = 0;
 	skipw(start_idx % WORDLEN);
-	_extracted = 0;
+	//_extracted = 0;
 }
 
 inline void IWBitStream::clear() {
@@ -255,15 +258,16 @@ inline void IWBitStream::clear() {
 	cur = nxt = 0;
 	blen = 0;
 	ptr = 0;
-	_extracted = 0;
+	//_extracted = 0;
 	data.close();
 }
 
 inline void IWBitStream::skipw(uint16_t len) {
 	assert(len <= WORDLEN && blen >= len);
 	if (len == 0) return ;
-	if (len < WORDLEN)  cur = (cur >> len) | (nxt << (WORDLEN - len));
+	if (len < WORDLEN) cur = (cur >> len) | (nxt << (WORDLEN - len));
 	else cur = nxt;
+	
 	if (j >= len) {
 		nxt >>= len;
 		j -= len;
@@ -284,8 +288,28 @@ inline void IWBitStream::skipw(uint16_t len) {
 		}
 	}
 	blen -= len;
-	_extracted += len;
+	//_extracted += len;
 }
+
+inline void IWBitStream::skipw_other(uint16_t len) {
+	assert(len <= WORDLEN && blen >= len);
+	if (len == 0) return;
+	blen -= j;
+	if (len < WORDLEN) cur = (cur >> len);
+	else cur = 0;
+	if (len > j) {
+		cur |= nxt >> (len - j);
+		len -= j;
+		nxt = data.getword(ptr);
+		++ptr;
+		j = WORDLEN;
+	}
+	assert(len <= j);
+	cur |= nxt << (j - len);
+	j -= len;
+	//_extracted += len;
+}
+
 
 inline unsigned int IWBitStream::scan_next1() {
 	unsigned int c = 0;

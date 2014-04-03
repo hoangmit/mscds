@@ -3,7 +3,7 @@
 #include "nintv_fuse.h"
 #include "intv_rand_gen.hpp"
 
-
+#include "utils/benchmark.h"
 
 #include <iostream>
 #include <fstream>
@@ -303,8 +303,9 @@ int main(int argc, char* argv[]) {
 	//test_all();
 	//load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
 	//return run_exp(argc, argv);
-	rand();
+	//rand();
 	test6();
+
 	
 	return 0;
 }

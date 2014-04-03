@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 
-	BenchmarkRegister::run_all();
+	BenchmarkRegister::run_all_bm();
 
 	return rs;
 }

@@ -23,12 +23,16 @@ const std::list<BenchmarkRegister::VoidFunc> &BenchmarkRegister::getList() const
 	return _list;
 }*/
 
-void BenchmarkRegister::run_all()  {
+void BenchmarkRegister::run_all_bm()  {
 	BenchmarkRegister * reg = getInst();
 	cout << "Running all registered functions" << endl;
 	for (auto& p :reg-> _list) {
 		cout << p.first << endl;
-		p.second();
+		try {
+			p.second();
+		} catch (std::runtime_error& e) {
+			std::cerr << "ERROR: " << e.what() << std::endl;
+		}
 		cout << endl;
 	}
 }

@@ -30,6 +30,6 @@ BENCHMARK_SET(sample_benchmark) {
 
 int main(int argc, char* argv[]) {
 	std::locale oldLoc = std::cout.imbue(std::locale(std::cout.getloc(), new utils::comma_numpunct()));
-	BenchmarkRegister::run_all();
+	BenchmarkRegister::run_all_bm();
 	return 0;
 }

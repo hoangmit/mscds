@@ -11,15 +11,16 @@ namespace mscds {
 
 class FixBlockPtr {
 public:
-	FixBlockPtr() {}
+	FixBlockPtr(): count_(0) {}
 
-	void init(unsigned int nb) { start_.resize(nb + 1); count_ = nb, valid = false; }
+	void init(unsigned int nb) { start_.resize(1); start_[0] = 0; count_ = nb, valid = false; }
 
-	void set(unsigned int i, unsigned int blksize) { start_[i + 1] = blksize; }
+	void add(unsigned int blksize) { start_.push_back(blksize); }
 
 	void _build() {
 		valid = true;
 		start_[0] = 0;
+		assert(start_.size() == count_ + 1);
 		for (unsigned int i = 1; i <= count_; ++i) {
 			start_[i] = start_[i - 1] + start_[i];
 		}
@@ -39,10 +40,11 @@ public:
 
 	void reset() {
 		valid = false;
+		start_.resize(1);
 	}
 
 
-	void loadBlock(BitArray& ba, size_t pt, size_t) {
+	void loadBlock(BitArray& ba, size_t pt, size_t len) {
 		w = ba.bits(pt, 8);
 		start_.resize(1);
 		start_[0] = 0;

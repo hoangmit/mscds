@@ -10,7 +10,7 @@ namespace app_ds {
 
 class NIntvInterBlkBuilder;
 
-class FuseNIntvInterBlock : public NIntvQueryInt {
+class FuseNIntvInterBlock: public NIntvQueryInt, public mscds::InterBLockQueryTp {
 public:
 	PosType int_start(PosType i) const;
 	PosType int_end(PosType i) const;
@@ -52,16 +52,16 @@ private:
 
 //void FuseNIntvInterBlock::loadblock(unsigned int blk) const;
 
-class NIntvInterBlkBuilder {
+class NIntvInterBlkBuilder: public mscds::InterBlockBuilderTp {
 public:
 	NIntvInterBlkBuilder(mscds::BlockBuilder& _bd): bd(&_bd), start(_bd), cnt(0) {}
 	NIntvInterBlkBuilder(): bd(nullptr) {}
 
-	void init_bd(mscds::BlockBuilder& bd_) { bd = &bd_; }
+	void init_bd(mscds::BlockBuilder& bd_) { bd = &bd_; start.init_bd(bd_); }
 
 	void register_struct();
 	void add(unsigned int st, unsigned int ed);
-	void set_block_data();
+	void set_block_data(bool lastblock = false);
 	void build_struct();
 	void deploy(mscds::StructIDList& lst);
 private:

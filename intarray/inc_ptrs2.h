@@ -15,13 +15,13 @@ class AxPtr {
 public:
 	AxPtr(): ba(nullptr) {}
 
-	void init(unsigned int nb) { start_.resize(nb + 1); count_ = nb, valid = false; }
+	void init(unsigned int nb) { start_.resize(1); count_ = nb, valid = false; }
 
-	void set(unsigned int i, unsigned int blksize) { start_[i + 1] = blksize; }
-	void set_abs(unsigned int i, unsigned int start_val) { assert(start_val >= start_[i]); start_[i+1] = start_val - start_[i]; }
+	void add(unsigned int blksize) { start_.push_back(blksize); }
 
 	void _build() {
 		valid = true;
+		assert(start_.size() == count_ + 1);
 		start_[0] = 0;
 		for (unsigned int i = 1; i <= count_; ++i) {
 			start_[i] = start_[i - 1] + start_[i];
@@ -64,6 +64,7 @@ public:
 		valid = false;
 		ba = nullptr;
 		valid = false;
+		start_.resize(1);
 	}
 
 	void loadBlock(BitArray& ba, size_t pt, size_t len, uint8_t w_out) {

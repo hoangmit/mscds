@@ -246,7 +246,7 @@ public:
 };
 
 
-struct MockInterBlkQr {
+struct MockInterBlkQr: public InterBLockQueryTp {
 	unsigned int sid, did;
 	MockInterBlkQr(): sid(0), did(0) {}
 	MockBlk blk;
@@ -273,7 +273,7 @@ struct MockInterBlkQr {
 	void clear() { sid = 0; did = 0; }
 };
 
-struct MockInterBlkBd {
+struct MockInterBlkBd: public InterBlockBuilderTp {
 	unsigned int cnt;
 	MockInterBlkBd(BlockBuilder& bd_): bd(&bd_) {}
 	MockInterBlkBd(): bd(nullptr) {}
@@ -286,7 +286,7 @@ struct MockInterBlkBd {
 		cnt = 0;
 	}
 
-	void set_block_data() {
+	void set_block_data(bool lastblock = false) {
 		uint16_t tt;
 		tt = cnt % 1000;
 		bd->set_summary(sid, MemRange::wrap(tt));
@@ -490,9 +490,9 @@ void test_ptr() {
 	start[0] = 0;
 	for (unsigned int i = 1; i <= n; ++i) {
 		unsigned v = rand() % r + st;
-		p1.set(i-1,v);
-		p2.set(i-1,v);
-		p3.set(i-1, v);
+		p1.add(v);
+		p2.add(v);
+		p3.add(v);
 		start[i] += start[i-1] + v;
 	}
 	p1._build();

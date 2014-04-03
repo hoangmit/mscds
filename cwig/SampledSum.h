@@ -36,8 +36,6 @@ private:
 	int delta;
 	unsigned int method;
 
-	static unsigned int precision(double d);
-
 	void addint(unsigned int st, unsigned int ed, unsigned int v);
 	void comp_transform();
 	void add_all_vals();

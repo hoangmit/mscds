@@ -240,11 +240,53 @@ int run_exp(int argc, char* argv[]) {
 	return 0;
 }
 
+//--------------------------------------------------------------------
+
+#include "../valrange.h"
+
+std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
+	std::deque<ValRange> out(inp.size());
+	for (unsigned i = 0; i < out.size(); ++i) {
+		const ValRangeInfo& v = inp[i];
+		out[i].st = v.st;
+		out[i].ed = v.ed;
+		out[i].val = v.val;
+	}
+	return out;
+}
+
+
+#include "../fused_cwig_block.h"
+
+void test5() {
+	IntValBuilder bd;
+	std::deque<ValRange> all;
+	IntValQuery qs;
+	vector<int> A = gen_density(20);
+	all = convertVR(genInp(A));
+
+	bd.build(all, &qs);
+
+	double ps = 0;
+	for (size_t i = 0; i < all.size(); ++i) {
+		double v = qs.sum(i);
+		if (ps != v) {
+			std::cout << "wrong at i = " << i << std::endl;
+			std::cout << v << " " << ps << std::endl;
+		}
+		assert(ps == v);
+		ps += (all[i].ed - all[i].st) * all[i].val;
+	}
+}
+
 
 int main(int argc, char* argv[]) {
 	//test_all();
 	//load_fusion("C:/temp/bf.dat", "C:/temp/wgEn.broadPeak");
-	return run_exp(argc, argv);
-	//return 0;
+	//return run_exp(argc, argv);
+
+	test5();
+	
+	return 0;
 }
 

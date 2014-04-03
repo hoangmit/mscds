@@ -56,7 +56,7 @@ public:
 			data.puts(ptrs[i] + base, w);
 		}
 		data.append(data_buffer);
-		debug_print();
+		//debug_print();
 		ptrs.clear();
 		data_buffer.clear();
 		bd->end_data();

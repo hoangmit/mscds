@@ -212,7 +212,7 @@ void SDArrayFuseBuilder::add(uint64_t val) {
 	assert(blkcnt <= blk.BLKSIZE);
 }
 
-void SDArrayFuseBuilder::set_block_data() {
+void SDArrayFuseBuilder::set_block_data(bool lastblock) {
 	if (blkcnt > 0) {
 		uint64_t v = lastsum;
 		bd->set_summary(sid, MemRange::wrap(v));

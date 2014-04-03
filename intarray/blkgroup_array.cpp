@@ -112,7 +112,7 @@ OBitStream& BlockBuilder::start_data(unsigned int did) {
 }
 
 void BlockBuilder::end_data() {
-	bptr.set(bcid, buffer.length() - last_pos);
+	bptr.add(buffer.length() - last_pos);
 	last_pos = buffer.length();
 	bcid++;
 }

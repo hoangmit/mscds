@@ -55,7 +55,7 @@ private:
 
 class SDArrayFuse;
 
-class SDArrayFuseBuilder {
+class SDArrayFuseBuilder: public InterBlockBuilderTp {
 public:
 	SDArrayFuseBuilder(BlockBuilder& _bd) : bd(&_bd) {}
 	SDArrayFuseBuilder(): bd(nullptr) {}
@@ -65,7 +65,7 @@ public:
 
 	void add(uint64_t val);
 	void add_incnum(uint64_t val);
-	void set_block_data();
+	void set_block_data(bool lastblock = false);
 	void build_struct();
 	void deploy(StructIDList& lst);
 
@@ -80,7 +80,7 @@ private:
 };
 
 //template<typename BlockManager>
-class SDArrayFuse {
+class SDArrayFuse : public InterBLockQueryTp {
 public:
 	typedef SDArrayBlock BlockType;
 	typedef SDArrayBlock::ValueType ValueType;

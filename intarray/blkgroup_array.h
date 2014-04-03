@@ -246,7 +246,7 @@ class InterBlockBuilderTp {
 public:
 	virtual void init_bd(BlockBuilder& bd) = 0;
 	virtual void register_struct() = 0;
-	virtual void set_block_data() = 0;
+	virtual void set_block_data(bool lastblock) = 0;
 	virtual void build_struct() = 0;
 	virtual void deploy(StructIDList & lst) = 0;
 	//BlockBuilder * bd;

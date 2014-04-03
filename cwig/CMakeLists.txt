@@ -6,6 +6,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(SRCS chrfmt.cpp cwig.cpp
 RLSum6.cpp 
+fused_cwig_block.cpp
 SampledSum.cpp
 rank_vals.cpp
 poly_vals.cpp
@@ -22,6 +23,7 @@ rank_vals.h
 rlsum_int.h poly_vals.h
 intv/nintv.h
 intv/nintv_fuse.h
+float_precision.h
 )
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})

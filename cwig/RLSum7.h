@@ -11,7 +11,7 @@
 #include "codec/deltacoder.h"
 
 #include "fused_cwig_block.h"
-#include "intarray/ps_access_blk.h"
+
 
 #include <deque>
 #include <cmath>
@@ -98,9 +98,9 @@ namespace app_ds {
 		};
 		void getEnum(unsigned int idx, Enum* e) const;
 
-		typedef RunLenSumArrayBuilder6 BuilderTp;
+		//typedef RunLenSumArrayBuilder6 BuilderTp;
 	private:
-		friend class RunLenSumArrayBuilder6;
+		//friend class RunLenSumArrayBuilder6;
 	};
 
 }//namespace

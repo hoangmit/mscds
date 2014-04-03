@@ -21,7 +21,7 @@ void NIntvInterBlkBuilder::add(unsigned int st, unsigned int ed) {
 	assert(cnt <= 512);
 }
 
-void NIntvInterBlkBuilder::set_block_data() {
+void NIntvInterBlkBuilder::set_block_data(bool lastblock) {
 	if (cnt == 0) return ;
 	_build_block();
 

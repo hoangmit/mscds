@@ -127,29 +127,65 @@ private:
 
 class StructIDList {
 public:
+	StructIDList(): pfront(0) {}
+	StructIDList(const StructIDList& other): pfront(0), _lst(other._lst) {}
+
 	void addId(const std::string& name) {
-		_lst.push(-1);
+		_lst.push_back(-1);
 	}
 	void checkId(const std::string& name) {
-		int v = _lst.front();
-		_lst.pop();
+		//int v = _lst.front(); _lst.pop_front();
+		int v = _lst[pfront];
+		pfront++;
 		if (v != -1) throw std::runtime_error("failed");
 	}
 	void add(unsigned int id) {
-		_lst.push((int)id);
+		_lst.push_back((int)id);
 	}
 	unsigned int get() {
-		int v = (int)_lst.front();
-		assert(v > 0);
-		_lst.pop();
+		//int v = (int)_lst.front(); _lst.pop_front();
+		int v = _lst[pfront];
+		pfront++;
+		assert(v > 0);		
 		return (unsigned int)v;
 	}
 
-	std::queue<int> _lst;
-};
+	void save(mscds::OutArchive& ar) const {
+		ar.startclass("block_struct_list", 1);
+		uint32_t len = _lst.size();
+		ar.var("len").save(len);
+		ar.var("list");
+		for (unsigned int i = 0; i < len; ++i) {
+			int16_t v = _lst[i];
+			ar.save_bin(&v, sizeof(v));
+		}
+		ar.endclass();
+	}
 
-class BlockFactory: public BlockBuilder {
+	void load(mscds::InpArchive& ar) {
+		int class_version = ar.loadclass("block_struct_list");
+		uint32_t len = 0;
+		ar.var("len").load(len);
+		ar.var("list");
+		for (unsigned int i = 0; i < len; ++i) {
+			int16_t v = 0;
+			ar.load_bin(&v, sizeof(v));
+			_lst.push_back(v);
+		}
+		ar.endclass();
+	}
 
+	void clear() {
+		_lst.clear();
+		pfront = 0;
+	}
+
+	void reset() {
+		pfront = 0;
+	}
+
+	unsigned int pfront;
+	std::deque<int> _lst;
 };
 
 
@@ -211,6 +247,7 @@ public:
 		bptr.clear();
 		global_ps.clear(); summary_ps.clear();
 		summary.clear(); data.clear();
+		info.clear();
 
 		blkcnt = 0; str_cnt = 0;
 	}
@@ -257,6 +294,7 @@ public:
 class InterBLockQueryTp {
 public:
 	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
+	virtual void clear() = 0;
 	//BlockMemManager * mng;
 };
 
@@ -282,6 +320,44 @@ namespace details {
 
 template<typename ...Types>
 class LiftStQuery {
+public:
+	BlockMemManager mng;
+	typedef std::tuple<Types...> TupleType;
+
+	TupleType list;
+	StructIDList strlst;
+
+	void init(StructIDList& slst) {
+		InitQS it(mng, slst);
+		details::for_each(list, it);
+		strlst = slst;
+	}
+
+	template<size_t N>
+	typename std::tuple_element<N, TupleType>::type & g() {
+		return std::get<N>(list);
+	}
+
+	void save(mscds::OutArchive& ar) const {
+		ar.startclass("block_struct_list", 1);
+		strlst.save(ar.var("structure"));
+		mng.save(ar.var("block_data"));
+		ar.endclass();
+	}
+
+	void load(mscds::InpArchive& ar) {
+		int class_version = ar.loadclass("block_struct_list");
+		strlst.load(ar.var("structure"));
+		mng.load(ar.var("block_data"));
+		ar.endclass();
+		init(strlst);
+	}
+	void clear() {
+		ClearStr cls;
+		details::for_each(list, cls);
+		mng.clear();
+	}
+
 private:
 	struct InitQS {
 		BlockMemManager & mng;
@@ -290,22 +366,10 @@ private:
 		template<typename T>
 		void operator()(T& t) { t.setup(mng, slst); }
 	};
-public:
-	BlockMemManager mng;
-	typedef std::tuple<Types...> TupleType;
-
-	TupleType list;
-	void init(StructIDList& slst) {
-		InitQS it(mng, slst);
-		details::for_each(list, it);
-	}
-
-
-	template<size_t N>
-	typename std::tuple_element<N, TupleType>::type & g() {
-		return std::get<N>(list);
-	}
-
+	struct ClearStr {
+		template<typename T>
+		void operator()(T& t) { t.clear(); }
+	};
 };
 
 template<typename ...Types>
@@ -401,6 +465,13 @@ public:
 		details::for_each(list, deployX);
 
 		out->init(slst);
+	}
+
+	template<typename Q>
+	void build(OutArchive& ar) {
+		Q qs;
+		build(&qs);
+		ar.save(qs);
 	}
 };
 

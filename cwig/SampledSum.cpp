@@ -42,10 +42,9 @@ void SampledSumBuilder::build(mscds::OutArchive& ar) {
 	a.save(ar);
 }
 
-void SampledSumBuilder::add_all( std::deque<ValRange>* vals ) {
+void SampledSumBuilder::add_all(const std::deque<ValRange>* vals ) {
 	ptr = vals;
 }
-
 
 void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 	out->clear();

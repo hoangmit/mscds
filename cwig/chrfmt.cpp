@@ -52,8 +52,8 @@ void ChrNumDataBuilder::build(ChrNumData* out) {
 		minmaxr[i] = it->val;
 		++i;
 	}
-	bd.add_all(&ranges);
-	bd.build(&out->vals);
+	//bd.add_all(&ranges);
+	bd.build(ranges, &out->vals);
 	ranges.clear();
 
 	if (out->minmax_opt & MIN_OP) {

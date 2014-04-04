@@ -190,6 +190,15 @@ void FuseNIntvInterBlock::loadGlobal() {
 	lensum = mng->getGlobal(glsid).word(0);
 }
 
+void FuseNIntvInterBlock::clear() {
+	mng = nullptr;
+	glsid = 0;
+	gldid = 0;
+	lensum = 0;
+	start.clear();
+	lgblk.clear();
+}
+
 void NIntvFuseBuilder::init() {
 	iblk.register_struct();
 	bd.init_data();
@@ -240,7 +249,7 @@ void NIntvFuseQuery::load(mscds::InpArchive &ar) {
 	std::cout << "warning: dangerous assignment" << std::endl;
 	mscds::StructIDList lst;
 	std::vector<int> x = {-1, -1, 1, 1, 2, 2};
-	for (auto v : x) lst._lst.push(v);
+	for (auto v : x) lst._lst.push_back(v);
 	init(lst);
 }
 

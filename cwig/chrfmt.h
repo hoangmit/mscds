@@ -2,17 +2,23 @@
 
 #include <string>
 #include <stdexcept>
-#include "RLSum6.h"
+
 #include "tree/RMQ_sct.h"
 #include "string/stringarr.h"
 #include "framework/archive.h"
 #include "valrange.h"
 
+//#include "RLSum6.h"
+#include "fused_intval.h"
+
 namespace app_ds {
 
+//typedef RunLenSumArray6 ChrNumValType;
+//typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
-typedef RunLenSumArray6 ChrNumValType;
-typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
+typedef IntValQuery ChrNumValType;
+typedef IntValQuery::BuilderTp ChrNumValBuilderType;
+
 
 class ChrNumData;
 

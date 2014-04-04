@@ -48,7 +48,7 @@ struct Remote_rank6 {
 
 	void create_remote_file() {
 		//rank25p
-		Rank6pBuilder bd;
+		//Rank6pBuilder bd;
 		BitArray ba = BitArrayBuilder::create(len);
 		for (unsigned int i = 0; i < len; ++i) {
 			bool b = rand() % 2 == 1;
@@ -56,7 +56,7 @@ struct Remote_rank6 {
 			ba.setbit(i, b);
 		}
 		Rank6p qs;
-		bd.build(ba, &qs);
+		Rank6pBuilder::build(ba, &qs);
 		OFileArchive1 fo;
 		fo.open_write("C:/temp/rank6p.bin");
 		qs.save(fo);

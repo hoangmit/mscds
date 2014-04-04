@@ -133,6 +133,7 @@ class CodeInterBlkQuery {
 public:
 	static const unsigned int elements_per_blk = 512;
 	CodeInterBlkQuery(): mng(nullptr) {}
+	void clear() { mng = nullptr; sid = did = 0; len = 0; model.clear(); } 
 	void setup(BlockMemManager& mng_, StructIDList& lst) {
 		mng = &mng_;
 		lst.checkId("CodeInterBlkBuilder");

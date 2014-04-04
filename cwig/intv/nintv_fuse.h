@@ -30,6 +30,7 @@ public:
 	static PosType npos() { return std::numeric_limits<PosType>::max(); }
 
 	void setup(mscds::BlockMemManager& mng_, mscds::StructIDList& lst);
+	void clear();
 private:
 	const static unsigned int BLKSIZE = 512;
 	struct LGBlk_t {

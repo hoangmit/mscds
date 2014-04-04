@@ -248,7 +248,7 @@ public:
 
 struct MockInterBlkQr: public InterBLockQueryTp {
 	unsigned int sid, did;
-	MockInterBlkQr(): sid(0), did(0) {}
+	MockInterBlkQr(): mng(nullptr), sid(0), did(0) {}
 	MockBlk blk;
 	BlockMemManager * mng;
 
@@ -270,7 +270,7 @@ struct MockInterBlkQr: public InterBLockQueryTp {
 		assert(blkid == blk.v);
 	}
 
-	void clear() { sid = 0; did = 0; }
+	void clear() { mng = nullptr; sid = 0; did = 0; }
 };
 
 struct MockInterBlkBd: public InterBlockBuilderTp {

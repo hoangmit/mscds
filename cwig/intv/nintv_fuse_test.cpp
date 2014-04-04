@@ -261,9 +261,9 @@ std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
 void check(std::deque<ValRange>& all, IntValQuery& qs, unsigned int testid = 0) {
 	double ps = 0;
 	for (size_t i = 0; i < all.size(); ++i) {
-		double val = qs.access(i);
+		double val = qs.range_value(i);
 		assert(all[i].val == val);
-		double sm = qs.sum(i);
+		double sm = qs.range_psum(i);
 		if (ps != sm) {
 			std::cout << "wrong at i = " << i << std::endl;
 			std::cout << "exp = " << ps << "   val = " << sm << std::endl;
@@ -298,6 +298,32 @@ void test6() {
 		test5(1024, i);
 	}
 }
+#include "mem/save_load_test.h"
+void test_saveload() {
+	IntValBuilder bd;
+	std::deque<ValRange> all;
+	IntValQuery qs, qs2;
+	auto vp = gen_intv2(1000);
+	all.resize(vp.size());
+	for (unsigned int i = 0; i < vp.size(); ++i) {
+		all[i].st = vp[i].first;
+		all[i].ed = vp[i].second;
+		all[i].val = rand() % 100 + 1;
+	}
+
+	std::string filename = utils::tempfname();
+	OFileArchive2 fo;
+	fo.open_write(filename);
+	bd.build(all, &qs);
+	qs.save(fo);
+	fo.close();
+	IFileMapArchive2 fi;
+	fi.open_read(filename);
+	qs2.load(fi);
+	fi.close();
+	check(all, qs2);
+	std::remove(filename.c_str());
+}
 
 int main(int argc, char* argv[]) {
 	//test_all();
@@ -305,6 +331,7 @@ int main(int argc, char* argv[]) {
 	//return run_exp(argc, argv);
 	//rand();
 	test6();
+	test_saveload();
 
 	
 	return 0;

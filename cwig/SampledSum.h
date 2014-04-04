@@ -18,7 +18,7 @@ public:
 	SampledSumBuilder();
 	void init(unsigned int sample_rate = 64);
 	void add(unsigned int st, unsigned int ed, double val);
-	void add_all(std::deque<ValRange>* vals);
+	void add_all(const std::deque<ValRange>* vals);
 	void build(SampledSumQuery * out, NIntvQueryInt * posquery);
 	void build(mscds::OutArchive& ar);
 	void clear();
@@ -27,7 +27,8 @@ private:
 	mscds::SDArraySmlBuilder psbd, spsbd;
 	PRValArrBuilder vdir;
 	RankValArrBuilder vrank;
-	std::deque<ValRange> svals, * ptr;
+	std::deque<ValRange> svals;
+	const std::deque<ValRange> * ptr;
 	uint64_t psum, sqpsum;
 	int64_t lastv;
 	unsigned int sample_rate;

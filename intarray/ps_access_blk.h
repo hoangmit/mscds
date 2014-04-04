@@ -84,7 +84,7 @@ private:
 
 class PtrInterBlkQs: public InterBLockQueryTp {
 public:
-	PtrInterBlkQs(): size(0) {}
+	PtrInterBlkQs(): size(0), mng(nullptr) {}
 
 	void setup(BlockMemManager & mng_, StructIDList& slst) {
 		slst.checkId("ptr_raw");
@@ -103,6 +103,14 @@ public:
 		if (ip == 0) return fv;
 		else
 			return blk.start(ip) + fv;
+	}
+
+	void clear() {
+		mng = nullptr;
+		fv = 0;
+		blk.clear();
+		sid = did = 0;
+		size = 0;
 	}
 private:
 	void load_block(unsigned int blkid) {

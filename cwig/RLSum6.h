@@ -30,8 +30,7 @@ public:
 	void clear();
 	typedef RunLenSumArray6 QueryTp;
 
-	/* only use the method if you know what you are doing (avoid doubling the input the data) */
-	void add_all(std::deque<ValRange> * vs);
+	void build(const std::deque<ValRange> & vs, RunLenSumArray6* arr);
 private:
 	void addint(unsigned int st, unsigned int ed, unsigned int val);
 	unsigned int  cnt;

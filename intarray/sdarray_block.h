@@ -134,7 +134,7 @@ public:
 		if (ret == 0) return 0;
 		else return ret - 1;
 	}
-	SDArrayFuse() : mng(nullptr) {}
+	SDArrayFuse() : mng(nullptr), len(0) {}
 	void setup(BlockMemManager& mng_, StructIDList& lst) {
 		mng = &mng_;
 		lst.checkId("sdarray");
@@ -151,6 +151,15 @@ public:
 	uint64_t getBlkSum(size_t blk) const {
 		auto br = mng->getSummary(sid, blk);
 		return br.bits(0, 64);
+	}
+
+	void clear() {
+		mng = nullptr;
+		len = 0;
+		sum = 0;
+		sid = 0;
+		did = 0;
+		blk.clear();
 	}
 
 private:

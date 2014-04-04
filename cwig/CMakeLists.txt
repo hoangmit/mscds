@@ -16,7 +16,6 @@ intv/nintv_fuse.cpp
 
 set(HEADERS chrfmt.h cwig.h 
 RLSum6.h 
-RLSum7.h 
 fused_intval.h
 SampledSum.h
 rank_vals.h

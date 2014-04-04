@@ -25,11 +25,13 @@ void RunLenSumArrayBuilder6::add(unsigned int st, unsigned int ed, double v) {
 	vals.add(st, ed, v);
 }
 
-void RunLenSumArrayBuilder6::add_all(std::deque<ValRange> * vs) {
-	vals.add_all(vs);
-	for (auto it = vs->begin(); it != vs->end(); ++it) 
+void RunLenSumArrayBuilder6::build(const std::deque<ValRange> & vs, RunLenSumArray6* arr) {
+	vals.add_all(&vs);
+	for (auto it = vs.begin(); it != vs.end(); ++it)
 		itvb.add(it->st, it->ed);
+	build(arr);
 }
+
 
 void RunLenSumArrayBuilder6::build(RunLenSumArray6 *out) {
 	out->clear();
@@ -69,6 +71,7 @@ double RunLenSumArray6::range_value(unsigned int i) const {
 }
 
 double RunLenSumArray6::range_psum(unsigned int i) const {
+	//return vals.sum(i, 0);
 	return sum(range_start(i));
 }
 

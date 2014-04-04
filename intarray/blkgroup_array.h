@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <queue>
 #include <tuple>
+#include <climits>
 
 namespace mscds {
 

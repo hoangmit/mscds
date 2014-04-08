@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 		qs.dump_bedgraph(argv[2]);
 	} else {
 		cout << "wrong number of parameters" << endl;
-		cout << "program  gnt_file  bedgraph_file" << endl;
+		cout << "program  cwig_file  bedgraph_file" << endl;
 		return 1;
 	}
 	return 0;

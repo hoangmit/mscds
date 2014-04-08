@@ -31,6 +31,7 @@ public:
 
 	void setup(mscds::BlockMemManager& mng_, mscds::StructIDList& lst);
 	void clear();
+	void inspect(const std::string &cmd, std::ostream &out) {}
 private:
 	const static unsigned int BLKSIZE = 512;
 	struct LGBlk_t {

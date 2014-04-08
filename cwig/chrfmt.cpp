@@ -113,6 +113,11 @@ void ChrNumData::save(mscds::OutArchive& ar) const {
 	ar.endclass();
 }
 
+void ChrNumData::inspect(const std::string& cmd, std::ostream& out) const {
+	out << '"' << name << "\": ";
+	vals.inspect(cmd, out);
+}
+
 void ChrNumData::getEnum(unsigned int i, ChrNumValType::Enum* e) const {
 	vals.getEnum(i, e);
 }

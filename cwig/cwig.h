@@ -90,6 +90,7 @@ public:
 	/** \brief writes the current data into bedgraph format */
 	void dump_bedgraph(const std::string& output);
 	void clear() { nchr = 0; chrs.clear(); names.clear(); chrid.clear(); }
+	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
 	void loadinit();
 	unsigned int nchr;

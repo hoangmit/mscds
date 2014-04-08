@@ -96,7 +96,7 @@ public:
 		friend class IntValQuery;
 	};
 	void getEnum(unsigned int idx, Enum* e) const;
-
+	void inspect(const std::string& cmd, std::ostream& out) const;
 
 private:
 	double sum_intv(unsigned int idx, unsigned int leftpos = 0) const;

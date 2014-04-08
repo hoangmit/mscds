@@ -79,6 +79,8 @@ public:
 	/** \brief finds the list of intervals [i..i'] that intersect with query range [st..ed] */
 	std::pair<int, int> find_intervals(unsigned int st, unsigned int ed) const;
 
+	void inspect(const std::string& cmd, std::ostream& out) const {}
+
 	struct IntervalInfo {
 		IntervalInfo() {}
 		IntervalInfo(unsigned int s, unsigned int e, double v): st(s), ed(e), val(v) {}

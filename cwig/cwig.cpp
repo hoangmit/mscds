@@ -152,6 +152,7 @@ void GenomeNumDataBuilder::changechr(const std::string &chr) {
 	}
 }
 
+
 void GenomeNumDataBuilder::add(const std::string& bed_line) {
 	BED_Entry e;
 	if (annotation) e.parse_ann(bed_line);
@@ -315,6 +316,15 @@ void GenomeNumData::save(mscds::OutArchive &ar) const {
 	}
 	ar.endclass();
 }
+
+void GenomeNumData::inspect(const std::string& cmd, std::ostream& out) const {
+	out << "{";
+	for (auto it = chrs.cbegin(); it != chrs.cend(); ++it) {
+		it->inspect(cmd, out);
+	}
+	out << "}";
+}
+
 
 void GenomeNumData::dump_bedgraph(std::ostream& fo) {
 	for (size_t i = 0; i < chrs.size(); ++i) {

@@ -99,6 +99,8 @@ public:
 	/** \brief returns the values of bases from st to ed */
 	std::vector<double> base_value_map(unsigned int st, unsigned int ed) const;
 
+	void inspect(const std::string& cmd, std::ostream& out) const;
+
 	void clear();
 	void load(mscds::InpArchive& ar);
 	void save(mscds::OutArchive& ar) const;

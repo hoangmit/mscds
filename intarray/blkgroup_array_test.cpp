@@ -270,6 +270,7 @@ struct MockInterBlkQr: public InterBLockQueryTp {
 		assert(blkid == blk.v);
 	}
 
+	void inspect(const std::string &cmd, std::ostream &out) {}
 	void clear() { mng = nullptr; sid = 0; did = 0; }
 };
 

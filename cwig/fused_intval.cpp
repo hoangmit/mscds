@@ -211,6 +211,16 @@ void IntValQuery::getEnum(unsigned int idx, IntValQuery::Enum *e) const {
 
 }
 
+void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
+	out << '{';
+	out << '"' << "length" << "\": " << len << ",";
+	out << '"' << "delta" << "\": " << delta << ",";
+	out << '"' << "factor" << "\": " << factor << ",";
+	out << "\"block_data\"" << "\": ";
+	data.inspect(cmd, out);
+	out << '}';
+}
+
 bool app_ds::IntValQuery::Enum::hasNext(){
 	return false;
 }

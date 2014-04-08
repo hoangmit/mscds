@@ -162,6 +162,8 @@ public:
 		blk.clear();
 	}
 
+	void inspect(const std::string &cmd, std::ostream &out) {}
+
 private:
 	friend class SDArrayFuseBuilder;
 

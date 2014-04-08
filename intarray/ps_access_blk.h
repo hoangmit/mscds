@@ -12,6 +12,8 @@ public:
 	PtrInterBlkBd(): size(0) {}
 	void init_bd(BlockBuilder& bd_) { bd = &bd_; }
 
+	
+
 	void init_blk(unsigned int size_) {
 		size = size_;
 		assert(size_ > 0);
@@ -85,6 +87,8 @@ private:
 class PtrInterBlkQs: public InterBLockQueryTp {
 public:
 	PtrInterBlkQs(): size(0), mng(nullptr) {}
+
+	void inspect(const std::string &cmd, std::ostream &out) {}
 
 	void setup(BlockMemManager & mng_, StructIDList& slst) {
 		slst.checkId("ptr_raw");

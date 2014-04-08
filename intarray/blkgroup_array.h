@@ -252,6 +252,40 @@ public:
 		blkcnt = 0; str_cnt = 0;
 	}
 
+	void inspect(const std::string &cmd, std::ostream &out) {
+		out << "{";
+		out << "\"struct_count\": " << str_cnt << ", ";
+		out << "\"block_count\": " << blkcnt << ", ";
+
+		out << "\"summary_ptr_bit_size\": " << 64 << ", ";
+
+		out << "\"global_byte_sizes\": [";
+		for (size_t i = 1; i < global_ps.size(); ++i) {
+			out << global_ps[i] - global_ps[i-1] << ", ";
+		}
+		out << "], ";
+
+		out << "\"summary_byte_sizes\": [";
+		for (size_t i = 1; i < global_ps.size(); ++i) {
+			out << summary_ps[i] - summary_ps[i-1] << ", ";
+		}
+		out << "], ";
+		std::vector<size_t> bsz(str_cnt + 1, 0);
+		for (size_t i = 0; i < blkcnt; ++i) {
+			for (size_t j = 1; j < str_cnt; ++j) {
+				auto x = getData(i, j);
+				bsz[j] += x.len;
+				bsz[0] += bptr.ptr_space();
+			}
+		}
+		out << "\"struct_block_bit_sizes\": [";
+		for (size_t i = 0; i < bsz.size(); ++i) {
+			out << bsz[i] << ", ";
+		}
+		out << "]";
+		out << "}";
+	}
+
 private:
 	static std::vector<unsigned int> prefixsum_vec(const std::vector<unsigned int>& v) {
 		std::vector<unsigned int> out(v.size() + 1);
@@ -295,6 +329,7 @@ class InterBLockQueryTp {
 public:
 	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
 	virtual void clear() = 0;
+	virtual void inspect(const std::string &cmd, std::ostream &out) = 0;
 	//BlockMemManager * mng;
 };
 
@@ -356,6 +391,14 @@ public:
 		ClearStr cls;
 		details::for_each(list, cls);
 		mng.clear();
+	}
+
+	void inspect(const std::string &cmd, std::ostream &out) {
+		out << "{";
+		out << "\"n_struct\": " << std::tuple_size<TupleType>::value << ", ";
+		out << "\"block_mng\": ";
+		mng.inspect(cmd, out);
+		out << "}";
 	}
 
 private:

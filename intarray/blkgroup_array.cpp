@@ -7,13 +7,13 @@ void BlockMemManager::init() {
 	IWBitStream is(summary);
 	//VByteArray::load(is, summary_sizes);
 	unsigned int n = 0;
-	n = VByteArray::extract(is);
+	n = VByteStream::extract(is);
 	assert(str_cnt == n);
 	assert(n < 128);
 	for (unsigned int i = 0; i < n; ++i)
-		global_sizes.push_back(VByteArray::extract(is));
+		global_sizes.push_back(VByteStream::extract(is));
 	for (unsigned int i = 0; i < n; ++i)
-		summary_sizes.push_back(VByteArray::extract(is));
+		summary_sizes.push_back(VByteStream::extract(is));
 	header_size = is.get(16);
 	header_size += 2;
 	//assert((header_size * 8) == is.extracted());
@@ -46,11 +46,11 @@ void BlockBuilder::init_data() {
 	bptr.init(summary_sizes.size());
 	//save array
 	assert(global_sizes.size() == summary_sizes.size());
-	VByteArray::append(header, global_sizes.size());
+	VByteStream::append(header, global_sizes.size());
 	for (unsigned int i = 0; i < global_sizes.size(); ++i)
-		VByteArray::append(header, global_sizes[i]);
+		VByteStream::append(header, global_sizes[i]);
 	for (unsigned int i = 0; i < summary_sizes.size(); ++i)
-		VByteArray::append(header, summary_sizes[i]);
+		VByteStream::append(header, summary_sizes[i]);
 	//save global here
 	header_size = header.length() / 8;
 	assert(header_size < (1<<16));

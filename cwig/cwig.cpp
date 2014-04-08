@@ -320,6 +320,7 @@ void GenomeNumData::save(mscds::OutArchive &ar) const {
 void GenomeNumData::inspect(const std::string& cmd, std::ostream& out) const {
 	out << "{";
 	for (auto it = chrs.cbegin(); it != chrs.cend(); ++it) {
+		if (it != chrs.cbegin()) out << ", ";
 		it->inspect(cmd, out);
 	}
 	out << "}";

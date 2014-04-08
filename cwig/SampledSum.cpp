@@ -93,9 +93,9 @@ void SampledSumBuilder::comp_transform() {
 	factor = 1;
 	if (pc > 5) pc = 5;
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
-	int minr = std::numeric_limits<int>::max();
+	int64_t minr = std::numeric_limits<int64_t>::max();
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		minr = std::min<int>(minr, it->val*factor);
+		minr = std::min<int64_t>(minr, it->val*factor);
 	delta = minr; // 1 - minr
 	if (method == 0) {
 		if (factor == 1) method = 1;

@@ -170,6 +170,20 @@ int run(int argc, const char* argv[]) {
 
 
 int main(int argc, const char* argv[]) {
+
+	//GenomeNumDataBuilder bd;
+	//bd.build_bedgraph("C:/temp/GSM686950.bedGraph", "C:/temp/GSM686950.cwig2");
+	GenomeNumData d;
+	IFileArchive2 fi;
+	fi.open_read("C:/temp/GSM686950.cwig2");
+	
+	d.load(fi);
+	ofstream fo("C:/temp/GSM686950.inspect.txt");
+	d.inspect("", fo);
+	fo.close();
+	std::cout << std::endl;
+	return 0;
+
 	cout << "running.." << endl;
 	//const char* testv[] = {"", "r", "groseq.gnt"};
 	//const char* testv[] = {"", "b", "groseq.bedGraph", "groseq.gnt"};

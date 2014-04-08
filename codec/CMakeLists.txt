@@ -19,6 +19,7 @@ huffman_code.h
 huffman_adp.hpp
 arithmetic_code.hpp
 vbyte.h
+stream/codec_adapter.h
 )
 
 

@@ -9,6 +9,7 @@
 #include <cstring>
 #include <tuple>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 using namespace app_ds;
@@ -70,6 +71,8 @@ int main(int argc, const char* argv[]) {
 		cout << "params: " << endl;
 		c->dump();
 		build(argv[1], argv[2]);
+	} else {
+		std::cout << "Not correct number of parameters" << std::endl;
 	}
 	return 0;
 }

@@ -262,26 +262,29 @@ public:
 
 		out << "\"global_byte_sizes\": [";
 		for (size_t i = 1; i < global_ps.size(); ++i) {
-			out << global_ps[i] - global_ps[i-1] << ", ";
+			if (i != 1) out << ", ";
+			out << global_ps[i] - global_ps[i-1];
 		}
 		out << "], ";
 
 		out << "\"summary_byte_sizes\": [";
 		for (size_t i = 1; i < global_ps.size(); ++i) {
-			out << summary_ps[i] - summary_ps[i-1] << ", ";
+			if (i != 1) out << ", ";
+			out << summary_ps[i] - summary_ps[i-1];
 		}
 		out << "], ";
 		std::vector<size_t> bsz(str_cnt + 1, 0);
 		for (size_t i = 0; i < blkcnt; ++i) {
-			for (size_t j = 1; j < str_cnt; ++j) {
-				auto x = getData(i, j);
+			for (size_t j = 1; j <= str_cnt; ++j) {
+				auto x = getData(j, i);
 				bsz[j] += x.len;
 				bsz[0] += bptr.ptr_space();
 			}
 		}
 		out << "\"struct_block_bit_sizes\": [";
 		for (size_t i = 0; i < bsz.size(); ++i) {
-			out << bsz[i] << ", ";
+			if (i != 0) out << ", ";
+			out << bsz[i];
 		}
 		out << "]";
 		out << "}";

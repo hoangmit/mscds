@@ -130,6 +130,11 @@ double IntValQuery::range_psum(unsigned int i) const {
 	return sum_intv(i, 0);
 }
 
+IntValQuery::IntervalInfo IntValQuery::range_at(unsigned int i) const {
+	auto x = itv.int_startend(i);
+	return IntervalInfo(x.first, x.second, range_value(i));
+}
+
 unsigned int IntValQuery::count_range(unsigned int pos) const {
 	auto res = itv.find_cover(pos);
 	if (res.first == 0 && res.second == 0) return 0;
@@ -220,9 +225,7 @@ double IntValQuery::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 IntValQuery::IntValQuery(): itv(data.g<0>()), vals(data.g<1>()) {}
 
 
-void IntValQuery::getEnum(unsigned int idx, IntValQuery::Enum *e) const {
 
-}
 
 void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
 	out << '{';
@@ -235,13 +238,19 @@ void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
 	out << '}';
 }
 
-bool app_ds::IntValQuery::Enum::hasNext(){
-	return false;
+void IntValQuery::getEnum(unsigned int idx, IntValQuery::Enum *e) const {
+	e->ptr = this;
+	e->i = idx;
 }
 
-IntValQuery::IntervalInfo IntValQuery::Enum::next()
-{
-	return IntervalInfo();
+bool app_ds::IntValQuery::Enum::hasNext(){
+	return i < ptr->len;
 }
+
+IntValQuery::IntervalInfo IntValQuery::Enum::next() {
+	return ptr->range_at(i++);
+}
+
+
 
 }

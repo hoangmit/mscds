@@ -60,6 +60,7 @@ public:
 	unsigned int range_len(unsigned int i) const;
 	double range_value(unsigned int i) const;
 	double range_psum(unsigned int i) const;
+	
 
 	unsigned int last_position() const { return length() > 0 ? range_start(length()-1) + range_len(length() - 1) : 0; }
 
@@ -90,12 +91,16 @@ public:
 		double val;
 	};
 
+	IntervalInfo range_at(unsigned int i) const;
+
 	class Enum {
 	public:
 		bool hasNext();
 		IntervalInfo next();
 	private:
 		friend class IntValQuery;
+		const IntValQuery * ptr;
+		size_t i;
 	};
 	void getEnum(unsigned int idx, Enum* e) const;
 	void inspect(const std::string& cmd, std::ostream& out) const;

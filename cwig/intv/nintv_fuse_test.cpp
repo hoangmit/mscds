@@ -282,7 +282,7 @@ void test5(unsigned int len = 20, unsigned int testid = 0) {
 	for (unsigned int i = 0; i < vp.size(); ++i) {
 		all[i].st = vp[i].first;
 		all[i].ed = vp[i].second;
-		all[i].val = rand() % 100 + 1;
+		all[i].val = rand() % 1000 + 1;
 	}
 
 	bd.build(all, &qs);

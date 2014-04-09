@@ -87,6 +87,7 @@ public:
 	struct IntervalInfo {
 		IntervalInfo() {}
 		IntervalInfo(unsigned int s, unsigned int e, double v): st(s), ed(e), val(v) {}
+		IntervalInfo(const IntervalInfo& other): st(other.st), ed(other.ed), val(other.val) {}
 		unsigned int st, ed;
 		double val;
 	};

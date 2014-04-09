@@ -95,6 +95,7 @@ void IntValQuery::save(mscds::OutArchive &ar) const {
 	ar.startclass("IntVal", 1);
 	ar.var("factor").save(factor);
 	ar.var("delta").save(delta);
+	ar.var("length").save(len);
 	rankval.save(ar.var("rank_values"));
 	data.save(ar.var("data"));
 	ar.endclass();
@@ -104,6 +105,7 @@ void IntValQuery::load(mscds::InpArchive &ar) {
 	int class_version = ar.loadclass("IntVal");
 	ar.var("factor").load(factor);
 	ar.var("delta").load(delta);
+	ar.var("length").load(len);
 	rankval.load(ar.var("rank_values"));
 	data.load(ar.var("data"));
 	ar.endclass();

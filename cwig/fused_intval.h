@@ -116,7 +116,7 @@ private:
 
 	uint64_t factor;
 	int64_t delta;
-	size_t len;
+	uint64_t len;
 	FuseNIntvInterBlock& itv;
 	mscds::CodeInterBlkQuery& vals;
 	mutable QS data;

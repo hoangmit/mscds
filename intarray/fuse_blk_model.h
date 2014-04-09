@@ -196,6 +196,8 @@ public:
 			e->next();
 	}
 
+	size_t length() const { return len; }
+
 	/*void debug_print(unsigned int blk, unsigned sscnt = 8, std::ostream& out = std::cout) const {
 		auto br = mng->getData(did, blk);
 		unsigned int w = get_w(blk);

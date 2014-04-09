@@ -89,6 +89,7 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 	base.build(&qs->data);
 	qs->delta = delta;
 	qs->factor = factor;
+	qs->len = i;
 }
 
 void IntValQuery::save(mscds::OutArchive &ar) const {

@@ -88,6 +88,7 @@ void HuffmanModel::startBuild(const Config *conf) {
 	mbdata.max_symbol_size = 127;
 	if (conf != NULL) mbdata.max_symbol_size = conf->getInt("HUFFDT_MAX_SYM", 127);
 	mbdata.n = 0;
+	mbdata.cnt.clear();
 }
 
 void HuffmanModel::add(uint32_t val) {

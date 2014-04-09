@@ -177,8 +177,9 @@ int build_testx() {
 	d.dump_bedgraph("C:/temp/tt.bg");
 	return 0;
 	
-	/*
-	GenomeNumDataBuilder bd;
+	
+	
+	/*GenomeNumDataBuilder bd;
 	bd.build_bedgraph("C:/temp/GSM686950.bedGraph", "C:/temp/GSM686950.cwig2");
 	return 0;
 	

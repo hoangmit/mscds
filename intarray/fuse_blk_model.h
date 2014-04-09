@@ -33,6 +33,7 @@ public:
 		did = bd->register_data_block();
 
 		cnt = 0;
+		total = 0;
 	}
 
 	bool is_full() const {
@@ -48,6 +49,7 @@ public:
 			ptrs.push_back(data_buffer.length());
 		model.encode(val, &data_buffer);
 		cnt++;
+		total++;
 	}
 
 	void set_block_data(bool x = false) {
@@ -105,7 +107,7 @@ public:
 	void build_struct() {
 		if (!is_empty())
 			set_block_data();
-		model_buffer.puts(cnt);
+		model_buffer.puts(total);
 		model_buffer.close();
 
 		bd->set_global(sid, model_buffer);
@@ -120,6 +122,7 @@ public:
 
 private:
 	unsigned int cnt;
+	size_t total;
 	std::vector<uint32_t> ptrs;
 	OBitStream data_buffer, model_buffer;
 	Model model;
@@ -153,7 +156,7 @@ public:
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:
 		Enum() {}
-		bool hasNext() const { return pos <= data->len; }
+		bool hasNext() const { return pos < data->len; }
 		uint64_t next() {
 			auto v = data->model.decode(&is);
 			++pos;

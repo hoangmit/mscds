@@ -479,6 +479,7 @@ void test4() {
 			assert(vals[i] == v);
 			++i;
 		}
+		assert(vals.size() == i);
 	}
 	
 }

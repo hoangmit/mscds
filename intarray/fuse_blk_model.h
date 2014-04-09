@@ -113,7 +113,7 @@ public:
 	}
 
 	void deploy(StructIDList& lst) {
-		lst.addId("CodeInterBlkBuilder");
+		lst.addId("CodeInterBlk");
 		lst.add(sid);
 		lst.add(did);
 	}
@@ -136,7 +136,7 @@ public:
 	void clear() { mng = nullptr; sid = did = 0; len = 0; model.clear(); } 
 	void setup(BlockMemManager& mng_, StructIDList& lst) {
 		mng = &mng_;
-		lst.checkId("CodeInterBlkBuilder");
+		lst.checkId("CodeInterBlk");
 		sid = lst.get();
 		did = lst.get();
 		assert(sid > 0);

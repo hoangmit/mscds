@@ -2,6 +2,8 @@
 #include "fused_intval.h"
 #include "float_precision.h"
 
+#include <set>
+
 namespace app_ds {
 
 void IntValBuilder::comp_transform(const std::deque<app_ds::ValRange> &all) {
@@ -40,9 +42,18 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 	auto& valbd = base.g<1>();
 	auto& sumbd = base.g<2>();
 	auto& sqsumbd = base.g<3>();
+	std::set<uint64_t> distval;
+	for (it = all.cbegin(); it != all.cend(); ++it) 
+		distval.insert((int64_t)(it->val * factor) - delta);
+	for (auto itx : distval)
+		rvbd.add_inc(itx);
+	rvbd.build(&qs->rankval);
+
+	distval.clear();
 	valbd.start_model();
 	for (it = all.cbegin(); it != all.cend(); ++it) {
 		uint64_t valt = (int64_t)(it->val * factor) - delta;
+		valt = qs->rankval.rank(valt);
 		valbd.model_add(valt);
 	}
 	valbd.build_model();
@@ -62,7 +73,7 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 		}
 		posbd.add(it->st, it->ed);
 		uint64_t valt = (int64_t)(it->val * factor) - delta;
-		valbd.add(valt);
+		valbd.add(qs->rankval.rank(valt));
 		if (it->st < lastst) throw std::runtime_error("overlapping intervals");
 		unsigned int llen = it->ed - it->st;
 		psum += llen * valt;
@@ -84,6 +95,7 @@ void IntValQuery::save(mscds::OutArchive &ar) const {
 	ar.startclass("IntVal", 1);
 	ar.var("factor").save(factor);
 	ar.var("delta").save(delta);
+	rankval.save(ar.var("rank_values"));
 	data.save(ar.var("data"));
 	ar.endclass();
 }
@@ -92,6 +104,7 @@ void IntValQuery::load(mscds::InpArchive &ar) {
 	int class_version = ar.loadclass("IntVal");
 	ar.var("factor").load(factor);
 	ar.var("delta").load(delta);
+	rankval.load(ar.var("rank_values"));
 	data.load(ar.var("data"));
 	ar.endclass();
 }
@@ -175,7 +188,7 @@ double IntValQuery::sqrsum(uint32_t pos) const
 }
 
 double IntValQuery::range_value(unsigned int idx) const {
-	return ((double)vals.get(idx) + delta) / factor;
+	return ((double)rankval.prefixsum(vals.get(idx)) + delta) / factor;
 }
 
 double IntValQuery::sum_intv(unsigned int idx, unsigned int leftpos) const {
@@ -191,11 +204,11 @@ double IntValQuery::sum_intv(unsigned int idx, unsigned int leftpos) const {
 	if (r > 0 || leftpos > 0) {
 		valq.getEnum(base, &e);
 		for (size_t i = 0; i < r; ++i) {
-			auto v = e.next();
+			auto v = rankval.prefixsum(e.next());
 			cpsum += posq.int_len(base + i) * (v + delta);
 		}
 	}
-	if (leftpos > 0) cpsum += (e.next() + delta) * leftpos;
+	if (leftpos > 0) cpsum += (rankval.prefixsum(e.next()) + delta) * leftpos;
 	return cpsum/(double)factor;
 }
 
@@ -216,6 +229,7 @@ void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
 	out << '"' << "length" << "\": " << len << ",";
 	out << '"' << "delta" << "\": " << delta << ",";
 	out << '"' << "factor" << "\": " << factor << ",";
+	out << '"' << "n_distinct_values" << "\": " << rankval.length() << ", ";
 	out << "\"block_data\": " ;
 	data.inspect(cmd, out);
 	out << '}';

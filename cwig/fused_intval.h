@@ -7,6 +7,7 @@
 #include "intarray/fuse_blk_model.h"
 #include "cwig/intv/nintv_fuse.h"
 #include "intarray/ps_access_blk.h"
+#include "intarray/sdarray.h"
 
 
 #include <stdint.h>
@@ -37,6 +38,7 @@ private:
 	std::deque<ValRange> data;
 	uint64_t factor;
 	int64_t delta;
+	mscds::SDArraySmlBuilder rvbd;
 };
 
 class IntValQuery : public RunLenSumArrIt<double> {
@@ -104,6 +106,7 @@ private:
 
 	friend class IntValBuilder;
 	static const unsigned int rate = 64;
+	mscds::SDArraySml rankval;
 
 	uint64_t factor;
 	int64_t delta;

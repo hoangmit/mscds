@@ -12,7 +12,7 @@ void IntValBuilder::comp_transform(const std::deque<app_ds::ValRange> &all) {
 	for (it = all.cbegin(); it != all.cend(); ++it)
 		pc = std::max<unsigned int>(precision(it->val), pc);
 	factor = 1;
-	if (pc > 4) pc = 4;
+	if (pc > 5) pc = 5;
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
 	int64_t minr = std::numeric_limits<int64_t>::max();
 	for (it = all.cbegin(); it != all.cend(); ++it)

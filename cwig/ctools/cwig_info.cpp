@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
 		qs.load(fi);
 		cout << qs.chromosome_count() << " chromosomes " << endl;
 		qs.inspect("", std::cout);
+		std::cout << std::endl;
 	} else {
 		cout << "wrong number of parameters" << endl;
 		cout << "program  cwig_file " << endl;

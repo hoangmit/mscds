@@ -291,7 +291,7 @@ void test5(unsigned int len = 20, unsigned int testid = 0) {
 }
 
 void test6() {
-	//test5();
+	test5();
 	test5(70);
 	for (unsigned int i = 0; i < 100; i++) {
 		test5(1000, i);

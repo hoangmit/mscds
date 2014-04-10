@@ -180,6 +180,11 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
    CACHE PATH "Single Directory for all static libraries.")
 
 
+set(MSCDS_VERSION_MAJOR 0)
+set(MSCDS_VERSION_MINOR 1)
+set(MSCDS_VERSION_PATCH 0)
+set(MSCDS_VERSION_STRING ${MSCDS_VERSION_MAJOR}.${MSCDS_VERSION_MINOR}.${MSCDS_VERSION_PATCH})
+
 MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 #set_target_properties(mscdsa PROPERTIES
 #         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
@@ -191,6 +196,13 @@ MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 #add_library(mscdsa STATIC ${mscdsa_SRCS})
 #add_library(mscdsa STATIC common/mscdsa.h common/mscdsa.cpp)
 set(MSCDS_VERSION 0.1)
+file(GLOB_RECURSE MSCDS_HEADERS 
+    "${PROJECT_SOURCE_DIR}/" "*.h" "*.hpp")
+set_target_properties(mscdsa
+    PROPERTIES VERSION ${MSCDS_VERSION_STRING}
+    SOVERSION ${MSCDS_VERSION_MAJOR}
+    PUBLIC_HEADER "${MSCDS_HEADERS}")
+
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
 
@@ -198,6 +210,21 @@ MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/remote_file)
 MERGE_STATIC_LIBRARIES(remote_access "remote_file;cppnetlib-client-connections;cppnetlib-uri;cppnetlib-server-parsers")
+
+########################################################
+include(GNUInstallDirs)
+
+INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}" 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.hxx"
+    PATTERN "*/ext_libs/*" EXCLUDE 
+    )
+    
+#INSTALL(TARGETS mscdsa  
+#    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}
+#    RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+#    LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
+#    ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 
 
 ########################################################

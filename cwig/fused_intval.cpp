@@ -228,8 +228,6 @@ double IntValQuery::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 IntValQuery::IntValQuery(): itv(data.g<0>()), vals(data.g<1>()) {}
 
 
-
-
 void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
 	out << '{';
 	out << '"' << "length" << "\": " << len << ",";

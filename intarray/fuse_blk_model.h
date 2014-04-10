@@ -132,7 +132,7 @@ private:
 
 
 //template<typename Model>
-class CodeInterBlkQuery {
+class CodeInterBlkQuery: public InterBLockQueryTp {
 public:
 	static const unsigned int elements_per_blk = 512;
 	CodeInterBlkQuery(): mng(nullptr) {}
@@ -158,7 +158,7 @@ public:
 		Enum() {}
 		bool hasNext() const { return pos < data->len; }
 		uint64_t next() {
-			auto v = data->model.decode(&is);
+			int64_t v = data->model.decode(&is);
 			++pos;
 			if (pos % elements_per_blk == 0) move_blk(pos / elements_per_blk);
 			return v;
@@ -197,6 +197,7 @@ public:
 	}
 
 	size_t length() const { return len; }
+	void inspect(const std::string &, std::ostream &) {}
 
 	/*void debug_print(unsigned int blk, unsigned sscnt = 8, std::ostream& out = std::cout) const {
 		auto br = mng->getData(did, blk);
@@ -228,5 +229,16 @@ private:
 	BlockMemManager* mng;
 };
 
+template<typename CodeBlk>
+class DiffCodeInterBlkBuilder: public InterBlockBuilderTp {
+public:
+private:
+};
+
+template<typename CodeBlk>
+class DiffCodeInterBlkQuery: public InterBLockQueryTp {
+public:
+private:
+};
 
 }//namespace

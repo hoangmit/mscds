@@ -1,2 +1,18 @@
-
-
+# - Config file for the MSCDS package
+# It defines the following variables
+#  MSCDS_INCLUDE_DIRS - include directories for FooBar
+#  MSCDS_LIBRARIES    - libraries to link against
+#  MSCDS_EXECUTABLE   - the executable
+ 
+# Compute paths
+get_filename_component(MSCDS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(MSCDS_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+ 
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET mscds AND NOT mscds_BINARY_DIR)
+  include("${MSCDS_CMAKE_DIR}/mscdsTargets.cmake")
+endif()
+ 
+# These are IMPORTED targets created by mscdsTargets.cmake
+set(MSCDS_LIBRARIES mscdsa)
+set(MSCDS_EXECUTABLE )

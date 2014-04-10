@@ -56,7 +56,7 @@ if (BUILD_DYNAMIC_CODE AND CMAKE_COMPILER_IS_GNUCC)
 endif()
 if (CMAKE_COMPILER_IS_GNUCC AND (LINK_STATIC_LIBS))
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
-	MESSAGE(STATUS "Added flags:  -static-libgcc -static-libstdc++")
+	MESSAGE(STATUS "Added linker flags:  -static-libgcc -static-libstdc++")
 endif()
 
 #-------------------------------------------------------------------------------------------------
@@ -178,23 +178,27 @@ set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
    CACHE PATH "Single Directory for all Libraries")  
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
    CACHE PATH "Single Directory for all static libraries.")
+
+
+MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
 #set_target_properties(mscdsa PROPERTIES
 #         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 #set_target_properties(mscdsa PROPERTIES
 #	ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
-
-add_subdirectory(${PROJECT_SOURCE_DIR}/remote_file)
-
-MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
-add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
-
-MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
-	
 #get_property(mscdsa_location TARGET mscdsa PROPERTY LOCATION)
 #MESSAGE(" Location =" ${mscdsa_location})
 #get_property(mscdsa_SRCS GLOBAL PROPERTY mscdsa_SRCS)
 #add_library(mscdsa STATIC ${mscdsa_SRCS})
 #add_library(mscdsa STATIC common/mscdsa.h common/mscdsa.cpp)
+set(MSCDS_VERSION 0.1)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
+
+MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/remote_file)
+MERGE_STATIC_LIBRARIES(remote_access "remote_file;cppnetlib-client-connections;cppnetlib-uri;cppnetlib-server-parsers")
+
 
 ########################################################
 
@@ -204,3 +208,9 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
 
+##========================================================
+export(TARGETS mscdsa FILE "${PROJECT_BINARY_DIR}/mscdsaTargets.cmake")
+export(PACKAGE mscdsa)
+
+# Create the FooBarConfig.cmake and FooBarConfigVersion files
+#file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")

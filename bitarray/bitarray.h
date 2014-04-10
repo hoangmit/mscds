@@ -5,8 +5,8 @@
 
 
 #include "bitop.h"
-#include "framework/archive.h"
-#include "mem/local_mem.h"
+#include "../framework/archive.h"
+#include "../mem/local_mem.h"
 
 #include <stdint.h>
 #include <cstdlib>

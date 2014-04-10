@@ -170,20 +170,20 @@ int run(int argc, const char* argv[]) {
 
 
 int build_testx() {
-	GenomeNumData d;
+	/*GenomeNumData d;
 	IFileArchive2 fi;
 	fi.open_read("C:/temp/GSM686950.cwig2");
 	d.load(fi);
 	d.dump_bedgraph("C:/temp/tt.bg");
-	return 0;
+	return 0;*/
 	
 	
 	
-	/*GenomeNumDataBuilder bd;
+	GenomeNumDataBuilder bd;
 	bd.build_bedgraph("C:/temp/GSM686950.bedGraph", "C:/temp/GSM686950.cwig2");
 	return 0;
 	
-	GenomeNumData d;
+	/*GenomeNumData d;
 	IFileArchive2 fi;
 	fi.open_read("C:/temp/GSM686950.cwig2");
 

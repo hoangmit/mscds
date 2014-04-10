@@ -3,8 +3,8 @@
 #ifndef __RRR2_H_
 #define __RRR2_H_
 
+#include "../framework/archive.h"
 #include "bitarray.h"
-#include "framework/archive.h"
 #include "rankselect.h"
 #include <cstdint>
 #include <string>

@@ -61,7 +61,6 @@ public:
 	double range_value(unsigned int i) const;
 	double range_psum(unsigned int i) const;
 	
-
 	unsigned int last_position() const { return length() > 0 ? range_start(length()-1) + range_len(length() - 1) : 0; }
 
 	unsigned int count_range(unsigned int pos) const;

@@ -4,8 +4,8 @@
 #include <vector>
 #include <cassert>
 #include <sstream>
-#include "framework/archive.h"
-#include "mem/local_mem.h"
+#include "../framework/archive.h"
+#include "../mem/local_mem.h"
 #include "bitarray.h"
 
 

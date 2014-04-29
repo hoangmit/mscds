@@ -135,7 +135,7 @@ inline double ChrNumData::avg(unsigned int st, unsigned ed) const {
 }
 
 inline const std::string ChrNumData::range_annotation(unsigned int i) const {
-	if (has_annotation) return annotations.get(i);
+	if (has_annotation) return annotations.get_str(i);
 	else return "";
 }
 

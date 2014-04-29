@@ -89,9 +89,9 @@ void SampledSumBuilder::build(SampledSumQuery * out, NIntvQueryInt * posquery) {
 void SampledSumBuilder::comp_transform() {
 	unsigned int pc = 0;
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)
-		pc = std::max<unsigned int>(precision(it->val), pc);
+		pc = std::max<unsigned int>(fprecision(it->val), pc);
 	factor = 1;
-	if (pc > 5) pc = 5;
+	if (pc > 6) pc = 6;
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
 	int64_t minr = std::numeric_limits<int64_t>::max();
 	for (auto it = ptr->begin(); it != ptr->end(); ++it)

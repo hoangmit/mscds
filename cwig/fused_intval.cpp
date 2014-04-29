@@ -10,7 +10,7 @@ void IntValBuilder::comp_transform(const std::deque<app_ds::ValRange> &all) {
 	unsigned int pc = 0;
 	std::deque<ValRange>::const_iterator it;
 	for (it = all.cbegin(); it != all.cend(); ++it)
-		pc = std::max<unsigned int>(precision(it->val), pc);
+		pc = std::max<unsigned int>(fprecision(it->val), pc);
 	factor = 1;
 	if (pc > 5) pc = 5;
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;

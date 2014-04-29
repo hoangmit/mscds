@@ -40,6 +40,7 @@ public:
 
 	void log(const std::string& msg) { *_logger << msg << std::endl; }
 	void dump(std::ostream& out = std::cout);
+	size_t size() const { return variables.size(); }
 
 	Config();
 	Config(std::istream& stream);

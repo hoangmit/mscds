@@ -25,7 +25,7 @@ InpArchive &RemoteArchive2::endclass() {
 }
 
 StaticMemRegionPtr RemoteArchive2::load_mem_region(MemoryAccessType mtp) {
-	if (mtp != WORD_ACCESS) throw memory_error("does not support mapping memory access type");
+	if (mtp != API_ACCESS) throw memory_error("does not support mapping memory access type");
 	MemoryAlignmentType align;
 	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz = 0;

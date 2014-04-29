@@ -24,7 +24,7 @@ public:
 	void close() {}
 
 	const void* get_addr() const { return nullptr; }
-	MemoryAccessType memory_type() const { return WORD_ACCESS; }
+	MemoryAccessType memory_type() const { return API_ACCESS; }
 	bool request_map(size_t start, size_t len) { return false; }
 
 	//small one time access
@@ -53,7 +53,7 @@ public:
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);
 	InpArchive& endclass();
-	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = WORD_ACCESS);
+	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS);
 
 	size_t ipos() const;
 

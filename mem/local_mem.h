@@ -51,7 +51,7 @@ class LocalDynamicMem : public DynamicMemRegionAbstract {
 public:
 	static const uint8_t WORDSZ = 8;
 	unsigned int model_id() const { return 2; }
-	MemoryAccessType memory_type() const { return WORD_ACCESS; }
+	MemoryAccessType memory_type() const { return API_ACCESS; }
 	MemoryAlignmentType alignment() const { return A8; }
 	const void* get_addr() const { return data.data(); }
 	bool request_map(size_t start, size_t len) { return true; }

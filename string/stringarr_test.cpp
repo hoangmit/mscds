@@ -22,8 +22,8 @@ TEST(string_array, strarr1) {
 	StringArr sa;
 	bd.build(&sa);
 	for (int i = 0; i < n; ++i) {
-		const char * p = sa.get(i);
-		ASSERT_EQ(0, strcmp(A[i], p));
+		std::string p = sa.get_str(i);
+		ASSERT_EQ(p, A[i]);
 	}
 }
 
@@ -36,8 +36,8 @@ TEST(string_array, strarr2) {
 	StringArr sa;
 	bd.build(&sa);
 	for (int i = 0; i < n; ++i) {
-		const char * p = sa.get(i);
-		ASSERT_EQ(0, strcmp(A[i], p));
+		std::string p = sa.get_str(i);
+		ASSERT_EQ(p, A[i]);
 	}
 }
 
@@ -53,8 +53,8 @@ TEST(string_array, saveload) {
 	string fn = save_load_test(bd, sa);
 
 	for (int i = 0; i < n; ++i) {
-		const char * p = sa.get(i);
-		ASSERT_EQ(0, strcmp(A[i], p));
+		std::string p = sa.get_str(i);
+		ASSERT_EQ(p, A[i]);
 	}
 
 

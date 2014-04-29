@@ -23,6 +23,8 @@ rlsum_int.h poly_vals.h
 intv/nintv.h
 intv/nintv_fuse.h
 float_precision.h
+float_mono_array.h
+float_int_map.h
 )
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})

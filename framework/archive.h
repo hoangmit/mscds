@@ -102,7 +102,7 @@ public:
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 
 	// BoundedMemRegion is defined in mem_models.h
-	virtual StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = WORD_ACCESS) = 0;
+	virtual StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS) = 0;
 	
 	virtual size_t ipos() const = 0;
 	virtual bool eof() const = 0;

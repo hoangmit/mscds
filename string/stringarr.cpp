@@ -36,9 +36,15 @@ void StringArrBuilder::build(StringArr *out) {
 	size_t arrlen = (out->tlen + 7)/ 8;
 	out->ba = os.build();
 	bd.build(&(out->start));
-	if (out->ba.memory_type() != mscds::MAP_ON_REQUEST && out->ba.memory_type() != mscds::FULL_MAPPING)
-		throw mscds::memory_error("not supported memory type");
-	out->ptrs = (const char*) out->ba.get_addr();
+
+	if (out->ba.memory_type() != mscds::MAP_ON_REQUEST && out->ba.memory_type() != mscds::FULL_MAPPING) {
+		out->mapping = false;
+		out->ptrs = nullptr;
+	}
+	else {
+		out->mapping = true;
+		out->ptrs = (const char*)out->ba.get_addr();
+	}
 	store.clear();
 }
 
@@ -67,12 +73,16 @@ void StringArr::load(mscds::InpArchive &ar) {
 		ar.var("length").load(tlen);
 		start.load(ar.var("start"));
 		ba = ar.load_mem_region(mscds::MAP_ON_REQUEST);
-		if (ba.memory_type() != mscds::MAP_ON_REQUEST && ba.memory_type() != mscds::FULL_MAPPING)
-			throw mscds::memory_error("not supported memory type");
-		//ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
-		ptrs = (const char*)ba.get_addr();
-		if (tlen > ba.size())
-			throw mscds::memory_error("wrong size");
+		if (ba.memory_type() != mscds::MAP_ON_REQUEST && ba.memory_type() != mscds::FULL_MAPPING) {
+			mapping = false;
+			ptrs = nullptr;
+		} else {
+			mapping = true;
+			ptrs = (const char*)ba.get_addr();
+			if (tlen > ba.size())
+				throw mscds::memory_error("wrong size");
+			//ba = ar.load_mem(0, ((tlen + 7) / 8)*8);
+		}			
 	} else {
 		ba.close();
 		start.clear();
@@ -80,7 +90,6 @@ void StringArr::load(mscds::InpArchive &ar) {
 		ptrs = nullptr;
 	}
 	ar.endclass();
-	
 }
 
 void StringArr::clear() {
@@ -88,22 +97,68 @@ void StringArr::clear() {
 	ptrs = NULL;
 	ba.close();
 	start.clear();
+	mapping = false;
 }
 
-size_t StringArr::str_len(unsigned int i) const {
-	return start.lookup(i);
-}
 
 StringArr::StringArr() { clear(); }
 
-const char *StringArr::get(unsigned int i) const {
+struct MappingString: public StringInt {
+	MappingString(char* p, size_t l, bool nf): ptr(p), len(l), req_free(nf),
+		zerochar(0) {}
+	MappingString(): ptr(&zerochar), zerochar(0), len(0), req_free(false) {}
+
+	~MappingString() {
+		if (ptr != nullptr && req_free) {
+			free(ptr);
+			ptr = nullptr;
+		}
+	}
+
+	const char* c_str() { return ptr; }
+	size_t length() const { return len; }
+
+	char* ptr;
+	size_t len;
+	bool req_free;
+	char zerochar;
+};
+
+StringPtr StringArr::get(unsigned int i) const {
 	assert(i < cnt);
 	uint64_t ps = 0;
 	uint64_t v = start.lookup(i, ps);
-	if (v == 0) return ptrs + ps;
-	else return ptrs + ps + 1;
+	if (v == 0)
+		return std::make_shared<MappingString>(); // std::make_shared<MappingString>(ptrs + ps, 0, false);
+	if (mapping) {
+		ba.request_map(ps, v);
+		return std::make_shared<MappingString>((char*)(ptrs + ps + 1), v - 1, false);
+	} else {
+		char *d = (char*)malloc(v);
+		ba.read(ps + 1, v  - 1, d);
+		return std::make_shared<MappingString>(d, v - 1, true);
+	}
 }
 
+std::string StringArr::get_str(unsigned int i) const {
+	assert(i < cnt);
+	uint64_t ps = 0;
+	uint64_t v = start.lookup(i, ps);
+	if (v == 0) return "";
+	if (mapping) {
+		ba.request_map(ps, v);
+		return std::string((ptrs + ps + 1), (ptrs + ps + v));
+	} else {
+		std::string st;
+		st.reserve(v+1);
+		ba.scan(ps + 1, v, [&st](const void * p, size_t len){
+			st.append((const char*)p, len);
+			return true;
+		});
+		st.resize(v-1);
+		return st;
+	}
+}
 
 }//namespace
 

@@ -49,7 +49,7 @@ public:
 	unsigned char loadclass(const std::string& name);
 	InpArchive& load_bin(void *ptr, size_t size);
 	InpArchive& endclass();
-	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = WORD_ACCESS);
+	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS);
 
 	size_t ipos() const;
 

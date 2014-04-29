@@ -68,11 +68,14 @@ int main(int argc, const char* argv[]) {
 	if (argc >= 3) {
 		Config * c = Config::getInst();
 		c->parse(argc, argv);
-		cout << "params: " << endl;
-		c->dump();
+		if (c->size() > 0) {
+			cout << "params: " << endl;
+			c->dump();
+		}
 		build(argv[1], argv[2]);
 	} else {
 		std::cout << "Not correct number of parameters" << std::endl;
+		std::cout << "bedgraph2cwig  input_bedgraph_file  output_cwig_file" << std::endl;
 	}
 	return 0;
 }

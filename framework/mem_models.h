@@ -23,7 +23,7 @@ private:
 //--------------------------------------------------------------------------------
 
 enum MemoryAlignmentType { DEFAULT, A1, A2, A4, A8 };
-enum EndiannessType { LITTLE_ENDIAN, BIG_ENDIAN };
+enum EndiannessType { LITTLE_ENDIAN_ACCESS, BIG_ENDIAN_ACCESS };
 
 inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	switch (t) {
@@ -42,7 +42,7 @@ enum MemoryAccessType { API_ACCESS = 0, MAP_ON_REQUEST, FULL_MAPPING };
 struct StaticMemRegionAbstract {
 	virtual MemoryAlignmentType alignment() const = 0;
 	virtual MemoryAccessType memory_type() const = 0;
-	virtual EndiannessType endianness_type() const { return LITTLE_ENDIAN; } //only little-endian is supported at the moment
+	virtual EndiannessType endianness_type() const { return LITTLE_ENDIAN_ACCESS; } //only little-endian is supported at the moment
 	// FULL_MAPPING and MAP_ON_REQUEST
 	virtual const void* get_addr() const = 0;
 	// MAP_ON_REQUEST

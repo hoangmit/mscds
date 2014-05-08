@@ -3,6 +3,12 @@
 #ifndef __RANK_SELECT_H_
 #define __RANK_SELECT_H_
 
+/** 
+
+Common interface of rank/select data structures
+
+*/
+
 #include <stdint.h>
 
 namespace mscds {

@@ -3,6 +3,16 @@
 #ifndef __RANK_6P_H_
 #define __RANK_6P_H_
 
+/**
+
+Rank/Select auxiliary data structure that uses 6% of the input bit vector as the additional index.
+
+Based on "..." paper.
+
+Implemented by Hoang
+
+*/
+
 #include "bitarray.h"
 #include "rankselect.h"
 #include "../framework/archive.h"

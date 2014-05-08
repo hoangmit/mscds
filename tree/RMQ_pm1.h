@@ -1,5 +1,12 @@
 #pragma once
 
+/**
+Data structure for Range Minimum/Maximum Query plus minus one.
+
+(Restricted version of RMQ)
+
+*/
+
 #include "bitarray/bitop.h"
 #include "bitarray/bitarray.h"
 #include "framework/archive.h"

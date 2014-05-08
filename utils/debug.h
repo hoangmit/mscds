@@ -2,6 +2,12 @@
 #ifndef __UTILS_DEBUG_H_
 #define __UTILS_DEBUG_H_
 
+/** 
+
+Debug helper class
+
+*/
+
 #include <string>
 #include <iostream>
 #include <stdint.h>

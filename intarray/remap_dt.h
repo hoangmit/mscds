@@ -1,5 +1,14 @@
 #pragma once
 
+/**
+
+Implement array of integer compressed with delta compression. The most frequent
+values are map to 0.. to improve the compression ratio.
+
+
+*/
+
+
 #include <unordered_map>
 #include <map>
 

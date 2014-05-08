@@ -1,6 +1,13 @@
 
 #pragma once
 
+/**
+Implement archive for remote file.
+
+(Archive structure version 2.)
+
+*/
+
 #include "framework/mem_models.h"
 #include "framework/archive.h"
 #include "remote_file.h"

@@ -1,5 +1,14 @@
 #pragma once
 
+
+/** 
+Implement Archive that save/load data to files. This archive load everything to 
+memory.
+
+This is version 2 archive layout (data and meta-data are in seperated segments.)
+
+*/
+
 #ifndef __FILE_ARCHIVE2_H_
 #define __FILE_ARCHIVE2_H_
 

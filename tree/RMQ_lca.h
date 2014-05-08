@@ -1,5 +1,12 @@
 #pragma once
 
+/**
+Data structure for Range Minimum/Maximum Query.
+
+RMQ using LCA data structure.
+
+*/
+
 #include "LCA.h"
 #include "CartesianTree.h"
 

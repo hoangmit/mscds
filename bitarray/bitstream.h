@@ -1,5 +1,18 @@
 #pragma once
 
+/**
+Implement BitSteam class. 
+
+  OBitStream: output bit stream. It provides a bit stream that user can append more bits 
+      at the end.
+
+  IWBitStream: input bit stream. This class allows user to extract bits from its front.
+
+  OByteStream: output byte stream.
+
+Implemented by Hoang
+*/
+
 #include <stdint.h>
 #include <vector>
 #include <cassert>

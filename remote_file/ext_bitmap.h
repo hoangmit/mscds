@@ -1,5 +1,11 @@
 #pragma once
 
+/** 
+Persistent bitmap.
+
+This structure is used to store which remote block has been downloaded.
+*/
+
 #include <cstdlib>
 #include <string>
 #include <stdint.h>

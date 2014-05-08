@@ -1,5 +1,11 @@
 #pragma once
 
+/** 
+
+Function and classes for speed benchmarking.
+
+*/
+
 #include <functional>
 #include <chrono>
 #include <list>

@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+Common functions to make and check archive.
+*/
+
 #include "framework/archive.h"
 
 #include <string>

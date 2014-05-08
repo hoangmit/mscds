@@ -3,6 +3,13 @@
 #ifndef __RMQ_SUPER_CARTISIAN_TREE_H_
 #define __RMQ_SUPER_CARTISIAN_TREE_H_
 
+/**
+Data structure for Range Minimum/Maximum Query.
+
+based on super cartisian tree.
+
+*/
+
 #include "BP_bits.h"
 #include <cassert>
 #include <stack>

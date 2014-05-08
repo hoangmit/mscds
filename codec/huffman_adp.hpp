@@ -1,5 +1,14 @@
 #pragma once
 
+/** 
+
+Implement Adaptive huffman coding.
+  
+Concept of adaptive coding: http://en.wikipedia.org/wiki/Adaptive_coding
+
+Written by Hoang.
+*/
+
 #include "huffman_code.h"
 #include "deltacoder.h"
 

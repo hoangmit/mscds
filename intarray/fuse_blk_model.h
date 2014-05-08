@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+Experimental implementation of fusion block
+*/
+
 #include "blkgroup_array.h"
 #include "bitarray/bitstream.h"
 #include "bitarray/bitop.h"

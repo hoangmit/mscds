@@ -4,6 +4,12 @@
 #define __BALANCE_PARATHESIS_AUXILIARY_H_
 
 
+/** 
+
+Implement basic balanced parathesis operations on bitarray.
+
+*/
+
 #include "bitarray/bitarray.h"
 #include "bitarray/rank6p.h"
 #include "intarray/sdarray_sml.h"

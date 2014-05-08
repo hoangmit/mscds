@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+O(1) data structure for lowest common ancestor query
+
+This is O(n \log n) bit data structure.
+
+*/
+
 #include "bitarray/bitop.h"
 #include "tree.h"
 

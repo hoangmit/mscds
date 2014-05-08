@@ -3,6 +3,15 @@
 #ifndef __RRR_H_
 #define __RRR_H_
 
+/** 
+RRR Compressed Rank/Select data structure 
+
+Based on "" paper.
+
+Implemented by Chai.
+
+*/
+
 #include "../framework/archive.h"
 #include "bitarray.h"
 #include "rankselect.h"

@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+defines io error
+*/
+
 #include <string>
 #include <stdexcept>
 

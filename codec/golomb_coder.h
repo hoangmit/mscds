@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+Golomb and Rice coding
+http://en.wikipedia.org/wiki/Golomb_coding
+
+Implemented by Hoang.
+*/
+
 #include <cassert>
 #include "coder.h"
 

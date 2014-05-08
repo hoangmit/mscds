@@ -1,5 +1,18 @@
 #pragma once
 
+/** 
+
+Implement two structures:
+
+  Array of integers encoded using Elias Delta code.
+
+  Array of integers encoded using Elias Delta code of the differences 
+  between two consecutive elements.
+
+This uses "blkarray" and "diffarray"
+
+*/
+
 #include <stdint.h>
 #include "framework/archive.h"
 

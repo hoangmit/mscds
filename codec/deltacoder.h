@@ -1,5 +1,14 @@
 #pragma once
 
+/** 
+
+Gamma and Delta coding
+  http://en.wikipedia.org/wiki/Elias_delta_coding
+
+
+Implemented by Hoang
+*/
+
 #include <cassert>
 #include "coder.h"
 

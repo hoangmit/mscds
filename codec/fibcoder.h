@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+Fibonacci coding 
+  http://en.wikipedia.org/wiki/Fibonacci_coding  
+
+Implemented by Hoang
+*/
+
 #include "coder.h"
 
 namespace coder {
@@ -18,6 +26,6 @@ namespace coder {
 	uint8_t fib_sel(uint64_t n, uint8_t p);
 	*/
 
-	/*  http://en.wikipedia.org/wiki/Fibonacci_coding  */
+	
 
 }

@@ -1,5 +1,13 @@
 #pragma once
 
+/**
+
+Private implement Remote file access
+
+(current only HTTP/HTTPS file is supported.)
+
+*/
+
 #include "remote_file.h"
 #include "http_client.h"
 #include "ext_bitmap.h"

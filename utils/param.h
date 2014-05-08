@@ -3,6 +3,12 @@
 #ifndef __PARAMETERS_H_
 #define __PARAMETERS_H_
 
+/** 
+
+Classes to store program configuration and parameters
+
+*/
+
 #include <iostream>
 #include <string>
 #include <map>

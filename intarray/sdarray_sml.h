@@ -1,5 +1,11 @@
 #pragma once
 
+/**
+
+Alternative implementation of sdarray with bigger block.
+
+*/
+
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 #include "intarray.h"

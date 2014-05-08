@@ -3,6 +3,11 @@
 #ifndef __COUNT_2D_H_
 #define __COUNT_2D_H_
 
+/** 
+Data structure for 2D counting problem
+
+*/
+
 #include <stdint.h>
 #include "framework/archive.h"
 #include "wat_array.h"

@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Common random generator for string, vector and bits
+
+*/
+
 #include <string>
 #include <vector>
 #include <cstdlib>

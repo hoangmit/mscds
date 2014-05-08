@@ -3,6 +3,10 @@
 #ifndef __WAVELET_ARRAY_H_
 #define __WAVELET_ARRAY_H_
 
+/** 
+Wavelet array in generic form
+*/
+
 #include <vector>
 #include <queue>
 #include <stdint.h>

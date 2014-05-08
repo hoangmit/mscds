@@ -1,5 +1,11 @@
 #pragma once
 
+/** 
+
+O(n \log n)-bit tree using pointers.
+
+*/
+
 #include <vector>
 #include <iostream>
 #include <algorithm>

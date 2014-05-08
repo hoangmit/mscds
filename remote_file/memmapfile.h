@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+Primitive implementation of memory mapped file.
+
+(Used to implement bitmap file.)
+
+*/
+
 #ifndef _MYMMAP_H_
 #define _MYMMAP_H_
 

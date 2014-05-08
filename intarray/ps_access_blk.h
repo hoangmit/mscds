@@ -1,6 +1,11 @@
 
 #pragma once
 
+/**
+Experimental fusion related structure.
+*/
+
+
 #include "blkgroup_array.h"
 #include "inc_ptrs.h"
 #include "codec/deltacoder.h"

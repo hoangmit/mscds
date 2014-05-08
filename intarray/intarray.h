@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+Interface of array of integers
+*/
+
 #include "framework/archive.h"
 #include "utils/param.h"
 

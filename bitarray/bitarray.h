@@ -3,6 +3,21 @@
 #ifndef __BITVECTOR_H_
 #define __BITVECTOR_H_
 
+/** 
+Implement BitArray and related classes based on memory framework.
+
+  BitArray: represents a array of bits. The size is fixed at creation; however, 
+    the values of the bit-element can be changed. This class also provide various
+	ways to access the bit e.g. by word, by byte.
+
+  BitArrayBuilder: set of functions to build BitArray.
+
+  FixedWArray: Array of fixed width integers (based on BitArray).
+
+  bsearch_hints: binary search
+
+Implemented by Hoang
+*/
 
 #include "bitop.h"
 #include "../framework/archive.h"

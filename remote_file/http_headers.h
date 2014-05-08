@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Parse HTTP header for HTTP client.
+
+*/
+
 #include "error.h"
 #include "strptime.h"
 

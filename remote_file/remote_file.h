@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+Implement Remote file access
+
+(current only HTTP/HTTPS file is supported.)
+
+*/
+
 #include <string>
 #include <memory>
 #include <stdexcept>

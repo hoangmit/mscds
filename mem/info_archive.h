@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+Implement some utility archives:
+
+  Memory archive for testing
+
+  Archive to estimate size
+
+*/
 
 #include "framework/archive.h"
 #include "file_archive1.h"

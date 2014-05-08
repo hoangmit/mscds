@@ -1,6 +1,14 @@
 
 #pragma once
 
+/** 
+
+Implement huffman coding.
+
+Written by Hoang.
+
+*/
+
 #include <vector>
 #include <stdint.h>
 #include <cassert>

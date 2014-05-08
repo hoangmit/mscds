@@ -3,13 +3,20 @@
 #ifndef __RANK_3P_H_
 #define __RANK_3P_H_
 
+/**
+
+Rank/Select auxiliary data structure that uses 3% of the input bit vector as the additional index.
+
+Based on "..." paper.
+
+Implemented by Chai
+*/
+
 #include "bitarray.h"
 #include "rankselect.h"
 #include "../framework/archive.h"
 #include <cstdint>
 #include <string>
-
-
 
 namespace mscds {
 

@@ -1,6 +1,10 @@
 
 #pragma once
 
+/** 
+Implement HTTP client to read a remote file.
+
+*/
 
 #include <string>
 #include <memory>

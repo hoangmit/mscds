@@ -1,5 +1,11 @@
 #pragma once
 
+/**
+
+Implement Gamma compressed array and Gamma compressed array of the differences.
+
+*/
+
 #include "sdarray_sml.h"
 #include "codec/deltacoder.h"
 #include "diffarray.hpp"

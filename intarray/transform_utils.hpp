@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Experimental structures
+
+*/
+
 #include "bitarray/bitarray.h"
 #include <stdint.h>
 #include <vector>

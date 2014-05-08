@@ -1,5 +1,13 @@
 #pragma once
 
+/** 
+
+Basic huffman compression model. 
+
+Array of huffman compressed values and differences.
+
+*/
+
 #include <utility>
 #include <functional>
 #include <vector>

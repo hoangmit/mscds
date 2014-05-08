@@ -1,5 +1,15 @@
 #pragma once
 
+/** 
+
+Rank/Select auxiliary data structure that uses 25% of the input bit vector as the additional index.
+
+Based on "..." paper.
+
+Implemented by Hoang.
+
+*/
+
 #include "bitarray.h"
 #include "bitop.h"
 #include "rankselect.h"

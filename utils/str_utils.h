@@ -3,6 +3,12 @@
 #ifndef __STR_UTILS_H_
 #define __STR_UTILS_H_
 
+/** 
+
+Common string operations
+
+*/
+
 #include <string>
 #include <sstream>
 #include <vector>

@@ -1,5 +1,7 @@
 #pragma once
-
+/**
+Read tree in Nexus format
+*/
 
 #include "tree.h"
 

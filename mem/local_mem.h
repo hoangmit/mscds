@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Implement local memory model
+
+*/
+
 #include "framework/mem_models.h"
 #include <cassert>
 #include <vector>

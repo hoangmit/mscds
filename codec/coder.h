@@ -1,12 +1,17 @@
 
 #pragma once
 
+/** 
+
+Interface of Coder function and 2 common functions.
+
+*/
+
 #include <stdint.h>
 #include <utility>
 #include <stdexcept>
 #include <vector>
 #include <cassert>
-
 
 namespace coder {
 	typedef uint64_t NumTp;

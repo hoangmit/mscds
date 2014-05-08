@@ -1,5 +1,14 @@
 #pragma once
 
+/**
+
+Data structure for Range Minimum/Maximum Query.
+
+This is structure only store the values of the min/max.
+
+*/
+
+
 #include "bitarray/bitop.h"
 #include "bitarray/bitarray.h"
 #include "framework/archive.h"

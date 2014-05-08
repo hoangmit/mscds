@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Implemented SDArray in fusion block.
+
+*/
+
 #include <vector>
 #include <stdint.h>
 #include "bitarray/bitstream.h"

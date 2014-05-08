@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+Implement an array of strings
+*/
+
 #include "bitarray/bitarray.h"
 #include "framework/archive.h"
 #include "intarray/sdarray_sml.h"

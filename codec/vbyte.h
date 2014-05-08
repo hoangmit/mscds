@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+Implement VByte coding
+*/
+
 #include <stdint.h>
 
 namespace coder {

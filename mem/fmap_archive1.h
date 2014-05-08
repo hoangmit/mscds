@@ -1,5 +1,12 @@
 #pragma once
 
+/**
+Archive to read data from file. This archive uses memory mapping to avoid loading all
+data to memory at once.
+
+This is version 1 archive layout (data and meta-data is mixed in one segment.)
+*/
+
 #ifndef __FILE_MAP_ARCHIVE_H_
 #define __FILE_MAP_ARCHIVE_H_
 

@@ -1,6 +1,14 @@
 
 #pragma once
 
+/**
+
+Prototype implementation of Arithmetic code
+
+Written by Hoang
+
+*/
+
 #include <iostream>
 #include <vector>
 #include <stdint.h>

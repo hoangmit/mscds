@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Cartesian tree construction algorithm.
+
+*/
+
 #include "tree.h"
 
 namespace mscds {

@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+Experimental fusion related structure.
+*/
+
+
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 

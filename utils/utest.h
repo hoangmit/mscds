@@ -2,6 +2,12 @@
 #ifndef __UNIT_TEST_H_
 #define __UNIT_TEST_H_
 
+/** 
+
+Unit testing wrapper (avoid missing of gtest library).
+
+*/
+
 #define PRT(x) cout<< #x <<"="<<(x) << endl
 
 #include <iostream>

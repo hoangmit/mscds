@@ -1,5 +1,21 @@
 #pragma once
 
+/**
+
+Array of integers that uses some generic compression method.
+
+  The structure has 2 layers: big-block, and small-block. Compression method can have
+  decoding information at the head of each big-block. Compression method should be
+  able to randomly access to each small block.
+
+  PointerModel: pointer calculation functions for 2-layer block structure
+
+  CodeModelBlk<Model>: handle big-block.
+
+  CodeModelBlk<Model>, CodeModelBuilder<Model>: the array 
+
+*/
+
 #include <utility>
 #include <functional>
 #include <vector>

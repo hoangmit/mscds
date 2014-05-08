@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+Experimental implementation of fusion structure
+
+*/
 
 #include "codec/stream/codec_adapter.h"
 #include "framework/archive.h"

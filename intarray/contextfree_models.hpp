@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Delta compression model for blkarray
+
+*/
+
 #include "codec/deltacoder.h"
 #include "utils/param.h"
 #include "bitarray/bitstream.h"

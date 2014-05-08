@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+Defines abstracted memory interfaces
+
+*/
+
 #include <stdint.h>
 #include <memory>
 #include <cassert>

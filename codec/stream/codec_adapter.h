@@ -1,5 +1,11 @@
 #pragma once
 
+/** 
+
+Coder + stream
+
+*/
+
 #include "bitarray/bitarray.h"
 #include "bitarray/bitstream.h"
 

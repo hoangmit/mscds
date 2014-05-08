@@ -1,5 +1,11 @@
 #pragma once
 
+/** 
+Implement wrapper of various external compression libraries.
+
+Written by Hoang
+*/
+
 #include <stdint.h>
 #include <iostream>
 #include <vector>

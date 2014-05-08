@@ -1,5 +1,10 @@
 #pragma once
 
+/** 
+Collection of functions to deal with files and paths
+
+*/
+
 #ifndef __FILE_UTILS_H_
 #define __FILE_UTILS_H_
 

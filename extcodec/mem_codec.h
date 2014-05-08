@@ -2,6 +2,13 @@
 
 #include <string>
 
+/** 
+
+Function wrappers for compression methods from external libraries
+
+Written by Hoang
+*/
+
 namespace mscds {
 
 // interface for memory codec

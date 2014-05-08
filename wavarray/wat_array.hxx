@@ -4,6 +4,10 @@
 #ifndef __WAVELET_ARRAY_IMPL_
 #define __WAVELET_ARRAY_IMPL_
 
+/** 
+Implementation of generic wavelet tree functions
+*/
+
 #include "wat_array.h"
 
 #include <queue>

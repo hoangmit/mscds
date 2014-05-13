@@ -1,7 +1,8 @@
 
 
-#include "sdarray.h"
-#include "sdarray_sml.h"
+#include "intarray/sdarray.h"
+#include "intarray/sdarray_sml.h"
+
 #include "sdarray_block.h"
 
 #include "bitarray/bitstream.h"

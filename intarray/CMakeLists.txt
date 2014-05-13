@@ -5,8 +5,6 @@ project(intarray)
 set(SRCS sdarray.cpp sdarray_sml.cpp deltaarray.cpp huffarray.cpp 
 gamma_arr.cpp
 remap_dt.cpp
-blkgroup_array.cpp
-sdarray_block.cpp
 )
 
 set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 
@@ -15,23 +13,13 @@ remap_dt.h
 blkarray.hpp diffarray.hpp
 transform_utils.hpp
 contextfree_models.hpp
-blkgroup_array.h
-sdarray_block.h
-fuse_blk_model.h
-inc_ptrs.h
-inc_ptrs2.h
-inc_ptrs3.h
-ps_access_blk.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})
 target_link_libraries(intarray bitarray codec utils)
 #add_sources(mscdsa ${SRCS} ${HEADERS})
 
-add_executable(blkgroup_array_test blkgroup_array_test.cpp)
-target_link_libraries(blkgroup_array_test intarray utils ${COMMON_LIBS})
-set_target_properties(blkgroup_array_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET blkgroup_array_test PROPERTY FOLDER "Tests")
+
 
 add_test_files(sda_test.cpp)
 #add_executable(t_sda sda_test.cpp)

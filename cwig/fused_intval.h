@@ -3,10 +3,10 @@
 #include "valrange.h"
 #include "rlsum_int.h"
 
-#include "intarray/blkgroup_array.h"
-#include "intarray/fuse_blk_model.h"
+#include "fusion/blkgroup_array.h"
+#include "fusion/fuse_blk_model.h"
+#include "fusion/ps_access_blk.h"
 #include "cwig/intv/nintv_fuse.h"
-#include "intarray/ps_access_blk.h"
 #include "intarray/sdarray.h"
 
 

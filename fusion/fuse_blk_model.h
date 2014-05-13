@@ -10,7 +10,7 @@ Experimental implementation of fusion block
 
 #include "codec/deltacoder.h"
 
-#include "huffarray.h"
+#include "intarray/huffarray.h"
 
 namespace mscds {
 

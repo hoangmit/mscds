@@ -1,8 +1,8 @@
 #pragma once
 
 #include "nintv.h"
-#include "intarray/blkgroup_array.h"
-#include "intarray/sdarray_block.h"
+#include "fusion/blkgroup_array.h"
+#include "fusion/sdarray_block.h"
 
 #include <algorithm>
 

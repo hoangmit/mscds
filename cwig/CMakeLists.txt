@@ -31,7 +31,7 @@ float_int_map.h
 #target_link_libraries(bedgraph2gnt mscdsa)
 
 add_library(cwig ${SRCS} ${HEADERS})
-target_link_libraries(cwig mscdsa remote_file)
+target_link_libraries(cwig mscdsa remote_file fusionarray)
 set_property(TARGET cwig PROPERTY FOLDER "Apps")
 
 #add_test_files(intv/intv_tests.cpp)

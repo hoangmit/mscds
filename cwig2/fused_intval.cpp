@@ -1,6 +1,6 @@
 
 #include "fused_intval.h"
-#include "float_precision.h"
+#include "cwig/float_precision.h"
 
 #include <set>
 

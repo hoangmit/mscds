@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nintv.h"
+#include "cwig/intv/nintv.h"
 #include "fusion/blkgroup_array.h"
 #include "fusion/sdarray_block.h"
 

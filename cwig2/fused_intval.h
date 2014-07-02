@@ -1,12 +1,12 @@
 #pragma once
 
-#include "valrange.h"
-#include "rlsum_int.h"
+#include "cwig/valrange.h"
+#include "cwig/rlsum_int.h"
 
 #include "fusion/blkgroup_array.h"
 #include "fusion/fuse_blk_model.h"
 #include "fusion/ps_access_blk.h"
-#include "cwig/intv/nintv_fuse.h"
+#include "cwig2/intv/nintv_fuse.h"
 #include "intarray/sdarray.h"
 
 

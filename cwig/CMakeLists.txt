@@ -6,25 +6,19 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(SRCS chrfmt.cpp cwig.cpp
 RLSum6.cpp 
-fused_intval.cpp
 SampledSum.cpp
 rank_vals.cpp
 poly_vals.cpp
 intv/nintv.cpp
-intv/nintv_fuse.cpp
 )
 
 set(HEADERS chrfmt.h cwig.h 
 RLSum6.h 
-fused_intval.h
 SampledSum.h
 rank_vals.h
 rlsum_int.h poly_vals.h
-intv/nintv.h
-intv/nintv_fuse.h
 float_precision.h
-float_mono_array.h
-float_int_map.h
+intv/nintv.h
 )
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
@@ -38,15 +32,10 @@ set_property(TARGET cwig PROPERTY FOLDER "Apps")
 #intv/intv_rand_gen.hpp
  
 add_executable(t_cwig cwig_test.cpp rlsum_test.cpp val_arr_test.cpp intv/intv_tests.cpp)
-target_link_libraries(t_cwig cwig utils)
+target_link_libraries(t_cwig cwig cwig2 utils)
 set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 set_property(TARGET t_cwig PROPERTY FOLDER "Tests")
 
-
-add_executable(t_cwig_fuse intv/nintv_fuse_test.cpp)
-target_link_libraries(t_cwig_fuse cwig utils)
-set_target_properties(t_cwig_fuse PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET t_cwig_fuse PROPERTY FOLDER "Tests")
 
 
 add_executable(tbm_cwig benchmark_cwig.cpp)

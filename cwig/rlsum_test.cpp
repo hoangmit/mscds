@@ -9,7 +9,7 @@
 
 
 #include "intv/intv_rand_gen.hpp"
-#include "fused_intval.h"
+#include "cwig2/fused_intval.h"
 
 #include <vector>
 #include <sstream>
@@ -149,6 +149,8 @@ TEST(rlsum, tb_rng) {
 	}
 	cout << endl;
 }
+
+
 
 TEST(rlsum, fuse_1) {
 	test_rlsum_tb_1<IntValQuery>();

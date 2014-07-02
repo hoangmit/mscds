@@ -8,16 +8,16 @@
 #include "framework/archive.h"
 #include "valrange.h"
 
-//#include "RLSum6.h"
-#include "fused_intval.h"
+#include "RLSum6.h"
+//#include "../cwig2/fused_intval.h"
 
 namespace app_ds {
 
-//typedef RunLenSumArray6 ChrNumValType;
-//typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
+typedef RunLenSumArray6 ChrNumValType;
+typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
-typedef IntValQuery ChrNumValType;
-typedef IntValQuery::BuilderTp ChrNumValBuilderType;
+//typedef IntValQuery ChrNumValType;
+//typedef IntValQuery::BuilderTp ChrNumValBuilderType;
 
 
 class ChrNumData;

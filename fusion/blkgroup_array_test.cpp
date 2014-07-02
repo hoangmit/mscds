@@ -531,8 +531,8 @@ void test_ptr() {
 	}
 
 	std::cout << "Distance-bit: " << b1.length() << "   PS-bit: " << b2.length() << std::endl;
-
 }
+
 //--------------------------------------------------------------------------
 // Benchmark
 
@@ -729,11 +729,11 @@ void test_all1() {
 }
 
 int main(int argc, char* argv[]) {
-	//test_all1();
+	test_all1();
 	test4();
 	test_ptr();
 
-	//BenchmarkRegister::run_all();
+	BenchmarkRegister::run_all_bm();
 	
 	return 0;
 }

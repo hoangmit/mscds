@@ -1,7 +1,7 @@
 
 #include "utils/utest.h"
 #include "nintv_fuse.h"
-#include "intv_rand_gen.hpp"
+#include "cwig/intv/intv_rand_gen.hpp"
 
 #include "utils/benchmark.h"
 
@@ -117,7 +117,7 @@ void test_all() {
 	test4();
 }
 
-#include "nintv.h"
+#include "cwig/intv/nintv.h"
 
 #include "mem/file_archive2.h"
 #include "mem/fmap_archive2.h"
@@ -241,7 +241,7 @@ int run_exp(int argc, char* argv[]) {
 
 //--------------------------------------------------------------------
 
-#include "../valrange.h"
+#include "cwig/valrange.h"
 
 std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
 	std::deque<ValRange> out(inp.size());

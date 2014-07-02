@@ -232,6 +232,7 @@ INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}"
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/export_lib)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cwig)
+add_subdirectory(${PROJECT_SOURCE_DIR}/cwig2)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)

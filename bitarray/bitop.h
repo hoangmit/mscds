@@ -37,7 +37,7 @@ namespace mscds {
 
 #define ZCOMPARE_STEP_8(x) ( ( ( x | ( ( x | MSBS_STEP_8 ) - ONES_STEP_8 ) ) & MSBS_STEP_8 ) >> 7 )
 
-// from "Sebastiano Vigna"
+// from "Sebastiano Vigna"  at http://vigna.di.unimi.it/
 inline uint64_t selectword_v2(uint64_t x, uint64_t r) {
 	uint64_t byte_sums = x - ( ( x & 0xa * ONES_STEP_4 ) >> 1 );
 	byte_sums = ( byte_sums & 3 * ONES_STEP_4 ) + ( ( byte_sums >> 2 ) & 3 * ONES_STEP_4 );

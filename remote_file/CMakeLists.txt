@@ -51,7 +51,5 @@ endif()
 
 MESSAGE(STATUS "lib in use: ${Boost_LIBRARIES}")
 
-ADD_EXECUTABLE(remote_file_example remote_file_example.cpp)
-TARGET_LINK_LIBRARIES(remote_file_example remote_file mscdsa cwig ${Boost_LIBRARIES})
-set_property(TARGET remote_file_example PROPERTY FOLDER "Tests")
+add_test_exec(remote_file_example FILES remote_file_example.cpp LIBS remote_file mscdsa cwig ${Boost_LIBRARIES})
 

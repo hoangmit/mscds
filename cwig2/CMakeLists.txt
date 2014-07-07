@@ -26,14 +26,8 @@ set_property(TARGET cwig2 PROPERTY FOLDER "Apps")
 #add_test_files(intv/intv_tests.cpp)
 #intv/intv_rand_gen.hpp
  
-#add_executable(t_cwig2  intv/intv_tests.cpp)
-#target_link_libraries(t_cwig cwig utils)
-#set_target_properties(t_cwig PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-#set_property(TARGET t_cwig PROPERTY FOLDER "Tests")
 
+add_test_exec(t_float_int FILES test_float_int.cpp LIBS cwig2 utils)
 
-add_executable(t_cwig_fuse intv/nintv_fuse_test.cpp)
-target_link_libraries(t_cwig_fuse cwig cwig2 utils)
-set_target_properties(t_cwig_fuse PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET t_cwig_fuse PROPERTY FOLDER "Tests")
+add_test_exec(t_cwig_fuse FILES intv/nintv_fuse_test.cpp LIBS cwig cwig2 utils)
 

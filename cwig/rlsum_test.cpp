@@ -1,12 +1,10 @@
 
-
 #include "intv/nintv.h"
 #include "rlsum_trivbin.h"
 #include "mem/file_archive2.h"
 #include "utils/file_utils.h"
 #include "utils/utest.h"
 #include "RLSum6.h"
-
 
 #include "intv/intv_rand_gen.hpp"
 #include "cwig2/fused_intval.h"
@@ -149,8 +147,6 @@ TEST(rlsum, tb_rng) {
 	}
 	cout << endl;
 }
-
-
 
 TEST(rlsum, fuse_1) {
 	test_rlsum_tb_1<IntValQuery>();

@@ -189,8 +189,7 @@ double IntValQuery::sum(uint32_t pos) const {
 	return sum_intv(res.first, res.second);
 }
 
-double IntValQuery::sqrsum(uint32_t pos) const
-{
+double IntValQuery::sqrsum(uint32_t pos) const {
 	throw std::runtime_error("not implemented");
 	return 0;
 }
@@ -227,7 +226,6 @@ double IntValQuery::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 
 IntValQuery::IntValQuery(): itv(data.g<0>()), vals(data.g<1>()) {}
 
-
 void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
 	out << '{';
 	out << '"' << "length" << "\": " << len << ",";
@@ -251,7 +249,6 @@ bool app_ds::IntValQuery::Enum::hasNext(){
 IntValQuery::IntervalInfo IntValQuery::Enum::next() {
 	return ptr->range_at(i++);
 }
-
 
 
 }

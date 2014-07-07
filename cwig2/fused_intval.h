@@ -9,7 +9,6 @@
 #include "cwig2/intv/nintv_fuse.h"
 #include "intarray/sdarray.h"
 
-
 #include <stdint.h>
 
 namespace app_ds {

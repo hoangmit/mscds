@@ -19,7 +19,6 @@ This uses "blkarray" and "diffarray"
 #include "codec/deltacoder.h"
 #include "bitarray/bitstream.h"
 
-
 #include "intarray/sdarray.h"
 #include "intarray/intarray.h"
 #include "intarray/diffarray.hpp"

@@ -35,14 +35,10 @@ add_library(codec ${SRC} ${HEADER})
 target_link_libraries(codec ${LIBS})
 
 add_test_files(test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
-#set(UNIT_TEST_SRC test_coder.cpp test_bstreamg.cpp test_arithmetic_huffman.cpp)
-#add_executable(t_codec ${UNIT_TEST_SRC} ${HEADER})
-#target_link_libraries(t_codec codec utils)
+
 
 add_test_files(test_compression_framework.cpp)
-#add_executable(t_compression_fw test_compression_framework.cpp ${HEADER})
-#target_link_libraries(t_compression_fw codec utils intarray)
-#set_target_properties(t_compression_fw PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
 
 #add_library(codec_stream codec_adapter.h)
 #target_link_libraries(codec_stream codec bitarray)

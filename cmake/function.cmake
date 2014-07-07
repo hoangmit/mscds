@@ -174,3 +174,15 @@ macro (strip_target target_name)
     	)
     endif()
 endmacro()
+
+
+macro (add_test_exec target) #FILES a.cpp LIBS lib1 lib2
+	set(options "")
+	set(oneValueArgs "")
+	set(multiValueArgs FILES LIBS)
+	cmake_parse_arguments(add_utest "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+	add_executable(${target} ${add_utest_FILES})
+	target_link_libraries(${target} ${add_utest_LIBS})
+	set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+	set_property(TARGET ${target} PROPERTY FOLDER "Tests")
+endmacro()

@@ -23,12 +23,6 @@ target_link_libraries(mem utils)
 
 
 add_test_files(filemap_test.cpp)
-#add_executable(t_mem filemaptest.cpp)
-#target_link_libraries(t_mem mem)
-#set_target_properties(t_mem PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 
-add_executable(t_mem2 mem_test.cpp)
-target_link_libraries(t_mem2 mem remote_file)
-set_target_properties(t_mem2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET t_mem2 PROPERTY FOLDER "Tests")
+add_test_exec(t_mem2 FILES mem_test.cpp LIBS mem remote_file)

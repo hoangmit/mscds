@@ -25,9 +25,4 @@ add_library(extcodec ${SRCS} ${HEADERS})
 target_link_libraries(extcodec  ${SNAPPY_LIBRARY} ${ZLIB_LIBRARY} ${Boost_LIBRARIES})
 
 #add_test_files(test_extcodec.cpp)
-add_executable(t_extcodec test_extcodec.cpp)
-target_link_libraries(t_extcodec extcodec utils)
-set_target_properties(t_extcodec PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET t_extcodec PROPERTY FOLDER "Tests")
-
-
+add_test_exec(t_extcodec FILES test_extcodec.cpp LIBS extcodec utils)

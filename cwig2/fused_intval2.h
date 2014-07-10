@@ -22,7 +22,7 @@ template<typename IVS> class IntValQueryG;
 template <typename IVS>
 class IntValBuilderG {
 public:
-	typedef typename IntValQueryG<IVS> QueryTp;
+	typedef IntValQueryG<IVS> QueryTp;
 	void add(unsigned int st, unsigned int ed, double val) { bd.add(st, ed, val); }
 	void build(QueryTp* qs) { bd.build(&(qs->data)); }
 	void build(mscds::OutArchive& ar) {
@@ -123,7 +123,7 @@ public:
 	};
 	void getEnum(unsigned int idx, Enum* e) const;
 	//void inspect(const std::string& cmd, std::ostream& out) const;
-	typedef typename IntValBuilderG<IVS> BuilderTp;
+	typedef IntValBuilderG<IVS> BuilderTp;
 private:
 	double sum_intv(unsigned int idx, unsigned int leftpos = 0) const;
 	double sqrSum_intv(unsigned int idx, unsigned int leftpos = 0) const;
@@ -131,7 +131,7 @@ private:
 	friend class IntValBuilder;
 	static const unsigned int rate = IVS::SUM_GAP; // = 64
 
-	friend class BuilderTp;
+	friend BuilderTp;
 
 	IVS data;
 };

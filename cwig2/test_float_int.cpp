@@ -1,8 +1,10 @@
 
-#include <iostream>
 #include "utils/utest.h"
 
 #include "float_int_map.h"
+
+#include <cmath>
+#include <iostream>
 
 using namespace app_ds;
 using namespace std;

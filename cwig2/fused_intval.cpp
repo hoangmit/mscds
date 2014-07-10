@@ -6,20 +6,6 @@
 
 namespace app_ds {
 
-void IntValBuilder::comp_transform(const std::deque<app_ds::ValRange> &all) {
-	unsigned int pc = 0;
-	std::deque<ValRange>::const_iterator it;
-	for (it = all.cbegin(); it != all.cend(); ++it)
-		pc = std::max<unsigned int>(fprecision(it->val), pc);
-	factor = 1;
-	if (pc > 5) pc = 5;
-	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
-	int64_t minr = std::numeric_limits<int64_t>::max();
-	for (it = all.cbegin(); it != all.cend(); ++it)
-		minr = std::min<int64_t>(minr, it->val*factor);
-	delta = minr; // 1 - minr
-}
-
 void app_ds::IntValBuilder::add(unsigned int st, unsigned int ed, double val) {
 	data.emplace_back(st, ed, val);
 }
@@ -31,29 +17,26 @@ void IntValBuilder::build(IntValQuery *qs) {
 
 void IntValBuilder::build(mscds::OutArchive &ar) {
 	IntValQuery qs;
+	build(&qs);
 	qs.save(ar);
 }
 
 void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *qs) {
-	comp_transform(all);
 	std::deque<ValRange>::const_iterator it;
 	BD base;
 	auto& posbd = base.g<0>();
 	auto& valbd = base.g<1>();
 	auto& sumbd = base.g<2>();
 	auto& sqsumbd = base.g<3>();
-	std::set<uint64_t> distval;
-	for (it = all.cbegin(); it != all.cend(); ++it) 
-		distval.insert((int64_t)(it->val * factor) - delta);
-	for (auto itx : distval)
-		rvbd.add_inc(itx);
-	rvbd.build(&qs->rankval);
 
-	distval.clear();
+	for (it = all.cbegin(); it != all.cend(); ++it) 
+		rvbd.add(it->val);
+	rvbd.build(&qs->fmap);
+
+
 	valbd.start_model();
 	for (it = all.cbegin(); it != all.cend(); ++it) {
-		uint64_t valt = (int64_t)(it->val * factor) - delta;
-		valt = qs->rankval.rank(valt);
+		uint64_t valt = qs->fmap.map_fs(it->val);
 		valbd.model_add(valt);
 	}
 	valbd.build_model();
@@ -72,12 +55,12 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 			sqsumbd.add(sqpsum);
 		}
 		posbd.add(it->st, it->ed);
-		uint64_t valt = (int64_t)(it->val * factor) - delta;
-		valbd.add(qs->rankval.rank(valt));
+		int64_t vali = qs->fmap.map_fi(it->val);
+		valbd.add(qs->fmap.map_is(vali));
 		if (it->st < lastst) throw std::runtime_error("overlapping intervals");
 		unsigned int llen = it->ed - it->st;
-		psum += llen * valt;
-		sqpsum += llen * (valt*valt);
+		psum += llen * vali;
+		sqpsum += llen * (vali*vali);
 		lastst = it->st;
 		++i;
 		if (i % 512 == 0) {
@@ -87,27 +70,21 @@ void IntValBuilder::build(const std::deque<app_ds::ValRange> &all, IntValQuery *
 	if (i % 512 != 0)
 		base._end_block();
 	base.build(&qs->data);
-	qs->delta = delta;
-	qs->factor = factor;
 	qs->len = i;
 }
 
 void IntValQuery::save(mscds::OutArchive &ar) const {
 	ar.startclass("IntVal", 1);
-	ar.var("factor").save(factor);
-	ar.var("delta").save(delta);
 	ar.var("length").save(len);
-	rankval.save(ar.var("rank_values"));
+	fmap.save(ar.var("f_map"));
 	data.save(ar.var("data"));
 	ar.endclass();
 }
 
 void IntValQuery::load(mscds::InpArchive &ar) {
 	int class_version = ar.loadclass("IntVal");
-	ar.var("factor").load(factor);
-	ar.var("delta").load(delta);
 	ar.var("length").load(len);
-	rankval.load(ar.var("rank_values"));
+	fmap.load(ar.var("f_map"));
 	data.load(ar.var("data"));
 	ar.endclass();
 }
@@ -195,7 +172,7 @@ double IntValQuery::sqrsum(uint32_t pos) const {
 }
 
 double IntValQuery::range_value(unsigned int idx) const {
-	return ((double)rankval.prefixsum(vals.get(idx)) + delta) / factor;
+	return (double)fmap.unmap_sf(vals.get(idx));
 }
 
 double IntValQuery::sum_intv(unsigned int idx, unsigned int leftpos) const {
@@ -205,18 +182,18 @@ double IntValQuery::sum_intv(unsigned int idx, unsigned int leftpos) const {
 	auto& valq = data.g<1>();
 	auto& sumq = data.g<2>();
 	int64_t tlen = posq.int_psrlen(idx - r);
-	int64_t cpsum = sumq.get(p) + tlen * delta;
+	int64_t cpsum = sumq.get(p);
 	size_t base = p * rate;
 	mscds::CodeInterBlkQuery::Enum e;
 	if (r > 0 || leftpos > 0) {
 		valq.getEnum(base, &e);
 		for (size_t i = 0; i < r; ++i) {
-			auto v = rankval.prefixsum(e.next());
-			cpsum += posq.int_len(base + i) * (v + delta);
+			auto v = fmap.unmap_si(e.next());
+			cpsum += posq.int_len(base + i) * v;
 		}
 	}
-	if (leftpos > 0) cpsum += (rankval.prefixsum(e.next()) + delta) * leftpos;
-	return cpsum/(double)factor;
+	if (leftpos > 0) cpsum += fmap.unmap_si(e.next()) * leftpos;
+	return fmap.unmap_if(cpsum);
 }
 
 double IntValQuery::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
@@ -226,16 +203,6 @@ double IntValQuery::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 
 IntValQuery::IntValQuery(): itv(data.g<0>()), vals(data.g<1>()) {}
 
-void IntValQuery::inspect(const std::string &cmd, std::ostream &out) const {
-	out << '{';
-	out << '"' << "length" << "\": " << len << ",";
-	out << '"' << "delta" << "\": " << delta << ",";
-	out << '"' << "factor" << "\": " << factor << ",";
-	out << '"' << "n_distinct_values" << "\": " << rankval.length() << ", ";
-	out << "\"block_data\": " ;
-	data.inspect(cmd, out);
-	out << '}';
-}
 
 void IntValQuery::getEnum(unsigned int idx, IntValQuery::Enum *e) const {
 	e->ptr = this;
@@ -251,4 +218,4 @@ IntValQuery::IntervalInfo IntValQuery::Enum::next() {
 }
 
 
-}
+}//namespace

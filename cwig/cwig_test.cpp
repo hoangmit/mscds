@@ -265,6 +265,9 @@ using namespace utils;
 int main(int argc, char* argv[]) {
 	locale oldLoc = cout.imbue(locale(cout.getloc(), new comma_numpunct()));
 	//::testing::GTEST_FLAG(filter) = "*";
+	//::testing::GTEST_FLAG(break_on_failure) = "1";
+	//::testing::GTEST_FLAG(catch_exceptions) = "0";
+
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 

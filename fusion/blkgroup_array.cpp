@@ -39,6 +39,10 @@ unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_b
 	return summary_sizes.size();
 }
 
+std::pair<unsigned int, unsigned int> BlockBuilder::current_reg_numbers() {
+	return std::pair<unsigned int, unsigned int>(n_data_block, summary_sizes.size());
+}
+
 void BlockBuilder::init_data() {
 	//initialize variables
 	finish_reg = true; start_ptr = 0;

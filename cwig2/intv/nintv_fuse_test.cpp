@@ -12,7 +12,6 @@ using namespace mscds;
 using namespace std;
 using namespace app_ds;
 
-
 template<typename T>
 void test_intervals_easy(const std::vector<std::pair<unsigned int, unsigned int> >& rng, const T& r, int testid = 0) {
 	ASSERT_EQ(rng.size(), r.length());
@@ -332,7 +331,6 @@ int main(int argc, char* argv[]) {
 	//rand();
 	test6();
 	test_saveload();
-
 	
 	return 0;
 }

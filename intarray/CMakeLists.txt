@@ -22,16 +22,9 @@ target_link_libraries(intarray bitarray codec utils)
 
 
 add_test_files(sda_test.cpp)
-#add_executable(t_sda sda_test.cpp)
-#target_link_libraries(t_sda intarray ${COMMON_LIBS})
-#set_target_properties(t_sda PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
 
 add_test_files(codearr_test.cpp)
-#add_executable(t_codearr codearr_test.cpp)
-#target_link_libraries(t_codearr intarray ${COMMON_LIBS})
-#set_target_properties(t_codearr PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 
 add_test_files(intarr_test.cpp)
-#add_executable(t_intarray intarr_test.cpp)
-#target_link_libraries(t_intarray intarray ${COMMON_LIBS})
-#set_target_properties(t_intarray PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+

@@ -90,6 +90,7 @@ public:
 	// register number start from 1
 	unsigned int register_data_block();
 	unsigned int register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
+	std::pair<unsigned int, unsigned int> current_reg_numbers();
 
 	//-----------------------------------------------------
 

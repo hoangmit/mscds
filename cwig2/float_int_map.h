@@ -6,26 +6,36 @@
 #include "intarray/sdarray_sml.h"
 #include <cassert>
 #include <set>
-#include <algorithm>
-
-
-#include "cwig/float_precision.h"
 
 namespace app_ds {
 
 class FloatIntMapBuilder;
 
+// 3 levels of codes:
+//   float:   original, can do all operations
+//   integer: scaled, can only do addition (minus?)
+//   symbol : cannot do  arithmetic, but can do equal comparison
 class FloatIntMapQuery {
 public:
-	uint64_t map(double d) {
-		uint64_t valt = (int64_t)(d * factor) - delta;
-		valt = rankval.rank(valt);
-		return valt;
-	}
+	//map a float to symbol
+	uint64_t map_fs(double d) const;
+	//unmap a symbol to float value
+	double unmap_sf(uint64_t val) const;
 
-	double unmap(uint64_t val) {
-		return rankval.prefixsum(val);
-	}
+	// partial unmap/map from symbol to integer
+	int64_t unmap_si(uint64_t val) const;
+	uint64_t map_is(int64_t val) const;
+
+	// unmap from integer to float
+	double unmap_if(int64_t v) const;
+	int64_t map_fi(double d) const;
+
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void clear();
+
+	void inspect(const std::string &cmd, std::ostream &out) const;
+
 private:
 	friend class FloatIntMapBuilder;
 	mscds::SDArraySml rankval;
@@ -34,41 +44,12 @@ private:
 
 class FloatIntMapBuilder {
 public:
+	void add(double d);
+	void build(FloatIntMapQuery* out);
 
-	void add(double d) {
-		vals.insert(d);
-	}
-	
-	void build(FloatIntMapQuery* out) {
-		comp_transform();
-		out->delta = delta;
-		out->factor = factor;
-		ptrbd.build(&(out->rankval));
-	}
 
 private:
-	void comp_transform() {
-		unsigned int pc = 0;
-
-		for (auto it = vals.cbegin(); it != vals.cend(); ++it)
-			pc = std::max<unsigned int>(fprecision(*it), pc);
-		factor = 1;
-		if (pc > 5) pc = 5;
-
-		for (unsigned int i = 0; i < pc; ++i) factor *= 10;
-		int64_t minr = std::numeric_limits<int64_t>::max();
-		for (auto it = vals.cbegin(); it != vals.cend(); ++it)
-			minr = std::min<int64_t>(minr, (*it)*factor);
-		delta = minr; // 1 - minr
-		int64_t last = -1;
-		for (auto it = vals.cbegin(); it != vals.cend(); ++it) {
-			auto v = (int64_t)((*it) * factor) - delta;
-			if (v != last) {
-				ptrbd.add_inc(v);
-				last = v;
-			}
-		}
-	}
+	void comp_transform();
 
 	int64_t delta, factor;
 

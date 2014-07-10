@@ -1,20 +1,27 @@
 
+#include <iostream>
 #include "utils/utest.h"
 
 #include "float_int_map.h"
 
 using namespace app_ds;
+using namespace std;
 
 TEST(float_int, test1) {
 	FloatIntMapBuilder bd;
-	bd.add(0.01);
-	bd.add(0.1);
-	bd.add(1.2);
+	vector<double> vals = {0.01, 0.1, 1.2};
+	for (double x : vals)
+		bd.add(x);
 
 	FloatIntMapQuery qs;
 	
 	bd.build(&qs);
 
+	for (double x : vals) {
+		auto id = qs.map_fs(x);
+		double y = qs.unmap_sf(id);
+		ASSERT(fabs(x - y) < 1E-6);
+	}
 }
 
 int main(int argc, char* argv[]) {

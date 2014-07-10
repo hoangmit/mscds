@@ -17,8 +17,6 @@ public:
 	PtrInterBlkBd(): size(0) {}
 	void init_bd(BlockBuilder& bd_) { bd = &bd_; }
 
-	
-
 	void init_blk(unsigned int size_) {
 		size = size_;
 		assert(size_ > 0);

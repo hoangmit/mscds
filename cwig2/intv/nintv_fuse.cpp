@@ -102,8 +102,8 @@ NIntvQueryInt::PosType FuseNIntvInterBlock::int_len(NIntvQueryInt::PosType i) co
 	PosType ip = i % BLKSIZE;
 	PosType blk = i / BLKSIZE;
 	LGBlk_t sumc = loadLGSum(blk);
+	loadblock(blk);
 	if (sumc.store_len) {
-		loadblock(blk);
 		return lgblk.lookup(ip);
 	}
 	if (i + 1 == length()) {
@@ -111,7 +111,6 @@ NIntvQueryInt::PosType FuseNIntvInterBlock::int_len(NIntvQueryInt::PosType i) co
 		return lensum + lgblk.prefixsum(ip + 1) - sumc.sum - dx;
 	}
 	if (ip != BLKSIZE - 1) {
-		loadblock(blk);
 		return start.lookup(i + 1) - lgblk.lookup(ip);
 	} else {
 		auto nx = loadLGSum(blk + 1).sum;

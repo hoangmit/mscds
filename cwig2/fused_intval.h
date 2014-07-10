@@ -7,6 +7,8 @@
 #include "fusion/fuse_blk_model.h"
 #include "fusion/ps_access_blk.h"
 #include "cwig2/intv/nintv_fuse.h"
+#include "float_int_map.h"
+
 #include "intarray/sdarray.h"
 
 #include <stdint.h>
@@ -33,11 +35,10 @@ public:
 	void build(const std::deque<ValRange>& all, IntValQuery* qs);
 	typedef IntValQuery QueryTp;
 private:
-	void comp_transform(const std::deque<ValRange>& all);
 	std::deque<ValRange> data;
 	uint64_t factor;
 	int64_t delta;
-	mscds::SDArraySmlBuilder rvbd;
+	FloatIntMapBuilder rvbd;
 };
 
 class IntValQuery : public RunLenSumArrIt<double> {
@@ -102,7 +103,7 @@ public:
 		size_t i;
 	};
 	void getEnum(unsigned int idx, Enum* e) const;
-	void inspect(const std::string& cmd, std::ostream& out) const;
+	//void inspect(const std::string& cmd, std::ostream& out) const;
 
 private:
 	double sum_intv(unsigned int idx, unsigned int leftpos = 0) const;
@@ -110,14 +111,12 @@ private:
 
 	friend class IntValBuilder;
 	static const unsigned int rate = 64;
-	mscds::SDArraySml rankval;
 
-	uint64_t factor;
-	int64_t delta;
 	uint64_t len;
 	FuseNIntvInterBlock& itv;
 	mscds::CodeInterBlkQuery& vals;
 	mutable QS data;
+	FloatIntMapQuery fmap;
 };
 
 }//namespace

@@ -7,6 +7,7 @@
 #include "RLSum6.h"
 
 #include "intv/intv_rand_gen.hpp"
+#include "cwig2/fused_intval2.h"
 #include "cwig2/fused_intval.h"
 
 #include <vector>
@@ -149,16 +150,16 @@ TEST(rlsum, tb_rng) {
 }
 
 TEST(rlsum, fuse_1) {
-	test_rlsum_tb_1<IntValQuery>();
+	test_rlsum_tb_1<IntValQuery2>();
 }
 
 TEST(rlsum, fuse_2) {
-	test_rlsum_tb_2<IntValQuery>();
+	test_rlsum_tb_2<IntValQuery2>();
 }
 
 TEST(rlsum, fuse_rng) {
 	for (int i = 0; i < 100; i++) {
-		test_rlsum_tb_rng<IntValQuery>(i);
+		test_rlsum_tb_rng<IntValQuery2>(i);
 		cout << ".";
 	}
 	cout << endl;

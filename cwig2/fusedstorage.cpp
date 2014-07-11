@@ -1,5 +1,7 @@
 #include "fusedstorage.h"
 
+#include "utils/prec_summation.h" // not used yet
+
 namespace app_ds {
 
 Storage::Storage(): itv(data.g<0>()), vals(data.g<1>()), sumq(data.g<2>()),

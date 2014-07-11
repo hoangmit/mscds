@@ -67,5 +67,4 @@ public:
 	void getEnum(size_t base, Enum *e) const;
 };
 
-
 }//namespace

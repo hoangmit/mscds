@@ -62,8 +62,6 @@ void test1() {
 }
 
 int main() {
-	IntValBuilder2 bd;
-	IntValQuery2 qs;
 	test1();
 	return 0;
 }

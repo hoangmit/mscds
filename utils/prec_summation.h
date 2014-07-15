@@ -27,9 +27,9 @@ public:
 	void reset() { n = 0; mean = 0; M2 = 0; }
 	void add(const F& v) {
 		n += 1;
-		F delta = x - mean;
+		F delta = v - mean;
 		mean = mean + delta/n;
-		M2 = M2 + delta*(x - mean)
+		M2 = M2 + delta*(v - mean);
 	}
 	F variance() {
 		return M2/n; //(n-1)

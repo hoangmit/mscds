@@ -41,7 +41,7 @@ void test_values(const std::vector<double>& vals, double EPS=1E-6) {
 		sum += vals[i];
 	}
 
-	Storage::Enum e;
+	typename Storage::Enum e;
 	st.getEnum(0, &e);
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		assert(fequ(vals[i], e.next(), EPS));

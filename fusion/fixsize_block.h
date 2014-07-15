@@ -8,7 +8,7 @@ Experimental implementation of fusion block
 namespace mscds {
 
 template<typename T>
-class SmallFixsizeBlockBuilder {
+class SmallFixsizeBlockBuilder: public InterBlockBuilderTp {
 	BlockBuilder * bd;
 	unsigned int sid, did;
 
@@ -58,8 +58,10 @@ public:
 
 
 template<typename T>
-class SmallFixsizeBlock {
-	void setup(BlockMemManager& mng) {
+class SmallFixsizeBlock:  public InterBLockQueryTp {
+	void clear() {}
+
+	void setup(BlockMemManager& mng_, StructIDList& lst) {
 
 	}
 

@@ -81,7 +81,7 @@ void FloatIntMapBuilder::comp_transform() {
 	for (auto it = vals.cbegin(); it != vals.cend(); ++it)
 		pc = std::max<unsigned int>(fprecision(*it), pc);
 	factor = 1;
-	if (pc > 5) pc = 5;
+	if (pc > 6) pc = 6;
 
 	for (unsigned int i = 0; i < pc; ++i) factor *= 10;
 	int64_t minr = std::numeric_limits<int64_t>::max();

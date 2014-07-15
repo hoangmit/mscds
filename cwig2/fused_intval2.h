@@ -12,6 +12,7 @@
 #include "intarray/sdarray.h"
 
 #include "fusedstorage.h"
+#include "fusedstorage2.h"
 
 #include <stdint.h>
 
@@ -33,7 +34,6 @@ public:
 private:
 	typedef typename IVS::BuilderTp BD;
 	BD bd;
-
 };
 
 /*
@@ -298,5 +298,10 @@ typename IntValQueryG<IVS>::IntervalInfo IntValQueryG<IVS>::Enum::next() {
 
 typedef IntValBuilderG<Storage> IntValBuilder2;
 typedef IntValQueryG<Storage> IntValQuery2;
+
+
+typedef IntValBuilderG<Storage2> IntValBuilder3;
+typedef IntValQueryG<Storage2> IntValQuery3;
+
 
 }//namespace

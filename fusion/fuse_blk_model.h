@@ -19,6 +19,9 @@ typedef HuffmanModel Model;
 //template<typename Model>
 class CodeInterBlkBuilder: public InterBlockBuilderTp {
 public:
+	static const unsigned int SSBLKSIZE = 64;
+	static const unsigned int ELEM_PER_BLK = 512;
+
 	void start_model() { model.startBuild(); }
 	void model_add(uint32_t val) { model.add(val); }
 
@@ -41,7 +44,7 @@ public:
 	}
 
 	bool is_full() const {
-		return cnt >= 512;
+		return cnt >= ELEM_PER_BLK;
 	}
 	bool is_empty() const {
 		return cnt == 0;
@@ -49,7 +52,7 @@ public:
 
 	void add(uint32_t val) {
 		assert(!is_full());
-		if (cnt % 64 == 0)
+		if (cnt % SSBLKSIZE == 0)
 			ptrs.push_back(data_buffer.length());
 		model.encode(val, &data_buffer);
 		cnt++;
@@ -138,7 +141,7 @@ private:
 //template<typename Model>
 class CodeInterBlkQuery: public InterBLockQueryTp {
 public:
-	static const unsigned int elements_per_blk = 512;
+	static const unsigned int ELEM_PER_BLK = 512;
 	CodeInterBlkQuery(): mng(nullptr) {}
 	void clear() { mng = nullptr; sid = did = 0; len = 0; model.clear(); } 
 	void setup(BlockMemManager& mng_, StructIDList& lst) {
@@ -164,7 +167,7 @@ public:
 		uint64_t next() {
 			int64_t v = data->model.decode(&is);
 			++pos;
-			if (pos % elements_per_blk == 0) move_blk(pos / elements_per_blk);
+			if (pos % ELEM_PER_BLK == 0) move_blk(pos / ELEM_PER_BLK);
 			return v;
 		}
 	private:
@@ -185,8 +188,8 @@ public:
 	void getEnum(unsigned int pos, Enum * e) const {
 		e->data = this;
 		
-		unsigned int blk = pos / elements_per_blk;
-		unsigned sbid = pos % elements_per_blk;
+		unsigned int blk = pos / ELEM_PER_BLK;
+		unsigned sbid = pos % ELEM_PER_BLK;
 		unsigned int sblk = sbid / SSBLKSIZE;
 		unsigned int px = sbid % SSBLKSIZE;
 		e->pos = pos - px;
@@ -231,18 +234,6 @@ private:
 	uint64_t len;
 	unsigned int sid, did;
 	BlockMemManager* mng;
-};
-
-template<typename CodeBlk>
-class DiffCodeInterBlkBuilder: public InterBlockBuilderTp {
-public:
-private:
-};
-
-template<typename CodeBlk>
-class DiffCodeInterBlkQuery: public InterBLockQueryTp {
-public:
-private:
 };
 
 }//namespace

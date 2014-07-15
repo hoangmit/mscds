@@ -9,12 +9,14 @@ fused_intval.cpp
 intv/nintv_fuse.cpp
 float_int_map.cpp
 fusedstorage.cpp
+fusedstorage2.cpp
 )
 
 set(HEADERS
 fused_intval.h
 fused_intval2.h
 fusedstorage.h
+fusedstorage2.h
 intv/nintv_fuse.h
 float_mono_array.h
 float_int_map.h

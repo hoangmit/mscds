@@ -31,6 +31,10 @@ double Storage::get_sumq(unsigned int idx) const {
 	return fmap.unmap_if(sumq.get(idx));
 }
 
+double Storage::get_sqrsum(unsigned int idx) const {
+	return fmap.unmap_if(sqrsum.get(idx));
+}
+
 size_t Storage::length() const {
 	return itv.length();
 }

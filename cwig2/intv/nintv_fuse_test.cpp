@@ -254,10 +254,10 @@ std::deque<ValRange> convertVR(const std::deque<ValRangeInfo>& inp) {
 }
 
 
-#include "../fused_intval.h"
+#include "../fused_intval2.h"
 
 
-void check(std::deque<ValRange>& all, IntValQuery& qs, unsigned int testid = 0) {
+void check(std::deque<ValRange>& all, IntValQuery2& qs, unsigned int testid = 0) {
 	double ps = 0;
 	for (size_t i = 0; i < all.size(); ++i) {
 		double val = qs.range_value(i);
@@ -273,18 +273,19 @@ void check(std::deque<ValRange>& all, IntValQuery& qs, unsigned int testid = 0) 
 }
 
 void test5(unsigned int len = 20, unsigned int testid = 0) {
-	IntValBuilder bd;
+	IntValBuilder2 bd;
 	std::deque<ValRange> all;
-	IntValQuery qs;
+	IntValQuery2 qs;
 	auto vp = gen_intv2(len);
 	all.resize(vp.size());
 	for (unsigned int i = 0; i < vp.size(); ++i) {
 		all[i].st = vp[i].first;
 		all[i].ed = vp[i].second;
 		all[i].val = rand() % 1000 + 1;
+		bd.add(all[i].st, all[i].ed, all[i].val);
 	}
 
-	bd.build(all, &qs);
+	bd.build(&qs);
 
 	check(all, qs, testid);
 }
@@ -299,21 +300,22 @@ void test6() {
 }
 #include "mem/save_load_test.h"
 void test_saveload() {
-	IntValBuilder bd;
+	IntValBuilder2 bd;
 	std::deque<ValRange> all;
-	IntValQuery qs, qs2;
+	IntValQuery2 qs, qs2;
 	auto vp = gen_intv2(1000);
 	all.resize(vp.size());
 	for (unsigned int i = 0; i < vp.size(); ++i) {
 		all[i].st = vp[i].first;
 		all[i].ed = vp[i].second;
 		all[i].val = rand() % 100 + 1;
+		bd.add(all[i].st, all[i].ed, all[i].val);
 	}
 
 	std::string filename = utils::tempfname();
 	OFileArchive2 fo;
 	fo.open_write(filename);
-	bd.build(all, &qs);
+	bd.build(&qs);
 	qs.save(fo);
 	fo.close();
 	IFileMapArchive2 fi;

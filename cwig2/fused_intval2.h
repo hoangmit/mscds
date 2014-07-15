@@ -241,8 +241,10 @@ double IntValQueryG<IVS>::sum(uint32_t pos) const {
 
 template<typename IVS>
 double IntValQueryG<IVS>::sqrsum(uint32_t pos) const {
-	throw std::runtime_error("not implemented");
-	return 0;
+	if (pos == 0) return 0;
+	auto res = data.itv.find_cover(pos - 1);
+	if (res.first == 0 && res.second == 0) return 0;
+	return sqrSum_intv(res.first, res.second);
 }
 
 template<typename IVS>
@@ -252,6 +254,28 @@ double IntValQueryG<IVS>::range_value(unsigned int idx) const {
 
 template<typename IVS>
 double IntValQueryG<IVS>::sum_intv(unsigned int idx, unsigned int leftpos) const {
+	size_t r = idx % rate;
+	size_t p = idx / rate;
+	int64_t tlen = data.itv.int_psrlen(idx - r);
+	double cpsum = data.get_sqrsum(p);
+	size_t base = p * rate;
+	typename IVS::Enum e;
+	if (r > 0 || leftpos > 0) {
+		data.getEnum(base, &e);
+		for (size_t i = 0; i < r; ++i) {
+			double v = e.next();
+			cpsum += data.itv.int_len(base + i) * (v * v);
+		}
+	}
+	if (leftpos > 0) {
+		double v = e.next();
+		cpsum +=  (v * v)* leftpos;
+	}
+	return cpsum;
+}
+
+template<typename IVS>
+double IntValQueryG<IVS>::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
 	int64_t tlen = data.itv.int_psrlen(idx - r);
@@ -268,12 +292,6 @@ double IntValQueryG<IVS>::sum_intv(unsigned int idx, unsigned int leftpos) const
 	if (leftpos > 0)
 		cpsum += e.next() * leftpos;
 	return cpsum;
-}
-
-template<typename IVS>
-double IntValQueryG<IVS>::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
-	throw std::runtime_error("not implemented");
-	return 0;
 }
 
 template<typename IVS>

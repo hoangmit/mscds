@@ -52,6 +52,8 @@ public:
 
 	double get_val(unsigned int idx) const;
 	double get_sumq(unsigned int idx) const;
+	double get_sqrsum(unsigned int idx) const;
+
 	size_t length() const;
 
 	class Enum: public mscds::EnumeratorInt<double> {

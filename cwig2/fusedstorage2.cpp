@@ -4,7 +4,7 @@
 
 
 /** 
-TODO: use more floating-point stable  arithmetic algorithm. E.g. Those in Boost.Accumulators
+TODO: use a more floating-point stable arithmetic routine. E.g. Those in Boost.Accumulators
 Because the floating point errors can be accumulated after summation and muliplication.
 */
 
@@ -53,6 +53,10 @@ void Storage2::getEnum(size_t base, Storage2::Enum *e) const {
 
 double Storage2::get_sumq(unsigned int idx) const {
 	return fmap.unmap_if(sumq.get(idx));
+}
+
+double Storage2::get_sqrsum(unsigned int idx) const {
+	return fmap.unmap_if(sqrsum.get(idx));
 }
 
 size_t Storage2::length() const {

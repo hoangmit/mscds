@@ -224,7 +224,7 @@ std::pair<int, int> IntValQueryG<IVS>::find_intervals(unsigned int st, unsigned 
 	std::pair<unsigned int, unsigned int> ret;
 	auto r1 = data.itv.find_cover(st);
 	decltype(r1) r2;
-	if (st + 1 < ed) r2 = data.find_cover(ed - 1);
+	if (st + 1 < ed) r2 = data.itv.find_cover(ed - 1);
 	else r2 = r1; // one position
 	if (r1.second > 0) ret.first = r1.first;
 	else ret.first = r1.first + 1;

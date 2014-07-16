@@ -53,7 +53,11 @@ void ChrNumDataBuilder::build(ChrNumData* out) {
 		++i;
 	}
 	//bd.add_all(&ranges);
-	bd.build(ranges, &out->vals);
+	for (auto it = ranges.begin(); it != ranges.end(); ++it) {
+		bd.add(it->st, it->ed, it->val);
+	}
+	//bd.build(ranges, &out->vals);
+	bd.build(&out->vals);
 	ranges.clear();
 
 	if (out->minmax_opt & MIN_OP) {

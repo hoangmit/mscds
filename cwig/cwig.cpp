@@ -323,7 +323,7 @@ void GenomeNumData::inspect(const std::string& cmd, std::ostream& out) const {
 		if (it != chrs.cbegin()) out << ", ";
 		it->inspect(cmd, out);
 	}
-	out << "}";
+	out << "}\n";
 }
 
 

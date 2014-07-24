@@ -150,8 +150,10 @@ double test_avg(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection = 
 	cout << "Avg queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
-	cout << "Inspection: " << endl;
-	if (inspection) qs.inspect("", std::cout);
+	if (inspection) {
+		cout << "Inspection: " << endl;
+		qs.inspect("", std::cout);
+	}
 	return qps;
 }
 
@@ -167,8 +169,10 @@ double test_min(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection = 
 	cout << "min_value queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
-	cout << "Inspection: " << endl;
-	if (inspection) qs.inspect("", std::cout);
+	if (inspection) {
+		cout << "Inspection: " << endl;
+		qs.inspect("", std::cout);
+	}
 	return qps;
 }
 
@@ -184,8 +188,10 @@ double test_coverage(GenomeNumData& qs, const vector<QueryX>& lst, bool inspecti
 	cout << "max_value queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
-	cout << "Inspection: " << endl;
-	if (inspection) qs.inspect("", std::cout);
+	if (inspection) {
+		cout << "Inspection: " << endl;
+		qs.inspect("", std::cout);
+	}
 	return qps;
 }
 

@@ -44,6 +44,7 @@ private:
 
 class ChrNumData {
 public:
+	ChrNumData();
 	/** \brief returns the i-th range's annotation (if available) */
 	const std::string range_annotation(unsigned int i) const;
 
@@ -115,6 +116,7 @@ private:
 	mscds::RMQ_sct min, max;
 
 	bool has_annotation;
+	mscds::InpArchive* load_archive;
 	minmaxop_t minmax_opt;
 	friend class ChrNumDataBuilder;
 };

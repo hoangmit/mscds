@@ -121,7 +121,7 @@ void read_queries(const string& fname, const std::map<string, unsigned int>& nam
 }
 
 
-double test_sum(GenomeNumData& qs, const vector<QueryX>& lst) {
+double test_sum(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection=false) {
 	utils::Timer tm;
 	tm.reset();
 	for (unsigned int i = 0; i < lst.size(); ++i) {
@@ -133,10 +133,12 @@ double test_sum(GenomeNumData& qs, const vector<QueryX>& lst) {
 	cout << "Sum queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
+	cout << "Inspection: " << endl;
+	if (inspection) qs.inspect("", std::cout);
 	return qps;
 }
 
-double test_avg(GenomeNumData& qs, const vector<QueryX>& lst) {
+double test_avg(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection = false) {
 	utils::Timer tm;
 	tm.reset();
 	for (unsigned int i = 0; i < lst.size(); ++i) {
@@ -148,10 +150,12 @@ double test_avg(GenomeNumData& qs, const vector<QueryX>& lst) {
 	cout << "Avg queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
+	cout << "Inspection: " << endl;
+	if (inspection) qs.inspect("", std::cout);
 	return qps;
 }
 
-double test_min(GenomeNumData& qs, const vector<QueryX>& lst) {
+double test_min(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection = false) {
 	utils::Timer tm;
 	tm.reset();
 	for (unsigned int i = 0; i < lst.size(); ++i) {
@@ -160,13 +164,15 @@ double test_min(GenomeNumData& qs, const vector<QueryX>& lst) {
 	}
 	double timet = tm.current();
 	double qps = lst.size() / timet;
-	cout << "max_value queryies" << endl;
+	cout << "min_value queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
+	cout << "Inspection: " << endl;
+	if (inspection) qs.inspect("", std::cout);
 	return qps;
 }
 
-double test_coverage(GenomeNumData& qs, const vector<QueryX>& lst) {
+double test_coverage(GenomeNumData& qs, const vector<QueryX>& lst, bool inspection = false) {
 	utils::Timer tm;
 	tm.reset();
 	for (unsigned int i = 0; i < lst.size(); ++i) {
@@ -178,11 +184,13 @@ double test_coverage(GenomeNumData& qs, const vector<QueryX>& lst) {
 	cout << "max_value queryies" << endl;
 	cout << "Time: " << timet << endl;
 	cout << "Query_per_second: " << qps << endl;
+	cout << "Inspection: " << endl;
+	if (inspection) qs.inspect("", std::cout);
 	return qps;
 }
 
 
-void random_query(const string& name, int qt, bool is_sort) {
+void random_query(const string& name, int qt, bool is_sort, bool inspection=false) {
 	GenomeNumData qs;
 	cout << "Loading ... " << name << endl;
 	qs.loadfile(name);
@@ -197,10 +205,10 @@ void random_query(const string& name, int qt, bool is_sort) {
 	vector<QueryX> qlst;
 	generate_queries(chrlen, qlst, QUERY_COUNT, is_sort);
 	
-	if (qt == 1) test_sum(qs, qlst);
-	else if (qt == 2) test_avg(qs, qlst);
-	else if (qt == 3) test_min(qs, qlst);
-	else if (qt == 4) test_coverage(qs, qlst);
+	if (qt == 1) test_sum(qs, qlst, inspection);
+	else if (qt == 2) test_avg(qs, qlst, inspection);
+	else if (qt == 3) test_min(qs, qlst, inspection);
+	else if (qt == 4) test_coverage(qs, qlst, inspection);
 	qlst.clear();
 	qs.clear();
 }
@@ -234,7 +242,7 @@ void write_queries(const string& name, bool is_sort, const string& output) {
 	qs.clear();
 }
 
-void test_qs_file(const string& testfn,  const string& dsname, int qt) {
+void test_qs_file(const string& testfn,  const string& dsname, int qt, bool inspection=false) {
 	GenomeNumData qs;
 	cout << "Loading ... " << dsname << endl;
 	qs.loadfile(dsname);
@@ -250,10 +258,10 @@ void test_qs_file(const string& testfn,  const string& dsname, int qt) {
 	read_queries(testfn, namemap, qlst);
 	cout << qlst.size() << endl;
 	cout << "Start testing..." << endl; 
-	if (qt == 1) test_sum(qs, qlst);
-	else if (qt == 2) test_avg(qs, qlst);
-	else if (qt == 3) test_min(qs, qlst);
-	else if (qt == 4) test_coverage(qs, qlst);
+	if (qt == 1) test_sum(qs, qlst, inspection);
+	else if (qt == 2) test_avg(qs, qlst, inspection);
+	else if (qt == 3) test_min(qs, qlst, inspection);
+	else if (qt == 4) test_coverage(qs, qlst, inspection);
 	qlst.clear();
 	qs.clear();
 }
@@ -264,40 +272,80 @@ void printhelp() {
 	cout << "  program  ransort {sum|avg|min|cov} <gntf_file>" << endl;
 	cout << "  program  file    {sum|avg|min|cov} <bed_format_file> <gntf_file>" << endl;
 	cout << "  program  gen     {rand,randsort}   <template_gntf_file> <output_query_file>" << endl;
+	cout << "  program  --help" << endl;
 }
 
 using namespace std;
 
-int query_type(const char* name) {
-	if (strcmp(name, "sum") == 0) return 1;
-	else if (strcmp(name, "avg") == 0) return 2;
-	else if (strcmp(name, "min") == 0) return 3;
-	else if (strcmp(name, "cov") == 0) return 4;
+int query_type(std::string name) {
+	if (name == "sum") return 1;
+	else if (name == "avg") return 2;
+	else if (name == "min") return 3;
+	else if (name == "cov") return 4;
 	return 0;
 }
 
 int main(int argc, char* argv[]) {
-	if (argc < 3) { printhelp(); return 1;}
-	int qt = query_type(argv[2]);
+	namespace po = boost::program_options;
+	po::options_description desc("Options");
+	desc.add_options()
+		("help,h", "Print help messages")
+		("command,c", po::value<std::string>()->required(), "Command")
+		("type,t", po::value<std::string>()->required(), "Type of command")
+		("inputs,i", po::value<std::vector<std::string> >(), "List of inputs")
+		("inspect", "Set inspection mode ON")
+		;
+	po::positional_options_description positionalOptions;
+	positionalOptions.add("command", 1);
+	positionalOptions.add("type", 1);
+	positionalOptions.add("inputs", -1);
+	po::variables_map vm;
+	try {
+		po::store(po::command_line_parser(argc, argv).options(desc)
+			.positional(positionalOptions).allow_unregistered().run(),
+			vm);
+		if (vm.count("help")) {
+			printhelp();
+			cout << endl;
+			cout << desc << endl;
+			return 0;
+		}
+		po::notify(vm);
+	}
+	catch (boost::program_options::required_option& e) {
+		std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+		printhelp();
+		return 1;
+	}
+	catch (boost::program_options::error& e) {
+		std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+		printhelp();
+		return 1;
+	}
 	
-	cout << argc << endl;
+	string cmd = vm["command"].as<string>();
+	string type = vm["type"].as<string>();
+	vector<string> inputs = vm["inputs"].as<std::vector<std::string> >();
 
-	if (argc == 4 && argv[1] == string("rand")) {
+	int qt = query_type(type);
+	bool inspect = vm.count("inspect") > 0;
+
+	if (cmd == "rand" && !inputs.empty()) {
 		if (qt == 0) { printhelp(); return 1;}
-		random_query(argv[3], qt, false);
+		random_query(inputs[0], qt, false, inspect);
 	}else
-	if (argc == 4 && argv[1] == string("ransort")) {
+	if (cmd == "ransort" && !inputs.empty()) {
 		if (qt == 0) { printhelp(); return 1;}
-		random_query(argv[3], qt, true);
+		random_query(inputs[0], qt, true, inspect);
 	} else
-	if (argc == 5 && argv[1] == string("file")) {
+	if (cmd == "file" && !inputs.empty()) {
 		if (qt == 0) { printhelp(); return 1;}
-		test_qs_file(argv[3], argv[4], qt);
+		test_qs_file(inputs[0], inputs[1], qt, inspect);
 	}else
-	if (argc == 5 && argv[1] == string("gen")) {
+	if (argc == 5 && cmd == "gen") {
 		bool is_sort = true;
-		if (argv[2] == string("rand")) is_sort = false;
-		write_queries(argv[3], is_sort, argv[4]);
+		if (type == "rand") is_sort = false;
+		write_queries(inputs[0], is_sort, inputs[1]);
 	}
 	else { printhelp(); return 1; }
 	return 0;

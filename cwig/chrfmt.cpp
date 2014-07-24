@@ -82,7 +82,6 @@ void ChrNumData::clear() {
 	min.clear();
 	max.clear();
 	name.clear();
-	load_archive = NULL;
 }
 
 void ChrNumData::load(mscds::InpArchive& ar) {
@@ -101,7 +100,6 @@ void ChrNumData::load(mscds::InpArchive& ar) {
 		annotations.load(ar.var("annotation"));
 	}else has_annotation = false;
 	ar.endclass();
-	load_archive = &ar;
 }
 
 void ChrNumData::save(mscds::OutArchive& ar) const {
@@ -122,9 +120,6 @@ void ChrNumData::save(mscds::OutArchive& ar) const {
 void ChrNumData::inspect(const std::string& cmd, std::ostream& out) const {
 	out << '"' << name << "\": ";
 	vals.inspect(cmd, out);
-	if (load_archive != NULL) {
-		load_archive->inspect(cmd, out);
-	}
 }
 
 void ChrNumData::getEnum(unsigned int i, ChrNumValType::Enum* e) const {
@@ -171,7 +166,7 @@ void ChrNumData::dump_bedgraph(std::ostream& fo) const {
 
 }
 
-ChrNumData::ChrNumData(): load_archive(NULL) {}
+ChrNumData::ChrNumData() {}
 
 unsigned int ChrNumData::count_intervals() const {
 	return vals.length();

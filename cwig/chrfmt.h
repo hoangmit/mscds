@@ -16,11 +16,11 @@ namespace app_ds {
 //typedef RunLenSumArray6 ChrNumValType;
 //typedef ChrNumValType::BuilderTp ChrNumValBuilderType;
 
-typedef IntValQuery2 ChrNumValType;
-typedef IntValQuery2::BuilderTp ChrNumValBuilderType;
+//typedef IntValQuery2 ChrNumValType;
+//typedef IntValQuery2::BuilderTp ChrNumValBuilderType;
 
-//typedef IntValQuery3 ChrNumValType;
-//typedef IntValQuery3::BuilderTp ChrNumValBuilderType;
+typedef IntValQuery3 ChrNumValType;
+typedef IntValQuery3::BuilderTp ChrNumValBuilderType;
 
 class ChrNumData;
 
@@ -116,7 +116,6 @@ private:
 	mscds::RMQ_sct min, max;
 
 	bool has_annotation;
-	mscds::InpArchive* load_archive;
 	minmaxop_t minmax_opt;
 	friend class ChrNumDataBuilder;
 };

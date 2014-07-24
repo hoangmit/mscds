@@ -28,6 +28,7 @@ namespace mscds {
 struct NocacheRemoteFile : RemoteFileInt {
 	NocacheRemoteFile() { info.filesize = 0; curpos = 0; }
 	NocacheRemoteFile(const std::string& url) : _url(url), hobj(url) { info.filesize = 0; curpos = 0; }
+	~NocacheRemoteFile() { close(); }
 
 	std::string url() const { return _url; }
 	size_t size() const { return info.filesize; }
@@ -70,6 +71,7 @@ struct PrivateMemcacheRemoteFile : RemoteFileInt {
 	std::string url() const { return _url; }
 	size_t size() const { return info.filesize; }
 	time_t update_time() const { return info.last_update; }
+	~PrivateMemcacheRemoteFile() { close(); }
 
 	void close()  {}
 	size_t read(char *dest, size_t size) {
@@ -183,9 +185,7 @@ namespace mscds {
 
 struct ParallelDataFetcher {
 
-	~ParallelDataFetcher() {
-		cancel_optional();
-	}
+	~ParallelDataFetcher();
 
 	struct RangeDataRequest {
 		RangeDataRequest() : fc(nullptr), mt(nullptr) {}
@@ -272,9 +272,7 @@ struct FilecacheRemoteFile : RemoteFileInt {
 public:
 	FilecacheRemoteFile() : df(fc) { fc.info.filesize = 0; curpos = 0; }
 	FilecacheRemoteFile(const std::string& url, const std::string& prefix, bool refresh_data = false);
-	~FilecacheRemoteFile() {
-		//std::cout << "destruction" << std::endl;
-	}
+	~FilecacheRemoteFile();
 
 	std::string url() const { return df.url(); }
 	size_t size() const { return fc.info.filesize; }

@@ -2,6 +2,7 @@
 #include "utils/file_utils.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace mscds {
 
@@ -72,6 +73,10 @@ FilecacheRemoteFile::FilecacheRemoteFile(const std::string &url, const std::stri
 	fc.total_count_ = 0;
 }
 
+FilecacheRemoteFile::~FilecacheRemoteFile() {
+	inspect("", std::cout);
+}
+
 /*char *FilecacheRemoteFile::create_map(size_t start, size_t len) {
 	assert(start + len < info.filesize);
 	return fetch(start, len);
@@ -104,7 +109,7 @@ char FilecacheRemoteFile::peek() {
 char* SimpleDataFetcher::fetch(size_t start, size_t len) {
 	if (len == 0) return (char*)fc.start_ptr() + start;
 	assert(start + len <= fc.info.filesize);
-
+	fc.req_count_++;
 	size_t end = ((start + len - 1) / fc.blocksize) + 1;
 	size_t p = start / fc.blocksize;
 
@@ -178,6 +183,10 @@ void ParallelDataFetcher::RangeDataRequest::receive(const char *data, size_t len
 		advance();
 		buff.clear();
 	}
+}
+
+ParallelDataFetcher::~ParallelDataFetcher() {
+	cancel_optional();
 }
 
 char *ParallelDataFetcher::fetch(size_t start, size_t len) {

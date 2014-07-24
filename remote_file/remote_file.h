@@ -31,6 +31,7 @@ public:
 	virtual size_t tellg() const = 0;
 	virtual char peek() = 0;
 	virtual bool eof() const = 0;
+	virtual ~RemoteFileInt() {}
 
 	virtual size_t hit_count() const { return 0; }
 	virtual size_t total_count() const { return 0; }

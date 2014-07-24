@@ -5,7 +5,9 @@ project(cwig_tools)
 
 ###################
 
-set(LIBS cwig mscdsa)
+FIND_PACKAGE(Boost 1.50 COMPONENTS program_options REQUIRED )
+
+set(LIBS cwig mscdsa ${Boost_LIBRARIES})
 
 add_executable(bedgraph2cwig bedgraph2cwig.cpp)
 target_link_libraries(bedgraph2cwig ${LIBS})
@@ -38,6 +40,8 @@ set_property(TARGET cwigSummaryBatch PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwigInfo PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig2bedgraph PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig_benchmark PROPERTY FOLDER "Apps/cTools")
+
+
 
 
 find_package(OpenSSL)

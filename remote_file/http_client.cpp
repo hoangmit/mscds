@@ -31,7 +31,6 @@ struct HttpObjectReq {
 	
 	HeaderInfo info_;
 
-
 	HttpObjectReq() {}
 	HttpObjectReq(const std::string& url) { init(url); }
 

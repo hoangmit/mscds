@@ -5,6 +5,8 @@
 #include "utils/param.h"
 #include "mem/fmap_archive2.h"
 
+#include <boost/program_options.hpp> 
+
 #include <iostream>
 #include <vector>
 #include <algorithm>

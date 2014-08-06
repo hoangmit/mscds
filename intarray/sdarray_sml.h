@@ -127,15 +127,10 @@ public:
 private:
 	uint64_t rank(uint64_t val, uint64_t lo, uint64_t hi) const;
 
-	uint64_t scan_hi_bits(uint64_t start, uint32_t p) const;
-	uint64_t scan_hi_next(uint64_t start) const; //optimized version of scan_hi_bits with p=0
 	uint64_t select_hi(uint64_t hints, uint64_t start, uint32_t p) const;
 
-	uint64_t scan_hi_zeros(uint64_t start, uint32_t p) const;
 	uint64_t select_zerohi(uint64_t hints, uint64_t start, uint32_t p) const;
 	uint64_t rankBlk(uint64_t blk, uint64_t val) const;
-
-	uint64_t scan_zerohi_bitslow(uint64_t start, uint32_t res) const;
 	
 	BitArray bits;
 	BitArray table;

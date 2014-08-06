@@ -80,6 +80,15 @@ public:
 	uint64_t word(size_t pos) const;
 
 	//--------------------------------------------------
+	//return -1 if cannot find
+	int64_t scan_bits(uint64_t start, uint32_t res) const;
+	int64_t scan_next(uint64_t start) const; //optimized version of scan_hi_bits with p=0
+	int64_t scan_bits_slow(uint64_t start, uint32_t res) const;
+
+	int64_t scan_zeros(uint64_t start, uint32_t res) const;
+	int64_t scan_zeros_slow(uint64_t start, uint32_t res) const;
+
+	//--------------------------------------------------
 	BitArray();
 	BitArray(const BitArray& other) = default;
 	BitArray& operator=(const BitArray& other) = default;
@@ -88,6 +97,10 @@ public:
 
 	StaticMemRegionPtr data_ptr() const { return data; }
 	
+	// freeze BitArray, not allow modifying
+	void freeze() { }
+	bool is_frozen() const { return false; }
+
 	~BitArray();
 
 	/** load the BitArray from InpArchive */

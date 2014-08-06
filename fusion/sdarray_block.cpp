@@ -76,7 +76,7 @@ SDArrayBlock::ValueType SDArrayBlock::lookup(unsigned int off) const {
 	}
 	ValueType lo = bits.bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	ValueType hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
+	ValueType hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
 	ValueType cur = ((hi << width) | lo);
 	return cur - prev;
 	//return sum + prev;
@@ -92,7 +92,7 @@ SDArrayBlock::ValueType SDArrayBlock::lookup(unsigned int off, ValueType &prev_s
 	}
 	ValueType lo = bits.bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	ValueType hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
+	ValueType hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
 	ValueType cur = ((hi << width) | lo);
 	prev_sum = prev;
 	return cur - prev;
@@ -124,43 +124,11 @@ unsigned int SDArrayBlock::select_hi(uint64_t hints, uint64_t start, uint32_t of
 	if (res == SUBB_SIZE - 1)
 		return getBits(hints, subblkpos * 10, 10);
 	unsigned int gb = subblkpos > 0 ? getBits(hints, (subblkpos - 1) * 10, 10) + 1 : 0;
-	return scan_hi_bits(start + gb, res) + gb;
-}
-
-unsigned int SDArrayBlock::scan_hi_bits(uint64_t start, uint32_t res) const {
-	uint64_t wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = bits.word(wpos) >> (start & 63);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	}
-	do {
-		uint64_t word = bits.word(wpos);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	} while (true);
+	return bits.scan_bits(start + gb, res) + gb;
 }
 
 uint64_t SDArrayBlock::getBits(uint64_t x, uint64_t beg, uint64_t num) {
 	return (x >> beg) & ((1ULL << num) - 1);
-}
-
-unsigned int SDArrayBlock::scan_hi_next(unsigned int start) const {
-	unsigned int wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = bits.word(wpos) >> (start & 63);
-		if (word != 0) return lsb_intr(word);// selectword(word, res);
-		++wpos;
-	}
-	do {
-		uint64_t word = bits.word(wpos);
-		if (word != 0) return (wpos << 6) - start + lsb_intr(word); //selectword(word, res);
-		++wpos;
-	} while (true);
 }
 
 unsigned int SDArrayBlock::select_zerohi(uint64_t hints, uint64_t start, uint32_t off) const {
@@ -174,25 +142,7 @@ unsigned int SDArrayBlock::select_zerohi(uint64_t hints, uint64_t start, uint32_
 		sbpos = getBits(hints, (sblk - 1) * 10, 10) + 1;
 		res -= sbpos - sblk * SUBB_SIZE;
 	}
-	return sbpos + scan_hi_zeros(start + sbpos, res);
-}
-
-unsigned int SDArrayBlock::scan_hi_zeros(unsigned int start, uint32_t res) const {
-	unsigned int wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = (~bits.word(wpos)) >> (start & 63);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	}
-	do {
-		uint64_t word = ~bits.word(wpos);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	} while (true);
+	return sbpos + bits.scan_zeros(start + sbpos, res);
 }
 
 void SDArrayFuseBuilder::register_struct() {

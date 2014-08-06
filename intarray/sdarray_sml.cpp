@@ -153,39 +153,7 @@ uint64_t SDArraySml::select_hi(uint64_t hints, uint64_t start, uint32_t off) con
 	if (res == SUBB_SIZE - 1)
 		return getBits(hints, subblkpos*10, 10);
 	uint64_t gb = subblkpos > 0 ? getBits(hints, (subblkpos-1)*10, 10) + 1 : 0;
-	return scan_hi_bits(start + gb, res) + gb;
-}
-
-uint64_t SDArraySml::scan_hi_bits(uint64_t start, uint32_t res) const {
-	uint64_t wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = bits.word(wpos) >> (start & 63);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	}
-	do {
-		uint64_t word = bits.word(wpos);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	} while(true);
-}
-
-uint64_t SDArraySml::scan_hi_next(uint64_t start) const {
-	uint64_t wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = bits.word(wpos) >> (start & 63);
-		if (word != 0) return lsb_intr(word);// selectword(word, res);
-		++wpos;
-	}
-	do {
-		uint64_t word = bits.word(wpos);
-		if (word != 0) return (wpos << 6) - start + lsb_intr(word); //selectword(word, res);
-		++wpos;
-	} while(true);
+	return bits.scan_bits(start + gb, res) + gb;
 }
 
 uint64_t SDArraySml::lookup(const uint64_t p) const {
@@ -203,7 +171,7 @@ uint64_t SDArraySml::lookup(const uint64_t p) const {
 	}
 	uint64_t lo = bits.bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	uint64_t hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
+	uint64_t hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
 	uint64_t cur = ((hi << width) | lo);
 	return cur - prev;
 	//return sum + prev;
@@ -224,7 +192,7 @@ uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
 	}
 	uint64_t lo = bits.bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	uint64_t hi = prehi + scan_hi_next(blkptr + width*BLKSIZE + prehi + off);
+	uint64_t hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
 	uint64_t cur = ((hi << width) | lo);
 	uint64_t sum  = table.word(bpos * 3);
 	prev_sum = sum + prev;
@@ -330,51 +298,8 @@ uint64_t SDArraySml::select_zerohi(uint64_t hints, uint64_t start, uint32_t off)
 		sbpos = getBits(hints, (sblk-1)*10, 10) + 1;
 		res -= sbpos - sblk * SUBB_SIZE; 
 	}
-	return sbpos + scan_hi_zeros(start + sbpos, res);
+	return sbpos + bits.scan_zeros(start + sbpos, res);
 }
-
-uint64_t SDArraySml::scan_hi_zeros(uint64_t start, uint32_t res) const {
-	uint64_t wpos = start >> 6;
-	if ((start & 63) != 0) {
-		uint64_t word = (~bits.word(wpos)) >> (start & 63);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	}
-	do {
-		uint64_t word = ~bits.word(wpos);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
-		res -= bitcnt;
-		++wpos;
-	} while(true);
-}
-
-
-uint64_t SDArraySml::scan_zerohi_bitslow(uint64_t start, uint32_t res) const {
-	for(size_t i = start; i < start + BLKSIZE*3; i++) {
-		if (!bits.bit(i)) {
-			if (res == 0) return i - start;
-			else res--;
-		}
-	}
-	return ~0ull;
-}
-
-
-/*
-uint64_t SDArraySml::scan_hi_bitslow(uint64_t start, uint32_t res) const {
-	for(size_t i = start; i < start + BLKSIZE*3; i++) {
-		if (bits.bit(i)) {
-			if (res == 0) return i - start;
-			else res--;
-		}
-	}
-	return ~0ull;
-}
-*/
-
 
 void SDArraySml::dump_text(std::ostream& fo) const {
 	//fo << "#sd_array\n";
@@ -454,7 +379,7 @@ bool SDArraySml::PSEnum::hasNext() const {
 
 uint64_t SDArraySml::PSEnum::next() {
 	//uint64_t d = ptr->scan_hi_bits(baseptr + hiptr, 0);
-	uint64_t d = ptr->scan_hi_next(baseptr + hiptr);
+	uint64_t d = ptr->bits.scan_next(baseptr + hiptr);
 	hiptr += d;
 	// extract here
 	uint64_t lo = ptr->bits.bits(loptr, blkwidth);

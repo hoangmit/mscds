@@ -35,11 +35,8 @@ public:
 	static const unsigned int BLKSIZE = 512;
 private:
 	unsigned int select_hi(uint64_t hints, uint64_t start, uint32_t off) const;
-	unsigned int scan_hi_bits(uint64_t start, uint32_t res) const;
 	static uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num);
-	unsigned int scan_hi_next(unsigned int start) const;
 	unsigned int select_zerohi(uint64_t hints, uint64_t start, uint32_t off) const;
-	unsigned int scan_hi_zeros(unsigned int start, uint32_t res) const;
 private:
 	//static const unsigned int BLKSIZE = 512;
 	static const unsigned int SUBB_PER_BLK = 7;

@@ -206,5 +206,70 @@ TEST(bitstream, scan) {
 	}
 }
 
+BitArray gen_bits(unsigned int len) {
+	OBitStream o;
+	for (unsigned int i = 0; i < len; ++i) {
+		if (rand() % 2 == 1) o.put1();
+		else o.put0();
+	}
+	o.close();
+	BitArray b;
+	o.build(&b);
+	return b;
+}
+
+TEST(bitarray, scan1_fit) {
+	for (unsigned int i = 0; i < 100; i++) {
+		unsigned int len = 128;
+		BitArray b = gen_bits(len);
+		for (unsigned int j = 0; j < len; ++j) {
+			auto p = rand() % b.count_one();
+			auto v1 = b.scan_bits(j, p);
+			auto v2 = b.scan_bits_slow(j, p);
+			ASSERT_EQ(v2, v1);
+		}
+	}
+}
+
+TEST(bitarray, scan1_unfit) {
+	for (unsigned int i = 0; i < 100; i++) {
+		unsigned int len = 64 + rand() % 64;
+		BitArray b = gen_bits(len);
+		for (unsigned int j = 0; j < len; ++j) {
+			auto p = rand() % b.count_one();
+			auto v1 = b.scan_bits(j, p);
+			auto v2 = b.scan_bits_slow(j, p);
+			ASSERT_EQ(v2, v1);
+		}
+	}
+}
+
+TEST(bitarray, scan0_fit) {
+	for (unsigned int i = 0; i < 100; i++) {
+		unsigned int len = 128;
+		BitArray b = gen_bits(len);
+		for (unsigned int j = 0; j < len; ++j) {
+			auto p = rand() % b.count_one();
+			auto v1 = b.scan_zeros(j, p);
+			auto v2 = b.scan_zeros_slow(j, p);
+			ASSERT_EQ(v2, v1);
+		}
+	}
+}
+
+TEST(bitarray, scan0_unfit) {
+	for (unsigned int i = 0; i < 100; i++) {
+		unsigned int len = 64 + rand() % 64;
+		BitArray b = gen_bits(len);
+		for (unsigned int j = 0; j < len; ++j) {
+			auto p = rand() % b.count_one();
+			auto v1 = b.scan_zeros(j, p);
+			auto v2 = b.scan_zeros_slow(j, p);
+			ASSERT_EQ(v2, v1);
+		}
+	}
+}
+
+
 
 //TESTALL_MAIN();

@@ -20,17 +20,12 @@ Implemented by Hoang
 #include <string>
 
 
-
 namespace mscds {
 
 class Rank6pBuilder;
 class Rank6pHintSel;
 
 class Rank6p : public RankSelect {
-private:
-	BitArray bits;
-	BitArray inv;
-	uint64_t onecnt;
 public:
 	/** counts the number of 1 in the range from 1 to (p-1) */
 	uint64_t rank(uint64_t p) const;
@@ -61,6 +56,10 @@ public:
 	const BitArray& getBitArray() const { return bits; }
 	typedef Rank6pBuilder BuilderTp;
 private:
+	BitArray bits;
+	BitArray inv;
+	uint64_t onecnt;
+private:
 	uint64_t blkrank(size_t blk) const;
 	uint64_t subblkrank(size_t blk, unsigned int off) const;
 	uint64_t blkrank0(size_t blk) const;
@@ -84,10 +83,7 @@ private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);
 };
 
-
 class Rank6pHintSel {
-	Rank6p rankst;
-	FixedWArray hints;
 public:
 	void init(Rank6p& r);
 	void init(BitArray& b);
@@ -98,10 +94,13 @@ public:
 	}
 	void clear();
 private:
+	Rank6p rankst;
+	FixedWArray hints;
+private:
 	void init();
 };
 
-}
+}//namespace
 
 
 #endif //__RANK_6P_H_

@@ -29,6 +29,92 @@ uint64_t BitArray::count_one() const {
 	return ret;
 }
 
+int64_t BitArray::scan_bits(uint64_t start, uint32_t res) const {
+	assert(start < length());
+	uint64_t wpos = start >> 6;
+	if ((start & 63) != 0) {
+		uint64_t word = this->word(wpos) >> (start & 63);
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	}
+	while(wpos < this->word_count()) {
+		uint64_t word = this->word(wpos);
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	}
+	return -1;
+}
+
+int64_t BitArray::scan_next(uint64_t start) const {
+	assert(start < length());
+	uint64_t wpos = start >> 6;
+	if ((start & 63) != 0) {
+		uint64_t word = this->word(wpos) >> (start & 63);
+		if (word != 0) return lsb_intr(word);
+		++wpos;
+	}
+	while(wpos < this->word_count()) {
+		uint64_t word = this->word(wpos);
+		if (word != 0)
+			return (wpos << 6) - start + lsb_intr(word);
+		++wpos;
+	}
+	return -1;
+}
+
+int64_t BitArray::scan_bits_slow(uint64_t start, uint32_t res) const {
+	for (size_t i = start; i < length(); i++) {
+		if (this->bit(i)) {
+			if (res == 0) return i - start;
+			else res--;
+		}
+	}
+	return -1;
+}
+
+int64_t BitArray::scan_zeros(uint64_t start, uint32_t res) const {
+	uint64_t wpos = start >> 6;
+	if ((start & 63) != 0) {
+		uint64_t word = ~(this->word(wpos));
+		if (wpos + 1 == word_count() && length() % 64 != 0)
+			word &= (1ull << (length() % 64)) - 1;
+		word >>= (start & 63);
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	}
+	while (wpos + 1 < this->word_count()) {
+		uint64_t word = ~(this->word(wpos));
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+		res -= bitcnt;
+		++wpos;
+	}
+	if (wpos + 1 == this->word_count()) {
+		uint64_t word = ~(this->word(wpos));
+		if (length() % 64 != 0)
+			word &= (1ull << (length() % 64)) - 1;
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+	}
+	return -1;
+}
+
+int64_t BitArray::scan_zeros_slow(uint64_t start, uint32_t res) const {
+	for(size_t i = start; i < length(); i++) {
+		if (!this->bit(i)) {
+			if (res == 0) return i - start;
+			else res--;
+		}
+	}
+	return -1;
+}
+
 InpArchive& BitArray::load_nocls(InpArchive& ar) {
 	ar.var("bit_len").load(bitlen);
 	if (bitlen > 0) data = ar.load_mem_region();

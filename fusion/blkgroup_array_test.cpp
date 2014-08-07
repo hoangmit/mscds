@@ -5,6 +5,8 @@
 #include "intarray/sdarray_th.h"
 #include "intarray/sdarray_zero.h"
 
+#include "mem/info_archive.h"
+
 #include "sdarray_block.h"
 
 #include "bitarray/bitstream.h"
@@ -539,7 +541,7 @@ void test_ptr() {
 // Benchmark
 
 struct StmFix : public SharedFixtureItf {
-	static const unsigned int SIZE = 2000000;
+	static const unsigned int SIZE = 5000000;
 	void SetUp(int size) {
 		if (size <= 0) { size = SIZE; }
 		// generate test cases and data structure here
@@ -556,7 +558,7 @@ struct StmFix : public SharedFixtureItf {
 		uint64_t sum =0;
 		
 		for (unsigned i = 0; i < size; ++i) {
-			unsigned val = rand() % range;
+			unsigned val = 1 + rand() % range;
 			vals.push_back(val);
 			bd1.add(val);
 			bd2.add(val);
@@ -570,6 +572,7 @@ struct StmFix : public SharedFixtureItf {
 		bd2.build(&sd2);
 		xd.build(&qs);
 		thb.build(&th);
+		srsb.build(&lkz);
 		this->size = size;
 		queries.resize(size);
 		for (unsigned i = 0; i < size; ++i)
@@ -579,7 +582,7 @@ struct StmFix : public SharedFixtureItf {
 			rankqs.push_back((((unsigned)(rand() % 256) << 8) | (rand() % 256)) % sum);
 	}
 
-	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear();}
+	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear(); th.clear(); zero.clear(); lkz.clear(); }
 
 	unsigned size;
 	std::vector<unsigned> vals;
@@ -592,6 +595,19 @@ struct StmFix : public SharedFixtureItf {
 
 	SDArrayZero zero;
 	SDRankSelectSml lkz;
+
+	void report_size() {
+		SetUp(0);
+
+		std::cout << "sdarray_b64" << "\t" << estimate_data_size(sd1) << std::endl;
+		std::cout << "sdarray_b512" << "\t" << estimate_data_size(sd2) << std::endl;
+		std::cout << "sdarray_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;
+		std::cout << "sdarray_th" << "\t" << estimate_data_size(th) << std::endl;
+		std::cout << "sdarray_hints" << "\t" << estimate_data_size(lkz) << std::endl;
+		std::cout << "vector" << "\t" << zero.cums.size() * sizeof(zero.cums[0]) << std::endl;
+
+		TearDown();
+	}
 };
 
 
@@ -782,7 +798,6 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	bm.report(0); // <-- baseline
 }
 
-
 void test_all1() {
 	test1();
 	test2();
@@ -794,9 +809,10 @@ int main(int argc, char* argv[]) {
 	//test_all1();
 	//test4();
 	//test_ptr();
+	StmFix x;
+	x.report_size();
 
 	BenchmarkRegister::run_all_bm();
-	
 	return 0;
 }
 

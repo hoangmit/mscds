@@ -122,3 +122,32 @@ uint64_t mscds::SDArrayTH::select_hi(uint64_t r) const {
 	return p.first + upper.scan_bits(p.first, p.second);
 }
 
+void mscds::SDArrayTH::clear() {
+	len = 0;
+	sum = 0;
+	upper.clear();
+	lower.clear();
+	saux0.clear();
+	saux1.clear();
+}
+
+void mscds::SDArrayTH::save(OutArchive& ar) const {
+	ar.startclass("sdarray_th", 0);
+	ar.var("len").save(len);
+	ar.var("sum").save(sum);
+	upper.save(ar.var("upper"));
+	lower.save(ar.var("lower"));
+	saux0.save_aux(ar.var("aux0"));
+	saux1.save_aux(ar.var("aux1"));
+	ar.close();
+}
+void mscds::SDArrayTH::load(InpArchive& ar) {
+	ar.loadclass("sdarray_th");
+	ar.var("len").load(len);
+	ar.var("sum").load(sum);
+	upper.load(ar.var("upper"));
+	lower.load(ar.var("lower"));
+	saux0.load_aux(ar.var("aux0"), upper);
+	saux1.load_aux(ar.var("aux1"), upper);
+	ar.close();
+}

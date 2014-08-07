@@ -541,11 +541,13 @@ void test_ptr() {
 // Benchmark
 
 struct StmFix : public SharedFixtureItf {
-	static const unsigned int SIZE = 2000000;
+	static const unsigned int SIZE  =  5000000;
+	static const unsigned int QSIZE =  1000000;
 	void SetUp(int size) {
 		if (size <= 0) { size = SIZE; }
 		// generate test cases and data structure here
 		unsigned int range = 500;
+		this->qsize = QSIZE;
 
 		SDArrayBuilder bd1;
 		SDArraySmlBuilder bd2;
@@ -574,20 +576,29 @@ struct StmFix : public SharedFixtureItf {
 		thb.build(&th);
 		srsb.build(&lkz);
 		this->size = size;
-		queries.resize(size);
-		for (unsigned i = 0; i < size; ++i)
-			queries[i] = i;
+		queries.resize(qsize);
+		assert(qsize <= size);
+		if (qsize == size) {
+			for (unsigned i = 0; i < qsize; ++i)
+				queries[i] = i;
+		} else {
+			unsigned d = size  / qsize;
+			for (unsigned i = 0; i < qsize - 1; ++i)
+				queries[i] = (unsigned)(d*i);
+		}
 		std::random_shuffle(queries.begin(), queries.end());
-		for (unsigned int i = 0; i < size; ++i)
+		for (unsigned int i = 0; i < qsize; ++i)
 			rankqs.push_back((((unsigned)(rand() % 256) << 8) | (rand() % 256)) % sum);
+		rankseq = rankqs;
+		std::sort(rankseq.begin(), rankseq.end());
 	}
 
 	void TearDown() {vals.clear(); sd1.clear(); sd2.clear(); qs.clear(); th.clear(); zero.clear(); lkz.clear(); }
 
-	unsigned size;
+	unsigned size, qsize;
 	std::vector<unsigned> vals;
 	std::vector<unsigned int> queries;
-	std::vector<unsigned int> rankqs;
+	std::vector<unsigned int> rankqs, rankseq;
 	SDArrayQuery sd1;
 	SDArraySml sd2;
 	TwoSDA_Query qs;
@@ -613,85 +624,91 @@ struct StmFix : public SharedFixtureItf {
 
 void sda_null(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->zero.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->zero.lookup(i*d);
 	}
 }
 
 void sda_64(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->sd1.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->sd1.lookup(i*d);
 	}
 }
 
 void sda_512(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->sd2.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->sd2.lookup(i*d);
 	}
 }
 
 void sda_fuse0(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->qs.x.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->qs.x.lookup(i*d);
 	}
 }
 
 void sda_fuse1(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->qs.y.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->qs.y.lookup(i*d);
 	}
 }
 
 void sda_th(StmFix * fix) {
 	unsigned vx = 101;
-	for (unsigned i = 0; i < fix->size; ++i) {
-		vx ^= fix->th.lookup(i);
+	unsigned d = fix->size  / fix->qsize;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->th.lookup(i*d);
 	}
 }
 
 //-------------------------------------------------
 void sda_null_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->zero.lookup(fix->queries[i]);
 	}
 }
 
 void sda_64_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->sd1.lookup(fix->queries[i]);
 	}
 }
 
 void sda_512_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->sd2.lookup(fix->queries[i]);
 	}
 }
 
 void sda_fuse0_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->qs.x.lookup(fix->queries[i]);
 	}
 }
 
 void sda_fuse1_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->qs.y.lookup(fix->queries[i]);
 	}
 }
 
 void sda_th_rnd(StmFix * fix) {
 	unsigned vx = 121;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->th.lookup(fix->queries[i]);
 	}
 }
@@ -699,61 +716,110 @@ void sda_th_rnd(StmFix * fix) {
 //-------------------------------------------------
 void sda_null_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->zero.rank(fix->rankqs[i]);
 	}
 }
 
 void sda_64_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->sd1.find(fix->rankqs[i]);
 	}
 }
 
 void sda_512_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->sd2.rank(fix->rankqs[i]);
 	}
 }
 
 void sda_fuse0_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->qs.x.rank(fix->rankqs[i]);
 	}
 }
 
 void sda_fuse1_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->qs.y.rank(fix->rankqs[i]);
 	}
 }
 
 void sda_th_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->th.rank(fix->rankqs[i]);
 	}
 }
 
 void sda_hints_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
-	for (unsigned i = 0; i < fix->size; ++i) {
+	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->lkz.rank(fix->rankqs[i]);
 	}
 }
+//------------------------------------------------
 
+void sda_null_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->zero.rank(fix->rankseq[i]);
+	}
+}
+
+void sda_64_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->sd1.find(fix->rankseq[i]);
+	}
+}
+
+void sda_512_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->sd2.rank(fix->rankseq[i]);
+	}
+}
+
+void sda_fuse0_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->qs.x.rank(fix->rankseq[i]);
+	}
+}
+
+void sda_fuse1_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->qs.y.rank(fix->rankseq[i]);
+	}
+}
+
+void sda_th_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->th.rank(fix->rankseq[i]);
+	}
+}
+
+void sda_hints_seq_rank(StmFix * fix) {
+	unsigned vx = 131;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= fix->lkz.rank(fix->rankseq[i]);
+	}
+}
 
 //-------------------------------------------------
 
 BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
-	auto n = StmFix::SIZE;
-	bm.add_remark("number of queries for each run: " + utils::tostr(n));
+	bm.add_remark("input length: " + utils::tostr(StmFix::SIZE) + 
+		"  query set length: " + utils::tostr(StmFix::QSIZE));
 	//bm.add("vector", sda_null_rnd, 100);
 	bm.add("sda_b64_rnd_access", sda_64_rnd, 15);
 	bm.add("sda_b512_rnd_access", sda_512_rnd, 15);
@@ -768,8 +834,8 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 BENCHMARK_SET(sdarray_seq_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
-	auto n = StmFix::SIZE;
-	bm.add_remark("number of queries for each run: " + utils::tostr(n));
+	bm.add_remark("input length: " + utils::tostr(StmFix::SIZE) +
+		"  query set length: " + utils::tostr(StmFix::QSIZE));
 	//bm.add("vector", sda_null, 100);
 	bm.add("sda_b64_seq_access", sda_64, 15);
 	bm.add("sda_b512_seq_access", sda_512, 15);
@@ -784,8 +850,8 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
-	auto n = StmFix::SIZE;
-	bm.add_remark("number of queries for each run: " + utils::tostr(n));
+	bm.add_remark("input length: " + utils::tostr(StmFix::SIZE) +
+		"  query set length: " + utils::tostr(StmFix::QSIZE));
 	bm.add("vector", sda_null_rnd_rank, 15);
 	bm.add("sda_b64_rnd_rank", sda_64_rnd_rank, 15);
 	bm.add("sda_b512_rnd_rank", sda_512_rnd_rank, 15);
@@ -797,6 +863,25 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
+
+
+BENCHMARK_SET(sdarray_seq_rank_benchmark) {
+	Benchmarker<StmFix> bm;
+	bm.n_samples = 3;
+	bm.add_remark("input length: " + utils::tostr(StmFix::SIZE) +
+		"  query set length: " + utils::tostr(StmFix::QSIZE));
+	bm.add("vector", sda_null_rnd_rank, 15);
+	bm.add("sda_b64_seq_rank", sda_64_seq_rank, 15);
+	bm.add("sda_b512_seq_rank", sda_512_seq_rank, 15);
+	bm.add("sda_fuse0_seq_rank", sda_fuse0_seq_rank, 15);
+	bm.add("sda_fuse1_seq_rank", sda_fuse1_seq_rank, 15);
+	bm.add("sda_th_seq_rank", sda_th_seq_rank, 15);
+	bm.add("sda_b512hints_seq_rank", sda_hints_seq_rank, 15);
+
+	bm.run_all();
+	bm.report(0); // <-- baseline
+}
+
 
 void test_all1() {
 	test1();

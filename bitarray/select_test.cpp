@@ -1,4 +1,5 @@
 #include "select_dense.h"
+#include "bitstream.h"
 
 #include "utils/utest.h"
 
@@ -15,6 +16,7 @@ std::vector<unsigned int> generate_list(unsigned int bvlen, double density) {
 	return ret;
 }
 
+
 void test_bit(double density) {
 	const unsigned bxl = 800;
 	auto v = generate_list(1.0 / density * bxl, density);
@@ -22,7 +24,7 @@ void test_bit(double density) {
 	Block bx;
 	bx.h.v1 = 0;
 	OBitStream out;
-	bx.build(v, out, 0);
+	bx.build(v, out, 0, 0);
 }
 
 void test_store_case(unsigned int casex) {
@@ -48,7 +50,7 @@ void test_store_case(unsigned int casex) {
 	}
 }
 
-void test_store_all() {
+TEST(select_dense, store_all) {
 	for (unsigned int i = 0; i < 2000; ++i) {
 		for (unsigned int casex = 0; i < 8; ++i) {
 			test_store_case(casex);
@@ -56,14 +58,66 @@ void test_store_all() {
 	}
 }
 
-void test_bit_all() {
+void select_dense_bit_all() {
 	test_bit(1.0);
 	test_bit(0.75);
 	test_bit(0.5);
 	test_bit(0.25);
 }
 
-int main() {
-	//test_store_all();
-	test_bit_all();
+BitArray gen_bits(unsigned int len, double density) {
+	OBitStream o;
+	for (unsigned int i = 0; i < len; ++i) {
+		if (rand() * 1.0 / RAND_MAX <= density)
+			o.put1();
+		else o.put0();
+	}
+	o.close();
+	BitArray b;
+	o.build(&b);
+	return b;
+}
+
+void test_gen(unsigned int len, double density) {
+	BitArray b = gen_bits(len, density);
+	unsigned cnt = 0;
+	for (unsigned int i = 0; i < b.length(); ++i)
+		if (b[i]) cnt++;
+	SelectDense qs;
+	SelectDenseBuilder::build(b, &qs);
+	
+	int lastpos = -1;
+	for (unsigned int i = 0; i < cnt; ++i) {
+		int pos = qs.select(i);
+		if (!(lastpos < pos)) {
+			pos = qs.select(i);
+		}
+		assert(lastpos < pos);
+		lastpos = pos;
+		assert(b[pos] == true);
+	}
+}
+
+TEST(select_dense, all) {
+	test_gen(2000, 1.0);
+	test_gen(2000, 0.75);
+	test_gen(2000, 0.5);
+	test_gen(2000, 0.25);
+	test_gen(2000, 0.15);
+
+	test_gen(2048, 1.0);
+	test_gen(2048, 0.75);
+	test_gen(2048, 0.5);
+	test_gen(2048, 0.25);
+	test_gen(2048, 0.15);
+
+}
+
+int main(int argc, char* argv[]) {
+	//::testing::GTEST_FLAG(filter) = "*";
+	//::testing::GTEST_FLAG(break_on_failure) = "1";
+	//::testing::GTEST_FLAG(catch_exceptions) = "0";
+
+	::testing::InitGoogleTest(&argc, argv);
+	int rs = RUN_ALL_TESTS();
 }

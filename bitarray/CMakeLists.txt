@@ -17,4 +17,4 @@ add_test_files(ranktest.cpp bit_test.cpp)
 
 add_benchmark_files(bit_benchmark.cpp)
 
-add_test_exec(t_select FILES select_test.cpp LIBS mscdsa)
+add_test_exec(t_select FILES select_test.cpp LIBS mscdsa gtest)

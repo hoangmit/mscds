@@ -35,6 +35,9 @@ private:
 	void * _ ## name ## _reg = ::BenchmarkRegister::getInst()->add(#name, name); \
 	void name()
 
+#define BENCHMARK_SET_DISABLE(name) \
+	void name()
+
 
 class SharedFixtureItf {
 public:

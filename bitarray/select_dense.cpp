@@ -30,7 +30,7 @@ std::vector<unsigned int> Block::_make_span(unsigned int span, const std::vector
 	return ret;
 }
 
-void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, unsigned int start_flow) {
+void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, uint64_t start_val, unsigned int start_flow) {
 	assert(_inp.size() <= BLK_COUNT);
 	assert(std::is_sorted(_inp.begin(), _inp.end()));
 	std::vector<unsigned int> inp = _inp;
@@ -39,6 +39,7 @@ void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, u
 		return ;
 	}
 	// fill up, empty space
+	auto start_pos = start_val + inp[0];
 	while (inp.size() < BLK_COUNT) inp.push_back(inp.back() + 1);
 	for (unsigned int i = 1; i < inp.size(); ++i)
 		inp[i] -= inp[0];
@@ -62,7 +63,7 @@ void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, u
 		assert(z < 8);
 	}
 	// got: z
-	h.v1 = inp[0];
+	h.v1 = start_pos;
 	assert(h.v1 <= MASK_1);
 	unsigned int w;
 	std::vector<unsigned int> vals = _make_span(span, inp, w);
@@ -141,16 +142,20 @@ unsigned int Block::get_casex(unsigned int pos, const BitArray &v, unsigned int 
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 
-void SelectDenseBuilder::build(const BitArray &b, SelectDense *o) {
-	OBitStream header;
-	OBitStream overflow;
+template<typename F>
+size_t __SelectDenseBuilder_build(const BitArray &b, SelectDenseAux *o, F f,
+		OBitStream& header, OBitStream& overflow) {
 	std::vector<unsigned int> v(Block::BLK_COUNT);
 	unsigned p = 0;
+	size_t cnt = 0;
 	Block bx;
 	for (unsigned int i = 0; i < b.length(); ++i) {
-		if (b[i]) v[p++] = i;
+		if (f(b[i])) {
+			v[p++] = i;
+			cnt++;
+		}
 		if (p == Block::BLK_COUNT) {
-			bx.build(v, overflow, 0);
+			bx.build(v, overflow, 0, 0);
 			header.puts(bx.h.v1);
 			header.puts(bx.h.v2);
 			p = 0;
@@ -158,33 +163,123 @@ void SelectDenseBuilder::build(const BitArray &b, SelectDense *o) {
 	}
 	if (p > 0) {
 		v.resize(p);
-		bx.build(v, overflow, 0);
+		bx.build(v, overflow, 0, 0);
 		header.puts(bx.h.v1);
 		header.puts(bx.h.v2);
 	}
 	header.close();
 	overflow.close();
-	o->bits = b;
-	header.build(&(o->ptrs));
-	overflow.build(&(o->overflow));
+	return cnt;
 }
 
-uint64_t SelectDense::select(uint64_t r) const {
+void SelectDenseBuilder::build_aux(const BitArray &b, SelectDenseAux *o) {
+	OBitStream header;
+	OBitStream overflow;
+	auto cnt = __SelectDenseBuilder_build(b, o, [](bool v) { return v; }, header, overflow);
+	header.build(&(o->ptrs));
+	overflow.build(&(o->overflow));
+	o->cnt = cnt;
+	o->len = b.length();
+}
+
+// clone from build(), only change !b[i]
+void SelectDenseBuilder::build0_aux(const BitArray &b, SelectDenseAux *o) {
+	OBitStream header;
+	OBitStream overflow;
+	auto cnt = __SelectDenseBuilder_build(b, o, [](bool v) { return !v; }, header, overflow);
+	header.build(&(o->ptrs));
+	overflow.build(&(o->overflow));
+	o->cnt = cnt;
+	o->len = b.length();
+}
+
+void SelectDenseBuilder::build(const BitArray &b, SelectDense *o) {
+	build_aux(b, &(o->aux));
+	o->bits = b;
+}
+
+void SelectDenseBuilder::build0(const BitArray &b, Select0Dense *o) {
+	build0_aux(b, &(o->aux));
+	o->bits = b;
+}
+
+std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
+	assert(r < this->cnt);
 	uint64_t blk = r / Block::BLK_COUNT;
 	uint64_t p = r % Block::BLK_COUNT;
 	Block bx;
 	bx.h.v1 = ptrs.word(blk*2);
 	bx.h.v2 = ptrs.word(blk*2 + 1);
 	uint64_t sloc = bx.blk_ptr();
-	if (p == 0) return sloc;
+	if (p == 0)
+		return std::pair<uint64_t, uint32_t>(sloc, 0);
 	auto span = bx.get_span();
 	auto subblk = p / span;
 	auto subp = p % span;
 	auto stx = bx.get_casex(subblk, overflow, 0);
-	if (subp == 0) return stx;
-	sloc += stx;
-	//auto px = scan(bits, sloc + stx, subp);
-	return 0;
+	return std::pair<uint64_t, uint32_t>(sloc + stx, subp);
+	//if (subp == 0) return sloc + stx;
+	//auto px = bits.scan_bits(sloc + stx, subp);
+	//return sloc + stx + px;
 }
+
+void SelectDenseAux::load_aux(InpArchive &ar, BitArray &b) {
+	ar.loadclass("select_dense_aux");
+	ar.var("cnt").load(cnt);
+	ar.var("bitlen").load(len);
+	if (len != b.length()) throw ioerror("not match length");
+	ptrs.load(ar.var("pointers"));
+	overflow.load(ar.var("overflow"));
+	ar.close();
+}
+
+void SelectDenseAux::save_aux(OutArchive &ar) const {
+	ar.startclass("select_dense_aux", 0);
+	ar.var("cnt").save(cnt);
+	ar.var("bitlen").save(len);
+	ptrs.save(ar.var("pointers"));
+	overflow.save(ar.var("overflow"));
+	ar.close();
+}
+
+void SelectDenseAux::clear() {
+	cnt = 0;
+	len = 0;
+	ptrs.clear();
+	overflow.clear();
+}
+
+void SelectDense::load(InpArchive &ar) {
+	ar.loadclass("select_1_dense");
+	bits.load(ar.var("bits"));
+	aux.load_aux(ar.var("aux"), bits);
+	ar.close();
+	if (bits.count_one() != aux.cnt)
+		throw ioerror("not match");
+}
+
+void SelectDense::save(OutArchive &ar) const {
+	ar.startclass("select_1_dense");
+	bits.save(ar.var("bits"));
+	aux.save_aux(ar.var("aux"));
+	ar.close();
+}
+
+void Select0Dense::load(InpArchive &ar) {
+	ar.loadclass("select_0_dense");
+	bits.load(ar.var("bits"));
+	aux.load_aux(ar.var("aux"), bits);
+	ar.close();
+	if (bits.length() - bits.count_one() != aux.cnt)
+		throw ioerror("not match");
+}
+
+void Select0Dense::save(OutArchive &ar) const {
+	ar.startclass("select_0_dense");
+	bits.save(ar.var("bits"));
+	aux.save_aux(ar.var("aux"));
+	ar.close();
+}
+
 
 }//namespace

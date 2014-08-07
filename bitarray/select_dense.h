@@ -11,6 +11,64 @@
 
 namespace mscds {
 
+class SelectDenseAux;
+class SelectDense;
+class Select0Dense;
+
+class SelectDenseBuilder {
+public:
+	static void build_aux(const BitArray& b, SelectDenseAux * o);
+	static void build0_aux(const BitArray& b, SelectDenseAux * o);
+
+	static void build(const BitArray& b, SelectDense * o);
+	static void build0(const BitArray& b, Select0Dense * o);
+};
+
+class SelectDenseAux {
+public:
+	std::pair<uint64_t, uint32_t> pre_select(uint64_t r) const;
+	void load_aux(InpArchive& ar, BitArray& b);
+	void save_aux(OutArchive& ar) const;
+	void clear();
+
+	size_t cnt, len;
+private:
+	BitArray ptrs, overflow;
+	friend class SelectDenseBuilder;
+};
+
+class SelectDense  {
+public:
+	/** the position of the (r+1)-th 1-value (from left to right) */
+	uint64_t select(uint64_t r) const {
+		auto p = aux.pre_select(r);
+		return p.first + bits.scan_bits(p.first, p.second);
+	}
+	const BitArray& getBitArray() const { return bits; }
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+public:
+	SelectDenseAux aux;
+	BitArray bits;
+	friend class SelectDenseBuilder;
+};
+
+class Select0Dense {
+public:
+	uint64_t select0(uint64_t r) const {
+		auto p = aux.pre_select(r);
+		return p.first + bits.scan_zeros(p.first, p.second);
+	}
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+public:
+	SelectDenseAux aux;
+	BitArray bits;
+	friend class SelectDenseBuilder;
+};
+
+//------------------------------------------------------------
+//for internal use only
 struct Block {
 	static const unsigned int BLK_COUNT = 512;
 	struct Header {
@@ -21,7 +79,7 @@ struct Block {
 	Header h;
 
 	void build(const std::vector<unsigned int>& _inp, 
-		OBitStream& overflow, unsigned int start_flow);
+		OBitStream& overflow, uint64_t start_val, unsigned int start_flow);
 
 	uint64_t blk_ptr() const;
 
@@ -45,49 +103,5 @@ struct Block {
 		const std::vector<unsigned int>& inp, unsigned int& width);
 };
 
-class SelectDense;
-class Select0Dense;
-
-class SelectDenseBuilder {
-public:
-	static void build(const BitArray& b, SelectDense * o);
-	static void build0(const BitArray& b, Select0Dense * o);
-	typedef SelectDense QueryTp;
-};
-
-class SelectDense {
-public:
-
-	/** the position of the (r+1)-th 1-value (from left to right) */
-	uint64_t select(uint64_t r) const;
-
-	void load_aux(InpArchive& ar, BitArray& b);
-	void save_aux(OutArchive& ar) const;
-
-	void load(InpArchive& ar);
-	void save(OutArchive& ar) const;
-	const BitArray& getBitArray() const { return bits; }
-private:
-	BitArray bits;
-	BitArray ptrs, overflow;
-	friend class SelectDenseBuilder;
-};
-
-class Select0Dense {
-public:
-
-	uint64_t select0(uint64_t r) const;
-
-	void load_aux(InpArchive& ar, BitArray& b);
-	void save_aux(OutArchive& ar) const;
-
-	void load(InpArchive& ar);
-	void save(OutArchive& ar) const;
-	const BitArray& getBitArray() const { return bits; }
-private:
-	BitArray bits;
-	BitArray ptrs, overflow;
-	friend class SelectDenseBuilder;
-};
 
 }//namespace

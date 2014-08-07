@@ -219,6 +219,11 @@ namespace mscds {
 		if (n == 0) return 0;
 		return msb_intr(n) + (n&(n-1) ? 1 : 0);
 	}
+
+	inline uint64_t floorlog2(uint64_t n) {
+		if (n == 0) return 0;
+		return msb_intr(n);
+	}
 }
 
 

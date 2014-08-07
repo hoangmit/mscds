@@ -62,12 +62,10 @@ void test1() {
 	test_values<Storage>(v, 1E-5);
 }
 
-
 void test2() {
 	auto v = gen_norm(20000, 1.0, 2.0);
 	test_values<Storage2>(v, 1e-4);
 }
-
 
 int main() {
 	test1();

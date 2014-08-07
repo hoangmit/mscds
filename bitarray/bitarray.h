@@ -90,6 +90,7 @@ public:
 
 	//--------------------------------------------------
 	BitArray();
+	BitArray(size_t bitlen);
 	BitArray(const BitArray& other) = default;
 	BitArray& operator=(const BitArray& other) = default;
 	BitArray(BitArray&& mE) : bitlen(mE.bitlen), data(std::move(mE.data)) {}
@@ -140,6 +141,13 @@ struct CppArrDeleter {
 	void operator()(void* p) const { delete[]((T*)p); }
 };
 
+inline BitArray::BitArray(size_t bitlen) {
+	this->bitlen = bitlen;
+	size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
+	LocalMemModel alloc;
+	data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
+	if (arrlen > 0) data.setword(arrlen - 1, 0);
+}
 
 inline BitArray BitArrayBuilder::create(size_t bitlen) {
 	BitArray v;

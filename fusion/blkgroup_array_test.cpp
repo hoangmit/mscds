@@ -541,8 +541,8 @@ void test_ptr() {
 // Benchmark
 
 struct StmFix : public SharedFixtureItf {
-	static const unsigned int SIZE  =  5000000;
-	static const unsigned int QSIZE =  1000000;
+	static const unsigned int SIZE  = 20000000;
+	static const unsigned int QSIZE =  2000000;
 	void SetUp(int size) {
 		if (size <= 0) { size = SIZE; }
 		// generate test cases and data structure here
@@ -609,7 +609,7 @@ struct StmFix : public SharedFixtureItf {
 
 	void report_size() {
 		SetUp(0);
-
+		std::cout << "Data structure sizes (bytes):" << std::endl;
 		std::cout << "sda_b64" << "\t" << estimate_data_size(sd1) << std::endl;
 		std::cout << "sda_b512" << "\t" << estimate_data_size(sd2) << std::endl;
 		std::cout << "sda_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;

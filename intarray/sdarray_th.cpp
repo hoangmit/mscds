@@ -22,7 +22,7 @@ void mscds::SDArrayTHBuilder::build(mscds::SDArrayTH *out) {
 	if (vals.size() == 0) return ;
 	uint64_t n = vals.back();
 	uint64_t m = vals.size();
-	uint32_t w = floorlog2((n + m - 1) / m);
+	uint32_t w = ceillog2((n + m - 1) / m);
 	out->width = w;
 	uint64_t wp = (1ull << w);
 	out->upper = BitArray(n / wp + m);

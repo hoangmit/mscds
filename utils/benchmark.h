@@ -13,6 +13,7 @@ Function and classes for speed benchmarking.
 #include <string>
 #include <functional>
 #include <iostream>
+#include <ctime>
 
 #include "utils/str_utils.h"
 
@@ -108,6 +109,17 @@ void Benchmarker<SharedFixture>::run_all() {
 	}
 }
 
+struct CppClock {
+	typedef clock_t duration;
+	typedef clock_t time_point;
+	static duration now() {
+		return clock();
+	}
+	static double to_milisec(const duration& t) {
+		return ((double)t)/CLOCKS_PER_SEC;
+	}
+};
+
 template<typename SharedFixture>
 void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<SharedFixture>::RESVector &results) {
 	results.resize(lst.size());
@@ -118,14 +130,17 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 	}
 
 	typedef std::chrono::high_resolution_clock Clock;
+	//typedef CppClock Clock;
 	typedef std::chrono::duration<double, std::milli> millisecs_t;
 
 	for (unsigned int sample = 0; sample < n_samples; ++sample) {
 		SharedFixture qfx;
 		unsigned int idx = 0;
+		if (verbose) std::cout << "<";
 		qfx.SetUp(size);
 		for (FuncInfo& fc : lst) {
-			Clock::duration d;
+			Clock::duration d = Clock::duration::zero();
+
 			if (verbose) std::cout << fc.name << std::endl;
 			unsigned int rc = fc.nrun;
 			if (rc > 1) {
@@ -144,10 +159,13 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 				d += t2 - t1;
 			}
 			results[idx].second += std::chrono::duration_cast<millisecs_t>(d).count() / fc.nrun;
+			//results[idx].second += Clock::to_milisec(d) / fc.nrun;
 			idx++;
 		}
 		qfx.TearDown();
+		if (verbose) std::cout << ">";
 	}
+	if (verbose) std::cout << "\n";
 	for (auto& r : results) {
 		r.second /= (n_samples);
 	}

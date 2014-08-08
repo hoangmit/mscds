@@ -1,6 +1,6 @@
 #include "sdarray_sml.h"
-
 #include "bitarray/bitop.h"
+#include "utils/benchmark.h"
 
 #include <cassert>
 #include <sstream>

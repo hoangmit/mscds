@@ -898,6 +898,7 @@ int main(int argc, char* argv[]) {
 	//test_all1();
 	//test4();
 	//test_ptr();
+	
 	StmFix x;
 	x.report_size();
 

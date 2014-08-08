@@ -50,10 +50,10 @@ public:
 
 	void loadBlock(BitArray& ba, size_t pt, size_t len) {
 		w = ba.bits(pt, 8);
-		start_.resize(1);
+		start_.resize(1 + count_);
 		start_[0] = 0;
 		for (unsigned i = 0; i < count_; ++i)
-			start_.push_back(start_.back() + ba.bits(pt + 8 + i * w, w)); 
+			start_[i + 1] = (start_[i] + ba.bits(pt + 8 + i * w, w)); 
 		valid = true;
 	}
 

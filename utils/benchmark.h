@@ -109,15 +109,29 @@ void Benchmarker<SharedFixture>::run_all() {
 	}
 }
 
-struct CppClock {
-	typedef clock_t duration;
-	typedef clock_t time_point;
-	static duration now() {
-		return clock();
-	}
-	static double to_milisec(const duration& t) {
-		return ((double)t)/CLOCKS_PER_SEC;
-	}
+
+struct CTimer {
+	CTimer() { reset(); }
+	void start() { start_time = clock(); }
+	void end() { duration += clock() - start_time; }
+	void reset() { duration = 0; }
+	double milisec() { return duration * 1000.0 / CLOCKS_PER_SEC; }
+
+	clock_t duration;
+	clock_t start_time;
+};
+
+struct HiResTimer {
+	HiResTimer() { reset(); }
+	void start() { start_time = Clock::now(); }
+	void end() { duration += Clock::now() - start_time; }
+	void reset() { duration = Clock::duration::zero(); }
+	double milisec() { return std::chrono::duration_cast<millisecs_t>(duration).count(); }
+	typedef std::chrono::high_resolution_clock Clock;
+	typedef std::chrono::duration<double, std::milli> millisecs_t;
+
+	Clock::duration duration;
+	Clock::time_point start_time;
 };
 
 template<typename SharedFixture>
@@ -139,27 +153,23 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 		if (verbose) std::cout << "<";
 		qfx.SetUp(size);
 		for (FuncInfo& fc : lst) {
-			Clock::duration d = Clock::duration::zero();
+			HiResTimer tm;
 
 			if (verbose) std::cout << fc.name << std::endl;
 			unsigned int rc = fc.nrun;
 			if (rc > 1) {
-				auto t1 = Clock::now();
+				tm.start();
 				while (rc) {
 					fc.func(&qfx);
 					--rc;
 				}
-				auto t2 = Clock::now();
-				d += t2 - t1;
-			}
-			else {
-				auto t1 = Clock::now();
+				tm.end();
+			} else {
+				tm.start();
 				fc.func(&qfx);
-				auto t2 = Clock::now();
-				d += t2 - t1;
+				tm.end();
 			}
-			results[idx].second += std::chrono::duration_cast<millisecs_t>(d).count() / fc.nrun;
-			//results[idx].second += Clock::to_milisec(d) / fc.nrun;
+			results[idx].second += tm.milisec() / fc.nrun;
 			idx++;
 		}
 		qfx.TearDown();
@@ -197,8 +207,8 @@ template<typename SharedFixture>
 void Benchmarker<SharedFixture>::_report_methods(const typename Benchmarker<SharedFixture>::RESVector &results, int baseline) {
 	if (baseline >= 0 && baseline < results.size()) {
 		double baseval = results[baseline].second;
-		std::cout << "Baseline method : " << results[baseline].first << std::endl;
-		std::cout << "Baseline value  = " << baseval << " (ms)" << std::endl;
+		std::cout << "Baseline_method : " << results[baseline].first << std::endl;
+		std::cout << "Baseline_value  = " << baseval << " (ms)" << std::endl;
 		for (auto& r : results) {
 			std::cout << r.first << " \t" << r.second / baseval << std::endl;
 		}

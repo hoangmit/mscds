@@ -66,7 +66,7 @@ include(cmake/function.cmake)
 fix_compiler_flags() #defined inside function.cmake
 
 if(GCC_COMPATIBLE_COMPILER)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -g -march=native")
 elseif(MSVC)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
 	# 'expression': unreferenced local variable

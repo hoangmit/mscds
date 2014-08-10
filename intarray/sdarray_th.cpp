@@ -55,11 +55,13 @@ uint64_t mscds::SDArrayTH::lookup(const uint64_t i, uint64_t &prev_sum) const {
 	}
 	auto j = i - 1;
 	uint64_t h = select_hi(j) - j;
-	uint64_t l = lower.bits(width * j, width);
-	prev_sum = (h << width) | l;
 	uint64_t h2 = h + upper.scan_next(j+h+1);
-	//uint64_t h2 = select_hi(j + 1) - j - 1;
+	uint64_t l = lower.bits(width * j, width);
 	uint64_t l2 = lower.bits(width * (j + 1), width);
+	prev_sum = (h << width) | l;
+	
+	//uint64_t h2 = select_hi(j + 1) - j - 1;
+	
 	uint64_t s2 = (h2 << width) | l2;
 	return s2 - prev_sum;
 }

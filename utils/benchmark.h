@@ -210,7 +210,7 @@ void Benchmarker<SharedFixture>::_report_methods(const typename Benchmarker<Shar
 		std::cout << "Baseline_method : " << results[baseline].first << std::endl;
 		std::cout << "Baseline_value  = " << baseval << " (ms)" << std::endl;
 		for (auto& r : results) {
-			std::cout << r.first << " \t" << r.second / baseval << std::endl;
+			std::cout << r.first << " \t" << r.second / baseval << " \t" << r.second << std::endl;
 		}
 	}
 	else {

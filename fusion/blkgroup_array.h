@@ -136,59 +136,15 @@ public:
 	StructIDList(): pfront(0) {}
 	StructIDList(const StructIDList& other): pfront(0), _lst(other._lst) {}
 
-	void addId(const std::string& name) {
-		_lst.push_back(-1);
-	}
-	void checkId(const std::string& name) {
-		//int v = _lst.front(); _lst.pop_front();
-		int v = _lst[pfront];
-		pfront++;
-		if (v != -1) throw std::runtime_error("failed");
-	}
-	void add(unsigned int id) {
-		_lst.push_back((int)id);
-	}
-	unsigned int get() {
-		//int v = (int)_lst.front(); _lst.pop_front();
-		int v = _lst[pfront];
-		pfront++;
-		assert(v > 0);		
-		return (unsigned int)v;
-	}
+	void addId(const std::string& name);
+	void checkId(const std::string& name);
+	void add(unsigned int id);
+	unsigned int get();
 
-	void save(mscds::OutArchive& ar) const {
-		ar.startclass("block_struct_list", 1);
-		uint32_t len = _lst.size();
-		ar.var("len").save(len);
-		ar.var("list");
-		for (unsigned int i = 0; i < len; ++i) {
-			int16_t v = _lst[i];
-			ar.save_bin(&v, sizeof(v));
-		}
-		ar.endclass();
-	}
-
-	void load(mscds::InpArchive& ar) {
-		int class_version = ar.loadclass("block_struct_list");
-		uint32_t len = 0;
-		ar.var("len").load(len);
-		ar.var("list");
-		for (unsigned int i = 0; i < len; ++i) {
-			int16_t v = 0;
-			ar.load_bin(&v, sizeof(v));
-			_lst.push_back(v);
-		}
-		ar.endclass();
-	}
-
-	void clear() {
-		_lst.clear();
-		pfront = 0;
-	}
-
-	void reset() {
-		pfront = 0;
-	}
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void clear();
+	void reset();
 
 	unsigned int pfront;
 	std::deque<int> _lst;
@@ -201,15 +157,21 @@ public:
 
 	BitRange getGlobal(unsigned int gid) {
 		assert(gid > 0 && gid <= global_ps.size());
-		return BitRange(&summary, (header_size + global_ps[gid - 1])*8, (global_ps[gid] - global_ps[gid - 1])*8);
+		return BitRange(&summary, header_size + global_ps[gid - 1], (global_ps[gid] - global_ps[gid - 1]));
 	}
 
 	BitRange getSummary(unsigned int sid, size_t blk) {
 		assert(sid > 0 && sid <= summary_ps.size());
 		assert(blk < blkcnt);
-		size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
-		stp *= 8;
-		return BitRange(&summary, stp + summary_ps[sid - 1] * 8, (summary_ps[sid] - summary_ps[sid - 1]) * 8);
+		size_t stp = prefix_size + blk * summary_chunk_size;
+		return BitRange(&summary, stp + summary_ps[sid - 1], (summary_ps[sid] - summary_ps[sid - 1]));
+	}
+
+	uint64_t summary_word(unsigned int sid, size_t blk) {
+		assert(sid > 0 && sid <= summary_ps.size());
+		assert(blk < blkcnt);
+		size_t stp = prefix_size + blk * summary_chunk_size;
+		return summary.bits(stp + summary_ps[sid - 1], 64);
 	}
 
 	BitRange getData(unsigned int did, size_t blk) {
@@ -217,9 +179,8 @@ public:
 		assert(blk < blkcnt);
 		did -= 1;
 		if (last_blk != blk) {
-			size_t stp = header_size + global_struct_size + blk * summary_chunk_size;
-			stp += summary_chunk_size - sizeof(uint64_t);
-			stp *= 8;
+			size_t stp = prefix_size + blk * summary_chunk_size;
+			stp += summary_chunk_size - sizeof(uint64_t) * 8;
 			uint64_t ptrx = summary.bits(stp, 64);
 			bptr.loadBlock(data, ptrx, 0);
 			last_blk = blk;
@@ -229,80 +190,13 @@ public:
 		return BitRange(&data, base + bptr.start(did), bptr.length(did));
 	}
 
-	void save(mscds::OutArchive& ar) const {
-		ar.startclass("fusion_block_manager", 1);
-		ar.var("struct_count").save(str_cnt);
-		ar.var("block_count").save(blkcnt);
-		summary.save(ar.var("summary_data"));
-		std::string s = std::accumulate(info.begin(), info.end(), std::string());
-		data.save(ar.var("data" + s));
-		ar.endclass();
-	}
-
-	void load(mscds::InpArchive& ar) {
-		ar.loadclass("fusion_block_manager");
-		ar.var("struct_count").load(str_cnt);
-		ar.var("block_count").load(blkcnt);
-		summary.load(ar.var("summary_data"));
-		//std::string s = std::accumulate(info.begin(), info.end(), std::string());
-		data.load(ar);
-		ar.endclass();
-		init();
-	}
-	void clear() {
-		bptr.clear();
-		global_ps.clear(); summary_ps.clear();
-		summary.clear(); data.clear();
-		info.clear();
-
-		blkcnt = 0; str_cnt = 0;
-	}
-
-	void inspect(const std::string &cmd, std::ostream &out) {
-		out << "{";
-		out << "\"struct_count\": " << str_cnt << ", ";
-		out << "\"block_count\": " << blkcnt << ", ";
-
-		out << "\"summary_ptr_bit_size\": " << 64 << ", ";
-
-		out << "\"global_byte_sizes\": [";
-		for (size_t i = 1; i < global_ps.size(); ++i) {
-			if (i != 1) out << ", ";
-			out << global_ps[i] - global_ps[i-1];
-		}
-		out << "], ";
-
-		out << "\"summary_byte_sizes\": [";
-		for (size_t i = 1; i < global_ps.size(); ++i) {
-			if (i != 1) out << ", ";
-			out << summary_ps[i] - summary_ps[i-1];
-		}
-		out << "], ";
-		std::vector<size_t> bsz(str_cnt + 1, 0);
-		for (size_t i = 0; i < blkcnt; ++i) {
-			for (size_t j = 1; j <= str_cnt; ++j) {
-				auto x = getData(j, i);
-				bsz[j] += x.len;
-				bsz[0] += bptr.ptr_space();
-			}
-		}
-		out << "\"struct_block_bit_sizes\": [";
-		for (size_t i = 0; i < bsz.size(); ++i) {
-			if (i != 0) out << ", ";
-			out << bsz[i];
-		}
-		out << "]";
-		out << "}";
-	}
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void clear();
+	void inspect(const std::string &cmd, std::ostream &out);
 
 private:
-	static std::vector<unsigned int> prefixsum_vec(const std::vector<unsigned int>& v) {
-		std::vector<unsigned int> out(v.size() + 1);
-		out[0] = 0;
-		for (size_t i = 1; i <= v.size(); ++i)
-			out[i] = out[i - 1] + v[i - 1];
-		return out;
-	}
+	static std::vector<unsigned int> prefixsum_vec(const std::vector<unsigned int>& v);
 	void init();
 	
 private:   //essensial data
@@ -315,7 +209,7 @@ private:
 	size_t last_blk;
 	uint64_t last_ptrx;
 	std::vector<std::string> info;
-	size_t summary_chunk_size, global_struct_size, header_size;
+	size_t summary_chunk_size, global_struct_size, header_size, prefix_size;
 	FixBlockPtr bptr;
 	std::vector<unsigned int> summary_ps, global_ps;
 	friend class BlockBuilder;

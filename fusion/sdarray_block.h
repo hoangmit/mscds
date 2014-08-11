@@ -151,8 +151,9 @@ public:
 	uint64_t length() const { return len; }
 
 	uint64_t getBlkSum(size_t blk) const {
-		auto br = mng->getSummary(sid, blk);
-		return br.bits(0, 64);
+		//auto br = mng->getSummary(sid, blk);
+		//return br.bits(0, 64);
+		return mng->summary_word(sid, blk);
 	}
 
 	void clear() {

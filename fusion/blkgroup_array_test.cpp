@@ -895,10 +895,11 @@ void test_all1() {
 }
 
 int main(int argc, char* argv[]) {
-	//test_all1();
-	//test4();
-	//test_ptr();
+	test_all1();
+	test4();
+	test_ptr();
 	
+	return 0;
 	StmFix x;
 	x.report_size();
 

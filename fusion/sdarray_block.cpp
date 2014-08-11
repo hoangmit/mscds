@@ -195,5 +195,5 @@ void SDArrayFuseBuilder::deploy(StructIDList& lst) {
 	lst.add(did);
 }
 
-}
+}//namespace
 

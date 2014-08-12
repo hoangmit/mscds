@@ -105,6 +105,22 @@ inline size_t estimate_data_size(const T& a) {
 	return ar.opos();
 }
 
+template<typename T>
+inline size_t estimate_aux_size(const T& a) {
+	OSizeEstArchive ar;
+	a.save_aux(ar);
+	ar.close();
+	return ar.opos();
+}
+
+template<typename T>
+inline std::string extract_data_info(const T& a) {
+	OClassInfoArchive ar;
+	a.save(ar);
+	ar.close();
+	return ar.printxml();
+}
+
 void save_str(OutArchive& ar, const std::string& st);
 std::string load_str(InpArchive& ar);
 

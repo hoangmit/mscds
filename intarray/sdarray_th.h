@@ -48,6 +48,8 @@ public:
 
 	/** counts the number of elements in the array */
 	uint64_t length() const ;
+
+	void inspect(const std::string&, std::ostream&) const;
 private:
 	uint64_t select_hi(uint64_t r) const;
 	size_t len, sum;

@@ -90,7 +90,7 @@ void SDArraySmlBuilder::build_blk(){
 	size_t i = step;
 	for (size_t p = 0; p < SUBB_PER_BLK - 1; ++p) {
 		uint64_t hp = ((vals[i-1] >> width) + i-1);
-		assert(ceillog2(hp) <= 10);
+		assert(hp <= 1024);
 		select_hints |= (hp << (p*10));
 		assert(p*10 <= 64);
 		i += step;
@@ -415,8 +415,24 @@ void SDArraySml::getEnum(size_t idx, Enum* e) const {
 	}
 }
 
-void SDArraySml::inspect(const std::string& cmd, std::ostream& out) const {}
-
+void SDArraySml::inspect(const std::string& cmd, std::ostream& out) const {
+	if (cmd == "comp_size") {
+		out << "sdarray_block_512" << std::endl;
+		out << "length: " << len << std::endl;
+		out << "sum: " << sum << std::endl;
+		out << "header_size_(overhead): " << (table.length() + 7) / 8 << std::endl;
+		auto blkcnt = table.word_count()/ 3;
+		size_t lower_size = 0;
+		for (size_t i = 0; i < blkcnt; ++i) {
+			uint64_t info = table.word(i * 3 + 1);
+			uint32_t width = info >> 57;
+			lower_size += width * BLKSIZE;
+		}
+		size_t upper_size = bits.length() - lower_size;
+		out << "upper_size: " << (upper_size + 7) / 8 << std::endl;
+		out << "lower_size: " << (lower_size + 7) / 8 << std::endl;
+	}
+}
 
 //---------------------------------------------------------------------------------------
 

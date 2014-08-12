@@ -1,5 +1,7 @@
 #include "sdarray_th.h"
 
+#include "mem/info_archive.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -152,4 +154,17 @@ void mscds::SDArrayTH::load(InpArchive& ar) {
 	saux0.load_aux(ar.var("aux0"), upper);
 	saux1.load_aux(ar.var("aux1"), upper);
 	ar.close();
+}
+
+void mscds::SDArrayTH::inspect(const std::string& cmd, std::ostream& out) const {
+	if (cmd == "comp_size") {
+		out << "sdarray_th" << std::endl;
+		out << "length: " << len << std::endl;
+		out << "sum: " << sum << std::endl;
+		out << "bit_width: " << width << std::endl;
+		out << "lower_size: " << mscds::estimate_data_size(lower) << std::endl;
+		out << "upper_size: " << mscds::estimate_data_size(upper) << std::endl;
+		out << "select0_aux_size: " << mscds::estimate_aux_size(saux1) << std::endl;
+		out << "select1_aux_size: " << mscds::estimate_aux_size(saux1) << std::endl;
+	}
 }

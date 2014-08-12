@@ -24,4 +24,4 @@ add_library(fusionarray ${SRCS} ${HEADERS})
 target_link_libraries(fusionarray bitarray codec utils intarray)
 
 
-add_test_exec(blkgroup_array_test FILES blkgroup_array_test.cpp LIBS fusionarray utils)
+add_test_exec(blkgroup_array_test FILES blkgroup_array_test.cpp sdarray_benchmarks.cpp fused_sdarray_test.h LIBS fusionarray utils)

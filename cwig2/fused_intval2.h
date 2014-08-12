@@ -255,7 +255,7 @@ double IntValQueryG<IVS>::range_value(unsigned int idx) const {
 }
 
 template<typename IVS>
-double IntValQueryG<IVS>::sum_intv(unsigned int idx, unsigned int leftpos) const {
+double IntValQueryG<IVS>::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
 	int64_t tlen = data.itv.int_psrlen(idx - r);
@@ -277,7 +277,7 @@ double IntValQueryG<IVS>::sum_intv(unsigned int idx, unsigned int leftpos) const
 }
 
 template<typename IVS>
-double IntValQueryG<IVS>::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {
+double IntValQueryG<IVS>::sum_intv(unsigned int idx, unsigned int leftpos) const {
 	size_t r = idx % rate;
 	size_t p = idx / rate;
 	int64_t tlen = data.itv.int_psrlen(idx - r);

@@ -79,6 +79,9 @@ public:
 	/** read one word (64 bits) */
 	uint64_t word(size_t pos) const;
 
+	/** read 64-bits at ''bitindex'' location (optimized version) */
+	uint64_t bits64(size_t bitindex) const;
+
 	//--------------------------------------------------
 	//return -1 if cannot find
 	int64_t scan_bits(uint64_t start, uint32_t res) const;
@@ -183,6 +186,14 @@ inline BitArray BitArray::clone_mem() const {
 }*/
 
 inline BitArray::~BitArray() { }
+
+inline uint64_t BitArray::bits64(size_t bitindex) const {
+	assert(bitindex + 64 <= bitlen);
+	uint64_t i = bitindex / WORDLEN;
+	unsigned int j = bitindex % WORDLEN;
+	if (j == 0) return word(i);
+	else return (word(i) >> j) | (word(i+1) << j);
+}
 
 inline uint64_t BitArray::bits(size_t bitindex, unsigned int len) const {
 	assert(len <= WORDLEN); // len > 0

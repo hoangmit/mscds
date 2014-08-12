@@ -171,7 +171,7 @@ public:
 		assert(sid > 0 && sid <= summary_ps.size());
 		assert(blk < blkcnt);
 		size_t stp = prefix_size + blk * summary_chunk_size;
-		return summary.bits(stp + summary_ps[sid - 1], 64);
+		return summary.bits64(stp + summary_ps[sid - 1]);
 	}
 
 	BitRange getData(unsigned int did, size_t blk) {

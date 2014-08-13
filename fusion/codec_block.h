@@ -4,13 +4,14 @@
 Experimental implementation of fusion block
 */
 
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 #include "bitarray/bitstream.h"
 #include "bitarray/bitop.h"
 
 #include "codec/deltacoder.h"
 
 #include "intarray/huffarray.h"
+#include "generic_fusion.h"
 
 namespace mscds {
 

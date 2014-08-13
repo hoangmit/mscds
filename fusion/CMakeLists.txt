@@ -4,20 +4,21 @@ project(fusionarray)
 
 
 set(SRCS 
-blkgroup_array.cpp
+block_mem_mng.cpp
 sdarray_block.cpp
 )
 
 set(HEADERS
-blkgroup_array.h
+block_mem_mng.h
 sdarray_block.h
-fuse_blk_model.h
+codec_block.h
 inc_ptrs.h
 inc_ptrs2.h
 inc_ptrs3.h
 ps_access_blk.h
 fixsize_block.h
 polymorphic_blk.h
+generic_fusion.h
 )
 
 add_library(fusionarray ${SRCS} ${HEADERS})

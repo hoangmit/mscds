@@ -1,8 +1,9 @@
 #pragma once
 
 #include "cwig/intv/nintv.h"
-#include "fusion/blkgroup_array.h"
+#include "fusion/block_mem_mng.h"
 #include "fusion/sdarray_block.h"
+#include "fusion/generic_fusion.h"
 
 #include <algorithm>
 

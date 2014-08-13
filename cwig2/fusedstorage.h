@@ -1,5 +1,5 @@
 #pragma once
-#include "fusion/fuse_blk_model.h"
+#include "fusion/codec_block.h"
 #include "fusion/ps_access_blk.h"
 #include "cwig2/intv/nintv_fuse.h"
 

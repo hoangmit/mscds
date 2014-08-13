@@ -1,7 +1,7 @@
 
 
 
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 #include "sdarray_block.h"
 
 #include "bitarray/bitstream.h"
@@ -13,7 +13,6 @@
 #include "utils/benchmark.h"
 #include "utils/str_utils.h"
 
-#include "blkgroup_array.h"
 #include "inc_ptrs2.h"
 #include "inc_ptrs3.h"
 #include <cstdlib>
@@ -272,7 +271,7 @@ void test3() {
 	bdx.build(&qsx);
 }
 
-#include "fuse_blk_model.h"
+#include "codec_block.h"
 
 void test4() {
 	const unsigned int n = 1001, r = 100;

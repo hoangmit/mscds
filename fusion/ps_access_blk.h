@@ -6,7 +6,7 @@ Experimental fusion related structure.
 */
 
 
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 #include "inc_ptrs.h"
 #include "codec/deltacoder.h"
 

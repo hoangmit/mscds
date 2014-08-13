@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 #include "sdarray_block.h"
 
 struct MockBlk {

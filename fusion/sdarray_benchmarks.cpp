@@ -1,4 +1,4 @@
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 #include "sdarray_block.h"
 
 #include "intarray/sdarray.h"
@@ -343,14 +343,14 @@ void sda_hints_seq_rank(StmFix * fix) {
 
 static const unsigned int RANDSEED = 3571;
 
-BENCHMARK_SET(size_report) {
+BENCHMARK_SET_DISABLE(size_report) {
 	srand(RANDSEED);
 	StmFix x;
 	x.report_size();
 }
 
 
-BENCHMARK_SET(sdarray_rnd_benchmark) {
+BENCHMARK_SET_DISABLE(sdarray_rnd_benchmark) {
 	srand(RANDSEED);
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
@@ -369,7 +369,7 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 	bm.report(0); // <-- baseline
 }
 
-BENCHMARK_SET(sdarray_seq_benchmark) {
+BENCHMARK_SET_DISABLE(sdarray_seq_benchmark) {
 	srand(RANDSEED);
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;

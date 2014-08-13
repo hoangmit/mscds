@@ -1,4 +1,4 @@
-#include "blkgroup_array.h"
+#include "block_mem_mng.h"
 
 namespace mscds {
 

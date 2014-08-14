@@ -32,7 +32,7 @@ void Storage2::save(mscds::OutArchive &ar) const {
 double Storage2::get_val(unsigned int idx) const {
 	unsigned int r = idx % 64;
 	unsigned int p = idx - r;
-	mscds::CodeInterBlkQuery::Enum e;
+	mscds::HuffBlkQuery::Enum e;
 	vals.getEnum(p, &e);
 	double last = fmap.unmap_sf(e.next());
 	for (unsigned int i = 0; i < r; ++i) {

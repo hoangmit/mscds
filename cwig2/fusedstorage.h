@@ -11,7 +11,7 @@ class Storage;
 
 class StorageBuilder {
 	typedef mscds::LiftStBuilder<NIntvInterBlkBuilder,
-		mscds::CodeInterBlkBuilder,
+		mscds::HuffBlkBuilder,
 		mscds::PtrInterBlkBd,
 		mscds::PtrInterBlkBd
 	> BD;
@@ -30,7 +30,7 @@ private:
 class Storage {
 private:
 	typedef mscds::LiftStQuery<app_ds::FuseNIntvInterBlock,
-		mscds::CodeInterBlkQuery,
+		mscds::HuffBlkQuery,
 		mscds::PtrInterBlkQs,
 		mscds::PtrInterBlkQs
 	> QS;
@@ -40,7 +40,7 @@ private:
 public:
 	typedef StorageBuilder BuilderTp;
 	FuseNIntvInterBlock& itv;
-	mscds::CodeInterBlkQuery& vals;
+	mscds::HuffBlkQuery& vals;
 	mscds::PtrInterBlkQs& sumq;
 	mscds::PtrInterBlkQs& sqrsum;
 	
@@ -57,7 +57,7 @@ public:
 	size_t length() const;
 
 	class Enum: public mscds::EnumeratorInt<double> {
-		mscds::CodeInterBlkQuery::Enum e;
+		mscds::HuffBlkQuery::Enum e;
 		const Storage * self;
 		friend class Storage;
 	public:

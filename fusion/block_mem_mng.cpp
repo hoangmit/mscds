@@ -190,6 +190,7 @@ void BlockMemManager::save(mscds::OutArchive &ar) const {
 	ar.startclass("fusion_block_manager", 1);
 	ar.var("struct_count").save(str_cnt);
 	ar.var("block_count").save(blkcnt);
+	global.save(ar.var("global"));
 	summary.save(ar.var("summary_data"));
 	std::string s = std::accumulate(info.begin(), info.end(), std::string());
 	data.save(ar.var("data" + s));
@@ -200,6 +201,7 @@ void BlockMemManager::load(mscds::InpArchive &ar) {
 	ar.loadclass("fusion_block_manager");
 	ar.var("struct_count").load(str_cnt);
 	ar.var("block_count").load(blkcnt);
+	global.load(ar.var("global"));
 	summary.load(ar.var("summary_data"));
 	//std::string s = std::accumulate(info.begin(), info.end(), std::string());
 	data.load(ar);

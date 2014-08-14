@@ -187,7 +187,7 @@ TEST(fusion, codex_block) {
 			vals.push_back(2);
 		else vals.push_back(rand() % r);
 
-	LiftStBuilder<CodeInterBlkBuilder> bd;
+	LiftStBuilder<HuffBlkBuilder> bd;
 	auto& x = bd.g<0>();
 	x.start_model();
 	for (unsigned i = 0; i < n; ++i)
@@ -203,7 +203,7 @@ TEST(fusion, codex_block) {
 		}
 	}
 
-	LiftStQuery<CodeInterBlkQuery> qs;
+	LiftStQuery<HuffBlkQuery> qs;
 	if (!bd.is_all_empty()) {
 		bd._end_block();
 	}
@@ -221,7 +221,7 @@ TEST(fusion, codex_block) {
 	}
 	{
 		unsigned i = 0;
-		CodeInterBlkQuery::Enum e;
+		HuffBlkQuery::Enum e;
 		y.getEnum(0, &e);
 		while (e.hasNext()) {
 			auto v = e.next();

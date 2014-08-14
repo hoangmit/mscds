@@ -97,7 +97,7 @@ struct StmFix : public SharedFixtureItf {
 
 	void report_size() {
 		SetUp(0);
-		std::cout << "Data structure sizes (bytes):" << std::endl;
+		std::cout << "> Data structure sizes (bytes)" << std::endl;
 		std::cout << "sda_b64" << "\t" << estimate_data_size(sd1) << std::endl;
 		std::cout << "sda_b512" << "\t" << estimate_data_size(sd2) << std::endl;
 		std::cout << "sda_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;
@@ -106,7 +106,7 @@ struct StmFix : public SharedFixtureItf {
 		std::cout << "sda_hints" << "\t" << estimate_data_size(lkz) << std::endl;
 		std::cout << "vector" << "\t" << zero.cums.size() * sizeof(zero.cums[0]) << std::endl;
 		std::cout << std::endl;
-		std::cout << "Components sizes (optional):" << std::endl;
+		std::cout << "> Components sizes (optional)" << std::endl;
 		sd2.inspect("comp_size", std::cout);
 		th.inspect("comp_size", std::cout);
 		TearDown();

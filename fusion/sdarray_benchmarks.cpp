@@ -98,13 +98,14 @@ struct StmFix : public SharedFixtureItf {
 	void report_size() {
 		SetUp(0);
 		std::cout << "> Data structure sizes (bytes)" << std::endl;
+		std::cout << "vector" << "\t" << zero.cums.size() * sizeof(zero.cums[0]) << std::endl;
 		std::cout << "sda_b64" << "\t" << estimate_data_size(sd1) << std::endl;
 		std::cout << "sda_b512" << "\t" << estimate_data_size(sd2) << std::endl;
+		std::cout << "sda_hints" << "\t" << estimate_data_size(lkz) << std::endl;
+		std::cout << "sda_th" << "\t" << estimate_data_size(th) << std::endl;
+
 		std::cout << "sda_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;
 		std::cout << "sda_one_fuse" << "\t" << estimate_data_size(fuse_single) << std::endl;
-		std::cout << "sda_th" << "\t" << estimate_data_size(th) << std::endl;
-		std::cout << "sda_hints" << "\t" << estimate_data_size(lkz) << std::endl;
-		std::cout << "vector" << "\t" << zero.cums.size() * sizeof(zero.cums[0]) << std::endl;
 		std::cout << std::endl;
 		std::cout << "> Components sizes (optional)" << std::endl;
 		sd2.inspect("comp_size", std::cout);
@@ -355,16 +356,16 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
-	bm.add_remark("input length: " + utils::tostr(n) +
-		"\n  query set length: " + utils::tostr(m));
+	bm.add_remark("input_length: " + utils::tostr(n) +
+		"\t query_set_length: " + utils::tostr(m));
 	//bm.add("vector", sda_null_rnd, 100);
 	bm.add("sda_b64_rnd_access", sda_64_rnd, 15);
 	bm.add("sda_b512_rnd_access", sda_512_rnd, 15);
+	bm.add("sda_th_rnd_access", sda_fuse1_rnd, 15);
+
 	bm.add("sda_fuse0_rnd_access", sda_fuse0_rnd, 15);
 	bm.add("sda_fuse1_rnd_access", sda_fuse1_rnd, 15);
 	bm.add("sda_one_fuse_rnd_access", sda_fusesingle_rnd, 15);
-	bm.add("sda_th_rnd_access", sda_fuse1_rnd, 15);
-
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
@@ -374,16 +375,16 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
-	bm.add_remark("input length: " + utils::tostr(n) +
-		"\n  query set length: " + utils::tostr(m));
+	bm.add_remark("input_length: " + utils::tostr(n) +
+		"\t query_set_length: " + utils::tostr(m));
 	//bm.add("vector", sda_null, 100);
 	bm.add("sda_b64_seq_access", sda_64, 15);
 	bm.add("sda_b512_seq_access", sda_512, 15);
+	bm.add("sda_th_seq_access", sda_th, 15);
+
 	bm.add("sda_fuse0_seq_access", sda_fuse0, 15);
 	bm.add("sda_fuse1_seq_access", sda_fuse1, 15);
 	bm.add("sda_one_fuse_seq_access", sda_fusesingle, 15);
-	bm.add("sda_th_seq_access", sda_th, 15);
-
 	bm.run_all();
 	bm.report(0); // <-- baseline
 }
@@ -393,16 +394,17 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
-	bm.add_remark("input length: " + utils::tostr(n) +
-		"\n  query set length: " + utils::tostr(m));
+	bm.add_remark("input_length: " + utils::tostr(n) +
+		"\t query_set_length: " + utils::tostr(m));
 	bm.add("vector", sda_null_rnd_rank, 15);
 	bm.add("sda_b64_rnd_rank", sda_64_rnd_rank, 15);
 	bm.add("sda_b512_rnd_rank", sda_512_rnd_rank, 15);
+	bm.add("sda_b512hints_rnd_rank", sda_hints_rnd_rank, 15);
+	bm.add("sda_th_rnd_rank", sda_th_rnd_rank, 15);
+
 	bm.add("sda_fuse0_rnd_rank", sda_fuse0_rnd_rank, 15);
 	bm.add("sda_fuse1_rnd_rank", sda_fuse1_rnd_rank, 15);
 	bm.add("sda_one_fuse_rnd_rank", sda_fusesingle_rnd_rank, 15);
-	bm.add("sda_th_rnd_rank", sda_th_rnd_rank, 15);
-	bm.add("sda_b512hints_rnd_rank", sda_hints_rnd_rank, 15);
 	
 	bm.run_all();
 	bm.report(0); // <-- baseline
@@ -414,16 +416,17 @@ BENCHMARK_SET(sdarray_seq_rank_benchmark) {
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
-	bm.add_remark("input length: " + utils::tostr(n) +
-		"\n  query set length: " + utils::tostr(m));
+	bm.add_remark("input_length: " + utils::tostr(n) +
+		"\t query_set_length: " + utils::tostr(m));
 	bm.add("vector", sda_null_rnd_rank, 15);
 	bm.add("sda_b64_seq_rank", sda_64_seq_rank, 15);
 	bm.add("sda_b512_seq_rank", sda_512_seq_rank, 15);
+	bm.add("sda_b512hints_seq_rank", sda_hints_seq_rank, 15);
+	bm.add("sda_th_seq_rank", sda_th_seq_rank, 15);
+
 	bm.add("sda_fuse0_seq_rank", sda_fuse0_seq_rank, 15);
 	bm.add("sda_fuse1_seq_rank", sda_fuse1_seq_rank, 15);
 	bm.add("sda_one_fuse_seq_rank", sda_fusesingle_seq_rank, 15);
-	bm.add("sda_th_seq_rank", sda_th_seq_rank, 15);
-	bm.add("sda_b512hints_seq_rank", sda_hints_seq_rank, 15);
 
 	bm.run_all();
 	bm.report(0); // <-- baseline

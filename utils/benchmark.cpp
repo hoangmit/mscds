@@ -27,7 +27,7 @@ void BenchmarkRegister::run_all_bm()  {
 	BenchmarkRegister * reg = getInst();
 	cout << "Running all registered functions" << endl;
 	for (auto& p :reg-> _list) {
-		cout << p.first << endl;
+		cout << "> " << p.first << endl;
 		try {
 			p.second();
 		} catch (std::runtime_error& e) {

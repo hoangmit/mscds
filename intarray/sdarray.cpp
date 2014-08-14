@@ -240,7 +240,7 @@ uint64_t SDArrayQuery::lookup(const uint64_t pos, uint64_t& prev_sum) const {
 }
 
 
-uint64_t SDArrayQuery::find(const uint64_t val) const {
+uint64_t SDArrayQuery::rank(const uint64_t val) const {
 	if (sum_ < val) {
 		//cout << "come0" << endl;
 		return NOTFOUND;

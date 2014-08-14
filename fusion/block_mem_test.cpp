@@ -155,6 +155,9 @@ void debug_run() {
 }
 
 int main(int argc, char* argv[]) {
+
+	debug_run();
+
 	::testing::GTEST_FLAG(catch_exceptions) = "0";
 	::testing::GTEST_FLAG(break_on_failure) = "1";
 	//::testing::GTEST_FLAG(filter) = "*.*";

@@ -98,7 +98,7 @@ public:
 	/*
    * @ret Return ind s.t. prefixSum(ind) <= val < prefixSum(ind+1) or NOTFOUND if not exist
    */
-	uint64_t find(uint64_t val) const; // upper_bound(val) - 1
+	uint64_t rank(uint64_t val) const; // upper_bound(val) - 1
 
 	size_t length() const;
 	uint64_t total() const { return sum_; }

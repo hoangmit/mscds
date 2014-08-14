@@ -234,7 +234,7 @@ void sda_null_rnd_rank(StmFix * fix) {
 void sda_64_rnd_rank(StmFix * fix) {
 	unsigned vx = 131;
 	for (unsigned i = 0; i < fix->qsize; ++i) {
-		vx ^= fix->sd1.find(fix->rankqs[i]);
+		vx ^= fix->sd1.rank(fix->rankqs[i]);
 	}
 }
 
@@ -292,7 +292,7 @@ void sda_null_seq_rank(StmFix * fix) {
 void sda_64_seq_rank(StmFix * fix) {
 	unsigned vx = 131;
 	for (unsigned i = 0; i < fix->qsize; ++i) {
-		vx ^= fix->sd1.find(fix->rankseq[i]);
+		vx ^= fix->sd1.rank(fix->rankseq[i]);
 	}
 }
 
@@ -343,20 +343,20 @@ void sda_hints_seq_rank(StmFix * fix) {
 
 static const unsigned int RANDSEED = 3571;
 
-BENCHMARK_SET_DISABLE(size_report) {
+BENCHMARK_SET(size_report) {
 	srand(RANDSEED);
 	StmFix x;
 	x.report_size();
 }
 
 
-BENCHMARK_SET_DISABLE(sdarray_rnd_benchmark) {
+BENCHMARK_SET(sdarray_rnd_benchmark) {
 	srand(RANDSEED);
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
 	bm.add_remark("input length: " + utils::tostr(n) +
-		"  query set length: " + utils::tostr(m));
+		"\n  query set length: " + utils::tostr(m));
 	//bm.add("vector", sda_null_rnd, 100);
 	bm.add("sda_b64_rnd_access", sda_64_rnd, 15);
 	bm.add("sda_b512_rnd_access", sda_512_rnd, 15);
@@ -369,13 +369,13 @@ BENCHMARK_SET_DISABLE(sdarray_rnd_benchmark) {
 	bm.report(0); // <-- baseline
 }
 
-BENCHMARK_SET_DISABLE(sdarray_seq_benchmark) {
+BENCHMARK_SET(sdarray_seq_benchmark) {
 	srand(RANDSEED);
 	Benchmarker<StmFix> bm;
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
 	bm.add_remark("input length: " + utils::tostr(n) +
-		"  query set length: " + utils::tostr(m));
+		"\n  query set length: " + utils::tostr(m));
 	//bm.add("vector", sda_null, 100);
 	bm.add("sda_b64_seq_access", sda_64, 15);
 	bm.add("sda_b512_seq_access", sda_512, 15);
@@ -394,7 +394,7 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
 	bm.add_remark("input length: " + utils::tostr(n) +
-		"  query set length: " + utils::tostr(m));
+		"\n  query set length: " + utils::tostr(m));
 	bm.add("vector", sda_null_rnd_rank, 15);
 	bm.add("sda_b64_rnd_rank", sda_64_rnd_rank, 15);
 	bm.add("sda_b512_rnd_rank", sda_512_rnd_rank, 15);
@@ -415,7 +415,7 @@ BENCHMARK_SET(sdarray_seq_rank_benchmark) {
 	bm.n_samples = 3;
 	auto n = StmFix::SIZE, m = StmFix::QSIZE;
 	bm.add_remark("input length: " + utils::tostr(n) +
-		"  query set length: " + utils::tostr(m));
+		"\n  query set length: " + utils::tostr(m));
 	bm.add("vector", sda_null_rnd_rank, 15);
 	bm.add("sda_b64_seq_rank", sda_64_seq_rank, 15);
 	bm.add("sda_b512_seq_rank", sda_512_seq_rank, 15);

@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
 	return rs;
 
 	//sdarray benchmark is in another file
-	//BenchmarkRegister::run_all_bm();
+	BenchmarkRegister::run_all_bm();
 	return 0;
 }
 

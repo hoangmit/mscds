@@ -205,6 +205,7 @@ TEST(Encode1,GolombCoder) {
 	}
 }
 
+/*
 TEST(DISABLED_estimate1,GolombAdpCoder) {
 	std::default_random_engine eng;
 	double p = 0.9;
@@ -267,6 +268,7 @@ TEST(DISABLED_encode_decode2,GolombAdpCoder) {
 		}
 	}
 }
+*/
 
 //#include "bstreamg.hpp"
 /*
@@ -276,6 +278,7 @@ int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv); 
 	return RUN_ALL_TESTS(); 
 }
+
 
 int main(int argc, char* argv[]) {
 	test_codestream_all();

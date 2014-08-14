@@ -11,7 +11,7 @@ Experimental implementation of fusion block
 #include "codec/deltacoder.h"
 
 #include "intarray/huffarray.h"
-#include "generic_fusion.h"
+#include "generic_struct.h"
 
 namespace mscds {
 

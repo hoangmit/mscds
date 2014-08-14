@@ -24,5 +24,5 @@ target_link_libraries(mem utils)
 
 add_test_files(filemap_test.cpp)
 
+add_test_files(mem_test.cpp)
 
-add_test_exec(t_mem2 FILES mem_test.cpp LIBS mem remote_file)

@@ -25,7 +25,7 @@ TEST(float_int, test1) {
 		ASSERT(fabs(x - y) < 1E-6);
 	}
 }
-
+/*
 int main(int argc, char* argv[]) {
 
 	//::testing::GTEST_FLAG(filter) = "";
@@ -33,3 +33,4 @@ int main(int argc, char* argv[]) {
 	int rs = RUN_ALL_TESTS();
 	return rs;
 }
+*/

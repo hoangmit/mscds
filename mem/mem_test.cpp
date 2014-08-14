@@ -131,6 +131,7 @@ TEST(farchive2, fmap_file) {
 	fi.close();
 }
 
+/*
 TEST(farchive2, remote_file) {
 
 	std::string urlp = "http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/test1.bin";
@@ -138,14 +139,14 @@ TEST(farchive2, remote_file) {
 	fi.open_url(urlp, "", true);
 	testinp1(fi);
 	fi.close();
-}
+}*/
 
 
-
+/*
 int main(int argc, char* argv[]) {
 	//::testing::GTEST_FLAG(filter) = "farchive2.*";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;
 }
-
+*/

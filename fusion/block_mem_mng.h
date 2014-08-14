@@ -19,15 +19,6 @@ Experimental implementation of fusion structure
 
 namespace mscds {
 
-class BlockAPI {
-public:
-	void buildBlock();
-
-	void saveBlock(OBitStream * bs);
-	void loadBlock(BitArray ba, size_t pt, size_t);
-
-};
-
 struct MemRange {
 	char* ptr;
 	size_t len;
@@ -43,7 +34,6 @@ struct MemRange {
 		MemRange((char*)&t, sizeof(T));
 	}
 };
-
 
 struct BitRange {
 	BitRange() : ba(nullptr), start(0), len(0) {}
@@ -79,14 +69,16 @@ struct BitRange {
 
 //----------------------------------------------------------------------
 
-
 class BlockMemManager;
 
 class BlockBuilder {
 public:
+	BlockBuilder();
 	// register number start from 1
 	unsigned int register_data_block();
-	unsigned int register_summary(size_t global_size, size_t summary_blk_size, const std::string& str_info = "");
+	// sizes are in bytes
+	unsigned int register_summary(size_t global_size, size_t summary_blk_size,
+		const std::string& str_info = "");
 	std::pair<unsigned int, unsigned int> current_reg_numbers();
 
 	//-----------------------------------------------------
@@ -109,14 +101,13 @@ public:
 
 	void build(BlockMemManager* mng);
 
-	BlockBuilder();
 	void clear();
 private:
 	std::vector<std::string> info;
 	std::vector<unsigned int> summary_sizes, global_sizes;
 
 	FixBlockPtr bptr;
-	OBitStream header, summary, data, buffer;
+	OBitStream global, summary, blkdata, databuf;
 
 	size_t blkcnt;
 	size_t scid, bcid, gcid, last_pos;
@@ -124,29 +115,9 @@ private:
 
 	size_t n_data_block;
 
-	size_t summary_chunk_size, global_struct_size, header_size;
+	size_t summary_chunk_size;
 	bool finish_reg;
 };
-
-class StructIDList {
-public:
-	StructIDList(): pfront(0) {}
-	StructIDList(const StructIDList& other): pfront(0), _lst(other._lst) {}
-
-	void addId(const std::string& name);
-	void checkId(const std::string& name);
-	void add(unsigned int id);
-	unsigned int get();
-
-	void save(mscds::OutArchive& ar) const;
-	void load(mscds::InpArchive& ar);
-	void clear();
-	void reset();
-
-	unsigned int pfront;
-	std::deque<int> _lst;
-};
-
 
 class BlockMemManager {
 public:
@@ -154,21 +125,21 @@ public:
 
 	BitRange getGlobal(unsigned int gid) {
 		assert(gid > 0 && gid <= global_ps.size());
-		return BitRange(&summary, header_size + global_ps[gid - 1], (global_ps[gid] - global_ps[gid - 1]));
+		return BitRange(&global, header_size + global_ps[gid - 1], (global_ps[gid] - global_ps[gid - 1]));
 	}
 
 	BitRange getSummary(unsigned int sid, size_t blk) {
 		assert(sid > 0 && sid <= summary_ps.size());
 		assert(blk < blkcnt);
-		size_t stp = prefix_size + blk * summary_chunk_size;
-		return BitRange(&summary, stp + summary_ps[sid - 1], (summary_ps[sid] - summary_ps[sid - 1]));
+		size_t stp = blk * summary_chunk_size;
+		return BitRange(&summary, (stp + summary_ps[sid - 1])*64, (summary_ps[sid] - summary_ps[sid - 1])*64);
 	}
 
 	uint64_t summary_word(unsigned int sid, size_t blk) {
 		assert(sid > 0 && sid <= summary_ps.size());
 		assert(blk < blkcnt);
-		size_t stp = prefix_size + blk * summary_chunk_size;
-		return summary.bits64(stp + summary_ps[sid - 1]);
+		size_t stp = blk * summary_chunk_size;
+		return summary.word(stp + summary_ps[sid - 1]);
 	}
 
 	BitRange getData(unsigned int did, size_t blk) {
@@ -176,9 +147,9 @@ public:
 		assert(blk < blkcnt);
 		did -= 1;
 		if (last_blk != blk) {
-			size_t stp = prefix_size + blk * summary_chunk_size;
-			stp += summary_chunk_size - sizeof(uint64_t) * 8;
-			uint64_t ptrx = summary.bits(stp, 64);
+			size_t stp = blk * summary_chunk_size;
+			stp += summary_chunk_size - 1;
+			uint64_t ptrx = summary.word(stp);
 			bptr.loadBlock(data, ptrx, 0);
 			last_blk = blk;
 			last_ptrx = ptrx;
@@ -197,6 +168,7 @@ private:
 	void init();
 	
 private:   //essensial data
+	BitArray global;
 	BitArray summary;
 	BitArray data;
 	
@@ -206,7 +178,7 @@ private:
 	size_t last_blk;
 	uint64_t last_ptrx;
 	std::vector<std::string> info;
-	size_t summary_chunk_size, global_struct_size, header_size, prefix_size;
+	size_t summary_chunk_size, header_size;
 	FixBlockPtr bptr;
 	std::vector<unsigned int> summary_ps, global_ps;
 	friend class BlockBuilder;

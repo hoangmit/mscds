@@ -57,18 +57,13 @@ std::vector<double> gen_norm(unsigned int len, double mean = 0.0, double std=1.0
 	return lst;
 }
 
-void test1() {
+TEST(float_storage, test1) {
 	auto v = gen_norm(20000, 1.0, 2.0);
 	test_values<Storage>(v, 1E-5);
 }
 
-void test2() {
+TEST(float_storage, test2) {
 	auto v = gen_norm(20000, 1.0, 2.0);
 	test_values<Storage2>(v, 1e-4);
 }
 
-int main() {
-	test1();
-	test2();
-	return 0;
-}

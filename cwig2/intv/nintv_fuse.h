@@ -3,7 +3,7 @@
 #include "cwig/intv/nintv.h"
 #include "fusion/block_mem_mng.h"
 #include "fusion/sdarray_block.h"
-#include "fusion/generic_fusion.h"
+#include "fusion/generic_struct.h"
 
 #include <algorithm>
 

@@ -5,6 +5,7 @@ project(fusionarray)
 
 set(SRCS 
 block_mem_mng.cpp
+generic_struct.cpp
 sdarray_block.cpp
 )
 
@@ -18,11 +19,13 @@ inc_ptrs3.h
 ps_access_blk.h
 fixsize_block.h
 polymorphic_blk.h
-generic_fusion.h
+generic_struct.h
 )
 
 add_library(fusionarray ${SRCS} ${HEADERS})
 target_link_libraries(fusionarray bitarray codec utils intarray)
 
 
-add_test_exec(blkgroup_array_test FILES blkgroup_array_test.cpp sdarray_benchmarks.cpp fused_sdarray_test.h LIBS fusionarray utils)
+add_test_exec(blkgroup_array_test FILES blkgroup_array_test.cpp sdarray_benchmarks.cpp fused_sdarray_test.h  LIBS fusionarray utils)
+
+add_test_exec(blk_mem_test FILES block_mem_test.cpp LIBS fusionarray utils)

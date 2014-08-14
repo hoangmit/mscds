@@ -29,4 +29,5 @@ add_test_files(codearr_test.cpp)
 
 add_test_files(intarr_test.cpp)
 
-add_test_exec(t_sda_th FILES sda_th_test.cpp LIBS mscdsa gtest)
+add_test_files(sda_th_test.cpp)
+

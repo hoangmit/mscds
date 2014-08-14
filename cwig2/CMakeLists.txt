@@ -30,9 +30,5 @@ set_property(TARGET cwig2 PROPERTY FOLDER "Apps")
 #add_test_files(intv/intv_tests.cpp)
 #intv/intv_rand_gen.hpp
 
-add_test_exec(t_float_int FILES test_float_int.cpp LIBS cwig2 utils)
-
-add_test_exec(t_cwig_fuse FILES intv/nintv_fuse_test.cpp LIBS cwig cwig2 utils)
-
-add_test_exec(t_intval2 FILES test_intval.cpp LIBS cwig cwig2 utils)
+add_test_exec(t_cwig_fuse FILES test_float_int.cpp intv/nintv_fuse_test.cpp test_intval.cpp LIBS cwig2 utils)
 

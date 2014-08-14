@@ -21,7 +21,7 @@ struct MockBlk {
 
 	void loadBlock(const mscds::BitArray& ba, size_t pt, size_t len) {
 		uint64_t x;
-		assert(64 + 16 == len);
+		assert(64 + 16 <= len);
 		x = ba.bits(pt, 64);
 		if (x != header) {
 			throw std::runtime_error("wrong load");

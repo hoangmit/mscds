@@ -10,7 +10,7 @@ Implemented SDArray in fusion block.
 #include "bitarray/bitstream.h"
 #include "bitarray/bitarray.h"
 #include "block_mem_mng.h"
-#include "generic_fusion.h"
+#include "generic_struct.h"
 
 namespace mscds {
 

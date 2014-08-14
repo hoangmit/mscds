@@ -106,14 +106,13 @@ public:
 	uint64_t get();
 	uint64_t peek() const { return cur; }
 
-	//const uint64_t* current_ptr() { return ptr; }
 	bool empty() const { return blen == 0; }
-	//size_t extracted() const { return _extracted; }
+	size_t pos() const { return _init_len - blen; }
 	void close() { clear(); }
 private:
 	uint64_t cur, nxt;
 	size_t blen;
-	//size_t _extracted;
+	size_t _init_len;
 	uint16_t j;
 	size_t ptr;
 	StaticMemRegionPtr data;
@@ -263,7 +262,7 @@ inline void IWBitStream::init(StaticMemRegionPtr _data, size_t blen, size_t star
 	nxt = 0;
 	j = 0;
 	skipw(start_idx % WORDLEN);
-	//_extracted = 0;
+	_init_len = blen;
 }
 
 inline void IWBitStream::clear() {

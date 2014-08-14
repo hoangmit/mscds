@@ -1,6 +1,4 @@
 
-
-
 #include "block_mem_mng.h"
 #include "sdarray_block.h"
 
@@ -10,18 +8,18 @@
 #include "sdarray_block.h"
 #include "intarray/sdarray.h"
 
+#include "utils/utest.h"
+
 #include "utils/benchmark.h"
 #include "utils/str_utils.h"
 
-#include "inc_ptrs2.h"
-#include "inc_ptrs3.h"
 #include <cstdlib>
 #include <iostream>
 
 using namespace mscds;
 
-void sdarray_block__test1() {
-	const unsigned n = 512; //block size, lol
+void sdarray_block_test1() {
+	const unsigned n = 512; //block size, hardcoded, lol
 	std::vector<uint64_t> inp;
 	for (unsigned i = 0; i < n; ++i)
 		inp.push_back(rand() % 100);
@@ -44,108 +42,18 @@ void sdarray_block__test1() {
 
 	for (unsigned i = 0; i < n; ++i) {
 		auto l = r.lookup(i);
-		assert(l == bdl.lookup(i));
+		ASSERT_EQ(l, bdl.lookup(i));
 		uint64_t ps1, ps2 = 0;
 		ps1 = r.prefixsum(i);
-		assert(ps1 == bdl.prefixsum(i));
+		ASSERT_EQ(ps1, bdl.prefixsum(i));
 		/*{
-			std::cout << i << std::endl;
-			std::cout << r.prefixsum(i) << "  " << bdl.prefixsum(i) << std::endl;
+		std::cout << i << std::endl;
+		std::cout << r.prefixsum(i) << "  " << bdl.prefixsum(i) << std::endl;
 		}*/
-		assert(l == bdl.lookup(i, ps2));
-		assert(ps1 == ps2);
+		ASSERT_EQ(l, bdl.lookup(i, ps2));
+		ASSERT_EQ(ps1, ps2);
 	}
-	assert(r.prefixsum(n) == bdl.prefixsum(n));
-}
-
-
-struct MockBigSt {
-	BlockBuilder bd;
-	BlockMemManager mng;
-	MockBlk b1, b2;
-
-	void buildall() {
-		unsigned int idx;
-		idx = bd.register_summary(1, 2);
-		assert(1 == idx);
-		idx = bd.register_data_block();
-		assert(1 == idx);
-		idx = bd.register_summary(1, 2);
-		assert(2 == idx);
-		idx = bd.register_data_block();
-		assert(2 == idx);
-		
-		bd.init_data();
-		uint8_t v = 0;
-		bd.set_global(1, MemRange::wrap(v));
-		bd.set_global(2, MemRange::wrap(v));
-
-		uint16_t tt;
-		tt = 1;
-		bd.set_summary(1, MemRange::wrap(tt));
-		OBitStream& d1 = bd.start_data(1);
-		b1.v = 1;
-		b1.saveBlock(&d1);
-		bd.end_data();
-
-		tt = 2;
-		bd.set_summary(2, MemRange::wrap(tt));
-		OBitStream& d2 = bd.start_data(2);
-		b2.v = 3;
-		b2.saveBlock(&d2);
-		bd.end_data();
-
-		bd.end_block();
-		//--------------------------------
-		tt = 3;
-		bd.set_summary(1, MemRange::wrap(tt));
-		OBitStream& d3 = bd.start_data(1);
-		b1.v = 5;
-		b1.saveBlock(&d3);
-		bd.end_data();
-
-		tt = 4;
-		bd.set_summary(2, MemRange::wrap(tt));
-		OBitStream& d4 = bd.start_data(2);
-		b2.v = 7;
-		b2.saveBlock(&d4);
-		bd.end_data();
-
-		bd.end_block();
-		//--------------------------------
-		bd.build(&mng);
-	}
-
-	void load_all() {
-		BitRange br;
-
-		b1.loadBlock(mng.getData(1, 0));
-		assert(1 == b1.v);
-		br = mng.getSummary(1, 0);
-		assert(1 == br.bits(0, br.len));
-
-		b2.loadBlock(mng.getData(2, 0));
-		assert(3 == b2.v);
-		br = mng.getSummary(2, 0);
-		assert(2 == br.bits(0, br.len));
-
-		b1.loadBlock(mng.getData(1, 1));
-		assert(5 == b1.v);
-		br = mng.getSummary(1, 1);
-		assert(3 == br.bits(0, br.len));
-
-		b2.loadBlock(mng.getData(2, 1));
-		assert(7 == b2.v);
-		br = mng.getSummary(2, 1);
-		assert(4 == br.bits(0, br.len));
-
-	}
-};
-
-void test1() {
-	MockBigSt x;
-	x.buildall();
-	x.load_all();
+	ASSERT_EQ(r.prefixsum(n), bdl.prefixsum(n));
 }
 
 
@@ -222,9 +130,7 @@ public:
 	}
 };
 
-
-
-void test2() {
+TEST(fusion, sda_block_test2) {
 	TwoSDA_Builder arr;
 	arr.init();
 	SDArrayBuilder t1, t2;
@@ -250,15 +156,15 @@ void test2() {
 	uint64_t ps2 = 0;
 
 	for (unsigned i = 0; i < n; ++i) {
-		assert(rawval[i].first == qs.x.lookup(i));
-		assert(rawval[i].second == qs.y.lookup(i));
-		assert(ps1 == qs.x.prefixsum(i));
-		assert(ps2 == qs.y.prefixsum(i));
+		ASSERT_EQ(rawval[i].first, qs.x.lookup(i));
+		ASSERT_EQ(rawval[i].second, qs.y.lookup(i));
+		ASSERT_EQ(ps1, qs.x.prefixsum(i));
+		ASSERT_EQ(ps2, qs.y.prefixsum(i));
 		ps1 += rawval[i].first;
 		ps2 += rawval[i].second;
 	}
-	assert(ps1 == qs.x.prefixsum(n));
-	assert(ps2 == qs.y.prefixsum(n));
+	ASSERT_EQ(ps1, qs.x.prefixsum(n));
+	ASSERT_EQ(ps2, qs.y.prefixsum(n));
 }
 
 void test3() {
@@ -273,7 +179,7 @@ void test3() {
 
 #include "codec_block.h"
 
-void test4() {
+TEST(fusion, codex_block) {
 	const unsigned int n = 1001, r = 100;
 	std::vector<unsigned int> vals;
 	for (unsigned int i = 0; i < n; ++i)
@@ -308,7 +214,10 @@ void test4() {
 	//y.debug_print(1);
 	for (unsigned i = 0; i < n; ++i) {
 		auto v = y.get(i);
-		assert(vals[i] == v);
+		if (vals[i] != v) {
+			v=y.get(i);
+		}
+		ASSERT_EQ(vals[i], v);
 	}
 	{
 		unsigned i = 0;
@@ -316,78 +225,38 @@ void test4() {
 		y.getEnum(0, &e);
 		while (e.hasNext()) {
 			auto v = e.next();
-			assert(i < vals.size());
-			assert(vals[i] == v);
+			ASSERT(i < vals.size());
+			ASSERT_EQ(vals[i], v);
 			++i;
 		}
-		assert(vals.size() == i);
+		ASSERT_EQ(vals.size(), i);
 	}
 	
 }
 
-void test_ptr() {
-	const unsigned int n = 64, r = 100, st = 10;
-	FixBlockPtr p1;
-	AxPtr p2;
-	MicroSDPtr p3;
-	std::vector<unsigned int> start(n + 1);
 
-	p1.init(n);
-	p2.init(n);
-	p3.init(n);
-	start[0] = 0;
-	for (unsigned int i = 1; i <= n; ++i) {
-		unsigned v = rand() % r + st;
-		p1.add(v);
-		p2.add(v);
-		p3.add(v);
-		start[i] += start[i-1] + v;
-	}
-	p1._build();
-	p2._build();
-	p3._build();
-	OBitStream os1, os2, os3;
-	p1.saveBlock(&os1);
-	uint8_t w2, w3;
-	p2.saveBlock(&os2, &w2);
-
-	p3.saveBlock(&os3, &w3);
-	os3.close();
-
-	BitArray b1, b2;
-	os1.build(&b1);
-	os2.build(&b2);
-	//BitArray ba(b1);
-	p1.reset();
-	p2.reset();
-	p1.loadBlock(b1, 0, b1.length());
-	p2.loadBlock(b2, 0, b2.length(), w2);
-
-	for (unsigned int i = 0; i <= n; ++i) {
-		unsigned v1 = p1.start(i);
-		unsigned v2 = p2.start(i);
-		assert(start[i] == v1);
-		assert(start[i] == v2);
-	}
-
-	std::cout << "Distance-bit: " << b1.length() << "   PS-bit: " << b2.length() << std::endl;
+TEST(fusion, sda_block) {
+	for (unsigned i = 0; i < 1000; i++)
+		sdarray_block_test1();
 }
 
-
-
-void test_all1() {
-	test1();
-	test2();
-	for (unsigned i = 0; i < 1000; i++)
-		sdarray_block__test1();
+void debug_cases() {
+	test3();
 }
 
 int main(int argc, char* argv[]) {
-	/*test_all1();
-	test4();
-	test_ptr();*/
 	
-	BenchmarkRegister::run_all_bm();
+	//debug_cases();
+
+	::testing::GTEST_FLAG(catch_exceptions) = "0";
+	::testing::GTEST_FLAG(break_on_failure) = "1";
+	//::testing::GTEST_FLAG(filter) = "*.*";
+	::testing::InitGoogleTest(&argc, argv);
+	int rs = RUN_ALL_TESTS();
+	return rs;
+
+	//sdarray benchmark is in another file
+	//BenchmarkRegister::run_all_bm();
 	return 0;
 }
 

@@ -5,7 +5,6 @@
 namespace mscds {
 
 BlockBuilder::BlockBuilder(): blkcnt(0), finish_reg(false) {
-	summary_chunk_size = 0;
 	n_data_block = 0;
 }
 
@@ -19,33 +18,34 @@ unsigned int BlockBuilder::register_data_block(const std::string& str_info) {
 unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_blk_size, 
 		const std::string& str_info) {
 	assert(!finish_reg);
-	summary_blk_size = (summary_blk_size + 7) / 8;
-	summary_sizes.push_back(summary_blk_size);
-	global_sizes.push_back(global_size);
-	summary_chunk_size += summary_blk_size;
+	summary_acc.declare_segment((summary_blk_size + 7) / 8);
+	global_acc.declare_segment(global_size);
+
 	rp.infolst.emplace_back(BlockInfoReport::GLOBAL, str_info, global_size * 8);
 	rp.infolst.emplace_back(BlockInfoReport::HEADER, str_info, summary_blk_size * 64);
-	return summary_sizes.size();
+	return global_acc.count();
 }
 
 std::pair<unsigned int, unsigned int> BlockBuilder::current_reg_numbers() {
-	return std::pair<unsigned int, unsigned int>(n_data_block, summary_sizes.size());
+	return std::pair<unsigned int, unsigned int>(n_data_block, global_acc.count());
 }
 
 void BlockBuilder::init_data() {
 	//initialize variables
 	finish_reg = true; start_ptr = 0;
-	assert(summary_sizes.size() < 128);
-	bptr.init(summary_sizes.size());
+	summary_acc.declare_segment(1); // 1 word for pointer
+
+	bptr.init(n_data_block);
 	//save array
-	assert(global_sizes.size() == summary_sizes.size());
 
 	OBitStream buf;
-	VByteStream::append(buf, global_sizes.size());
-	for (unsigned int i = 0; i < global_sizes.size(); ++i)
-		VByteStream::append(buf, global_sizes[i]);
-	for (unsigned int i = 0; i < summary_sizes.size(); ++i)
-		VByteStream::append(buf, summary_sizes[i]);
+	global_acc.store_context(buf);
+	summary_acc.store_context(buf);
+	global_acc.reset_data();
+	summary_acc.reset_data();
+	bcid = 0;
+	scid = 0;
+	gcid = 0;
 
 	//save global here
 	size_t header_size = buf.length() / 8;
@@ -53,72 +53,54 @@ void BlockBuilder::init_data() {
 	global.puts(header_size, 16);
 	buf.close();
 	global.append(buf);
+
 	rp.header_overhead = 64;
-	//compute summary chunk size
-	summary_chunk_size += sizeof(uint64_t);
-	bcid = 0;  scid = 0;  gcid = 0;
 }
 
 void BlockBuilder::start_block() {
 }
 
 void BlockBuilder::set_global(unsigned int sid) {
-	assert(sid == gcid + 1);
-	if (global_sizes[gcid] > 0)
-		global.put0(8*global_sizes[gcid]);
+	global_acc.add_data(global, sid);
 	gcid++;
 }
 
-void BlockBuilder::set_global(unsigned int sid, const MemRange& r) {
-	assert(sid == gcid + 1);
-	assert(r.len <= global_sizes[gcid]);
-	global.puts_c(r.ptr, r.len);
-	if (r.len < global_sizes[gcid])
-		global.put0(8*(global_sizes[gcid] - r.len));
+void BlockBuilder::set_global(unsigned int sid, const ByteMemRange& r) {
+	global_acc.add_data(global, sid, r);
 	gcid++;
 }
 
 void BlockBuilder::set_global(unsigned int sid, const OBitStream& os) {
-	assert(sid == gcid + 1);
-	assert(os.length() <= global_sizes[gcid] * 8);
-	global.append(os);
-	if (os.length() < global_sizes[gcid] * 8)
-		global.put0(8*(global_sizes[gcid] * 8 - os.length()));
+	global_acc.add_data(global, sid, os);
 	gcid++;
 }
 
 void BlockBuilder::set_summary(unsigned int sid) {
-	assert(sid == scid + 1);
-	if (summary_sizes[scid] > 0)
-		summary.put0(8*summary_sizes[scid]);
+	summary_acc.add_data(summary, sid);
 	scid++;
 }
 
-void BlockBuilder::set_summary(unsigned int sid, const MemRange& r) {
-	assert(sid == scid + 1);
-	assert(r.len <= summary_sizes[scid]*8);
-	summary.puts_c(r.ptr, r.len);
-	if (r.len < summary_sizes[scid]*8)
-		summary.put0(8*(summary_sizes[scid]*8 - r.len));
+void BlockBuilder::set_summary(unsigned int sid, const ByteMemRange& r) {
+	summary_acc.add_data(summary, sid, r);
 	scid++;
 }
 
 OBitStream& BlockBuilder::start_data(unsigned int did) {
 	assert(did == bcid + 1);
-	last_pos = databuf.length();
+	last_data_pos = databuf.length();
 	return databuf;
 }
 
 void BlockBuilder::end_data() {
-	size_t sz = databuf.length() - last_pos;
+	size_t sz = databuf.length() - last_data_pos;
 	rp.set_data_size(bcid+1, sz);
 	bptr.add(sz);
-	last_pos = databuf.length();
+	last_data_pos = databuf.length();
 	bcid++;
 }
 
 void BlockBuilder::end_block() {
-	assert(scid == summary_sizes.size());
+	assert(scid + 1 == summary_acc.count());
 	assert(bcid == n_data_block);
 	databuf.close();
 	
@@ -131,25 +113,28 @@ void BlockBuilder::end_block() {
 	blkdata.append(databuf);
 	databuf.clear();
 
-	summary.puts_c((const char*)&start_ptr, sizeof(start_ptr));
+	summary_acc.add_data(summary, scid + 1, ByteMemRange::wrap(start_ptr));
 	start_ptr = blkdata.length();
 
-	scid = 0; bcid = 0;
+	bcid = 0;
+	scid = 0;
+	global_acc.reset_data();
+	summary_acc.reset_data();
 	blkcnt++;
 	bptr.reset();
 }
 
 void BlockBuilder::build(BlockMemManager *mng) {
-	assert(gcid == global_sizes.size());
+	assert(gcid == global_acc.count());
 	//if (global.length() != (header_size + global_struct_size) * 8)
 	//	throw std::runtime_error("size mismatch");
 	rp.blkcnt = blkcnt;
 	summary.close();
-	global.build(&mng->global);
-	summary.build(&mng->summary);
-	blkdata.build(&mng->data);
+	global.build(&mng->global_bits);
+	summary.build(&mng->summary_bits);
+	blkdata.build(&mng->data_bits);
 	mng->blkcnt = blkcnt;
-	mng->str_cnt = summary_sizes.size();
+	mng->str_cnt = n_data_block;
 	mng->init();
 	std::stringstream ss;
 	rp.report(ss);
@@ -160,47 +145,32 @@ void BlockBuilder::clear() {
 	start_ptr = 0;
 	blkcnt = 0;
 	finish_reg = false;
-	summary_chunk_size = 0;
 	n_data_block = 0;
-	scid = 0;
-	gcid = 0;
 	bcid = 0;
-	last_pos = 0;
-	summary_sizes.clear();
-	global_sizes.clear();
+	last_data_pos = 0;
 	bptr.clear();
 	rp.clear();
+
+	scid = gcid = 0;
 }
 
 //-----------------------------------------------------------------------------------------------
 
 void BlockMemManager::init() {
 	std::vector<unsigned int> summary_sizes, global_sizes;
-	IWBitStream is(global);
+	IWBitStream is(global_bits);
 	//VByteArray::load(is, summary_sizes);
-	unsigned int n = 0;
-	size_t sts = is.pos();
+	unsigned int n = str_cnt;
 	header_size = is.get(16);
-	n = VByteStream::extract(is);
-	assert(str_cnt == n);
-	assert(n < 128);
-	for (unsigned int i = 0; i < n; ++i)
-		global_sizes.push_back(VByteStream::extract(is));
-	for (unsigned int i = 0; i < n; ++i)
-		summary_sizes.push_back(VByteStream::extract(is));
+	size_t p = 16;
+	p += global_acc.load_context(global_bits, p);
+	p += summary_acc.load_context(global_bits, p);
 	header_size += 2;
-	assert((header_size * 8) == is.pos() - sts);
-	
-	bptr.init(n);
-	summary_ps = prefixsum_vec(summary_sizes);
-	global_ps = prefixsum_vec(global_sizes);
-
-	summary_chunk_size = summary_ps.back() + 1;
-
+	assert((header_size * 8) == p);
 	header_size *= 8; // bytes --> bits
 
-	for (unsigned int i = 0; i < summary_ps.size(); ++i)
-		global_ps[i] *= 8;
+	bptr.init(n);
+
 	last_blk = ~0ULL;
 	last_ptrx = ~0ULL;
 }
@@ -209,9 +179,9 @@ void BlockMemManager::save(mscds::OutArchive &ar) const {
 	ar.startclass("fusion_block_manager", 1);
 	ar.var("struct_count").save(str_cnt);
 	ar.var("block_count").save(blkcnt);
-	global.save(ar.var("global"));
-	summary.save(ar.var("summary_data"));
-	data.save(ar.var("data"));
+	global_bits.save(ar.var("global"));
+	summary_bits.save(ar.var("summary_data"));
+	data_bits.save(ar.var("data"));
 
 	if (!size_report.empty()) {
 		ar.annotate(size_report);
@@ -223,17 +193,20 @@ void BlockMemManager::load(mscds::InpArchive &ar) {
 	ar.loadclass("fusion_block_manager");
 	ar.var("struct_count").load(str_cnt);
 	ar.var("block_count").load(blkcnt);
-	global.load(ar.var("global"));
-	summary.load(ar.var("summary_data"));
-	data.load(ar.var("data"));
+	global_bits.load(ar.var("global"));
+	summary_bits.load(ar.var("summary_data"));
+	data_bits.load(ar.var("data"));
 	ar.endclass();
 	init();
 }
 
 void BlockMemManager::clear() {
 	bptr.clear();
-	global_ps.clear(); summary_ps.clear();
-	summary.clear(); data.clear();
+	summary_acc.clear();
+	global_acc.clear();
+	summary_bits.clear();
+	global_bits.clear();
+	data_bits.clear();
 
 	blkcnt = 0; str_cnt = 0;
 }
@@ -245,19 +218,6 @@ void BlockMemManager::inspect(const std::string &cmd, std::ostream &out) {
 
 	out << "\"summary_ptr_bit_size\": " << 64 << ", ";
 
-	out << "\"global_bit_sizes\": [";
-	for (size_t i = 1; i < global_ps.size(); ++i) {
-		if (i != 1) out << ", ";
-		out << (global_ps[i] - global_ps[i-1]);
-	}
-	out << "], ";
-
-	out << "\"summary_word_sizes\": [";
-	for (size_t i = 1; i < global_ps.size(); ++i) {
-		if (i != 1) out << ", ";
-		out << (summary_ps[i] - summary_ps[i-1]);
-	}
-	out << "], ";
 	std::vector<size_t> bsz(str_cnt + 1, 0);
 	for (size_t i = 0; i < blkcnt; ++i) {
 		for (size_t j = 1; j <= str_cnt; ++j) {
@@ -282,7 +242,6 @@ std::vector<unsigned int> BlockMemManager::prefixsum_vec(const std::vector<unsig
 		out[i] = out[i - 1] + v[i - 1];
 	return out;
 }
-
 
 //------------------------------------------------------------------------
 

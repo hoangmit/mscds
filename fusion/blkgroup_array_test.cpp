@@ -100,13 +100,13 @@ public:
 
 	void end_block() {
 		uint64_t v = sum1;
-		bd.set_summary(1, MemRange::wrap(v)); 
+		bd.set_summary(1, ByteMemRange::wrap(v));
 		OBitStream& d1 = bd.start_data(1);
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		v = sum2;
-		bd.set_summary(2, MemRange::wrap(v));
+		bd.set_summary(2, ByteMemRange::wrap(v));
 		OBitStream& d2 = bd.start_data(2);
 		b2.saveBlock(&d2);
 		bd.end_data();
@@ -122,10 +122,10 @@ public:
 		} data;
 		data.cnt = cnt;
 		data.sum = sum1;
-		bd.set_global(1, MemRange::wrap(data));
+		bd.set_global(1, ByteMemRange::wrap(data));
 		data.cnt = cnt;
 		data.sum = sum2;
-		bd.set_global(2, MemRange::wrap(data));
+		bd.set_global(2, ByteMemRange::wrap(data));
 		bd.build(&mng);
 	}
 };

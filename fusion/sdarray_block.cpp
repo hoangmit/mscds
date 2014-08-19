@@ -172,7 +172,7 @@ bool SDArrayFuseBuilder::is_full() const { return blkcnt >= blk.BLKSIZE; }
 void SDArrayFuseBuilder::set_block_data(bool lastblock) {
 	if (blkcnt > 0) {
 		uint64_t v = lastsum;
-		bd->set_summary(sid, MemRange::wrap(v));
+		bd->set_summary(sid, ByteMemRange::wrap(v));
 		OBitStream& d1 = bd->start_data(did);
 		blk.saveBlock(&d1);
 		bd->end_data();
@@ -188,7 +188,7 @@ void SDArrayFuseBuilder::build_struct() {
 	} data;
 	data.cnt = cnt;
 	data.sum = sum;
-	bd->set_global(sid, MemRange::wrap(data));
+	bd->set_global(sid, ByteMemRange::wrap(data));
 }
 
 void SDArrayFuseBuilder::deploy(StructIDList& lst) {

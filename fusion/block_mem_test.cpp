@@ -79,20 +79,20 @@ struct MockBigSt {
 
 		bd.init_data();
 		uint8_t v = 1;
-		bd.set_global(1, MemRange::wrap(v));
+		bd.set_global(1, ByteMemRange::wrap(v));
 		v = 2;
-		bd.set_global(2, MemRange::wrap(v));
+		bd.set_global(2, ByteMemRange::wrap(v));
 
 		uint16_t tt;
 		tt = 1;
-		bd.set_summary(1, MemRange::wrap(tt));
+		bd.set_summary(1, ByteMemRange::wrap(tt));
 		OBitStream& d1 = bd.start_data(1);
 		b1.v = 1;
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		tt = 2;
-		bd.set_summary(2, MemRange::wrap(tt));
+		bd.set_summary(2, ByteMemRange::wrap(tt));
 		OBitStream& d2 = bd.start_data(2);
 		b2.v = 3;
 		b2.saveBlock(&d2);
@@ -101,14 +101,14 @@ struct MockBigSt {
 		bd.end_block();
 		//--------------------------------
 		tt = 3;
-		bd.set_summary(1, MemRange::wrap(tt));
+		bd.set_summary(1, ByteMemRange::wrap(tt));
 		OBitStream& d3 = bd.start_data(1);
 		b1.v = 5;
 		b1.saveBlock(&d3);
 		bd.end_data();
 
 		tt = 4;
-		bd.set_summary(2, MemRange::wrap(tt));
+		bd.set_summary(2, ByteMemRange::wrap(tt));
 		OBitStream& d4 = bd.start_data(2);
 		b2.v = 7;
 		b2.saveBlock(&d4);

@@ -23,6 +23,7 @@ namespace mscds {
 class Rank3pBuilder;
 class Rank3pHintSel;
 
+/// Rank Auxiliary data structure that uses additional 3% of the the original input
 class Rank3p : public RankSelect {
 private:
 	BitArray bits;

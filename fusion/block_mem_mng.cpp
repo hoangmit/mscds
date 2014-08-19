@@ -1,5 +1,7 @@
 #include "block_mem_mng.h"
 
+#include <sstream>
+
 namespace mscds {
 
 BlockBuilder::BlockBuilder(): blkcnt(0), finish_reg(false) {
@@ -7,8 +9,11 @@ BlockBuilder::BlockBuilder(): blkcnt(0), finish_reg(false) {
 	n_data_block = 0;
 }
 
-unsigned int BlockBuilder::register_data_block() {
-	return ++n_data_block;
+unsigned int BlockBuilder::register_data_block(const std::string& str_info) {
+	rp.datainfoloc.push_back(rp.infolst.size());
+	rp.infolst.emplace_back(BlockInfoReport::DATA, str_info);
+	++n_data_block;
+	return n_data_block;
 }
 
 unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_blk_size, 
@@ -18,7 +23,8 @@ unsigned int BlockBuilder::register_summary(size_t global_size, size_t summary_b
 	summary_sizes.push_back(summary_blk_size);
 	global_sizes.push_back(global_size);
 	summary_chunk_size += summary_blk_size;
-	info.push_back(str_info);
+	rp.infolst.emplace_back(BlockInfoReport::GLOBAL, str_info, global_size * 8);
+	rp.infolst.emplace_back(BlockInfoReport::HEADER, str_info, summary_blk_size * 64);
 	return summary_sizes.size();
 }
 
@@ -47,12 +53,14 @@ void BlockBuilder::init_data() {
 	global.puts(header_size, 16);
 	buf.close();
 	global.append(buf);
+	rp.header_overhead = 64;
 	//compute summary chunk size
 	summary_chunk_size += sizeof(uint64_t);
 	bcid = 0;  scid = 0;  gcid = 0;
 }
 
-void BlockBuilder::start_block() {}
+void BlockBuilder::start_block() {
+}
 
 void BlockBuilder::set_global(unsigned int sid) {
 	assert(sid == gcid + 1);
@@ -102,7 +110,9 @@ OBitStream& BlockBuilder::start_data(unsigned int did) {
 }
 
 void BlockBuilder::end_data() {
-	bptr.add(databuf.length() - last_pos);
+	size_t sz = databuf.length() - last_pos;
+	rp.set_data_size(bcid+1, sz);
+	bptr.add(sz);
 	last_pos = databuf.length();
 	bcid++;
 }
@@ -111,7 +121,13 @@ void BlockBuilder::end_block() {
 	assert(scid == summary_sizes.size());
 	assert(bcid == n_data_block);
 	databuf.close();
+	
+	auto cp = blkdata.length();
 	bptr.saveBlock(&blkdata);
+	#ifdef __REPORT_FUSION_BLOCK_SIZE__
+		rp.block_overhead += blkdata.length() - cp;
+	#endif
+
 	blkdata.append(databuf);
 	databuf.clear();
 
@@ -127,14 +143,17 @@ void BlockBuilder::build(BlockMemManager *mng) {
 	assert(gcid == global_sizes.size());
 	//if (global.length() != (header_size + global_struct_size) * 8)
 	//	throw std::runtime_error("size mismatch");
+	rp.blkcnt = blkcnt;
 	summary.close();
 	global.build(&mng->global);
 	summary.build(&mng->summary);
 	blkdata.build(&mng->data);
 	mng->blkcnt = blkcnt;
-	mng->info = info;
 	mng->str_cnt = summary_sizes.size();
 	mng->init();
+	std::stringstream ss;
+	rp.report(ss);
+	mng->size_report = ss.str();
 }
 
 void BlockBuilder::clear() {
@@ -147,10 +166,10 @@ void BlockBuilder::clear() {
 	gcid = 0;
 	bcid = 0;
 	last_pos = 0;
-	info.clear();
 	summary_sizes.clear();
 	global_sizes.clear();
 	bptr.clear();
+	rp.clear();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -192,8 +211,11 @@ void BlockMemManager::save(mscds::OutArchive &ar) const {
 	ar.var("block_count").save(blkcnt);
 	global.save(ar.var("global"));
 	summary.save(ar.var("summary_data"));
-	std::string s = std::accumulate(info.begin(), info.end(), std::string());
-	data.save(ar.var("data" + s));
+	data.save(ar.var("data"));
+
+	if (!size_report.empty()) {
+		ar.annotate(size_report);
+	}
 	ar.endclass();
 }
 
@@ -203,8 +225,7 @@ void BlockMemManager::load(mscds::InpArchive &ar) {
 	ar.var("block_count").load(blkcnt);
 	global.load(ar.var("global"));
 	summary.load(ar.var("summary_data"));
-	//std::string s = std::accumulate(info.begin(), info.end(), std::string());
-	data.load(ar);
+	data.load(ar.var("data"));
 	ar.endclass();
 	init();
 }
@@ -213,7 +234,6 @@ void BlockMemManager::clear() {
 	bptr.clear();
 	global_ps.clear(); summary_ps.clear();
 	summary.clear(); data.clear();
-	info.clear();
 
 	blkcnt = 0; str_cnt = 0;
 }

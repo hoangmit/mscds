@@ -25,7 +25,7 @@ E. Ohlebusch and S. Gog. A Compressed Enhanced Suffix Array Supporting Fast Stri
 template<typename RandomAccessIterator>
 BitArray build_supercartisian_tree(bool minimum_tree, RandomAccessIterator first, RandomAccessIterator last);
 
-
+/// succinct RMQ data structure
 class RMQ_sct {
 	BP_aux bp;
 public:

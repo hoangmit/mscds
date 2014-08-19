@@ -25,8 +25,10 @@ public:
 
 	void register_struct() {
 		assert(size  > 0);
+		bd->begin_scope("PtrInterBlk");
 		sid = bd->register_summary(0,0);
 		did = bd->register_data_block();
+		bd->end_scope();
 		lastval = 0;
 		firstblkitem = 0;
 		bcnt = 0;

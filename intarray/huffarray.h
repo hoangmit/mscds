@@ -25,6 +25,7 @@ Array of huffman compressed values and differences.
 
 namespace mscds {
 
+/// Huffman encodec array of integers
 class HuffmanModel {
 public:
 	/* parameters: HUFFDT_MAX_SYM = 127 */

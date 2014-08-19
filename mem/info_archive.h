@@ -65,6 +65,7 @@ public:
 	OutArchive& var(const char* name);
 	OutArchive& save_bin(const void* ptr, size_t size);
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
+	OutArchive& annotate(const std::string&);
 	OutArchive& endclass();
 	OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4);
 	OutArchive& add_mem_region(const void* ptr, size_t size);
@@ -83,6 +84,7 @@ public:
 	OBindArchive(OutArchive& first, OutArchive& second): a1(first), a2(second) {}
 	OutArchive& var(const std::string& name) { a1.var(name); a2.var(name); return *this; }
 	OutArchive& var(const char* name)  { a1.var(name); a2.var(name); return *this; }
+	OutArchive& annotate(const std::string& s) { a1.annotate(s); a2.annotate(s); return *this; }
 	OutArchive& startclass(const std::string& name, unsigned char version = 1) { a1.startclass(name); a2.startclass(name); return *this; }
 	OutArchive& endclass() { a1.endclass(); a2.endclass(); return *this; }
 	OutArchive& save_bin(const void* ptr, size_t size) { a1.save_bin(ptr, size); a2.save_bin(ptr, size); return *this; }

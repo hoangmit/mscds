@@ -66,6 +66,7 @@ private:
 	void choosemethod();
 };
 
+/// polymorphic class for different value storage methods
 class PRValArr {
 public:
 	PRValArr(): len(0) {}

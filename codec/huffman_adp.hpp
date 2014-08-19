@@ -13,7 +13,7 @@ Written by Hoang.
 #include "deltacoder.h"
 
 namespace coder {
-
+/// adaptive Huffman codec
 struct adp_huffman_enc {
 	adp_huffman_enc(): alp_size(0) {}
 	adp_huffman_enc(size_t _alp_size): alp_size(_alp_size) {reset();}

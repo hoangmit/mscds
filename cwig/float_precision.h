@@ -5,6 +5,7 @@
 
 namespace app_ds {
 
+/// estimate the number of floating digits of a number
 static inline unsigned int fprecision(double d) {
 	double intpart;
 	static const double eps = 1e-5;

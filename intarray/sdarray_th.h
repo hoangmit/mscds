@@ -19,6 +19,8 @@ private:
 	uint64_t last;
 };
 
+
+/// SDArray with more linear structures
 class SDArrayTH {
 public:
 	/** returns the value of A[i] */

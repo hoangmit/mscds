@@ -3,10 +3,12 @@
 namespace app_ds {
 
 void NIntvInterBlkBuilder::register_struct() {
+	bd->begin_scope("nintv");
 	start.register_struct();
 
 	lgsid = bd->register_summary(8, 8);
 	lgdid = bd->register_data_block();
+	bd->end_scope();
 
 	cnt = 0;
 	lensum = 0;

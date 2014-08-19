@@ -146,8 +146,10 @@ unsigned int SDArrayBlock::select_zerohi(uint64_t hints, uint64_t start, uint32_
 }
 
 void SDArrayFuseBuilder::register_struct() {
+	bd->begin_scope("sdarray");
 	sid = bd->register_summary(16, 8); // bytes
 	did = bd->register_data_block();
+	bd->end_scope();
 	cnt = 0;
 	sum = 0;
 	blkcnt = 0;

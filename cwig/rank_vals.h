@@ -10,52 +10,54 @@
 
 namespace app_ds {
 
-	class RankValArr;
+class RankValArr;
 
-	class RankValArrBuilder {
+class RankValArrBuilder {
+public:
+	RankValArrBuilder();
+
+	void init(unsigned int _method, unsigned int rate);
+
+	void add(unsigned int v) { vals.push_back(v);}
+	void build(RankValArr* out);
+	void build(mscds::OutArchive& ar);
+	void clear() { vals.clear(); rbd.clear(); vbd.clear(); }
+	typedef RankValArr QueryTp;
+private:
+	std::deque<unsigned int> vals;
+	PRValArrBuilder rbd;
+	mscds::SDArraySmlBuilder vbd;
+};
+
+
+/// store values based on its rank
+class RankValArr {
+public:
+	unsigned int sample_rate() { return rankv.sample_rate(); }
+	uint64_t access(size_t p) const;
+	void save(mscds::OutArchive& ar) const;
+	void load(mscds::InpArchive& ar);
+	void clear();
+	size_t length() const { return rankv.length(); }
+
+	class Enum : public mscds::EnumeratorInt<uint64_t> {
 	public:
-		RankValArrBuilder();
-
-		void init(unsigned int _method, unsigned int rate);
-
-		void add(unsigned int v) { vals.push_back(v);}
-		void build(RankValArr* out);
-		void build(mscds::OutArchive& ar);
-		void clear() { vals.clear(); rbd.clear(); vbd.clear(); }
-		typedef RankValArr QueryTp;
+		Enum(): ptr(NULL) {}
+		bool hasNext() const;
+		uint64_t next();
 	private:
-		std::deque<unsigned int> vals;
-		PRValArrBuilder rbd;
-		mscds::SDArraySmlBuilder vbd;
+		const mscds::SDArraySml * ptr;
+		PRValArr::Enum e;
+		friend class RankValArr;
 	};
-
-	class RankValArr {
-	public:
-		unsigned int sample_rate() { return rankv.sample_rate(); }
-		uint64_t access(size_t p) const;
-		void save(mscds::OutArchive& ar) const;
-		void load(mscds::InpArchive& ar);
-		void clear();
-		size_t length() const { return rankv.length(); }
-
-		class Enum : public mscds::EnumeratorInt<uint64_t> {
-		public:
-			Enum(): ptr(NULL) {}
-			bool hasNext() const;
-			uint64_t next();
-		private:
-			const mscds::SDArraySml * ptr;
-			PRValArr::Enum e;
-			friend class RankValArr;
-		};
-		void getEnum(size_t idx, Enum * e) const;
-		typedef RankValArrBuilder BuilderTp;
-		void inspect(const std::string& cmd, std::ostream& out) const;
-	private:
-		friend class RankValArrBuilder;
-		PRValArr rankv;
-		mscds::SDArraySml vals;
-	};
+	void getEnum(size_t idx, Enum * e) const;
+	typedef RankValArrBuilder BuilderTp;
+	void inspect(const std::string& cmd, std::ostream& out) const;
+private:
+	friend class RankValArrBuilder;
+	PRValArr rankv;
+	mscds::SDArraySml vals;
+};
 
 
 }//namespace

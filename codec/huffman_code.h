@@ -20,7 +20,7 @@ Written by Hoang.
 #include "bitarray/bitop.h"
 
 namespace coder {
-
+/// Huffman codec
 class HuffmanCode {
 public:
 	typedef unsigned int WeightTp;

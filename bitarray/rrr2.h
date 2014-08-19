@@ -26,6 +26,7 @@ namespace mscds {
 class RRR2Builder;
 class RRR2HintSel;
 
+/// RRR2 data structure
 class RRR2 : public RankSelect {
 private:
     BitArray R, S, sumR, posS, combination;

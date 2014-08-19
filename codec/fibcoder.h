@@ -12,6 +12,7 @@ Implemented by Hoang
 
 namespace coder {
 
+	/// Fibinacci codec
 	class FibCoder: public Coder {
 	public:
 		static LenTp encodelen(CodeTp n);

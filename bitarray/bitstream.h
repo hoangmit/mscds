@@ -24,6 +24,8 @@ Implemented by Hoang
 
 namespace mscds {
 
+
+/// Output Bit Stream
 class OBitStream {
 public:
 	OBitStream(): cur(0), j(0), bitlen(0) {}
@@ -366,6 +368,7 @@ inline uint64_t IWBitStream::get(uint16_t len) {
 
 //----------------------------------------------------------------
 
+/// Output Byte Stream
 class OByteStream {
 public:
 	OByteStream() {}

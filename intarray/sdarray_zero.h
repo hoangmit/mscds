@@ -10,6 +10,7 @@
 
 namespace mscds {
 
+/// array of integers with SDArray interface
 struct SDArrayZero {
 	SDArrayZero() { cums.push_back(0); }
 

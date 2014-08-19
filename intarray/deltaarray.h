@@ -44,6 +44,8 @@ private:
 	unsigned int sample_rate, i;
 };
 
+
+/// Delta encoded array of integers
 class DeltaCodeArr {
 public:
 	uint64_t lookup(uint64_t pos) const;

@@ -24,6 +24,7 @@ struct BED_Entry {
 	void quick_parse(const std::string& s, const std::string& pre_chr);
 };
 
+/// Build CWig file. (The class is named before the project was named.)
 class GenomeNumDataBuilder {
 public:
 	void init(bool one_by_one_chrom = false,
@@ -67,6 +68,8 @@ private:
 	std::vector<std::string> tmpfn;
 };
 
+
+/// CWig query data structure.
 class GenomeNumData {
 public:
 	/** \brief returns the data structure for chrosome `chrid' (starts with 0) */

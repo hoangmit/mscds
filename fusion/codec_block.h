@@ -56,7 +56,7 @@ private:
 	unsigned int sid, did;
 };
 
-
+/// fused block for array of integers
 template<typename Model>
 class CodeInterBlkQuery: public InterBLockQueryTp {
 public:
@@ -85,7 +85,7 @@ public:
 		e->data = this;
 
 		unsigned int blk = pos / ELEM_PER_BLK;
-		unsigned sbid = pos % ELEM_PER_BLK;
+		unsigned int sbid = pos % ELEM_PER_BLK;
 		unsigned int sblk = sbid / SSBLKSIZE;
 		unsigned int px = sbid % SSBLKSIZE;
 		e->pos = pos - px;
@@ -145,8 +145,10 @@ void CodeInterBlkBuilder<Model>::init_bd(BlockBuilder &bd_) {
 template<typename Model>
 void CodeInterBlkBuilder<Model>::register_struct() {
 	unsigned int bl = (model_buffer.length() + 7) / 8;
+	bd->begin_scope("codec_array");
 	sid = bd->register_summary(8 + bl, 0);
 	did = bd->register_data_block();
+	bd->end_scope();
 
 	cnt = 0;
 	total = 0;

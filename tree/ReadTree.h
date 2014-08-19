@@ -34,6 +34,7 @@ struct LabelNode
 	}
 };
 
+/// read tree from NEXUS format
 GTreeNode<LabelNode>* readTree(std::istream& input);
 GTreeNode<LabelNode>* readTree(const std::string& s);
 

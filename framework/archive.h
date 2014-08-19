@@ -85,8 +85,6 @@ public:
 
 class InpArchive {
 public:
-	
-
 	virtual ~InpArchive() {}
 	virtual InpArchive& var(const std::string&) { return *this; }
 	virtual InpArchive& var(const char*) { return *this; }

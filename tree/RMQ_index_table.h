@@ -22,6 +22,7 @@ This is structure only store indexes of the min/max values.
 
 namespace mscds {
 
+/**  Two level index tables */
 class RMQ_index_table {
 public:
 	static void build(const std::vector<int>& values, bool _min_struct, RMQ_index_table* tbl);
@@ -55,7 +56,6 @@ private:
 	BitArray bits;
 };
 
-/**  Two level index tables */
 class RMQ_index_blk {
 public:
 	static void build(const std::vector<int>& wordvals, unsigned int blksize, bool _min_struct, RMQ_index_blk* out);

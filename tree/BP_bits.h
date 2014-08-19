@@ -72,6 +72,8 @@ class BP_aux;
 BitArray find_pioneers(const BitArray& bp, size_t blksize);
 std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize);
 
+
+/// auxiliary data structure of balanced parathesis bit vector
 /**
 Implementation of balance parathesis operations based on:
 

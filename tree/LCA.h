@@ -126,6 +126,7 @@ public:
 	}
 };
 
+/// O(n) words, LCA data structure
 struct LCA_Struct {
 public:
 	typedef unsigned int NodeId;
@@ -191,7 +192,7 @@ public:
 
 };
 
-// From Dan Gusfield's book
+/// From Dan Gusfield's book
 class LCA_Builder {
 public:
 	typedef LCA_Struct::NodeId NodeId;

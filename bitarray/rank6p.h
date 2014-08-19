@@ -25,6 +25,7 @@ namespace mscds {
 class Rank6pBuilder;
 class Rank6pHintSel;
 
+/// Rank Auxiliary data structure that uses additional 6.25% of the the original input
 class Rank6p : public RankSelect {
 public:
 	/** counts the number of 1 in the range from 1 to (p-1) */

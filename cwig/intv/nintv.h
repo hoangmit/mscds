@@ -14,6 +14,7 @@ namespace app_ds {
 
 class NIntv;
 
+/// interface for non-overlapping intervals
 class NIntvQueryInt {
 public:
 	typedef unsigned int PosType;
@@ -30,7 +31,7 @@ public:
 	virtual PosType rank_interval(PosType pos) const = 0;
 };
 
-// start and length
+/// builder class
 class NIntvBuilder {
 public:
 	typedef unsigned int PosType;
@@ -46,6 +47,8 @@ private:
 	mscds::SDArraySmlBuilder rlbd;
 };
 
+
+/// non-overlapping interval using (start, length)
 class NIntv: public NIntvQueryInt {
 public:
 	typedef unsigned int PosType;
@@ -95,7 +98,7 @@ private:
 //--------------------------------------------------------------------------
 class NIntvGroup;
 
-// segment scheme: start of segments, length, segment count
+/// non-overlapping intervals using segment scheme: (start of segments, length, segment count)
 class NIntvGroupBuilder {
 public:
 	typedef unsigned int PosType;
@@ -163,7 +166,7 @@ private:
 
 class NIntvGap;
 
-// segment scheme: start of segments, length, segment count
+// non-overlapping interval using (start, gap)
 class NIntvGapBuilder {
 public:
 	typedef unsigned int PosType;
@@ -254,6 +257,8 @@ private:
 	bool autoselect;
 };
 
+
+/// polymorphic class for different non-overlapping interval methods (can be (start, len), (start, gap) or group))
 class PNIntv: public NIntvQueryInt {
 public:
 	typedef unsigned int PosType;

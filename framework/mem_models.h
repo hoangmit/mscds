@@ -44,6 +44,7 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 
 enum MemoryAccessType { API_ACCESS = 0, MAP_ON_REQUEST, FULL_MAPPING };
 
+/// Static size Memory Region Interface
 struct StaticMemRegionAbstract {
 	virtual MemoryAlignmentType alignment() const = 0;
 	virtual MemoryAccessType memory_type() const = 0;
@@ -74,6 +75,7 @@ struct StaticMemRegionAbstract {
 	virtual void scan(size_t i, size_t len, CallBack cb) const = 0;
 };
 
+/// Dynamic size memory region interface
 struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
 	virtual void resize(size_t size) = 0;
 	virtual void append(char c) = 0;
@@ -85,7 +87,7 @@ struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
 
 //----------------------------------------------------------------------------
 
-
+/// Pointer to static memory region
 class StaticMemRegionPtr : public StaticMemRegionAbstract {
 public:
 	StaticMemRegionPtr() : _impl(nullptr) {}
@@ -127,6 +129,7 @@ protected:
 	std::shared_ptr<StaticMemRegionAbstract> _ref;
 };
 
+/// Pointer to dynamic memory region
 class DynamicMemRegionPtr : public DynamicMemRegionAbstract {
 public:
 	DynamicMemRegionPtr() : _impl(nullptr) {}
@@ -170,6 +173,7 @@ protected:
 	std::shared_ptr<DynamicMemRegionAbstract> _ref;
 };
 
+/// Allocator
 class MemoryModelAbstract {
 public:
 	virtual StaticMemRegionPtr allocStaticMem(size_t sz) = 0;

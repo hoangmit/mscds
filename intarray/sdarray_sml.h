@@ -43,7 +43,6 @@ private:
 };
 
 /**
-
 SDArray is an array of non-negative integers <math>A[1..m]</math>.
 It provides the following operations:
 *  access any element <math>A[i]</math> in constant time

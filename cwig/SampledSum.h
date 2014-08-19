@@ -42,6 +42,7 @@ private:
 	void add_all_vals();
 };
 
+/// sampled values of the prefix sum of an array
 class SampledSumQuery {
 public:
 	SampledSumQuery();

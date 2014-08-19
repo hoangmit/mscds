@@ -27,6 +27,7 @@ private:
 	OBitStream lower;
 };
 
+/// Gamma encoded array of integers
 class GammaArray {
 public:
 	uint64_t lookup(uint64_t p) const;

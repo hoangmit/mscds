@@ -5,6 +5,7 @@
 
 namespace app_ds {
 
+/// interface for data structure with three information: (start, length, value)
 template<typename T>
 class RunLenSumArrIt {
 public:

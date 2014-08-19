@@ -19,6 +19,8 @@ Written by Hoang
 
 namespace coder {
 
+
+/// Output bit stream for arithmetic coder
 struct OutBitStream {
 	typedef unsigned char ChrTp;
 	typedef std::vector<ChrTp> VecTp;
@@ -49,6 +51,8 @@ struct OutBitStream {
 	size_t bitlen;
 };
 
+
+/// Input bit stream for arithmetic coder
 struct InBitStream {
 	typedef unsigned char ChrTp;
 	typedef std::vector<ChrTp> VecTp;
@@ -87,7 +91,7 @@ struct InBitStream {
 	size_t pos, i;
 };
 
-
+/// Arithmetic encoder using 32-bit states
 struct AC32_EncState {
 	OutBitStream * output;
 
@@ -151,7 +155,7 @@ struct AC32_EncState {
 	}
 };
 
-
+/// Arithmetic dencoder using 32-bit states
 struct AC32_DecState {
 	InBitStream * input;
 	uint32_t lo, hi;

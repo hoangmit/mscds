@@ -98,6 +98,7 @@ public:
 		ar.endclass();
 		init(strlst);
 	}
+
 	void clear() {
 		ClearStr cls;
 		details::for_each(list, cls);

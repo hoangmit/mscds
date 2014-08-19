@@ -18,6 +18,7 @@ Coder + stream
 
 namespace mscds {
 
+/// VByte Straem
 struct VByteStream {
 
 	static void append(OBitStream& out, uint64_t val) {
@@ -29,8 +30,11 @@ struct VByteStream {
 		auto getter = [&is]()->uint8_t { return is.get(8); };
 		return coder::VByte::decode_f(getter);
 	}
-	static uint64_t extract(const BitArray& ba, size_t start) {
-
+	static uint64_t extract(const BitArray& ba, size_t& pos) {
+		auto getter = [&ba,&pos]()->uint8_t {
+			uint8_t v = ba.bits(pos, 8); pos += 8; return v;
+		};
+		return coder::VByte::decode_f(getter);
 	}
 };
 

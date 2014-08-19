@@ -14,6 +14,7 @@ Implemented by Hoang
 
 namespace coder {
 
+	/// Gamma codec
 	class GammaCoder: public Coder {
 	public:
 		// little endian style
@@ -24,6 +25,7 @@ namespace coder {
 		static CodePr encode_raw(NumTp n);
 	};
 
+	/// Delta codec
 	class DeltaCoder: public Coder {
 	public:
 		// little endian style
@@ -32,6 +34,7 @@ namespace coder {
 		static CodePr decode2(CodeTp n);
 	};
 
+	/// map signed integer to unsigned integer space
 	inline uint64_t absmap(int64_t v) {
 		if (v == 0) return 0;
 		else if (v > 0) return v*2 - 1;

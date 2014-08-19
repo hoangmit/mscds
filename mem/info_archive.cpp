@@ -20,7 +20,7 @@ struct CInfoNode {
 	size_t size;
 	uint64_t sval;
 
-	enum NodeType {CLASS_NODE, DATA_NODE, MEM_REGION_NODE};
+	enum NodeType {CLASS_NODE, DATA_NODE, MEM_REGION_NODE, ANNOTATION};
 	NodeType node_type;
 	
 	size_t totalsize;
@@ -70,6 +70,11 @@ struct CInfoNode {
 			ss << "<memory_region name=\"" << name << "\" size=\'" << size << "\'";
 			ss << " />";
 			break;
+		case CInfoNode::ANNOTATION:
+			ss << "<annotation>";
+			ss << name;
+			ss << "</annotation>";
+			break;
 		}
 	}
 };
@@ -80,10 +85,14 @@ struct ClassListInfo  {
 
 	void flush() {
 		if (cur->size > 0) {
-			parents.top()->lst.push_back(cur);
-			cur = std::make_shared<CInfoNode>();
-			cur->node_type = CInfoNode::DATA_NODE;
+			force();
 		}
+	}
+
+	void force() {
+		parents.top()->lst.push_back(cur);
+		cur = std::make_shared<CInfoNode>();
+		cur->node_type = CInfoNode::DATA_NODE;
 	}
 };
 
@@ -101,6 +110,17 @@ OClassInfoArchive::~OClassInfoArchive() {
 	ClassListInfo* x = (ClassListInfo*) impl;
 	delete x;
 	impl = NULL;
+}
+
+OutArchive& OClassInfoArchive::annotate(const std::string& info) {
+	ClassListInfo& x = *((ClassListInfo*)impl);
+	x.flush();
+	x.cur->node_type = CInfoNode::ANNOTATION;
+	x.cur->name = info;
+	x.cur->size = 0;
+	x.force();
+	return *this;
+
 }
 
 OutArchive& OClassInfoArchive::var(const std::string& name) {
@@ -151,6 +171,7 @@ OutArchive& OClassInfoArchive::endclass() {
 	return *this;
 }
 
+
 OutArchive& OClassInfoArchive::start_mem_region(size_t size, MemoryAlignmentType) {
 	pos += size;
 	ClassListInfo& x = *((ClassListInfo*)impl);
@@ -159,9 +180,11 @@ OutArchive& OClassInfoArchive::start_mem_region(size_t size, MemoryAlignmentType
 	x.cur->node_type = CInfoNode::MEM_REGION_NODE;
 	return *this;
 }
+
 OutArchive& OClassInfoArchive::add_mem_region(const void* ptr, size_t size) {
 	return *this;
 }
+
 OutArchive& OClassInfoArchive::end_mem_region() {
 	return *this;
 }

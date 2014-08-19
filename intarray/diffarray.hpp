@@ -36,6 +36,7 @@ private:
 	typename IntArray::BuilderTp bd;
 };
 
+/// array of integers encoded by the differences between consecutive elements
 template<typename IntArray>
 class DiffArray {
 public:

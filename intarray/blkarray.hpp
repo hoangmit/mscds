@@ -92,6 +92,7 @@ private:
 	SDArraySmlBuilder bd;
 };
 
+/// Encoded array that requires seperated space for storing compression model
 template<typename Model>
 class CodeModelArray {
 public:

@@ -38,6 +38,8 @@ private:
 	SampledSumBuilder vals;
 };
 
+
+/// cwig1 chrom class
 class RunLenSumArray6 : public RunLenSumArrIt<double>  {
 public:
 	RunLenSumArray6() {}

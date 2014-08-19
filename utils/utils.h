@@ -67,7 +67,7 @@ namespace utils {
 		return (uint32_t) mrand48();
 	}
 #endif
-
+	/// generate a random 64-bit integer
 	inline uint64_t rand64() {
 		return 
 			(((uint64_t) rand32() <<  0) & 0x00000000FFFFFFFFull) | 
@@ -134,7 +134,7 @@ namespace utils {
 		}
 	};
 
-
+	/// Timer class
 	struct Timer {
 		std::clock_t last, start;
 		Timer() { reset(); }

@@ -24,6 +24,7 @@ public:
 	static void build0(const BitArray& b, Select0Dense * o);
 };
 
+/// Auxiliary data structure for select for dense input (100% to 25% 1-bit)
 class SelectDenseAux {
 public:
 	std::pair<uint64_t, uint32_t> pre_select(uint64_t r) const;

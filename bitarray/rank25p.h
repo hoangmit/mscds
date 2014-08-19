@@ -18,6 +18,7 @@ namespace mscds {
 
 class Rank25pBuilder;
 
+/// Rank Auxiliary data structure that uses additional 25% of the the original input
 class Rank25p : public RankSelect {
 	BitArray inv, bits;
 	uint64_t onecnt;
@@ -67,7 +68,7 @@ inline void Rank25pBuilder::build(const BitArray& b, Rank25p * o) {
 	o->onecnt = cnt;
 }
 
-/* first word: rank(p); second word: 7 sub-blocks, each uses 9 bits */
+/** first word: rank(p); second word: 7 sub-blocks, each uses 9 bits */
 inline uint64_t Rank25p::rank(const uint64_t p) const {
 	assert(p <= bits.length());
 	if (p == bits.length()) return onecnt;

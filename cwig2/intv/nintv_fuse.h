@@ -53,7 +53,6 @@ private:
 	
 };
 
-//void FuseNIntvInterBlock::loadblock(unsigned int blk) const;
 
 class NIntvInterBlkBuilder: public mscds::InterBlockBuilderTp {
 public:

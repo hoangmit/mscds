@@ -13,6 +13,7 @@ Common interface of rank/select data structures
 
 namespace mscds {
 
+/// Rank/Select data structure interface
 class RankSelect {
 public:
 	virtual uint64_t rank(uint64_t p) const = 0;

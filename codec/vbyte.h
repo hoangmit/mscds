@@ -7,6 +7,7 @@ Implement VByte coding
 #include <stdint.h>
 
 namespace coder {
+/// VByte codec
 struct VByte {
 	template<typename OutputIterator>
 	static void encode(uint64_t val, OutputIterator output) {

@@ -13,7 +13,9 @@ Implemented by Hoang.
 
 namespace coder {
 	// little endian style
+	
 
+	/// Rice codec
 	class RiceCoder: public Coder {
 	public:
 		RiceCoder();
@@ -31,6 +33,8 @@ namespace coder {
 		NumTp mask;
 	};
 
+
+	/// Golomb codec
 	class GolombCoder: public Coder {
 	public:
 		GolombCoder();
@@ -47,6 +51,7 @@ namespace coder {
 		LenTp bw;
 	};
 
+	/// Adaptive Golomb codec
 	class AdpGolombCoder {
 	public:
 		AdpGolombCoder();

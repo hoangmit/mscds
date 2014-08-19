@@ -43,6 +43,8 @@ public:
 	static BitArray adopt(size_t bitlen, StaticMemRegionPtr p);
 };
 
+
+/// BitArray
 class BitArray {
 public:
 	const static unsigned int WORDLEN = 64;

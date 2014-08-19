@@ -7,7 +7,7 @@
 #include "cwig/valrange.h"
 
 namespace app_ds {
-	/** diff coder*/
+
 struct DiffCoder {
 	unsigned int i;
 	double last;
@@ -21,8 +21,10 @@ struct DiffCoder {
 
 class Storage2;
 
+/// Storage class for cwgi2 (builder)
 class StorageBuilder2 {
-	typedef mscds::LiftStBuilder<NIntvInterBlkBuilder,
+	typedef mscds::LiftStBuilder<
+		NIntvInterBlkBuilder,
 		mscds::HuffBlkBuilder,
 		mscds::PtrInterBlkBd,
 		mscds::PtrInterBlkBd
@@ -39,6 +41,7 @@ private:
 	FloatIntMapBuilder fmapbd;
 };
 
+/// Storage class for cwig2 (query)
 class Storage2 {
 private:
 	typedef mscds::LiftStQuery<app_ds::FuseNIntvInterBlock,

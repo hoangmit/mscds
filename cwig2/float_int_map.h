@@ -11,10 +11,14 @@ namespace app_ds {
 
 class FloatIntMapBuilder;
 
-// 3 levels of codes:
-//   float:   original, can do all operations
-//   integer: scaled, can only do addition (minus?)
-//   symbol : cannot do  arithmetic, but can do equal comparison
+
+/// Map floating point numbers to unsigned integer space
+/**
+	3 levels of codes:
+		float:   original, can do all operations
+		integer: scaled, can only do addition (minus?)
+		symbol : cannot do  arithmetic, but can do equal comparison
+*/
 class FloatIntMapQuery {
 public:
 	//map a float to symbol

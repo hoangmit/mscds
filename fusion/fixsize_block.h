@@ -4,7 +4,7 @@
 Experimental implementation of fusion block
 */
 
-#include "blkgroup_array.h"
+#include "generic_struct.h"
 namespace mscds {
 
 template<typename T>

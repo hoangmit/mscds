@@ -4,6 +4,7 @@
 #include "inc_ptrs2.h"
 #include "inc_ptrs3.h"
 #include "utils/utest.h"
+#include "mem/info_archive.h"
 
 using namespace std;
 using namespace mscds;
@@ -63,14 +64,18 @@ struct MockBigSt {
 
 	void buildall() {
 		unsigned int idx;
+		bd.begin_scope("test");
 		idx = bd.register_summary(1, 2);
 		assert(1 == idx);
 		idx = bd.register_data_block();
 		assert(1 == idx);
+		bd.begin_scope("sub-scope");
 		idx = bd.register_summary(1, 2);
 		assert(2 == idx);
 		idx = bd.register_data_block();
 		assert(2 == idx);
+		bd.end_scope();
+		bd.end_scope();
 
 		bd.init_data();
 		uint8_t v = 1;
@@ -144,18 +149,23 @@ struct MockBigSt {
 	}
 };
 
-TEST(blk_mem, test1) {
+void blk_mem_test1() {
 	MockBigSt x;
 	x.buildall();
 	x.load_all();
+
+	OClassInfoArchive ar;
+	
+	x.mng.save(ar);
+	std::cout << ar.printxml() << std::endl;
 }
 
 void debug_run() {
+	blk_mem_test1();
 	test_ptr();
 }
 
 int main(int argc, char* argv[]) {
-
 	debug_run();
 
 	::testing::GTEST_FLAG(catch_exceptions) = "0";

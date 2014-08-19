@@ -6,7 +6,7 @@ Experimental implementation of fusion block
 */
 
 #include <cassert>
-#include "fusion/blkgroup_array.h"
+#include "fusion/generic_struct.h"
 
 namespace mscds {
 

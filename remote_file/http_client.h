@@ -1,9 +1,8 @@
 
 #pragma once
 
-/** 
+/*
 Implement HTTP client to read a remote file.
-
 */
 
 #include <string>
@@ -18,8 +17,6 @@ struct RemoteFileInfo {
 	}
 	bool operator!=(const RemoteFileInfo& other) const { return !(*this == other); }
 };
-
-
 
 struct HttpFileObj {
 public:

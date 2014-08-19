@@ -13,7 +13,7 @@ template<typename T>
 struct CartesianTreeStruct : public BPTree<T> {
 };
 
-
+/// Build a cartesian tree
 template<typename CTStruct>
 class CartesianTreeBuilder  {
 public:

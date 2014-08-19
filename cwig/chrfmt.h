@@ -26,6 +26,7 @@ class ChrNumData;
 
 enum minmaxop_t {NO_MINMAX= 0, MIN_OP=1, MAX_OP=2, ALL_OP=3};
 
+/// building cwig data in one chromosome
 class ChrNumDataBuilder {
 public:
 	ChrNumDataBuilder();
@@ -42,6 +43,7 @@ private:
 	mscds::StringArrBuilder annbd;
 };
 
+/// query cwig data in one chromosome
 class ChrNumData {
 public:
 	ChrNumData();
@@ -107,6 +109,7 @@ public:
 	void clear();
 	void load(mscds::InpArchive& ar);
 	void save(mscds::OutArchive& ar) const;
+	/// write to bedgraph file
 	void dump_bedgraph(std::ostream& fo) const;
 	std::string name;
 

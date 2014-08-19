@@ -77,7 +77,7 @@ private:
 	uint64_t last;
 };
 
-
+/// Sadasan's SDArray
 class SDArrayQuery {
 	static const uint64_t BLOCK_SIZE;
 public:

@@ -176,15 +176,18 @@ struct Remote_cwig {
 struct Remote_cwig2 {
 	void create_remote_file() {
 		app_ds::GenomeNumDataBuilder bd;
-		ifstream fi("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.bedGraph");
+		std::string name = "wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5";
+		name = "wgEncodeCaltechRnaSeqHsmmR2x75Il200SigRep1V2";
+		name = "groseq.avg";
+		ifstream fi(std::string("C:/temp/") + name + ".bedGraph");
 		OClassInfoArchive info;
 		OFileArchive2 fo;
-		fo.open_write("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5_.cwig");
+		fo.open_write(std::string("C:/temp/") + name + ".cwig");
 		OBindArchive fb(fo, info);
 		bd.build_bedgraph(fi, fb);
 		fi.clear();
 		fb.close();
-		ofstream outinfo("C:/temp/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.xml");
+		ofstream outinfo(std::string("C:/temp/") + name + ".xml");
 		outinfo << info.printxml() << endl;
 		outinfo.close();
 	}
@@ -234,7 +237,8 @@ int main() {
 	//sda.test_remote_file();
 
 	Remote_cwig2 cw;
-	//cw.create_remote_file();
+	cw.create_remote_file();
+	return 0;
 	try {
 		cw.test_remote_file();
 	}

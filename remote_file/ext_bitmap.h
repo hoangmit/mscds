@@ -1,15 +1,16 @@
 #pragma once
 
-/** 
-Persistent bitmap.
 
-This structure is used to store which remote block has been downloaded.
-*/
 
 #include <cstdlib>
 #include <string>
 #include <stdint.h>
 
+
+/// Persistent bitmap (stored on disk)
+/**
+This structure is used to store which remote block has been downloaded.
+*/
 class ExternalBitMap {
 public:
 	ExternalBitMap();

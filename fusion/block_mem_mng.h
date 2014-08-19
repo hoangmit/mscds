@@ -122,9 +122,9 @@ public:
 			VByteStream::append(buf, _sizes[i]);
 	}
 
-	void clear() { _sizes.clear(); gcid = 0; }
+	void clear() { _sizes.clear(); cur = 0; }
 
-	/// check the added size is not overflow
+	/// check the added size for overflow
 	/** 
 	The current assumption is block data is added in the order of the id value
 	*/
@@ -140,6 +140,10 @@ private:
 	unsigned int cur;
 };
 
+/// array of fixed size blocks. Each block contains some fixed size segments.
+/** 
+The start of each block is aligned by UNIT_BIT_SIZE (should be 8, 16, 32, 64)
+*/
 template<unsigned UNIT_BIT_SIZE>
 class FixedSizeMemAccess {
 public:
@@ -159,18 +163,23 @@ public:
 		return ipos - pos;
 	}
 
+	/// the number of segments
 	size_t count() const { return _sizes.size(); }
 
 	void clear() { _sizes.clear(); ps_sz.clear(); _chunk_size = 0; }
 
+	
 	uint8_t unit_bit_size() const {
 		return UNIT_BIT_SIZE;
 	}
 
+	/// get start of segment `id' in block `index'
 	size_t get_data_loc(unsigned int id, unsigned int index) {
 		size_t stp = index * _chunk_size;
 		return stp + ps_sz[id - 1];
 	}
+
+	/// get start and length of segment `id' in block `index'
 	std::pair<unsigned int, unsigned int> get_data_range(unsigned int id, unsigned int index) {
 		size_t stp = index * _chunk_size;
 		return std::pair<unsigned int, unsigned int>(stp + ps_sz[id - 1], ps_sz[id] - ps_sz[id - 1]);

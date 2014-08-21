@@ -18,8 +18,8 @@ using namespace mscds;
 // Benchmark
 
 struct StmFix : public SharedFixtureItf {
-	static const unsigned int SIZE  = 20000;
-	static const unsigned int QSIZE =  2000;
+	static const unsigned int SIZE  = 20000000;
+	static const unsigned int QSIZE =  2000000;
 	StmFix() { is_sort = false; lookup_query = true;}
 	bool is_sort, lookup_query;
 

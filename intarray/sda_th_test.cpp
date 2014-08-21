@@ -10,7 +10,7 @@ void test_cmp(const std::vector<unsigned int>& vals) {
 	size_t len = vals.size();
 	SDArrayTHBuilder bd;
 	SDArrayTH arr;
-	SDArrayZero zero(vals);
+	SDArrayZero zero;
 	for (unsigned int i = 0; i < len; ++i) {
 		zero.add(vals[i]);
 		bd.add(vals[i]);
@@ -20,9 +20,9 @@ void test_cmp(const std::vector<unsigned int>& vals) {
 
 	for (unsigned int i = 0; i < len; ++i) {
 		ASSERT_EQ(vals[i], zero.lookup(i));
-		auto xxx = arr.lookup(i);
-		if (xxx != vals[i]) {
-			xxx = arr.lookup(i);
+		auto w = arr.lookup(i);
+		if (w != vals[i]) {
+			w = arr.lookup(i);
 		}
 		ASSERT_EQ(vals[i], arr.lookup(i));
 
@@ -33,7 +33,7 @@ void test_cmp(const std::vector<unsigned int>& vals) {
 	}
 	ASSERT_EQ(zero.prefixsum(len), arr.prefixsum(len));
 	auto last = zero.prefixsum(len);
-	for (unsigned int p = 0; p <= len; ++p) {
+	for (unsigned int p = 0; p < last; ++p) {
 		auto v1 = zero.rank(p);
 		auto v2 = arr.rank(p);
 		ASSERT_EQ(v1, v2);

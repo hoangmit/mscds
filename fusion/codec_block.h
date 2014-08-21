@@ -58,7 +58,7 @@ private:
 
 /// fused block for array of integers
 template<typename Model>
-class CodeInterBlkQuery: public InterBLockQueryTp {
+class CodeInterBlkQuery: public InterBlockQueryTp {
 public:
 	static const unsigned int ELEM_PER_BLK = 512;
 	CodeInterBlkQuery(): mng(nullptr) {}

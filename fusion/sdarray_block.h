@@ -60,10 +60,10 @@ class SDArrayFuse;
 
 class SDArrayFuseBuilder: public InterBlockBuilderTp {
 public:
-	SDArrayFuseBuilder(BlockBuilder& _bd) : bd(&_bd) {}
-	SDArrayFuseBuilder(): bd(nullptr) {}
+	SDArrayFuseBuilder(BlockBuilder& _bd);
+	SDArrayFuseBuilder();
 
-	void init_bd(BlockBuilder& bd_) { bd = &bd_; }
+	void init_bd(BlockBuilder& bd_);
 	void register_struct();
 
 	void add(uint64_t val);
@@ -85,89 +85,27 @@ private:
 };
 
 //template<typename BlockManager>
-class SDArrayFuse : public InterBLockQueryTp {
+class SDArrayFuse : public InterBlockQueryTp {
 public:
 	typedef SDArrayBlock BlockType;
 	typedef SDArrayBlock::ValueType ValueType;
+	SDArrayFuse(): mng(nullptr), len(0) {}
+	void setup(BlockMemManager& mng_, StructIDList& lst);
+	SDArrayFuse(BlockMemManager& mng_, unsigned sid_, unsigned did_);
 
-	ValueType prefixsum(unsigned int  p) const {
-		if (p == this->len) return this->sum;
-		uint64_t bpos = p / SDArrayBlock::BLKSIZE;
-		uint32_t off = p % SDArrayBlock::BLKSIZE;
-		auto sum = getBlkSum(bpos);
-		if (off == 0) return sum;
-		else {
-			loadBlk(bpos);
-			return sum + blk.prefixsum(off);
-		}
-	}
-
-	ValueType lookup(unsigned int p) const {
-		uint64_t bpos = p / SDArrayBlock::BLKSIZE;
-		uint32_t off = p % SDArrayBlock::BLKSIZE;
-		loadBlk(bpos);
-		return blk.lookup(off);
-	}
-
-	ValueType lookup(unsigned int p, ValueType& prev_sum) const {
-		uint64_t bpos = p / SDArrayBlock::BLKSIZE;
-		uint32_t off = p % SDArrayBlock::BLKSIZE;
-		auto sum = getBlkSum(bpos);
-		loadBlk(bpos);
-		auto v = blk.lookup(p, prev_sum);
-		prev_sum += sum;
-		return v;
-	}
-
-	unsigned int rank(ValueType val) const {
-		if (val > total_sum()) return length();
-		uint64_t lo = 0;
-		uint64_t hi = mng->blkCount();
-		while (lo < hi) {
-			uint64_t mid = lo + (hi - lo) / 2;
-			if (getBlkSum(mid) < val) lo = mid + 1;
-			else hi = mid;
-		}
-		if (lo == 0) return 0;
-		lo--;
-		assert(val > getBlkSum(lo));
-		assert(lo < mng->blkCount() || val <= getBlkSum(lo + 1));
-		loadBlk(lo);
-		ValueType ret = lo * SDArrayBlock::BLKSIZE + blk.rank(val - getBlkSum(lo));
-		if (ret == 0) return 0;
-		else return ret - 1;
-	}
-	SDArrayFuse() : mng(nullptr), len(0) {}
-	void setup(BlockMemManager& mng_, StructIDList& lst) {
-		mng = &mng_;
-		lst.checkId("sdarray");
-		sid = lst.get();
-		did = lst.get();
-		assert(sid > 0);
-		assert(did > 0);
-		load_global();
-	}
-	SDArrayFuse(BlockMemManager& mng_, unsigned sid_, unsigned did_):
-		mng(&mng_), sid(sid_), did(did_) { load_global(); }
+	ValueType prefixsum(unsigned int  p) const;
+	ValueType lookup(unsigned int p) const;
+	ValueType lookup(unsigned int p, ValueType& prev_sum) const;
+	unsigned int rank(ValueType val) const;
 	uint64_t length() const { return len; }
 
-	uint64_t getBlkSum(size_t blk) const {
-		//auto br = mng->getSummary(sid, blk);
-		//return br.bits(0, 64);
-		return mng->summary_word(sid, blk);
-	}
+	void clear();
+	void inspect(const std::string &cmd, std::ostream &out);
 
-	void clear() {
-		mng = nullptr;
-		len = 0;
-		sum = 0;
-		sid = 0;
-		did = 0;
-		blk.clear();
-	}
+	uint64_t getBlkSum(size_t blk) const;
 
-	void inspect(const std::string &cmd, std::ostream &out) {}
-
+	uint64_t total_sum() const { return sum; }
+	
 private:
 	friend class SDArrayFuseBuilder;
 
@@ -175,20 +113,15 @@ private:
 	BlockMemManager* mng;
 	uint64_t len, sum;
 
-	void load_global() {
-		auto br = mng->getGlobal(sid);
-		len = br.bits(0, 64);
-		sum = br.bits(64, 64);
-	}
+	void load_global();
 
-	uint64_t total_sum() const { return sum; }
+	
 
-	void loadBlk(size_t i) const {
-		auto br = mng->getData(did, i);
-		blk.loadBlock(br);
-	}
+	void loadBlk(size_t i) const;
 
 	mutable SDArrayBlock blk;
+	friend class SDArrayFuseHints;
+	unsigned int _rank(ValueType val, unsigned int begin, unsigned int end) const;
 };
 
 }

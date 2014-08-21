@@ -38,7 +38,7 @@ void NIntvInterBlkBuilder::build_struct() {
 	set_block_data();
 	start.build_struct();
 	uint64_t v = lensum;
-	bd->set_global(lgsid, mscds::ByteMemRange::wrap(v));
+	bd->set_global(lgsid, mscds::ByteMemRange::ref(v));
 }
 
 void NIntvInterBlkBuilder::deploy(mscds::StructIDList& lst) {
@@ -82,7 +82,7 @@ void NIntvInterBlkBuilder::_build_block_type(bool store_len) {
 
 	uint64_t v = lensum;
 	if (!store_len) v |= (1ULL << 63);
-	bd->set_summary(lgsid, mscds::ByteMemRange::wrap(v));
+	bd->set_summary(lgsid, mscds::ByteMemRange::ref(v));
 	auto& a = bd->start_data(lgdid);
 	lgblk.saveBlock(&a);
 	for (unsigned i = 0; i < data.size(); ++i)

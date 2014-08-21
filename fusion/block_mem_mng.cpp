@@ -41,8 +41,8 @@ void BlockBuilder::init_data() {
 	OBitStream buf;
 	global_acc.store_context(buf);
 	summary_acc.store_context(buf);
-	global_acc.reset_data();
-	summary_acc.reset_data();
+	global_acc.init_block();
+	summary_acc.init_block();
 	bcid = 0;
 	scid = 0;
 	gcid = 0;
@@ -113,13 +113,13 @@ void BlockBuilder::end_block() {
 	blkdata.append(databuf);
 	databuf.clear();
 
-	summary_acc.add_data(summary, scid + 1, ByteMemRange::wrap(start_ptr));
+	summary_acc.add_data(summary, scid + 1, ByteMemRange::ref(start_ptr));
 	start_ptr = blkdata.length();
 
 	bcid = 0;
 	scid = 0;
-	global_acc.reset_data();
-	summary_acc.reset_data();
+	global_acc.init_block();
+	summary_acc.init_block();
 	blkcnt++;
 	bptr.reset();
 }

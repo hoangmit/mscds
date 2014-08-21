@@ -1,6 +1,9 @@
 
 #include "block_mem_mng.h"
+#include "intarray/sdarray_zero.h"
+#include "intarray/sdarray_sml.h"
 #include "sdarray_block.h"
+#include "sdarray_blk_hints.h"
 
 #include "bitarray/bitstream.h"
 
@@ -100,13 +103,13 @@ public:
 
 	void end_block() {
 		uint64_t v = sum1;
-		bd.set_summary(1, ByteMemRange::wrap(v));
+		bd.set_summary(1, ByteMemRange::ref(v));
 		OBitStream& d1 = bd.start_data(1);
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		v = sum2;
-		bd.set_summary(2, ByteMemRange::wrap(v));
+		bd.set_summary(2, ByteMemRange::ref(v));
 		OBitStream& d2 = bd.start_data(2);
 		b2.saveBlock(&d2);
 		bd.end_data();
@@ -122,10 +125,10 @@ public:
 		} data;
 		data.cnt = cnt;
 		data.sum = sum1;
-		bd.set_global(1, ByteMemRange::wrap(data));
+		bd.set_global(1, ByteMemRange::ref(data));
 		data.cnt = cnt;
 		data.sum = sum2;
-		bd.set_global(2, ByteMemRange::wrap(data));
+		bd.set_global(2, ByteMemRange::ref(data));
 		bd.build(&mng);
 	}
 };
@@ -167,13 +170,60 @@ TEST(fusion, sda_block_test2) {
 	ASSERT_EQ(ps2, qs.y.prefixsum(n));
 }
 
+TEST(fusion, rank_test3) {
+	LiftStBuilder<SDArrayFuseBuilder, SDArrayFuseHintsBuilder> bd2;
+	SDArraySmlBuilder bdx;
+
+	std::vector<unsigned> vals;
+	const unsigned int n = 1000;
+	auto& norm = bd2.g<0>();
+	auto& sda_h = bd2.g<1>();
+
+	SDArrayZero zero;
+	
+	sda_h.start_model();
+	for (unsigned i = 0; i < n; ++i) {
+		vals.push_back(rand() % 100);
+		sda_h.model_add(vals.back());
+	}
+	sda_h.build_model();
+	bd2.init();
+	for (unsigned i = 0; i < n; ++i) {
+		zero.add(vals[i]);
+		norm.add(vals[i]);
+		sda_h.add(vals[i]);
+		bdx.add(vals[i]);
+		bd2.check_end_block();
+	}
+	bd2.check_end_data();
+
+	SDArraySml sa;
+	LiftStQuery<SDArrayFuse, SDArrayFuseHints> qs2;
+	bdx.build(&sa);
+	bd2.build(&qs2);
+	auto& x = qs2.g<0>();
+	auto& y = qs2.g<1>();
+
+	auto last = zero.prefixsum(n);
+	for (unsigned int p = 1; p < last; ++p) {
+		auto v1 = zero.rank(p);
+		auto v4 = sa.rank(p);
+		auto v2 = x.rank(p);
+		auto v3 = y.rank(p);
+		ASSERT_EQ(v1, v2);
+		ASSERT_EQ(v1, v3);
+		ASSERT_EQ(v1, v4);
+	}
+
+}
+
 void test3() {
 	typedef LiftStBuilder<MockInterBlkBd, SDArrayFuseBuilder, SDArrayFuseBuilder> TwoSDArrv3;
 	TwoSDArrv3 bdx;
 	typedef LiftStQuery<MockInterBlkQr, SDArrayFuse, SDArrayFuse> TwoSDA_v3_Query;
 	TwoSDA_v3_Query qsx;
 	bdx.init();
-	bdx._end_block();
+	bdx.check_end_data();
 	bdx.build(&qsx);
 }
 
@@ -197,16 +247,11 @@ TEST(fusion, codex_block) {
 	for (unsigned i = 0; i < n; ++i) {
 		//std::get<0>(bd.list).add(vals[0]);
 		x.add(vals[i]);
-
-		if (bd.is_all_full()) {
-			bd._end_block();
-		}
+		bd.check_end_block();
 	}
 
 	LiftStQuery<HuffBlkQuery> qs;
-	if (!bd.is_all_empty()) {
-		bd._end_block();
-	}
+	bd.check_end_data();
 	
 	bd.build(&qs);
 	auto& y = qs.g<0>();
@@ -231,7 +276,6 @@ TEST(fusion, codex_block) {
 		}
 		ASSERT_EQ(vals.size(), i);
 	}
-	
 }
 
 
@@ -250,7 +294,7 @@ int main(int argc, char* argv[]) {
 
 	::testing::GTEST_FLAG(catch_exceptions) = "0";
 	::testing::GTEST_FLAG(break_on_failure) = "1";
-	::testing::GTEST_FLAG(filter) = "*.*";
+	::testing::GTEST_FLAG(filter) = "fusion.rank_test3";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	//return rs;

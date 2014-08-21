@@ -95,12 +95,11 @@ void StorageBuilder::build(Storage *qs) {
 		sqpsum += llen * (it->val*it->val);
 		lastst = it->st;
 		++i;
-		if (i % 512 == 0) {
-			base._end_block();
-		}
+		base.check_end_block();
+		//if (i % 512 == 0) { base._end_block(); }
 	}
-	if (i % 512 != 0)
-		base._end_block();
+	base.check_end_data();
+	//if (i % 512 != 0) base._end_block();
 	base.build(&qs->data);
 }
 

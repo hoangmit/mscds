@@ -79,20 +79,20 @@ struct MockBigSt {
 
 		bd.init_data();
 		uint8_t v = 1;
-		bd.set_global(1, ByteMemRange::wrap(v));
+		bd.set_global(1, ByteMemRange::ref(v));
 		v = 2;
-		bd.set_global(2, ByteMemRange::wrap(v));
+		bd.set_global(2, ByteMemRange::ref(v));
 
 		uint16_t tt;
 		tt = 1;
-		bd.set_summary(1, ByteMemRange::wrap(tt));
+		bd.set_summary(1, ByteMemRange::ref(tt));
 		OBitStream& d1 = bd.start_data(1);
 		b1.v = 1;
 		b1.saveBlock(&d1);
 		bd.end_data();
 
 		tt = 2;
-		bd.set_summary(2, ByteMemRange::wrap(tt));
+		bd.set_summary(2, ByteMemRange::ref(tt));
 		OBitStream& d2 = bd.start_data(2);
 		b2.v = 3;
 		b2.saveBlock(&d2);
@@ -101,14 +101,14 @@ struct MockBigSt {
 		bd.end_block();
 		//--------------------------------
 		tt = 3;
-		bd.set_summary(1, ByteMemRange::wrap(tt));
+		bd.set_summary(1, ByteMemRange::ref(tt));
 		OBitStream& d3 = bd.start_data(1);
 		b1.v = 5;
 		b1.saveBlock(&d3);
 		bd.end_data();
 
 		tt = 4;
-		bd.set_summary(2, ByteMemRange::wrap(tt));
+		bd.set_summary(2, ByteMemRange::ref(tt));
 		OBitStream& d4 = bd.start_data(2);
 		b2.v = 7;
 		b2.saveBlock(&d4);
@@ -160,10 +160,60 @@ void blk_mem_test1() {
 	std::cout << ar.printxml() << std::endl;
 }
 
+
+TEST(fixed_interleaved_arr, test5) {
+	/* declare a byte aligned builder */
+	FixedSizeMemAccBuilder<8> bd;
+	unsigned int a_id = bd.declare_segment(2);
+	unsigned int b_id = bd.declare_segment(5);
+	unsigned int c_id = bd.declare_segment(3);
+	/* start taking data in */
+	OBitStream data, header;
+	/* add data for block 0 */
+	bd.init_block();
+	bd.add_data(data, a_id, ByteMemRange::val_c(1));
+	bd.add_data(data, b_id, ByteMemRange::val_c(2));
+	bd.add_data(data, c_id, ByteMemRange::val_c(3));
+	/* add data for block 1 */
+	bd.init_block();
+	bd.add_data(data, a_id, ByteMemRange::val_c(4));
+	bd.add_data(data, b_id, ByteMemRange::val_c(5));
+	bd.add_data(data, c_id, ByteMemRange::val_c(6));
+	
+	/* build the output streams */
+	bd.store_context(header);
+	data.close();
+	header.close();
+	BitArray header_bits, data_bits;
+	data.build(&data_bits);
+	header.build(&header_bits);
+
+	/* access the values (byte aligned) */
+	FixedSizeMemAccess<8> query;
+	/* load and check the sizes */
+	query.load_context(header_bits);
+	BitRange v;
+	v = query.get_range(a_id, 0, &data_bits);
+	ASSERT_EQ(1, v.byte(0));
+	v = query.get_range(b_id, 0, &data_bits);
+	ASSERT_EQ(2, v.byte(0));
+	v = query.get_range(c_id, 0, &data_bits);
+	ASSERT_EQ(3, v.byte(0));
+
+	v = query.get_range(a_id, 1, &data_bits);
+	ASSERT_EQ(4, v.byte(0));
+	v = query.get_range(b_id, 1, &data_bits);
+	ASSERT_EQ(5, v.byte(0));
+	v = query.get_range(c_id, 1, &data_bits);
+	ASSERT_EQ(6, v.byte(0));
+}
+
 void debug_run() {
+
 	blk_mem_test1();
 	test_ptr();
 }
+
 
 int main(int argc, char* argv[]) {
 	debug_run();

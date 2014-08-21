@@ -11,7 +11,7 @@ namespace app_ds {
 
 class NIntvInterBlkBuilder;
 
-class FuseNIntvInterBlock: public NIntvQueryInt, public mscds::InterBLockQueryTp {
+class FuseNIntvInterBlock: public NIntvQueryInt, public mscds::InterBlockQueryTp {
 public:
 	PosType int_start(PosType i) const;
 	PosType int_end(PosType i) const;
@@ -50,7 +50,6 @@ private:
 	uint64_t lensum;
 	mscds::SDArrayFuse start;
 	mscds::BlockMemManager * mng;
-	
 };
 
 

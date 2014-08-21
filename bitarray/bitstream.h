@@ -48,6 +48,7 @@ public:
 	bool is_accessiable() const;
 
 	void append(const OBitStream& other);
+	void append(const BitArray& ba);
 
 	std::string to_str() const;
 
@@ -118,6 +119,21 @@ private:
 	uint16_t j;
 	size_t ptr;
 	StaticMemRegionPtr data;
+};
+
+
+/// Output Byte Stream
+class OByteStream {
+public:
+	OByteStream() {}
+	void put(char c) { os.append(c); }
+	void puts(const std::string& str);
+	void puts(const char* str, unsigned int len);
+	size_t length() const { return os.size(); }
+	void build(BitArray* out);
+	void clear() { os.clear(); }
+private:
+	LocalDynamicMem os;
 };
 
 //-----------------------------------------------------------------------
@@ -205,19 +221,6 @@ inline void OBitStream::close() {
 
 inline bool OBitStream::is_accessiable() const { return (j == 0); }
 
-inline void OBitStream::append(const OBitStream &other) {
-	if (!other.is_accessiable()) throw std::runtime_error("cannot extract");
-	size_t px = 0, i = 0;
-	while (px + WORDLEN < other.length()) {
-		puts(other.os.getword(i));
-		i++;
-		px += WORDLEN;
-	}
-	if (px < other.length()) {
-		uint64_t v = other.os.getword(i);
-		puts(v, other.length() - px);
-	}
-}
 
 inline void OBitStream::build(BitArray* out) {
 	close();
@@ -229,13 +232,6 @@ inline StaticMemRegionPtr OBitStream::build() {
 	close();
 	LocalMemModel alloc;
 	return alloc.convert(os);
-}
-
-inline std::string OBitStream::to_str() const {
-	std::ostringstream ss;
-	for (int i = 0; i < bitlen; ++i)
-		ss << ((getbit(i)) ? 1 : 0);
-	return ss.str();
 }
 
 inline void OBitStream::pushout() {
@@ -364,29 +360,5 @@ inline uint64_t IWBitStream::get(uint16_t len) {
 	skipw(len);
 	return v;
 }
-
-
-//----------------------------------------------------------------
-
-/// Output Byte Stream
-class OByteStream {
-public:
-	OByteStream() {}
-	void put(char c) { os.append(c); }
-	void puts(const std::string& str) {
-		for (size_t i = 0; i < str.length(); ++i) os.append(str[i]);
-	}
-	void puts(const char* str, unsigned int len) {
-		for (size_t i = 0; i < len; ++i) os.append(*(str + i));
-	}
-	size_t length() const { return os.size(); }
-	void build(BitArray* out) {
-		LocalMemModel alloc;
-		*out = BitArrayBuilder::adopt(os.size() * 8, alloc.convert(os));
-	}
-	void clear() { os.clear(); }
-private:
-	LocalDynamicMem os;
-};
 
 }//namespace

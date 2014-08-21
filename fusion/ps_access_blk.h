@@ -5,7 +5,7 @@
 Experimental fusion related structure.
 */
 
-
+#include "generic_struct.h"
 #include "block_mem_mng.h"
 #include "inc_ptrs.h"
 #include "codec/deltacoder.h"
@@ -89,7 +89,7 @@ private:
 	unsigned int bcnt;
 };
 
-class PtrInterBlkQs: public InterBLockQueryTp {
+class PtrInterBlkQs: public InterBlockQueryTp {
 public:
 	PtrInterBlkQs(): size(0), mng(nullptr) {}
 

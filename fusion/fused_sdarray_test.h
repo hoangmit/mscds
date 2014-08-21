@@ -31,7 +31,7 @@ struct MockBlk {
 	}
 };
 
-struct MockInterBlkQr: public mscds::InterBLockQueryTp {
+struct MockInterBlkQr: public mscds::InterBlockQueryTp {
 	unsigned int sid, did;
 	MockInterBlkQr(): mng(nullptr), sid(0), did(0) {}
 	MockBlk blk;
@@ -79,7 +79,7 @@ struct MockInterBlkBd: public mscds::InterBlockBuilderTp {
 	void set_block_data(bool lastblock = false) {
 		uint16_t tt;
 		tt = cnt % 1000;
-		bd->set_summary(sid, mscds::ByteMemRange::wrap(tt));
+		bd->set_summary(sid, mscds::ByteMemRange::ref(tt));
 		mscds::OBitStream& d1 = bd->start_data(did);
 		blk.v = cnt;
 		blk.saveBlock(&d1);
@@ -89,7 +89,7 @@ struct MockInterBlkBd: public mscds::InterBlockBuilderTp {
 
 	void build_struct() {
 		uint8_t v = 1;
-		bd->set_global(sid, mscds::ByteMemRange::wrap(v));
+		bd->set_global(sid, mscds::ByteMemRange::ref(v));
 	}
 
 	void deploy(mscds::StructIDList& lst) {

@@ -36,7 +36,7 @@ public:
 	//BlockBuilder * bd;
 };
 
-class InterBLockQueryTp {
+class InterBlockQueryTp {
 public:
 	virtual void setup(BlockMemManager & mng, StructIDList& slst) = 0;
 	virtual void clear() = 0;
@@ -183,22 +183,18 @@ public:
 		bd.init_data();
 	}
 
-	bool is_all_full() {
-		FullAll it;
-		details::for_each(list, it);
-		return it.val;
+	bool check_end_block() {
+		if (is_all_full()) {
+			_end_block();
+			return true;
+		}else return false;
 	}
 
-	bool is_all_empty() {
-		EmptyAll it;
-		details::for_each(list, it);
-		return it.val;
-	}
-
-	void _end_block() {
-		SetStr eblk;
-		details::for_each(list, eblk);
-		bd.end_block();
+	bool check_end_data() {
+		if (!is_all_empty()) {
+			_end_block();
+			return true;
+		}else return false;
 	}
 
 	template<size_t N>
@@ -227,6 +223,24 @@ public:
 		Q qs;
 		build(&qs);
 		ar.save(qs);
+	}
+private:
+	bool is_all_full() {
+		FullAll it;
+		details::for_each(list, it);
+		return it.val;
+	}
+
+	bool is_all_empty() {
+		EmptyAll it;
+		details::for_each(list, it);
+		return it.val;
+	}
+
+	void _end_block() {
+		SetStr eblk;
+		details::for_each(list, eblk);
+		bd.end_block();
 	}
 };
 

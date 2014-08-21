@@ -162,6 +162,8 @@ private:
 	uint64_t last;
 };
 
+
+/// Rank Select interface of SDArraySml
 class SDRankSelectSml: public RankSelect {
 public:
 	SDRankSelectSml() {}

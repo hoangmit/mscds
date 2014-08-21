@@ -117,12 +117,9 @@ void StorageBuilder2::build(Storage2 *qs) {
 		sqpsum += llen * (it->val*it->val);
 		lastst = it->st;
 		++i;
-		if (i % 512 == 0) {
-			base._end_block();
-		}
+		base.check_end_block();
 	}
-	if (i % 512 != 0)
-		base._end_block();
+	base.check_end_data();
 	base.build(&qs->data);
 }
 

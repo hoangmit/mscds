@@ -12,6 +12,7 @@ sdarray_block.cpp
 set(HEADERS
 block_mem_mng.h
 sdarray_block.h
+sdarray_blk_hints.h
 codec_block.h
 inc_ptrs.h
 inc_ptrs2.h

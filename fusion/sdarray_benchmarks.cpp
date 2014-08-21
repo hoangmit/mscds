@@ -48,9 +48,7 @@ struct StmFix : public SharedFixtureItf {
 			zero.add(val);
 			srsb.add(val);
 			rfsgbdx.add(val);
-			if (fsgbd.is_all_full()) {
-				fsgbd._end_block();
-			}
+			fsgbd.check_end_block();
 			sum += val;
 		}
 		bd1.build(&sd1);
@@ -58,8 +56,7 @@ struct StmFix : public SharedFixtureItf {
 		xd.build(&qs);
 		thb.build(&th);
 		srsb.build(&lkz);
-		if (!fsgbd.is_all_empty())
-			fsgbd._end_block();
+		fsgbd.check_end_data();
 		fsgbd.build(&fuse_single);
 		this->size = size;
 		queries.resize(qsize);

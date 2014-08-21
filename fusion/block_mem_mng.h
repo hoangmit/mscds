@@ -16,25 +16,69 @@ Experimental implementation of fusion structure
 #include <queue>
 #include <tuple>
 #include <climits>
+#include <memory>
 
 namespace mscds {
 
-struct ByteMemRange {
-	char* ptr;
-	size_t len;
-	ByteMemRange(): ptr(nullptr), len(0) {}
-	ByteMemRange(char* ptr_, size_t len_): ptr(ptr_), len(len_) {}
-	ByteMemRange(const ByteMemRange& m): ptr(m.ptr), len(m.len) {}
+/// array of bytes
+class ByteMemRange {
+	std::shared_ptr<char> _ptr;
+	unsigned int len;
+	static void do_nothing_deleter(char*) {}
+	static void array_deleter(char* p) {
+		delete[] p;
+	}
+public:
+	ByteMemRange(): len(0) {}
+	ByteMemRange(ByteMemRange& m): _ptr(m._ptr), len(m.len) {}
+	ByteMemRange(ByteMemRange&& m): _ptr(std::move(m._ptr)), len(m.len) {}
 
 	template<typename T>
-	static ByteMemRange wrap(T& t) { return ByteMemRange((char*)&t, sizeof(T)); }
-	template<typename T>
-	static ByteMemRange wrap2(T& t, size_t len) {
-		assert(len <= sizeof(T) * CHAR_BIT);
-		return ByteMemRange((char*)&t, sizeof(T));
+	static ByteMemRange ref(T& t, size_t len) {
+		assert(len <= sizeof(T));
+		ByteMemRange ret;
+		ret._ptr = std::shared_ptr<char>((char*)(&t), do_nothing_deleter);
+		ret.len = len;
+		return ret;
 	}
+	template<typename T>
+	static ByteMemRange ref(T& t) {
+		return ref<T>(t, sizeof(t));
+	}
+
+	template<typename T>
+	static ByteMemRange val(T v, size_t len) {
+		char * p = new char[len];
+		*((T*)p) = v;
+		ByteMemRange ret;
+		ret._ptr = std::shared_ptr<char>(p, array_deleter);
+		ret.len = len;
+		return ret;
+	}
+	template<typename T>
+	static ByteMemRange val(T v) {
+		return val(v, sizeof(v));
+	}
+
+	static ByteMemRange val_c(char v) {
+		return val<char>(v, 1);
+	}
+
+	size_t length() const {
+		return len;
+	}
+
+	char* ptr() {
+		return _ptr.get();
+	}
+	const char* ptr() const {
+		return _ptr.get();
+	}
+
 };
 
+
+// sub-range of a BitArray
 struct BitRange {
 	BitRange() : ba(nullptr), start(0), len(0) {}
 	BitRange(const BitRange& other) : ba(other.ba), start(other.start), len(other.len) {}
@@ -69,9 +113,12 @@ struct BitRange {
 
 //----------------------------------------------------------------------
 
+/// build fixed sized interleaved arrays. See FixedSizeMemAccess
 template<unsigned UNIT_BIT_SIZE>
 class FixedSizeMemAccBuilder {
 public:
+	FixedSizeMemAccBuilder(): blkcnt(0), cur(0) {}
+	/// declare a segment. The length of the segment is (`size' * UNIT_BIT_SIZE) bits.
 	unsigned int declare_segment(size_t size) {
 		_sizes.push_back(size);
 		return _sizes.size();
@@ -83,9 +130,10 @@ public:
 	}
 
 	/// start adding data
-	void reset_data() {
+	void init_block() {
 		assert(_sizes.size() < 128);
 		cur = 0;
+		blkcnt += 1;
 	}
 
 	/// add nothing, (auto fill up the space with 0)
@@ -96,8 +144,8 @@ public:
 
 	/// add array of bytes
 	void add_data(mscds::OBitStream& buf, int sid, const ByteMemRange& r) {
-		auto s = check_block_data(sid, r.len * 8);
-		buf.puts_c(r.ptr, r.len);
+		auto s = check_block_data(sid, r.length() * 8);
+		buf.puts_c(r.ptr(), r.length());
 		if (s > 0) buf.put0(s);
 	}
 
@@ -118,11 +166,12 @@ public:
 		assert(_sizes.size() < 128);
 		VByteStream::append(buf, UNIT_BIT_SIZE);
 		VByteStream::append(buf, _sizes.size());
+		VByteStream::append(buf, blkcnt);
 		for (unsigned int i = 0; i < _sizes.size(); ++i)
 			VByteStream::append(buf, _sizes[i]);
 	}
 
-	void clear() { _sizes.clear(); cur = 0; }
+	void clear() { _sizes.clear(); cur = 0; blkcnt = 0; }
 
 	/// check the added size for overflow
 	/** 
@@ -138,9 +187,10 @@ public:
 private:
 	std::vector<unsigned int> _sizes;
 	unsigned int cur;
+	unsigned int blkcnt;
 };
 
-/// array of fixed size blocks. Each block contains some fixed size segments.
+/// fixed sized interleaved arrays (i.e. Array of fixed size blocks. Each block contains some fixed size segments.)
 /** 
 The start of each block is aligned by UNIT_BIT_SIZE (should be 8, 16, 32, 64)
 */
@@ -153,6 +203,7 @@ public:
 		size_t ubs = VByteStream::extract(b, ipos);
 		assert(UNIT_BIT_SIZE == ubs);
 		size_t n = VByteStream::extract(b, ipos);
+		blkcnt = VByteStream::extract(b, ipos);
 		for (unsigned int i = 0; i < n; ++i)
 			_sizes.push_back(VByteStream::extract(b, ipos));
 		ps_sz.resize(_sizes.size() + 1);
@@ -166,26 +217,37 @@ public:
 	/// the number of segments
 	size_t count() const { return _sizes.size(); }
 
-	void clear() { _sizes.clear(); ps_sz.clear(); _chunk_size = 0; }
+	/// the number of blocks
+	size_t length() const { return blkcnt; }
+
+	void clear() { _sizes.clear(); ps_sz.clear(); _chunk_size = 0; blkcnt = 0; }
 
 	
 	uint8_t unit_bit_size() const {
 		return UNIT_BIT_SIZE;
 	}
 
-	/// get start of segment `id' in block `index'
-	size_t get_data_loc(unsigned int id, unsigned int index) {
+	/// get the data range of segment `id' in block `index'
+	BitRange get_range(unsigned id, unsigned index, BitArray * a, unsigned int st = 0) {
+		std::pair<unsigned int, unsigned int> p = _get_loc_range(id, index);
+		return BitRange(a, st + p.first* unit_bit_size(), p.second * unit_bit_size());
+	}
+
+	/// (internal use only) get start of segment `id' in block `index'
+	size_t _get_start(unsigned int id, unsigned int index) {
 		size_t stp = index * _chunk_size;
 		return stp + ps_sz[id - 1];
 	}
 
-	/// get start and length of segment `id' in block `index'
-	std::pair<unsigned int, unsigned int> get_data_range(unsigned int id, unsigned int index) {
+	/// (internal use only) get start and length of segment `id' in block `index'
+	std::pair<unsigned int, unsigned int> _get_loc_range(unsigned int id, unsigned int index) {
 		size_t stp = index * _chunk_size;
 		return std::pair<unsigned int, unsigned int>(stp + ps_sz[id - 1], ps_sz[id] - ps_sz[id - 1]);
 	}
+
 private:
 	std::vector<unsigned int> _sizes, ps_sz;
+	size_t blkcnt;
 	unsigned _chunk_size;
 };
 
@@ -255,6 +317,7 @@ struct BlockInfoReport {
 	}
 };
 
+/// build block
 class BlockBuilder {
 private:
 	BlockInfoReport rp;
@@ -312,27 +375,30 @@ private:
 	bool finish_reg;
 };
 
+/// block manager
 class BlockMemManager {
 public:
 	size_t blkCount() const { return blkcnt; }
 
 	BitRange getGlobal(unsigned int gid) {
 		assert(gid > 0 && gid <= global_acc.count());
-		auto p = global_acc.get_data_range(gid, 0); // only 1 block
-		return BitRange(&global_bits, header_size + p.first * global_acc.unit_bit_size(), p.second * global_acc.unit_bit_size());
+		//auto p = global_acc.get_data_range(gid, 0); // only 1 block
+		//return BitRange(&global_bits, header_size + p.first * global_acc.unit_bit_size(), p.second * global_acc.unit_bit_size());
+		return global_acc.get_range(gid, 0, &global_bits, header_size);
 	}
 
 	BitRange getSummary(unsigned int sid, size_t blk) {
 		assert(sid > 0 && sid <= summary_acc.count());
 		assert(blk < blkcnt);
-		auto p = summary_acc.get_data_range(sid, blk);
-		return BitRange(&summary_bits, p.first*summary_acc.unit_bit_size(), p.second*summary_acc.unit_bit_size());
+		//auto p = summary_acc.get_data_range(sid, blk);
+		//return BitRange(&summary_bits, p.first*summary_acc.unit_bit_size(), p.second*summary_acc.unit_bit_size());
+		return summary_acc.get_range(sid, blk, &summary_bits, 0);
 	}
 
 	uint64_t summary_word(unsigned int sid, size_t blk) {
 		assert(sid > 0 && sid <= summary_acc.count());
 		assert(blk < blkcnt);
-		return summary_bits.word(summary_acc.get_data_loc(sid, blk));
+		return summary_bits.word(summary_acc._get_start(sid, blk));
 	}
 
 	BitRange getData(unsigned int did, size_t blk) {
@@ -340,7 +406,7 @@ public:
 		assert(blk < blkcnt);
 		did -= 1;
 		if (last_blk != blk) {
-			auto px = summary_acc.get_data_loc(str_cnt+1, blk);
+			auto px = summary_acc._get_start(str_cnt+1, blk);
 			uint64_t ptrx = summary_bits.word(px); // last structure is the pointer
 			bptr.loadBlock(data_bits, ptrx, 0);
 			last_blk = blk;

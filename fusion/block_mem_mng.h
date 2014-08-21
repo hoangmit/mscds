@@ -406,7 +406,7 @@ public:
 		assert(blk < blkcnt);
 		did -= 1;
 		if (last_blk != blk) {
-			auto px = summary_acc._get_start(str_cnt+1, blk);
+			auto px = summary_acc._get_start(summary_acc.count(), blk);
 			uint64_t ptrx = summary_bits.word(px); // last structure is the pointer
 			bptr.loadBlock(data_bits, ptrx, 0);
 			last_blk = blk;

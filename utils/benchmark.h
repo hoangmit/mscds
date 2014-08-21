@@ -42,7 +42,7 @@ private:
 
 class SharedFixtureItf {
 public:
-	virtual void SetUp(int size) = 0;
+	virtual void SetUp() = 0;
 	virtual void TearDown() = 0;
 };
 
@@ -50,17 +50,15 @@ template<typename SharedFixture>
 class Benchmarker {
 public:
 	typedef void(*FuncType)(SharedFixture*);
-	//typedef std::function<void(Fixture*)> FuncType;
+	typedef std::function<void(SharedFixture*)> StdFuncType;
 
 	Benchmarker() : n_samples(1), verbose(false) {}
 
 	unsigned int n_samples;
 	bool verbose;
-	std::vector<int> problemSizes;
 
-	void set_sizes(const std::vector<int>& sizes);
 	void add(const std::string& name, FuncType fc, unsigned int nrun = 1);
-	void run_all();
+	void run_all(SharedFixture* preset = NULL) { _run_methods(results, preset); }
 	void report(int baseline = -1);
 	void add_remark(const std::string& remark) { remark_ = remark; }
 private:
@@ -79,36 +77,17 @@ private:
 	std::vector<RESVector> allres;
 	std::string remark_;
 private:
-	void _run_methods(int size, RESVector& results);
+	void _run_methods(RESVector& results, SharedFixture* preset);
 	void _report_methods(const RESVector& results, int baseline = -1);
 };
 
 //--------------------------------------------------------------------
 
-template<typename SharedFixture>
-void Benchmarker<SharedFixture>::set_sizes(const std::vector<int> &sizes) {
-	problemSizes = sizes;
-}
 
 template<typename SharedFixture>
 void Benchmarker<SharedFixture>::add(const std::string &name, typename Benchmarker<SharedFixture>::FuncType fc, unsigned int nrun){
 	lst.emplace_back(name, fc, nrun);
 }
-
-template<typename SharedFixture>
-void Benchmarker<SharedFixture>::run_all() {
-	if (problemSizes.empty())
-		_run_methods(-1, results);
-	else {
-		allres.resize(problemSizes.size());
-		unsigned int i = 0;
-		for (auto& v : problemSizes) {
-			_run_methods(v, allres[i]);
-			++i;
-		}
-	}
-}
-
 
 struct CTimer {
 	CTimer() { reset(); }
@@ -135,7 +114,7 @@ struct HiResTimer {
 };
 
 template<typename SharedFixture>
-void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<SharedFixture>::RESVector &results) {
+void Benchmarker<SharedFixture>::_run_methods(typename Benchmarker<SharedFixture>::RESVector &results, SharedFixture* preset) {
 	results.resize(lst.size());
 	unsigned int idx = 0;
 	for (auto& fc : lst) {
@@ -147,11 +126,15 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 	//typedef CppClock Clock;
 	typedef std::chrono::duration<double, std::milli> millisecs_t;
 
+	bool has_preset = (preset != NULL);
+
 	for (unsigned int sample = 0; sample < n_samples; ++sample) {
-		SharedFixture qfx;
+		SharedFixture *qfx;
+		if (has_preset) qfx = preset;
+		else qfx = new SharedFixture();
 		unsigned int idx = 0;
 		if (verbose) std::cout << "<";
-		qfx.SetUp(size);
+		qfx->SetUp();
 		for (FuncInfo& fc : lst) {
 			HiResTimer tm;
 
@@ -160,19 +143,20 @@ void Benchmarker<SharedFixture>::_run_methods(int size, typename Benchmarker<Sha
 			if (rc > 1) {
 				tm.start();
 				while (rc) {
-					fc.func(&qfx);
+					fc.func(qfx);
 					--rc;
 				}
 				tm.end();
 			} else {
 				tm.start();
-				fc.func(&qfx);
+				fc.func(qfx);
 				tm.end();
 			}
 			results[idx].second += tm.milisec() / fc.nrun;
 			idx++;
 		}
-		qfx.TearDown();
+		qfx->TearDown();
+		if (!has_preset) delete qfx;
 		if (verbose) std::cout << ">";
 	}
 	if (verbose) std::cout << "\n";
@@ -188,18 +172,8 @@ void Benchmarker<SharedFixture>::report(int baseline) {
 	std::cout << std::endl;
 	if (remark_.length() > 0)
 		std::cout << "Remark: " << remark_ << std::endl;
-	if (problemSizes.empty()) {
-		_report_methods(results, baseline);
-	}
-	else {
-		unsigned int i = 0;
-		for (auto& v : problemSizes) {
-			std::cout << "Problem size: " << v << std::endl;
-			_report_methods(allres[i], baseline);
-			++i;
-			std::cout << std::endl;
-		}
-	}
+	
+	_report_methods(results, baseline);
 	std::cout.imbue(oldLoc);
 }
 

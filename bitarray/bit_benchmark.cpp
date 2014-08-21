@@ -12,10 +12,8 @@ using namespace std;
 using namespace mscds;
 
 struct RankBMFix : public SharedFixtureItf {
-	void SetUp(int size) {
-		if (size <= 0) {
-			size = 50000000;
-		}
+	void SetUp() {
+		unsigned int size = 50000000;
 		size_t onepc = 5000;
 		size_t queries_cnt = 100000;
 		ba = BitArrayBuilder::create(size);
@@ -120,10 +118,11 @@ BENCHMARK_SET(rank_benchmark) {
 //-------------------------------------------------
 
 struct BitVecBM: public SharedFixtureItf {
-	void SetUp(int size) {
-		if (size <= 0) {
-			size = 100000000;
-		}
+	BitVecBM() {
+		size = 100000000;
+	}
+	unsigned int size;
+	void SetUp() {
 		ba = BitArrayBuilder::create(size);
 		for (size_t i = 0; i < size; ++i)
 			ba.setbit(i, rand() % 2 == 0);

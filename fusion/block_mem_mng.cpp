@@ -35,6 +35,8 @@ void BlockBuilder::init_data() {
 	finish_reg = true; start_ptr = 0;
 	summary_acc.declare_segment(1); // 1 word for pointer
 
+	assert(summary_acc.count() == global_acc.count() + 1);
+
 	bptr.init(n_data_block);
 	//save array
 
@@ -126,6 +128,7 @@ void BlockBuilder::end_block() {
 
 void BlockBuilder::build(BlockMemManager *mng) {
 	assert(gcid == global_acc.count());
+	mng->clear();
 	//if (global.length() != (header_size + global_struct_size) * 8)
 	//	throw std::runtime_error("size mismatch");
 	rp.blkcnt = blkcnt;
@@ -133,6 +136,7 @@ void BlockBuilder::build(BlockMemManager *mng) {
 	global.build(&mng->global_bits);
 	summary.build(&mng->summary_bits);
 	blkdata.build(&mng->data_bits);
+	
 	mng->blkcnt = blkcnt;
 	mng->str_cnt = n_data_block;
 	mng->init();
@@ -171,6 +175,7 @@ void BlockMemManager::init() {
 
 	bptr.init(n);
 
+	assert(global_acc.count() + 1 == summary_acc.count());
 	last_blk = ~0ULL;
 	last_ptrx = ~0ULL;
 }

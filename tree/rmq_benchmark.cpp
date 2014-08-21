@@ -89,7 +89,7 @@ class RMQQuerySFixture {
 public:
 	RMQQuerySFixture() { }
 
-	void SetUp(const int32_t problemSetValue) {
+	void SetUp() {
 		unsigned int blksize = 32;
 		unsigned int len = 10000000;
 		unsigned int querycnt = 10000;

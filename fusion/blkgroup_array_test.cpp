@@ -22,7 +22,7 @@
 using namespace mscds;
 
 void sdarray_block_test1() {
-	const unsigned n = 512; //block size, hardcoded, lol
+	const unsigned n = 512 + rand() % 4; //block size, hardcoded, lol
 	std::vector<uint64_t> inp;
 	for (unsigned i = 0; i < n; ++i)
 		inp.push_back(rand() % 100);

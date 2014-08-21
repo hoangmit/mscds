@@ -147,9 +147,12 @@ using namespace utils;
 class QueryFixture {
 public:
 	QueryFixture() {
+		problemSetValue = 50;
 	}
+	
+	int32_t problemSetValue;
 
-	virtual void SetUp(const int32_t problemSetValue) {
+	virtual void SetUp() {
 		inp_len = 5000000;
 		query_size = 5000;
 		inp = gen_intv(inp_len, problemSetValue / 100.0);
@@ -221,15 +224,22 @@ void nintv_gap_access(QueryFixture * fix) {
 
 BENCHMARK_SET(nitv_benchmark) {
 	Benchmarker<QueryFixture> bm;
-	std::vector<int> vals = { 1, 25, 50, 75, 100 };
+	
 	bm.n_samples = 5;
-	bm.set_sizes(vals);
+
 	bm.add("nintv_normal_access", nintv_normal_access, 5);
 	bm.add("nintv_gap_access", nintv_gap_access, 5);
 	bm.add("nintv_group_access", nintv_group_access, 5);
 	
-	bm.run_all();
-	bm.report(0);
+	std::vector<int> vals = {1, 25, 50, 75, 100};
+	QueryFixture qf;
+	for (unsigned int i = 0; i < vals.size(); ++i) {
+		unsigned int d = vals[i];
+		std::cout << "Density: " << d << " %\n";
+		qf.problemSetValue = d;
+		bm.run_all(&qf);
+		bm.report(0);
+	}
 }
 
 

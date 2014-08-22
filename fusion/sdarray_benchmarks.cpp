@@ -133,6 +133,7 @@ struct StmFix : public SharedFixtureItf {
 
 		std::cout << "sda_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;
 		std::cout << "sda_one_fuse" << "\t" << estimate_data_size(fuse_single) << std::endl;
+		std::cout << "sda_fuse_hints" << "\t" << estimate_data_size(fuse_hints) << std::endl;
 		std::cout << std::endl;
 		std::cout << "> Components sizes (optional)" << std::endl;
 		sd2.inspect("comp_size", std::cout);

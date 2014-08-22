@@ -259,12 +259,15 @@ TEST(ranktest, rrr) {
 	cout << endl;
 }
 
-TEST(ranktest, rrr2) {
+TEST(ranktest, rrr2_regular) {
 	test_rank<RRR2>(bits_one());
 	test_rank<RRR2>(bits_zero());
 	test_rank<RRR2>(bits_onezero());
 	test_rank<RRR2>(bits_oneonezero());
 	test_rank<RRR2>(bits_zerozeroone());
+}
+
+TEST(ranktest, rrr2) {
 	for (int i = 0; i < 200; i++) {
 		SCOPED_TRACE("Random");
 		test_rank<RRR2>(bits_dense(2046 + rand() % 4));

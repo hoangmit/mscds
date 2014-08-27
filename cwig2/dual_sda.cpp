@@ -7,7 +7,7 @@ struct NullSetGet: public mscds::SDABSetterInterface, public mscds::SDABGetterIn
 public:
 	static const unsigned int SIZE = 512;
 	NullSetGet() {
-		blkcnt =0 ;
+		blkcnt = 0;
 	}
 	void newblock() {
 		blkcnt += 1;
@@ -77,6 +77,24 @@ public:
 	uint64_t lower(unsigned int i) const {
 		return lowers[curblk * SIZE + i];
 	}
+	//----------------------------------
+
+	void length(uint64_t l) {
+		_len = l;
+	}
+	void total_sum(uint64_t ts) {
+		_total_sum = ts;
+	}
+
+	uint64_t blk_count() const {
+		return blks.size();
+	}
+	uint64_t length() const {
+		return _len;
+	}
+	uint64_t total_sum() const {
+		return _total_sum;
+	}
 
 	struct BlkRecord {
 		uint64_t sum;
@@ -93,6 +111,8 @@ public:
 	mscds::BitArray upper, buf;
 	mutable unsigned int curblk;
 	unsigned int blkcnt;
+	uint64_t _total_sum, _len;
+
 };
 
 void test_dsdd(const std::vector<unsigned int>& lst) {
@@ -103,18 +123,21 @@ void test_dsdd(const std::vector<unsigned int>& lst) {
 	const unsigned int BSZ = mscds::SDArrayBlockGBuilder<NullSetGet>::BLKSIZE;
 	unsigned int i = 0;
 
+	size_t ts = 0;
 	for (unsigned int v : lst) {
 		bd.add(v);
+		ts += v;
 		++i;
 		if (i == BSZ) {
 			bd.buildBlk();
 			i = 0;
 		}
 	}
-	if (i != 0) {
+	if (i != 0)
 		bd.buildBlk();
-	}
 
+	sg.length(i);
+	sg.total_sum(ts);
 	sg.build();
 
 	mscds::SDArrayBlockG<NullSetGet> qs(sg);
@@ -158,6 +181,9 @@ struct SLG_Builder {
 		void set_upper_pos(unsigned int px) { p.cur_blk.u1.setbit(px, true); }
 		void lower(unsigned int i, uint64_t value) { p.cur_blk.lower1[i] = value; }
 		void finishblock() {}
+
+		void length(uint64_t l) {}
+		void total_sum(uint64_t ts) {}
 	} _stst;
 
 	struct LG_setter: public mscds::SDABSetterInterface {
@@ -173,6 +199,10 @@ struct SLG_Builder {
 		void set_upper_pos(unsigned int px) { p.cur_blk.u2.setbit(px, true); }
 		void lower(unsigned int i, uint64_t value) { p.cur_blk.lower2[i] = value; }
 		void finishblock() {}
+
+
+		void length(uint64_t l) {}
+		void total_sum(uint64_t ts) {}
 	} _lgst;
 
 	unsigned int cnt;
@@ -203,7 +233,7 @@ struct SLG_Builder {
 
 	void register_struct() {
 		bd->begin_scope("dual_sda");
-		sid = bd->register_summary(8, 8);
+		sid = bd->register_summary(8*3, 8);
 		did = bd->register_data_block();
 		bd->end_scope();
 	}
@@ -247,8 +277,16 @@ struct SLG_Builder {
 	bool is_empty() const {return cnt == 0; }
 	bool is_full() const { return cnt >= BLKSIZE; }
 
+
 	void build_struct() {
-		bd->set_global(sid, ByteMemRange::ref(total));
+		struct {
+			uint64_t total, sum1, sum2;
+		} x;
+		x.total = total;
+		x.sum1 = sum1;
+		x.sum2 = sum2;
+
+		bd->set_global(sid, ByteMemRange::ref(x));
 	}
 
 	void deploy(mscds::StructIDList& lst) {
@@ -266,6 +304,8 @@ struct SLG_Q {
 	BlockMemManager* mng;
 	unsigned int sid, did;
 
+	uint64_t _len, _sum1, _sum2;
+
 	void setup(mscds::BlockMemManager& mng_, mscds::StructIDList& lst) {
 		mng = &mng_;
 		lst.checkId("dual_sda");
@@ -274,8 +314,12 @@ struct SLG_Q {
 		assert(sid > 0);
 		assert(did > 0);
 		//load_global();
-	}
 
+		auto r = mng->getGlobal(sid);
+		_len = r.word(0);
+		_sum1 = r.word(1);
+		_sum2 = r.word(2);
+	}
 
 	void clear() { mng->clear(); }
 	void inspect(const std::string &cmd, std::ostream &out) {}
@@ -339,6 +383,9 @@ struct SLG_Q {
 		uint64_t lower(unsigned int i) const {
 			return pa.info.r.ba->bits(pa.info.llptr + (pa.info.w1 + pa.info.w2)*i, pa.info.w1);
 		}
+		uint64_t blk_count() const { return (pa._len + BLKSIZE - 1) / BLKSIZE; }
+		uint64_t length() const { return pa._len; }
+		uint64_t total_sum() const { return pa._sum1; }
 	} _stgt;
 
 	struct LG_getter: public mscds::SDABGetterInterface {
@@ -354,6 +401,9 @@ struct SLG_Q {
 		uint64_t lower(unsigned int i) const {
 			return pa.info.r.ba->bits(pa.info.llptr + (pa.info.w1 + pa.info.w2)*i + pa.info.w1, pa.info.w2);
 		}
+		uint64_t blk_count() const { return (pa._len + BLKSIZE - 1) / BLKSIZE; }
+		uint64_t length() const { return pa._len; }
+		uint64_t total_sum() const { return pa._sum2; }
 	} _lggt;
 
 	SDArrayBlockG<Start_getter> start_blk;
@@ -408,4 +458,6 @@ void test_dfsd(const std::vector<unsigned int>& lst) {
 		s2 += lst[i] + 1;
 	}
 
+	x.start.rank(100);
+	x.lg.rank(100);
 }

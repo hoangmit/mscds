@@ -6,17 +6,22 @@
 #include <stdint.h>
 #include <vector>
 
-
 namespace mscds {
 
 class SDABGetterInterface {
 public:
 	virtual void loadBlk(unsigned int i) const = 0;
-	virtual uint64_t sum(unsigned int b) const = 0;
 	virtual uint8_t width() const = 0;
 	virtual uint64_t hints() const = 0;
 	virtual size_t upper_start() const = 0;
 	virtual uint64_t lower(unsigned int i) const = 0;
+
+//----------------
+
+	virtual uint64_t sum(unsigned int b) const = 0;
+	virtual uint64_t blk_count() const = 0;
+	virtual uint64_t length() const = 0;
+	virtual uint64_t total_sum() const = 0;
 };
 
 class SDABSetterInterface {
@@ -31,6 +36,9 @@ public:
 
 	virtual void lower(unsigned int i, uint64_t value) = 0;
 	virtual void finishblock() = 0;
+
+	virtual void length(uint64_t l) = 0;
+	virtual void total_sum(uint64_t ts) = 0;
 };
 
 template<typename S>
@@ -60,6 +68,8 @@ public:
 	ValueType blk_sum(unsigned int b) const;
 	unsigned int rank(ValueType val) const;
 	static const unsigned int BLKSIZE = 512;
+
+	const G& raw() const { return getter; }
 private:
 	unsigned int select_hi(uint64_t hints, uint32_t off) const;
 	static uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num);
@@ -81,7 +91,7 @@ template<typename B>
 class SDArrayInterBlkG {
 public:
 	typedef uint64_t ValueType;
-	mutable B& blk;
+	B& blk;
 	SDArrayInterBlkG(B& b): blk(b) {}
 	static const unsigned int BLKSIZE = 512;
 
@@ -91,6 +101,10 @@ public:
 
 	size_t getBlkSum(unsigned int b) const {
 		return blk.blk_sum(b);
+	}
+
+	size_t total_sum() const {
+		return blk.raw().total_sum();
 	}
 
 	ValueType prefixsum(unsigned int p) const {
@@ -112,6 +126,10 @@ public:
 		return blk.lookup(off);
 	}
 
+	size_t length() const { return blk.raw().length(); }
+
+	size_t blk_count() const { return blk.raw().blk_count(); }
+
 	ValueType lookup(unsigned int p, ValueType &prev_sum) const {
 		uint64_t bpos = p / BLKSIZE;
 		uint32_t off = p % BLKSIZE;
@@ -125,7 +143,7 @@ public:
 	unsigned int rank(ValueType val) const {
 		if (val > total_sum()) return length();
 		uint64_t lo = 0;
-		uint64_t hi = mng->blkCount();
+		uint64_t hi = blk_count();
 		while (lo < hi) {
 			uint64_t mid = lo + (hi - lo) / 2;
 			if (getBlkSum(mid) < val) lo = mid + 1;
@@ -163,8 +181,6 @@ public:
 //-------------------------------------------------------------
 
 namespace mscds {
-
-
 
 template<typename S>
 void SDArrayBlockGBuilder<S>::buildBlk() {

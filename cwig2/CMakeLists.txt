@@ -9,6 +9,7 @@ intv/nintv_fuse.cpp
 float_int_map.cpp
 fusedstorage.cpp
 fusedstorage2.cpp
+dual_sda.cpp
 )
 
 set(HEADERS
@@ -18,6 +19,7 @@ fusedstorage2.h
 intv/nintv_fuse.h
 float_mono_array.h
 float_int_map.h
+dual_sda.h
 )
 
 #add_executable(bedgraph2gnt bedgraph2gnt.cpp ${SRCS} ${HEADERS})
@@ -31,4 +33,6 @@ set_property(TARGET cwig2 PROPERTY FOLDER "Apps")
 #intv/intv_rand_gen.hpp
 
 add_test_exec(t_cwig_fuse FILES test_float_int.cpp intv/nintv_fuse_test.cpp test_intval.cpp LIBS cwig2 utils)
+
+add_test_exec(t_dual_cwig FILES dual_sda_test.cpp LIBS cwig2 utils)
 

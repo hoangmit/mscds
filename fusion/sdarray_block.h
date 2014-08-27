@@ -39,7 +39,6 @@ private:
 	static uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num);
 	unsigned int select_zerohi(uint64_t hints, uint64_t start, uint32_t off) const;
 private:
-	//static const unsigned int BLKSIZE = 512;
 	static const unsigned int SUBB_PER_BLK = 7;
 	static const unsigned int SUBB_SIZE = 74;
 
@@ -114,8 +113,6 @@ private:
 	uint64_t len, sum;
 
 	void load_global();
-
-	
 
 	void loadBlk(size_t i) const;
 

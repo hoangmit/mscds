@@ -7,7 +7,7 @@
 #include "intarray/sdarray_zero.h"
 #include "fused_sdarray_test.h"
 #include "sdarray_blk_hints.h"
-
+#include "cwig2/dual_sda.h"
 #include "mem/info_archive.h"
 
 #include "utils/benchmark.h"
@@ -34,6 +34,8 @@ struct StmFix : public SharedFixtureItf {
 		TwoSDA_Builder xd;
 		SDArrayTHBuilder thb;
 		SDRankSelectBuilderSml srsb;
+
+		LiftStBuilder<SLG_Builder> dbd2;
 		LiftStBuilder<SDArrayFuseBuilder> fsgbd;
 		LiftStBuilder<SDArrayFuseHintsBuilder> fwhbd;
 		zero.clear();
@@ -51,6 +53,7 @@ struct StmFix : public SharedFixtureItf {
 		}
 		rfwhbdx.build_model();
 		fwhbd.init();
+		dbd2.init();
 		for (unsigned i = 0; i < size; ++i) {
 			unsigned val = vals[i];
 			bd1.add(val);
@@ -62,8 +65,12 @@ struct StmFix : public SharedFixtureItf {
 			rfsgbdx.add(val);
 			fsgbd.check_end_block();
 
+			dbd2.g<0>().add(val, val);
+			dbd2.check_end_block();
+
 			rfwhbdx.add(val);
 			fwhbd.check_end_block();
+			
 			sum += val;
 		}
 		bd1.build(&sd1);
@@ -75,6 +82,9 @@ struct StmFix : public SharedFixtureItf {
 		fsgbd.build(&fuse_single);
 		fwhbd.check_end_data();
 		fwhbd.build(&fuse_hints);
+
+		dbd2.check_end_data();
+		dbd2.build(&dualsda);
 
 		this->size = size;
 		lookupqs.resize(qsize);
@@ -121,6 +131,7 @@ struct StmFix : public SharedFixtureItf {
 
 	LiftStQuery<SDArrayFuse> fuse_single;
 	LiftStQuery<SDArrayFuseHints> fuse_hints;
+	LiftStQuery<SLG_Q> dualsda;
 
 	void report_size() {
 		SetUp();
@@ -134,6 +145,7 @@ struct StmFix : public SharedFixtureItf {
 		std::cout << "sda_fusion(2)" << "\t" << estimate_data_size(qs.mng) << std::endl;
 		std::cout << "sda_one_fuse" << "\t" << estimate_data_size(fuse_single) << std::endl;
 		std::cout << "sda_fuse_hints" << "\t" << estimate_data_size(fuse_hints) << std::endl;
+		std::cout << "sda_dual" << "\t" << estimate_data_size(dualsda) << std::endl;
 		std::cout << std::endl;
 		std::cout << "> Components sizes (optional)" << std::endl;
 		sd2.inspect("comp_size", std::cout);
@@ -208,6 +220,15 @@ void sda_th(StmFix * fix) {
 	std::vector<unsigned int> * qs = fix->queries;
 	for (unsigned i = 0; i < fix->qsize; ++i) {
 		vx ^= fix->th.lookup((*qs)[i]);
+	}
+}
+
+void sda_dual(StmFix * fix) {
+	auto& x = fix->dualsda.g<0>().start;
+	unsigned vx = 121;
+	std::vector<unsigned int> * qs = fix->queries;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= x.lookup((*qs)[i]);
 	}
 }
 
@@ -286,6 +307,16 @@ void sda_hints_rank(StmFix * fix) {
 		vx ^= fix->lkz.rank((*qs)[i]);
 	}
 }
+
+void sda_dual_rank(StmFix * fix) {
+	auto& x = fix->dualsda.g<0>().start;
+	unsigned vx = 131;
+	std::vector<unsigned int> * qs = fix->queries;
+	for (unsigned i = 0; i < fix->qsize; ++i) {
+		vx ^= x.rank((*qs)[i]);
+	}
+}
+
 //------------------------------------------------
 
 
@@ -313,7 +344,8 @@ BENCHMARK_SET(sdarray_rnd_benchmark) {
 	bm.add("sda_fuse0_rnd_access", sda_fuse0, 15);
 	bm.add("sda_fuse1_rnd_access", sda_fuse1, 15);
 	bm.add("sda_one_fuse_rnd_access", sda_fusesingle, 15);
-	bm.add("sda_fuse_hints_rnd_rank", sda_fuses_hints, 15);
+	bm.add("sda_fuse_hints_rnd_access", sda_fuses_hints, 15);
+	bm.add("sda_dual_rnd_access", sda_dual, 15);
 	StmFix f;
 	f.is_sort = false; f.lookup_query = true;
 	bm.run_all(&f);
@@ -335,7 +367,8 @@ BENCHMARK_SET(sdarray_seq_benchmark) {
 	bm.add("sda_fuse0_seq_access", sda_fuse0, 15);
 	bm.add("sda_fuse1_seq_access", sda_fuse1, 15);
 	bm.add("sda_one_fuse_seq_access", sda_fusesingle, 15);
-	bm.add("sda_fuse_hints_rnd_rank", sda_fuses_hints, 15);
+	bm.add("sda_fuse_hints_seq_access", sda_fuses_hints, 15);
+	bm.add("sda_dual_seq_access", sda_dual, 15);
 	StmFix f;
 	f.is_sort = true; f.lookup_query = true;
 	bm.run_all(&f);
@@ -360,6 +393,7 @@ BENCHMARK_SET(sdarray_rnd_rank_benchmark) {
 	bm.add("sda_fuse1_rnd_rank", sda_fuse1_rank, 15);
 	bm.add("sda_one_fuse_rnd_rank", sda_fusesingle_rank, 15);
 	bm.add("sda_fuse_hints_rnd_rank", sda_fuses_hints_rank, 15);
+	bm.add("sda_dual_rnd_rank", sda_dual_rank, 15);
 
 	StmFix f;
 	f.is_sort = false; f.lookup_query = false;
@@ -384,8 +418,8 @@ BENCHMARK_SET(sdarray_seq_rank_benchmark) {
 	bm.add("sda_fuse0_seq_rank", sda_fuse0_rank, 15);
 	bm.add("sda_fuse1_seq_rank", sda_fuse1_rank, 15);
 	bm.add("sda_one_fuse_seq_rank", sda_fusesingle_rank, 15);
-	bm.add("sda_fuse_hints_rnd_rank", sda_fuses_hints_rank, 15);
-
+	bm.add("sda_fuse_hints_seq_rank", sda_fuses_hints_rank, 15);
+	bm.add("sda_dual_seq_rank", sda_dual_rank, 15);
 	StmFix f;
 	f.is_sort = true; f.lookup_query = false;
 	bm.run_all(&f);

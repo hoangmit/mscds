@@ -443,8 +443,8 @@ struct SLG_Builder {
 		stream.puts(cur_blk.w2, 8);
 		stream.puts(cur_blk.h1, 64);
 		stream.puts(cur_blk.h2, 64);
-		VByteStream::append(stream, cur_blk.lu1 - BLKSIZE);
-		VByteStream::append(stream, cur_blk.lu2 - BLKSIZE);
+		stream.puts(cur_blk.lu1 - BLKSIZE, 11);
+		stream.puts(cur_blk.lu2 - BLKSIZE, 11);
 		send(cur_blk.u1, cur_blk.lu1, stream);
 		send(cur_blk.u2, cur_blk.lu2, stream);
 		for (unsigned int i = 0; i < BLKSIZE; ++i) {
@@ -534,9 +534,9 @@ struct SLG_Q {
 		info.h1 = r.bits(64 + 16, 64);
 		info.h2 = r.bits(64 + 16 + 64, 64);
 		size_t pos = r.start + 64*3 + 16;
-		info.lu1 = VByteStream::extract(*r.ba, pos) + BLKSIZE;
-		info.lu2 = VByteStream::extract(*r.ba, pos) + BLKSIZE;
-
+		info.lu1 = r.ba->bits(pos, 11) + BLKSIZE;
+		info.lu2 = r.ba->bits(pos + 11, 11) + BLKSIZE;
+		pos += 22;
 		info.up1ptr = pos;
 		info.up2ptr = pos + info.lu1;
 		info.llptr = info.up2ptr + info.lu2;

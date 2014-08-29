@@ -40,6 +40,8 @@ void SDArraySmlBuilder::build(SDArraySml* out) {
 	out->table = BitArrayBuilder::create(table.size() * 64, (char*) (table.data()));
 	cnt = 0;
 	p_sum = 0;
+	pslast = 0;
+	clear();
 }
 
 void SDArraySmlBuilder::build(OutArchive& ar) {

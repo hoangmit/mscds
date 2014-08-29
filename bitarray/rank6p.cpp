@@ -122,7 +122,8 @@ void Rank6p::load(InpArchive &ar) {
 	ar.var("onecnt").load(onecnt);
 	bits.load(ar.var("bits"));
 	ar.endclass();
-	if (bits.length() != blen) throw std::runtime_error("length mismatch");
+	if (bits.length() != blen)
+		throw std::runtime_error("length mismatch");
 }
 
 bool Rank6p::bit(uint64_t p) const {

@@ -86,7 +86,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
     o->sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
-    for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < o->sumR.length(); idxR += 4) {
+    for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < o->sumR.length() && idxR + 4 <= o->R.length(); idxR += 4) {
         if (idxR % (4 * SAMPLE_INT) == 0)
             o->sumR.setbits(idxR / (4 * SAMPLE_INT) * bits_per_sumR, sum, bits_per_sumR);
 
@@ -97,7 +97,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
 	o->posS = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
-    for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_posS) < o->posS.length(); idxR += 4) {
+	for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_posS) < o->posS.length() && idxR + 4 <= o->R.length(); idxR += 4) {
         if (idxR % (4 * SAMPLE_INT) == 0)
             o->posS.setbits(idxR / (4 * SAMPLE_INT) * bits_per_posS, sum, bits_per_posS);
 
@@ -177,7 +177,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
 	BitArray sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
-    for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < sumR.length(); idxR += 4) {
+	for (idxR = 0; (idxR / (4 * SAMPLE_INT) * bits_per_sumR) < sumR.length() && idxR + 4 <= R.length(); idxR += 4) {
         if (idxR % (4 * SAMPLE_INT) == 0)
             sumR.setbits(idxR / (4 * SAMPLE_INT) * bits_per_sumR, sum, bits_per_sumR);
 

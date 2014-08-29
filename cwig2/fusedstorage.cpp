@@ -65,13 +65,15 @@ void StorageBuilder::build(Storage *qs) {
 	for (it = data.cbegin(); it != data.cend(); ++it)
 		rvbd.add(it->val);
 	rvbd.build(&qs->fmap);
-
+	posbd.start_model();
 	valbd.start_model();
 	for (it = data.cbegin(); it != data.cend(); ++it) {
 		uint64_t valt = qs->fmap.map_fs(it->val);
 		valbd.model_add(valt);
+		posbd.model_add(it->st);
 	}
 	valbd.build_model();
+	posbd.build_model();
 	sumbd.init_blk(8);
 	sqsumbd.init_blk(8);
 	base.init();

@@ -115,41 +115,49 @@ public:
 		}
 	};
 
-	StaticMemRegionPtr allocStaticMem(size_t size) {
-		return StaticMemRegionPtr(allocStaticMem2(size));
-	}
-
-	std::shared_ptr<LocalStaticMem> allocStaticMem2(size_t size) {
-		void * p = operator new(size);
-		auto ret = std::make_shared<LocalStaticMem>();
-		ret->ptr = (char*)p;
-		ret->_s = std::shared_ptr<void>(p, Deleter());
-		ret->len = size;
-		return ret;
-	}
-
-	StaticMemRegionPtr convert(const DynamicMemRegionAbstract& ptr) {
-		auto ret = allocStaticMem2(ptr.size());
-		ptr.read(0, ptr.size(), ret->ptr);
-		return StaticMemRegionPtr(ret);
-	}
-
-	DynamicMemRegionPtr allocDynMem(size_t init_sz = 0) {
-		return DynamicMemRegionPtr(allocDynMem2(init_sz));
-	}
-	std::shared_ptr<LocalDynamicMem> allocDynMem2(size_t init_sz = 0) {
-		auto ret = std::make_shared<LocalDynamicMem>();
-		ret->resize(init_sz);
-		return ret;
-	}
-
-	StaticMemRegionPtr adoptMem(size_t size, std::shared_ptr<void> s) {
-		auto ret = std::make_shared<LocalStaticMem>();
-		ret->_s = s;
-		ret->ptr = (char*)(s.get());
-		ret->len = size;
-		return StaticMemRegionPtr(ret);
-	}
+	StaticMemRegionPtr allocStaticMem(size_t size);
+	std::shared_ptr<LocalStaticMem> allocStaticMem2(size_t size);
+	StaticMemRegionPtr convert(const DynamicMemRegionAbstract& ptr);
+	DynamicMemRegionPtr allocDynMem(size_t init_sz = 0);
+	std::shared_ptr<LocalDynamicMem> allocDynMem2(size_t init_sz = 0);
+	StaticMemRegionPtr adoptMem(size_t size, std::shared_ptr<void> s);
 };
+
+inline StaticMemRegionPtr LocalMemModel::allocStaticMem(size_t size) {
+	return StaticMemRegionPtr(allocStaticMem2(size));
+}
+
+inline std::shared_ptr<LocalStaticMem> LocalMemModel::allocStaticMem2(size_t size) {
+	void * p = operator new(size);
+	auto ret = std::make_shared<LocalStaticMem>();
+	ret->ptr = (char*)p;
+	ret->_s = std::shared_ptr<void>(p, Deleter());
+	ret->len = size;
+	return ret;
+}
+
+inline StaticMemRegionPtr LocalMemModel::convert(const DynamicMemRegionAbstract &ptr) {
+	auto ret = allocStaticMem2(ptr.size());
+	ptr.read(0, ptr.size(), ret->ptr);
+	return StaticMemRegionPtr(ret);
+}
+
+inline DynamicMemRegionPtr LocalMemModel::allocDynMem(size_t init_sz) {
+	return DynamicMemRegionPtr(allocDynMem2(init_sz));
+}
+
+inline std::shared_ptr<LocalDynamicMem> LocalMemModel::allocDynMem2(size_t init_sz) {
+	auto ret = std::make_shared<LocalDynamicMem>();
+	ret->resize(init_sz);
+	return ret;
+}
+
+inline StaticMemRegionPtr LocalMemModel::adoptMem(size_t size, std::shared_ptr<void> s) {
+	auto ret = std::make_shared<LocalStaticMem>();
+	ret->_s = s;
+	ret->ptr = (char*)(s.get());
+	ret->len = size;
+	return StaticMemRegionPtr(ret);
+}
 
 }//namespace

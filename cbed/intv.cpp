@@ -22,12 +22,12 @@ void IntvLstBuilder::add(IntvLstBuilder::PosType st, IntvLstBuilder::PosType ed)
 }
 
 void IntvLstBuilder::build(IntvLst *out) {
-	auto idcmp = [](const PosData& a, const PosData& b)->bool {
+	auto poscmp = [](const PosData& a, const PosData& b)->bool {
 		if (a.pos != b.pos) return a.pos < b.pos;
 		else return a.id < b.id;
 	};
-	//sort by id
-	std::sort(lst.begin(), lst.end(), idcmp);
+	//sort by pos
+	std::sort(lst.begin(), lst.end(), poscmp);
 	mscds::OBitStream markout;
 	mscds::SDArraySmlBuilder bd;
 	//scan
@@ -44,7 +44,7 @@ void IntvLstBuilder::build(IntvLst *out) {
 	mscds::BitArray bx;
 	markout.build(&bx);
 	mscds::Rank6pBuilder::build(bx, &(out->marks));
-	///
+	// sort by id
 	std::sort(lst.begin(), lst.end(), [](const PosData& a, const PosData& b)->bool{
 		if (a.id != b.id) return a.id < b.id;
 		else return '<' == a.type;
@@ -62,11 +62,11 @@ void IntvLstBuilder::build(IntvLst *out) {
 	}
 	//
 	mscds::SDArraySmlBuilder bdsp;
-	std::sort(lst.begin(), lst.end(), idcmp);
+	std::sort(lst.begin(), lst.end(), poscmp);
 	unsigned int stcnt = 0;
 	for (auto it = lst.begin(); it != lst.end(); ++it) {
-		bdsp.add(it->span);
 		if (it->type == '<') {
+			bdsp.add(it->span);
 			assert(it->id == stcnt);
 			stcnt++;
 		}
@@ -96,7 +96,7 @@ std::pair<IntvLst::PosType, IntvLst::PosType> IntvLst::get(unsigned int i) const
 	std::pair<PosType, PosType> ret;
 	auto rpos = marks.select(i);
 	ret.first = (PosType) pos.prefixsum(rpos + 1);
-	auto sl = span.lookup(rpos);
+	auto sl = span.lookup(i);
 	ret.second = (PosType) pos.prefixsum(rpos + sl + 1);
 	return ret;
 }

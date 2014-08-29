@@ -85,15 +85,18 @@ void StorageBuilder2::build(Storage2 *qs) {
 		fmapbd.add(dc.encode(it->val));
 	}
 	fmapbd.build(&qs->fmap);
-	
+	posbd.start_model();
 	valbd.start_model();
 	dc.reset();
 	for (it = data.cbegin(); it != data.cend(); ++it) {
 		double valf = dc.encode(it->val);
 		uint64_t valt = qs->fmap.map_fs(valf);
 		valbd.model_add(valt);
+		posbd.model_add(it->st);
 	}
 	valbd.build_model();
+	posbd.build_model();
+
 	sumbd.init_blk(8);
 	sqsumbd.init_blk(8);
 	base.init();

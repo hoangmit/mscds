@@ -4,6 +4,7 @@
 #include "fusion/block_mem_mng.h"
 #include "fusion/sdarray_block.h"
 #include "fusion/generic_struct.h"
+#include "fusion/sdarray_blk_hints.h"
 
 #include <algorithm>
 
@@ -48,17 +49,21 @@ private:
 	mutable mscds::SDArrayBlock lgblk;
 	unsigned int glsid, gldid;
 	uint64_t lensum;
-	mscds::SDArrayFuse start;
+	mscds::SDArrayFuseHints start;
 	mscds::BlockMemManager * mng;
 };
 
 
 class NIntvInterBlkBuilder: public mscds::InterBlockBuilderTp {
 public:
-	NIntvInterBlkBuilder(mscds::BlockBuilder& _bd): bd(&_bd), start(_bd), cnt(0) {}
+	NIntvInterBlkBuilder(mscds::BlockBuilder& _bd): bd(&_bd), cnt(0) {}
 	NIntvInterBlkBuilder(): bd(nullptr) {}
 
 	void init_bd(mscds::BlockBuilder& bd_) { bd = &bd_; start.init_bd(bd_); }
+
+	void start_model() { start.start_model(); added = false; }
+	void model_add(unsigned int st) { if (added) { start.model_add(st - last); } else added = true; last = st; }
+	void build_model() { start.build_model(); }
 
 	void register_struct();
 	void add(unsigned int st, unsigned int ed);
@@ -77,12 +82,14 @@ private:
 	uint64_t lensum, laststart;
 
 	mscds::BlockBuilder * bd;
-	mscds::SDArrayFuseBuilder start;
+	mscds::SDArrayFuseHintsBuilder start;
 	unsigned int cnt;
 
 	std::vector<std::pair<unsigned int, unsigned int> > data;
 
 private:
+	bool added;
+	unsigned int last;
 	mscds::BlockMemManager mng;
 	void clear() { mng.clear(); }
 };
@@ -115,7 +122,6 @@ private:
 	mscds::BlockBuilder bd;
 	NIntvInterBlkBuilder iblk;
 };
-
 
 
 }//namespace

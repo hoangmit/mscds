@@ -53,25 +53,9 @@ public:
 	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
 	//--------------------------------------------------------------------
-	virtual OutArchive& save_mem_region(const void* ptr, size_t size) {
-		start_mem_region(size); add_mem_region(ptr, size); return end_mem_region(); }
+	virtual OutArchive& save_mem_region(const void* ptr, size_t size);
 
-	virtual OutArchive& save_mem(const StaticMemRegionAbstract& mem) {
-		start_mem_region(mem.size());
-		if (mem.size() > 0) {
-			if (FULL_MAPPING == mem.memory_type()) {
-				add_mem_region(mem.get_addr(), mem.size());
-			}
-			else {
-				mem.scan(0, mem.size(), [this](const void*p, size_t len)->bool {
-					this->add_mem_region(p, len);
-					return true;
-				});
-			}
-		}
-		end_mem_region();
-		return *this;
-	}
+	virtual OutArchive& save_mem(const StaticMemRegionAbstract& mem);
 
 	virtual OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4) = 0;
 	virtual OutArchive& add_mem_region(const void* ptr, size_t size) = 0;
@@ -99,7 +83,7 @@ public:
 	
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 
-	// BoundedMemRegion is defined in mem_models.h
+	// StaticMemRegion is defined in mem_models.h
 	virtual StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS) = 0;
 	
 	virtual size_t ipos() const = 0;
@@ -114,6 +98,25 @@ class SaveLoadInt {
 	virtual void load(InpArchive& ar) = 0;
 };
 
+inline OutArchive &OutArchive::save_mem_region(const void *ptr, size_t size) {
+	start_mem_region(size); add_mem_region(ptr, size); return end_mem_region(); }
+
+inline OutArchive &OutArchive::save_mem(const StaticMemRegionAbstract &mem) {
+	start_mem_region(mem.size());
+	if (mem.size() > 0) {
+		if (FULL_MAPPING == mem.memory_type()) {
+			add_mem_region(mem.get_addr(), mem.size());
+		}
+		else {
+			mem.scan(0, mem.size(), [this](const void*p, size_t len)->bool {
+				this->add_mem_region(p, len);
+				return true;
+			});
+		}
+	}
+	end_mem_region();
+	return *this;
+}
 
 }//namespace
 #endif //__ARCHIVE_H_

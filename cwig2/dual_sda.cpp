@@ -3,7 +3,8 @@
 #include "intarray/sdarray_sml.h"
 
 
-struct NullSetGet: public mscds::SDABSetterInterface, public mscds::SDABGetterInterface {
+struct NullSetGet: public mscds::SDABSetterInterface,
+					public mscds::SDABGetterInterface {
 public:
 	static const unsigned int SIZE = 512;
 	NullSetGet() {

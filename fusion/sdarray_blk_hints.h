@@ -8,15 +8,16 @@ namespace mscds {
 
 class SDArrayFuseHintsBuilder: public InterBlockBuilderTp {
 public:
-	SDArrayFuseHintsBuilder() { start_model(); }
+	SDArrayFuseHintsBuilder() {start_model();}
 
-	void start_model() { sum = 0; cnt = 0; sumv.clear(); }
+	void start_model() { sum = 0; cnt = 0; sumv.clear(); modelready = false; }
 	void model_add(uint32_t val) { if (cnt % 512 == 0) sumv.push_back(sum); sum += val; cnt++; }
 	void build_model() {
 		if (cnt == 0) return;
 		ranklrate = ceillog2(sum / cnt + 1) + 7;
 		hints = bsearch_hints(sumv.begin(), sumv.size(), sum, ranklrate);
 		sumv.clear();
+		modelready = true;
 	}
 
 	void init_bd(BlockBuilder& bd_) { bd = &bd_; rbd.init_bd(bd_); }
@@ -38,6 +39,7 @@ public:
 	bool is_full() const { return rbd.is_full(); }
 	void set_block_data(bool lastblock = false) { rbd.set_block_data(lastblock); bd->set_summary(sid); }
 	void build_struct() {
+		assert(modelready);
 		rbd.build_struct();
 		OBitStream out;
 		out.puts(ranklrate);
@@ -65,6 +67,7 @@ private:
 	FixedWArray hints;
 	uint64_t ranklrate;
 	std::vector<uint64_t> sumv;
+	bool modelready;
 };
 
 class SDArrayFuseHints: public InterBlockQueryTp {

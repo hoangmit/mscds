@@ -5,12 +5,11 @@
 #include <algorithm>
 
 
-
 namespace mscds{
 	
 using namespace std;
 
-void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
+void Count2DBuilder::build(std::vector<Point>& list, SubQuery * out) {
 	assert(list.size() < (1ULL<<32));
 	assert(list.size() > 0);
 	out->clear();
@@ -46,11 +45,11 @@ void Count2DBuilder::build(std::vector<Point>& list, Count2DQuery * out) {
 	for (unsigned int i = 0; i < list.size(); ++i)
 		wlst.push_back(out->SY.rank(list[i].y));
 	//WatBuilder bd;
-	WatBuilder::build(wlst, &out->wq);
+	SubBuilder::build(wlst, &out->wq);
 }
 
 void Count2DBuilder::build(std::vector<Point>& list, OutArchive& ar) {
-	Count2DQuery out;
+	SubQuery out;
 	build(list, &out);
 	out.save(ar);
 }

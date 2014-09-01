@@ -57,6 +57,9 @@ const uint64_t SDArraySml::BLKSIZE = 512;
 const uint64_t SDArraySml::SUBB_SIZE = 74;//=(ceil(BLKSIZE/SUBB_PER_BLK))
 
 void SDArraySmlBuilder::clear() {
+	cnt = 0;
+	p_sum = 0;
+	pslast = 0;
 	vals.clear();
 	table.clear();
 	bits.clear();

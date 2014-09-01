@@ -29,6 +29,7 @@ cache_table.h
 rand_data.h
 benchmark.h
 md5.h
+endian.h
 )
 
 include_directories(${GTEST_INCLUDE_DIRS})

@@ -31,7 +31,9 @@ class Count2DQuery;
 
 class Count2DBuilder {
 public:
-	void build(std::vector<Point>& list, Count2DQuery * out);
+	typedef WatBuilder SubBuilder;
+	typedef Count2DQuery SubQuery;
+	void build(std::vector<Point>& list, SubQuery * out);
 	void build(std::vector<Point>& list, OutArchive& ar);
 };
 

@@ -55,7 +55,7 @@ private:
 	mscds::SDArraySml pos;
 	mscds::SDArraySml span;
 
-	mscds::RMQ_pm1_minmax minmax_depth;
+	//mscds::RMQ_pm1_minmax minmax_depth;
 
 	size_t len;
 	friend class IntvLstBuilder;

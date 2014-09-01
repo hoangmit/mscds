@@ -14,7 +14,6 @@ Collection of misc utilities that are not classified into other categories.
 #include <string>
 #include <ctime>
 
-
 template<typename T>
 struct TypeParseTraits;
 

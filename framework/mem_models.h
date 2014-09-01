@@ -28,7 +28,14 @@ private:
 //--------------------------------------------------------------------------------
 
 enum MemoryAlignmentType { DEFAULT, A1, A2, A4, A8 };
-enum EndiannessType { LITTLE_ENDIAN_ACCESS, BIG_ENDIAN_ACCESS };
+
+/// byte order in a word
+enum EndiannessType {
+	/// Intel or ARM CPU
+	LITTLE_ENDIAN_ACCESS, 
+	// PowerPC CPU
+	BIG_ENDIAN_ACCESS
+};
 
 inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	switch (t) {
@@ -46,21 +53,32 @@ enum MemoryAccessType { API_ACCESS = 0, MAP_ON_REQUEST, FULL_MAPPING };
 
 /// Static size Memory Region Interface
 struct StaticMemRegionAbstract {
+	/// returns the alignment type of the region
 	virtual MemoryAlignmentType alignment() const = 0;
+	/// returns the memory access type
 	virtual MemoryAccessType memory_type() const = 0;
+	/// returns the original endinanness 
 	virtual EndiannessType endianness_type() const { return LITTLE_ENDIAN_ACCESS; } //only little-endian is supported at the moment
-	// FULL_MAPPING and MAP_ON_REQUEST
+	
+	/// gets the address the region in memory. 
+	/// This functions is only available in FULL_MAPPING and MAP_ON_REQUEST modes
 	virtual const void* get_addr() const = 0;
-	// MAP_ON_REQUEST
+	
+	/// fills the data. only available in MAP_ON_REQUEST mode
 	virtual bool request_map(size_t start, size_t len) = 0;
 
 	virtual ~StaticMemRegionAbstract() {}
 
+	/// UNIMPLEMENTED: returns the unique id for the region
 	virtual unsigned int model_id() const { return 0; }
+	
+	/// returns size of the region in bytes
 	virtual size_t size() const = 0;
+
+	/// stops using the region, and releases memory if necessary
 	virtual void close() = 0;
 	
-	//small one time access
+	/// small one time access function
 	virtual uint64_t getword(size_t wp) const = 0;
 	virtual char getchar(size_t i) const = 0;
 
@@ -70,19 +88,32 @@ struct StaticMemRegionAbstract {
 	virtual void read(size_t i, size_t rlen, void* dst) const = 0;
 	virtual void write(size_t i, size_t wlen, const void* dst) = 0;
 
-	// return true to continue, return false to break
+	// scans the memory region using some call-back function
+	// The call-back function should return true to continue, and false to break
 	typedef std::function<bool(const void* p, size_t len)> CallBack;
 	virtual void scan(size_t i, size_t len, CallBack cb) const = 0;
 };
 
 /// Dynamic size memory region interface
+/// the grow and sink of the dynamic memory region is like a stack. 
+/// The additional or removed data is always at the end.
 struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
+	/// if the new size is smaller than the current size, the tail of the the region
+	/// is truncated. If the new size is bigger, undefined data is appended to the
+	//// end of the region
 	virtual void resize(size_t size) = 0;
+
+	/// appends a character at the end of the region, and increase the size by one
 	virtual void append(char c) = 0;
+
+	/// appends a word to the end of the region
 	virtual void append(uint64_t word) = 0;
+
+	/// appends a memory address
 	virtual void append(const void * ptr, size_t len) = 0;
+
+	/// appends another memory region
 	virtual void append(StaticMemRegionAbstract& other) = 0;
-	//note that window may be invalidated after resize or append
 };
 
 //----------------------------------------------------------------------------
@@ -176,8 +207,13 @@ protected:
 /// Allocator
 class MemoryModelAbstract {
 public:
+	/// allocates a static memory region
 	virtual StaticMemRegionPtr allocStaticMem(size_t sz) = 0;
+
+	/// allocates a dynamic memory region
 	virtual DynamicMemRegionPtr allocDynMem(size_t init_sz = 0) = 0;
+
+	/// converts dynamic memory to static memory
 	virtual StaticMemRegionPtr convert(const DynamicMemRegionAbstract& mem) = 0;
 };
 

@@ -52,7 +52,8 @@ public:
 	uint64_t count2d(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos) const;
 	typedef bool (*ListCallback) (void * context, uint64_t c, uint64_t pos);
 	/** return the numbers in range [min_c, max_c) and [beg_pos, end_pos) */
-	void list_each(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos, ListCallback cb, void* context) const;
+	void list_each(uint64_t min_c, uint64_t max_c, uint64_t beg_pos, uint64_t end_pos,
+		ListCallback cb, void* context) const;
 
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
@@ -68,7 +69,6 @@ private:
 	RankSelect bit_array;
 
 	uint64_t select_rec(uint64_t c, uint64_t r, size_t level, uint64_t beg_node, uint64_t end_node) const ;
-
 
 	template<typename>
 	friend struct RecListEnv;
@@ -96,7 +96,8 @@ private:
 public:
 	GridQueryGen(): wt(NULL) {}
 
-	void process(const WavTree* wt, const std::vector<unsigned int>& pos, const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
+	void process(const WavTree* wt, const std::vector<unsigned int>& pos,
+		const std::vector<unsigned int>& num, std::vector<unsigned int>  * result);
 	void clear();
 private:
 	uint64_t poslen;

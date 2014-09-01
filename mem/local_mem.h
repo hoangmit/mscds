@@ -29,7 +29,6 @@ public:
 	
 	size_t size() const { return len; }
 
-
 	uint64_t getword(size_t wp) const { assert(wp < (len + WORDSZ - 1) / WORDSZ); return *(((uint64_t*)ptr) + wp); }
 	char getchar(size_t i) const { assert(i < len); return *(ptr + i); }
 	void read(size_t i, size_t rlen, void* dest) const { assert(i + rlen <= len); memcpy(dest, ptr + i, rlen); }

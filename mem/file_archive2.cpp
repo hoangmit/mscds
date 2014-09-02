@@ -164,7 +164,7 @@ StaticMemRegionPtr IFileArchive2::load_mem_region(MemoryAccessType mtp) {
 	load_bin(&nsz, sizeof(nsz));
 	uint64_t ptrx;
 	load_bin(&ptrx, sizeof(ptrx));
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	auto ret = alloc.allocStaticMem2(nsz);
 	data->seekg(data_start + ptrx);
 	data->read((char*)(ret->get_addr()), nsz);

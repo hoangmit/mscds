@@ -42,7 +42,7 @@ void OByteStream::puts(const char *str, unsigned int len) {
 }
 
 void OByteStream::build(BitArray *out) {
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	*out = BitArrayBuilder::adopt(os.size() * 8, alloc.convert(os));
 }
 

@@ -47,7 +47,7 @@ private:
 	char * ptr;
 	std::shared_ptr<void> _s;
 	//MemoryAlignmentType alignment_tp;
-	friend class LocalMemModel;
+	friend class LocalMemAllocator;
 	//friend class IFileArchive;
 };
 
@@ -102,11 +102,11 @@ public:
 private:
 	size_t sz;
 	std::vector<uint64_t> data;
-	friend class LocalMemModel;
+	friend class LocalMemAllocator;
 };
 
 
-class LocalMemModel : public MemoryModelAbstract {
+class LocalMemAllocator : public MemoryAllocatorAbstract {
 public:
 	struct Deleter {
 		void operator()(void* p) {
@@ -122,11 +122,11 @@ public:
 	StaticMemRegionPtr adoptMem(size_t size, std::shared_ptr<void> s);
 };
 
-inline StaticMemRegionPtr LocalMemModel::allocStaticMem(size_t size) {
+inline StaticMemRegionPtr LocalMemAllocator::allocStaticMem(size_t size) {
 	return StaticMemRegionPtr(allocStaticMem2(size));
 }
 
-inline std::shared_ptr<LocalStaticMem> LocalMemModel::allocStaticMem2(size_t size) {
+inline std::shared_ptr<LocalStaticMem> LocalMemAllocator::allocStaticMem2(size_t size) {
 	void * p = operator new(size);
 	auto ret = std::make_shared<LocalStaticMem>();
 	ret->ptr = (char*)p;
@@ -135,23 +135,23 @@ inline std::shared_ptr<LocalStaticMem> LocalMemModel::allocStaticMem2(size_t siz
 	return ret;
 }
 
-inline StaticMemRegionPtr LocalMemModel::convert(const DynamicMemRegionAbstract &ptr) {
+inline StaticMemRegionPtr LocalMemAllocator::convert(const DynamicMemRegionAbstract &ptr) {
 	auto ret = allocStaticMem2(ptr.size());
 	ptr.read(0, ptr.size(), ret->ptr);
 	return StaticMemRegionPtr(ret);
 }
 
-inline DynamicMemRegionPtr LocalMemModel::allocDynMem(size_t init_sz) {
+inline DynamicMemRegionPtr LocalMemAllocator::allocDynMem(size_t init_sz) {
 	return DynamicMemRegionPtr(allocDynMem2(init_sz));
 }
 
-inline std::shared_ptr<LocalDynamicMem> LocalMemModel::allocDynMem2(size_t init_sz) {
+inline std::shared_ptr<LocalDynamicMem> LocalMemAllocator::allocDynMem2(size_t init_sz) {
 	auto ret = std::make_shared<LocalDynamicMem>();
 	ret->resize(init_sz);
 	return ret;
 }
 
-inline StaticMemRegionPtr LocalMemModel::adoptMem(size_t size, std::shared_ptr<void> s) {
+inline StaticMemRegionPtr LocalMemAllocator::adoptMem(size_t size, std::shared_ptr<void> s) {
 	auto ret = std::make_shared<LocalStaticMem>();
 	ret->_s = s;
 	ret->ptr = (char*)(s.get());

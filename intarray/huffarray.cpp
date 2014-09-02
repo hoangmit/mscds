@@ -51,7 +51,7 @@ void HuffmanModel::buildModel_cnt(unsigned int n,
 	std::sort(sfreq.begin(), sfreq.end(), std::greater<std::pair<unsigned int, uint32_t> >());
 
 	std::map<uint32_t, uint32_t> remapt;
-	max_symbol_size = std::max(max_symbol_size, 8u);
+	max_symbol_size = std::max<unsigned int>(max_symbol_size, 8u);
 	unsigned rmsize = std::min<unsigned int>(max_symbol_size, sfreq.size());
 	for (unsigned int i = 0; i < rmsize; ++i) {
 		if (sfreq[i].first == 1) break;

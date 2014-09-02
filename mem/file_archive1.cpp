@@ -129,7 +129,7 @@ StaticMemRegionPtr IFileArchive1::load_mem_region(MemoryAccessType mtp) {
 	FileMarker::check_mem_start(*this, align);
 	uint32_t nsz;
 	load_bin((char*)&nsz, sizeof(nsz));
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	auto ret = alloc.allocStaticMem2(nsz);
 	data->read((char*)(ret->get_addr()), nsz);
 	return StaticMemRegionPtr(ret);

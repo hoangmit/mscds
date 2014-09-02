@@ -4,7 +4,7 @@
 #define __ARCHIVE_H_
 
 #include "mem_models.h"
-
+#include "utils/endian.h"
 #include <stdint.h>
 #include <string>
 #include <memory>
@@ -45,10 +45,10 @@ public:
 	virtual OutArchive& startclass(const std::string&, unsigned char version = 1) { return *this;  };
 	virtual OutArchive& endclass() { return *this; };
 	
-	virtual OutArchive& save(uint32_t v) { return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(int32_t v)  { return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(uint64_t v) { return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(int64_t v)  { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(uint32_t v) { v = to_le32(v); return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(int32_t v)  { v = to_le32(v); return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(uint64_t v) { v = to_le64(v); return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(int64_t v)  { v = to_le64(v); return save_bin(&v, sizeof(v)); }
 	//virtual OutArchive& save(size_t v) { return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
@@ -75,10 +75,10 @@ public:
 	virtual unsigned char loadclass(const std::string& name) { return 0; };
 	virtual InpArchive& endclass() { return *this; };
 
-	virtual InpArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); }
-	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); }
-	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); }
-	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); }
+	virtual InpArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
+	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
+	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
+	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
 	//virtual InpArchive& load(size_t& v) { return load_bin(&v, sizeof(v)); }
 	
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;

@@ -94,7 +94,7 @@ TEST(farchive, file_map) {
 }
 
 TEST(local_mem, test1) {
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	unsigned int sz = 100;
 	auto sm = alloc.allocDynMem(sz);
 	for (unsigned int i = 0; i < 100; ++i)
@@ -129,6 +129,64 @@ TEST(farchive2, fmap_file) {
 	fi.open_read(filename);
 	testinp1(fi);
 	fi.close();
+}
+
+class SString {
+public:
+	unsigned int count_a() const {
+		size_t c = 0;
+		for (unsigned int i = 0; i < length(); ++i)
+			if (get(i) == 'a') c++;
+		return c;
+	}
+	char get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
+	SString() { number_a = 0; }
+	SString(char* s, unsigned int len) {
+		LocalMemAllocator a;
+		p = a.allocStaticMem(len);
+		p.write(0, len, s);
+		number_a = count_a();
+	}
+	unsigned int length() const { return p.size(); }
+	void save(OutArchive& ar) const {
+		ar.startclass("string");
+		ar.var("count_a").save(number_a);
+		ar.var("string_mem").save_mem(p);
+		ar.endclass();
+	}
+	void load(InpArchive& ar) {
+		ar.loadclass("string");
+		ar.var("count_a").load(number_a);
+		p = ar.var("string_mem").load_mem_region();
+		ar.endclass();
+		if (count_a() != number_a) throw std::runtime_error("data mismatched");
+	}
+private:
+	unsigned int number_a;
+	StaticMemRegionPtr p;
+};
+
+void example_str1() {
+	SString original("testing a", 9);
+	OFileArchive2 fo;
+	fo.open_write("C:/temp/string.bin");
+	original.save(fo);
+	fo.close();
+
+	SString local, remote;
+	IFileArchive2 fi;
+	fi.open_read("C:/temp/string.bin");
+	local.load(fi);
+	fi.close();
+
+	assert(original.length() == local.length());
+
+	//RemoteArchive2 rfi;
+	//rfi.open_url("http://localhost/string.bin");
+	//remote.load(rfi);
+	//rfi.close();
+
+	//assert(local.length() == remote.length());
 }
 
 /*

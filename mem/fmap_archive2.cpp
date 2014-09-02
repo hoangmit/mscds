@@ -96,7 +96,7 @@ StaticMemRegionPtr IFileMapArchive2::load_mem_region(MemoryAccessType mtp) {
 		rg = new mapped_region(fm->m_file, read_only, fm->data_start + ptrx, nsz);
 		s = std::shared_ptr<void>(rg->get_address(), FMDeleter2(rg));
 	}
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	return alloc.adoptMem(nsz, s);
 }
 

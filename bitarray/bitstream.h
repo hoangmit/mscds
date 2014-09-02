@@ -75,7 +75,7 @@ public:
 	const static uint16_t WORDLEN = 64;
 	IWBitStream(){ clear(); }
 	IWBitStream(const OBitStream& os) {
-		LocalMemModel alloc;
+		LocalMemAllocator alloc;
 		init(alloc.convert(os.os), os.length(), 0);
 	}
 
@@ -224,13 +224,13 @@ inline bool OBitStream::is_accessiable() const { return (j == 0); }
 
 inline void OBitStream::build(BitArray* out) {
 	close();
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	*out = BitArrayBuilder::adopt(bitlen, alloc.convert(os));
 }
 
 inline StaticMemRegionPtr OBitStream::build() {
 	close();
-	LocalMemModel alloc;
+	LocalMemAllocator alloc;
 	return alloc.convert(os);
 }
 

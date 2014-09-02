@@ -1,6 +1,6 @@
 
 #include "select_dense.h"
-
+#include <algorithm>
 
 namespace mscds {
 
@@ -13,7 +13,7 @@ bool Block::_check_span(unsigned int span, const std::vector<unsigned int> &inp,
 	assert(span > 0);
 	if (span > 1)
 		for (unsigned int i = 0; i < BLK_COUNT; i += span) {
-			auto last = std::min(i + span - 1, BLK_COUNT - 1);
+			auto last = std::min<unsigned int>(i + span - 1, BLK_COUNT - 1);
 			if (inp[last] - inp[i] > max_diff) return false;
 		}
 	return true;
@@ -25,7 +25,7 @@ std::vector<unsigned int> Block::_make_span(unsigned int span, const std::vector
 	unsigned p = 0;
 	for (unsigned int i = 0; i < BLK_COUNT; i += span) {
 		ret[p++] = inp[i];
-		width = std::max(width, _numbit(inp[i]));
+		width = std::max<unsigned int>(width, _numbit(inp[i]));
 	}
 	return ret;
 }

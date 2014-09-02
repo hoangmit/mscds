@@ -200,7 +200,7 @@ uint64_t BP_block::forward_scan(uint64_t pos, int64_t excess) const {
 	uint64_t endp = std::min<uint64_t>(bp.length(), (pos / blksize + 1) * blksize);
 	if ((pos & 7) != 0) {
 		uint8_t cbyte = bp.byte(pos >> 3) >> (pos & 7);
-		uint64_t ed1 = std::min(endp, ((pos >> 3) + 1) << 3);
+		uint64_t ed1 = std::min<uint64_t>(endp, ((pos >> 3) + 1) << 3);
 		for (; pos < ed1; pos++) {
 			if (cbyte & 1) excess--;
 			else excess++;

@@ -19,6 +19,115 @@
 using namespace std;
 using namespace mscds;
 
+
+class SString {
+public:
+	/// count the number of 'a' character in string
+	unsigned int count_a() const;
+	/// the the i-th character
+	char get(unsigned int i) const;
+	/// the the i-th character (i.e. same as 'get'), 
+	/// using different APIs to read data
+	char get_adv(unsigned int i) const;
+	/// string length
+	unsigned int length() const;
+	/// empty constructor
+	SString();
+	/// constructor from existing string
+	SString(char* s, unsigned int len);
+	/// save to file
+	void save(OutArchive& ar) const;
+	/// load from file
+	void load(InpArchive& ar);
+private:
+	unsigned int number_a;
+	mutable StaticMemRegionPtr p;
+};
+
+inline unsigned int SString::count_a() const {
+	size_t c = 0;
+	for (unsigned int i = 0; i < length(); ++i)
+		if (get(i) == 'a') c++;
+	return c;
+}
+
+inline char SString::get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
+
+inline char SString::get_adv(unsigned int i) const {
+	assert(i < length());
+	char *ptr = NULL;
+	if (p.memory_type() == FULL_MAPPING) {
+		ptr = (char*)p.get_addr();
+		return ptr[i];
+	}else if (p.memory_type() == MAP_ON_REQUEST) {
+		p.request_map(i, 1);
+		ptr = (char*)p.get_addr();
+		return ptr[i];
+	} else {
+		char ch;
+		// fall back to basic API
+		p.read(i, 1, &ch);
+		return ch;
+	}
+}
+
+inline SString::SString() { number_a = 0; }
+
+inline SString::SString(char *s, unsigned int len) {
+	LocalMemAllocator a;
+	p = a.allocStaticMem(len);
+	p.write(0, len, s);
+	number_a = count_a();
+}
+
+inline unsigned int SString::length() const { return p.size(); }
+
+inline void SString::save(OutArchive &ar) const {
+	ar.startclass("string");
+	ar.var("count_a").save(number_a);
+	ar.var("string_mem").save_mem(p);
+	ar.endclass();
+}
+
+inline void SString::load(InpArchive &ar) {
+	ar.loadclass("string");
+	ar.var("count_a").load(number_a);
+	p = ar.var("string_mem").load_mem_region();
+	ar.endclass();
+	if (count_a() != number_a) throw std::runtime_error("data mismatched");
+}
+
+
+void example_str1() {
+	// create a string
+	SString original("testing a", 9);
+	// create output file
+	OFileArchive2 fo;
+	fo.open_write("C:/temp/string.bin");
+	// write to file
+	original.save(fo);
+	fo.close();
+
+	// declare empty string
+	SString local, remote;
+	IFileArchive2 fi;
+	// read from local file
+	fi.open_read("C:/temp/string.bin");
+	local.load(fi);
+	fi.close();
+
+	// check if length is correct
+	assert(original.length() == local.length());
+
+	// load from remote file
+	RemoteArchive2 rfi;
+	rfi.open_url("http://localhost/string.bin");
+	remote.load(rfi);
+	rfi.close();
+
+	assert(local.length() == remote.length());
+}
+
 void example1() {
 	//default repository
 	RemoteFileRepository rep;
@@ -224,7 +333,7 @@ struct Remote_cwig2 {
 #include "utils/md5.h"
 
 int main() {
-
+	example_str1();
 	std::cout << utils::MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") << endl;
 
 	//example1();
@@ -247,3 +356,5 @@ int main() {
 	}
 	return 0;
 }
+
+

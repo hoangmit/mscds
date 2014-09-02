@@ -205,7 +205,7 @@ protected:
 };
 
 /// Allocator
-class MemoryModelAbstract {
+class MemoryAllocatorAbstract {
 public:
 	/// allocates a static memory region
 	virtual StaticMemRegionPtr allocStaticMem(size_t sz) = 0;

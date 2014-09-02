@@ -1,6 +1,7 @@
 #pragma once
 
-/**
+/** \file
+
 Archive to read data from file. This archive uses memory mapping to avoid loading all
 data to memory at once.
 
@@ -16,6 +17,7 @@ This is version 1 archive layout (data and meta-data is mixed in one segment.)
 namespace mscds {
 struct FileMapImpl;
 
+/// old archive format for file mapping input
 class IFileMapArchive1: public InpArchive {
 public:
 	IFileMapArchive1(): impl(NULL) {}

@@ -1,7 +1,8 @@
 
 #pragma once
 
-/** 
+/**  \file
+
 Implement archive for remote file.
 
 (Archive structure version 1.)
@@ -18,6 +19,7 @@ namespace mscds {
 class RemoteArchive1;
 class RemoteArchive2;
 
+/// remote static memory region
 class RemoteMem : public StaticMemRegionAbstract {
 public:
 	RemoteMem() : ptr(nullptr), sz(0) {}
@@ -52,6 +54,7 @@ private:
 	friend class RemoteArchive2;
 };
 
+/// remote memory archive (version 1)
 class RemoteArchive1 : public InpArchive {
 public:
 	RemoteArchive1();

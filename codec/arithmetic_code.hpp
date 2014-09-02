@@ -2,7 +2,7 @@
 #pragma once
 
 /**
-
+\file
 Prototype implementation of Arithmetic code
 
 Written by Hoang

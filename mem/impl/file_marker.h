@@ -1,7 +1,9 @@
 #pragma once
 
-/** 
+/**  \file
+
 Common functions to make and check archive.
+
 */
 
 #include "framework/archive.h"
@@ -11,6 +13,7 @@ Common functions to make and check archive.
 
 namespace mscds {
 
+/// common file markers
 class FileMarker {
 public:
 

@@ -1,6 +1,6 @@
 #pragma once
 
-/**
+/** \file
 
 Data structure for Range Minimum/Maximum Query.
 

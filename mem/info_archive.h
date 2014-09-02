@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Implement some utility archives:
 
   Memory archive for testing
@@ -19,6 +20,7 @@ namespace mscds {
 
 class IMemArchive;
 
+/// data is written to memory (if you don't want to create a new file)
 class OMemArchive : public OFileArchive1 {
 public:
 	OMemArchive() : OFileArchive1() {
@@ -31,6 +33,7 @@ private:
 	friend class IMemArchive;
 };
 
+/// load from memory
 class IMemArchive : public IFileArchive1 {
 public:
 	IMemArchive(OMemArchive& in) : IFileArchive1() {
@@ -41,6 +44,8 @@ private:
 	std::shared_ptr<std::stringstream> ss;
 };
 
+
+/// estimates file size (this class does not count class marker size)
 class OSizeEstArchive: public OutArchive {
 public:
 	OSizeEstArchive(): pos(0) {}
@@ -57,6 +62,7 @@ private:
 	uint64_t pos;
 };
 
+/// writes class and variable name information to a XML format
 class OClassInfoArchive: public OutArchive {
 public:
 	OClassInfoArchive();
@@ -79,6 +85,7 @@ private:
 	void* impl;
 };
 
+/// write the information into two different archives
 class OBindArchive : public OutArchive {
 public:
 	OBindArchive(OutArchive& first, OutArchive& second): a1(first), a2(second) {}
@@ -99,6 +106,7 @@ private:
 	OutArchive & a2;
 };
 
+/// estimates data structure's size using OSizeEstArchive
 template<typename T>
 inline size_t estimate_data_size(const T& a) {
 	OSizeEstArchive ar;
@@ -107,6 +115,7 @@ inline size_t estimate_data_size(const T& a) {
 	return ar.opos();
 }
 
+/// estimates auxiliary data structure's size
 template<typename T>
 inline size_t estimate_aux_size(const T& a) {
 	OSizeEstArchive ar;
@@ -115,6 +124,7 @@ inline size_t estimate_aux_size(const T& a) {
 	return ar.opos();
 }
 
+/// write class and variable information to a XML file
 template<typename T>
 inline std::string extract_data_info(const T& a) {
 	OClassInfoArchive ar;
@@ -123,7 +133,10 @@ inline std::string extract_data_info(const T& a) {
 	return ar.printxml();
 }
 
+
+/// short-cut for saving a string
 void save_str(OutArchive& ar, const std::string& st);
+/// short-cut for loading a string
 std::string load_str(InpArchive& ar);
 
 }//namespace

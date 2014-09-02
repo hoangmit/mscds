@@ -4,7 +4,7 @@
 #define __RRR2_H_
 
 /**
-
+\file
 RRR Compressed Rank/Select data structure. (This data structures does not use pre-computed look up table.)
 
 Based on "" paper.

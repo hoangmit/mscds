@@ -2,6 +2,7 @@
 #pragma once
 
 /** 
+\file
 
 Implement huffman coding.
 

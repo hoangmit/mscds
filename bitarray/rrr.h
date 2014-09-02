@@ -4,6 +4,7 @@
 #define __RRR_H_
 
 /** 
+\file
 RRR Compressed Rank/Select data structure 
 
 Based on "" paper.

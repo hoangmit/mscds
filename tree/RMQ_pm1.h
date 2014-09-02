@@ -1,6 +1,7 @@
 #pragma once
 
-/**
+/** \file
+
 Data structure for Range Minimum/Maximum Query plus minus one.
 
 (Restricted version of RMQ)

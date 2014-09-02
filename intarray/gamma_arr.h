@@ -1,6 +1,6 @@
 #pragma once
 
-/**
+/** \file
 
 Implement Gamma compressed array and Gamma compressed array of the differences.
 

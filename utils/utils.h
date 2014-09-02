@@ -3,7 +3,7 @@
 #ifndef __COMMON_UTILS_H_
 #define __COMMON_UTILS_H_
 
-/** 
+/** \file
 
 Collection of misc utilities that are not classified into other categories.
 

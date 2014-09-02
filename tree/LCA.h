@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 O(1) data structure for lowest common ancestor query
 
@@ -17,6 +17,7 @@ This is O(n \log n) bit data structure.
 
 namespace mscds {
 
+// for internal use
 template<typename Binder>
 class DFS_Num_Mapper {
 public:
@@ -126,7 +127,7 @@ public:
 	}
 };
 
-/// O(n) words, LCA data structure
+/// O(n) words, LCA data structure from Dan Gusfield's book
 struct LCA_Struct {
 public:
 	typedef unsigned int NodeId;
@@ -192,7 +193,7 @@ public:
 
 };
 
-/// From Dan Gusfield's book
+/// builder class for LCA_Struct
 class LCA_Builder {
 public:
 	typedef LCA_Struct::NodeId NodeId;

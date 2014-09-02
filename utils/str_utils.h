@@ -3,7 +3,7 @@
 #ifndef __STR_UTILS_H_
 #define __STR_UTILS_H_
 
-/** 
+/** \file
 
 Common string operations
 

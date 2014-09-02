@@ -1,8 +1,9 @@
 #pragma once
 
-/**
+/** \file
 
 utility function to test save/load data structure.
+
 */
 
 #include "mem/file_archive2.h"
@@ -11,6 +12,7 @@ utility function to test save/load data structure.
 
 namespace mscds {
 
+/// utility function to test save/load data structure.
 template<typename BD, typename QS>
 std::string save_load_test(BD& bd, QS& qs) {
 	std::string filename = utils::tempfname();

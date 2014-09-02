@@ -3,7 +3,8 @@
 #ifndef __COUNT_2D_H_
 #define __COUNT_2D_H_
 
-/** 
+/** \file
+
 Data structure for 2D counting problem
 
 */
@@ -37,6 +38,8 @@ public:
 	void build(std::vector<Point>& list, OutArchive& ar);
 };
 
+
+/// stores a set of 2D points, and provide counting query for a rectangle region (parallel with axes)
 class Count2DQuery {
 public:
 	uint64_t count(unsigned int x, unsigned int y) const;

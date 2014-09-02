@@ -3,7 +3,7 @@
 #ifndef __PARAMETERS_H_
 #define __PARAMETERS_H_
 
-/** 
+/**  \file
 
 Classes to store program configuration and parameters
 

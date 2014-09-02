@@ -1,5 +1,10 @@
 #pragma once
 
+/**  \file
+
+Implement SDArray without block
+
+*/
 #include "bitarray/bitarray.h"
 #include "bitarray/select_dense.h"
 
@@ -7,6 +12,8 @@ namespace mscds {
 
 class SDArrayTH;
 
+
+/// Builder class for SDArrayTH
 class SDArrayTHBuilder {
 public:
 	SDArrayTHBuilder();

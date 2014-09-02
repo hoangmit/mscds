@@ -1,10 +1,9 @@
 #pragma once
 
-/**
+/** \file
 
 Implement array of integer compressed with delta compression. The most frequent
 values are map to 0.. to improve the compression ratio.
-
 
 */
 

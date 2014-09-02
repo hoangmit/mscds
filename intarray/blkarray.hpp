@@ -1,6 +1,6 @@
 #pragma once
 
-/**
+/** \file
 
 Array of integers that uses some generic compression method.
 

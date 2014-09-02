@@ -3,8 +3,10 @@
 #ifndef __WAVELET_ARRAY_H_
 #define __WAVELET_ARRAY_H_
 
-/** 
+/**  \file
+
 Wavelet array in generic form
+
 */
 
 #include <vector>
@@ -25,6 +27,8 @@ struct RecListEnv;
 template<typename>
 class WatBuilderGen;
 
+
+/// generic wavelet tree class (default use Rank6p)
 template<typename RankSelect = Rank6p> 
 class WatQueryGen {
 public:

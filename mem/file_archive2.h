@@ -1,7 +1,8 @@
 #pragma once
 
 
-/** 
+/**  \file
+
 Implement Archive that save/load data to files. This archive load everything to 
 memory.
 
@@ -21,7 +22,7 @@ This is version 2 archive layout (data and meta-data are in seperated segments.)
 
 namespace mscds {
 
-
+/// newer file format, meta-data is stored in separated file segment
 class OFileArchive2: public OutArchive {
 public:
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
@@ -33,7 +34,7 @@ public:
 	OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4);
 	OutArchive& add_mem_region(const void* ptr, size_t size);
 	OutArchive& end_mem_region();
-
+	/// opens a file to write
 	void open_write(const std::string& fname);
 	OFileArchive2();
 	~OFileArchive2() {close();}
@@ -67,6 +68,7 @@ public:
 
 	size_t ipos() const;
 
+	/// opens a file to read
 	void open_read(const std::string& fname);
 	//void assign_read(std::istream * i);
 	void close();
@@ -79,7 +81,7 @@ private:
 	char * buffer;
 };
 
-
+/// short-cut to save data structure to a file
 template<typename T>
 inline void save_to_file(const T& a, const std::string& name) {
 	OFileArchive2 ar;

@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Least Recent Used cache table 
 
 */

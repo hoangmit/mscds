@@ -4,7 +4,7 @@
 #define __RANK_3P_H_
 
 /**
-
+\file
 Rank/Select auxiliary data structure that uses 3% of the input bit vector as the additional index.
 
 Based on "..." paper.
@@ -62,6 +62,7 @@ private:
 	friend struct BlockIntIterator;
 };
 
+/// Builder class for Rank3p
 class Rank3pBuilder {
 public:
 	static void build(const BitArray& b, Rank3p * o);
@@ -72,6 +73,7 @@ private:
 };
 
 
+/// Rank3p with select hints
 class Rank3pHintSel {
 	Rank3p rankst;
 	FixedWArray hints;

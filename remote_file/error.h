@@ -1,7 +1,9 @@
 #pragma once
 
-/** 
+/** \file
+
 defines io error
+
 */
 
 #include <string>

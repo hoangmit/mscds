@@ -1,6 +1,7 @@
 #pragma once
 
 /**
+\file
 Implement BitSteam class. 
 
   OBitStream: output bit stream. It provides a bit stream that user can append more bits 
@@ -31,10 +32,13 @@ public:
 	OBitStream(): cur(0), j(0), bitlen(0) {}
 	~OBitStream() { assert(j == 0); }
 
+	/// append a 0-bit to the end
 	void put0();
 	void put1();
+	/// append multiple 0-bits to the end
 	void put0(uint16_t len);
 	void put1(uint16_t len);
+
 	void put(bool bit);
 	void put_byte(uint8_t v) { puts(v,8); }
 	void puts(uint64_t v, uint16_t len);
@@ -70,6 +74,7 @@ private:
 	LocalDynamicMem os;
 };
 
+/// Input Bit Stream
 class IWBitStream {
 public:
 	const static uint16_t WORDLEN = 64;

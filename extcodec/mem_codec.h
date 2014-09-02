@@ -3,6 +3,7 @@
 #include <string>
 
 /** 
+\file
 
 Function wrappers for compression methods from external libraries
 

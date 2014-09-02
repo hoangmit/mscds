@@ -4,13 +4,16 @@
 #include <stdint.h>
 #include <cassert>
 
-//sdarray without compression, 
-// implement using vector
-// just to test the correctness of other implementations
+/**  \file
+Mock SDArray
+*/
 
 namespace mscds {
 
 /// array of integers with SDArray interface
+/// sdarray without compression, 
+/// implement using vector
+/// for testing the correctness of other implementations
 struct SDArrayZero {
 	SDArrayZero() { cums.push_back(0); }
 

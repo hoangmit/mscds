@@ -1,6 +1,7 @@
 #pragma once
 
 /** 
+\file
 
 Gamma and Delta coding
   http://en.wikipedia.org/wiki/Elias_delta_coding

@@ -2,7 +2,7 @@
 #ifndef __UTILS_DEBUG_H_
 #define __UTILS_DEBUG_H_
 
-/** 
+/**  \file
 
 Debug helper class
 

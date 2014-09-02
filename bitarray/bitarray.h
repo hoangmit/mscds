@@ -4,6 +4,7 @@
 #define __BITVECTOR_H_
 
 /** 
+\file
 Implement BitArray and related classes based on memory framework.
 
   BitArray: represents a array of bits. The size is fixed at creation; however, 
@@ -49,47 +50,49 @@ class BitArray {
 public:
 	const static unsigned int WORDLEN = 64;
 
-	/** set one bit at "bitindex" with "value" */
+	/** sets one bit at "bitindex" with "value" */
 	void setbit(size_t bitindex, bool value);
-	/** set a few bits start at "bitindex" with length "len", the values of those bits
+	/** sets a few bits start at "bitindex" with length "len", the values of those bits
 	are given by the "value" input word */
 	void setbits(size_t bitindex, uint64_t value, unsigned int len);
-	/** set 64 bits start at 64*"pos" with the input word "val" */
+	/** sets 64 bits start at 64*"pos" with the input word "val" */
 	void setword(size_t pos, uint64_t val);
-	/** fill the array */
+	/** fills the array */
 	void fillzero();
 	void fillone();
 	/** clear the bitarray and free memory */
 	void clear();
 
-	/** return the length of the array */
+	/** returns the length of the array */
 	size_t length() const { return bitlen; }
-	/** return the number of words */
+	/** returns the number of words */
 	size_t word_count() const;
-	/** count how many one inside the array */
+	/** counts how many one inside the array */
 	uint64_t count_one() const;
 
 	/** read one bit */
 	bool bit(size_t bitindex) const;
-	/** read "len" bits from the array start at "bitindex" */
-	/** read one bit (operator version) */
+	/** reads "len" bits from the array start at "bitindex" */
+	/** reads one bit (operator version) */
 	bool operator[](size_t i) const { return bit(i); }
-	/** read "len" bits from the array start at "bitindex" */
+	/** reads "len" bits from the array start at "bitindex" */
 	uint64_t bits(size_t bitindex, unsigned int len) const;
-	/** read one byte (8 bits) at "pos"*8 */
+	/** reads one byte (8 bits) at "pos"*8 */
 	uint8_t byte(size_t pos) const;
-	/** read one word (64 bits) */
+	/** reads one word (64 bits) */
 	uint64_t word(size_t pos) const;
 
-	/** read 64-bits at ''bitindex'' location (optimized version) */
+	/** reads 64-bits at ''bitindex'' location (optimized version) */
 	uint64_t bits64(size_t bitindex) const;
 
 	//--------------------------------------------------
-	//return -1 if cannot find
+	/// scans the BitArray for the next 1-bit, returns -1 if cannot find
 	int64_t scan_bits(uint64_t start, uint32_t res) const;
-	int64_t scan_next(uint64_t start) const; //optimized version of scan_hi_bits with p=0
+	///optimized version of scan_bits with p=0
+	int64_t scan_next(uint64_t start) const; 
 	int64_t scan_bits_slow(uint64_t start, uint32_t res) const;
 
+	/// scans for 0-bit
 	int64_t scan_zeros(uint64_t start, uint32_t res) const;
 	int64_t scan_zeros_slow(uint64_t start, uint32_t res) const;
 

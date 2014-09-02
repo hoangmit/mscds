@@ -1,6 +1,8 @@
 #pragma once
 
 /** 
+\file
+
 Implement wrapper of various external compression libraries.
 
 Written by Hoang

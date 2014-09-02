@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Implement array of integers encoded using generic compression model to code 
 the differences between two consecutive elements.
 

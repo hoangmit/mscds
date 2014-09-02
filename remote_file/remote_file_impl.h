@@ -1,6 +1,6 @@
 #pragma once
 
-/**
+/** \file
 
 Private implement Remote file access
 

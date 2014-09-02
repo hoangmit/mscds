@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Parse HTTP header for HTTP client.
 
 */
@@ -24,6 +25,7 @@ struct ContentRangeTp {
 	int64_t start, end, total;
 };
 
+/// parse HTTP headers
 struct HeaderInfo {
 
 	std::string s_content_length, s_content_range, s_last_modified, s_date, s_etag, s_connection;

@@ -31,8 +31,6 @@
 #include <iostream>
 #include <stdexcept>
 
-
-
 namespace mscds{
 
 class SDArrayQuery;

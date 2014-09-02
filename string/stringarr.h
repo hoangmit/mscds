@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Implement an array of strings
 */
 

@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 Implement two structures:
 

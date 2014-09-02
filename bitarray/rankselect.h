@@ -4,7 +4,7 @@
 #define __RANK_SELECT_H_
 
 /** 
-
+\file
 Common interface of rank/select data structures
 
 */
@@ -16,6 +16,7 @@ namespace mscds {
 /// Rank/Select data structure interface
 class RankSelect {
 public:
+	/// returns the number of 1-bits in [0..p) (from 0, until p, p is excluded)
 	virtual uint64_t rank(uint64_t p) const = 0;
 	virtual uint64_t select(uint64_t r) const = 0;
 	virtual uint64_t selectzero(uint64_t r) const = 0;

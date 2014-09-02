@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Implemented SDArray in fusion block.
 
 */

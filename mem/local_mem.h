@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Implement local memory model
 
 */
@@ -14,6 +15,8 @@ namespace mscds {
 
 class LocalMemModel;
 
+
+/// local static RAM memory region
 class LocalStaticMem : public StaticMemRegionAbstract {
 public:
 	LocalStaticMem() : len(0), ptr(nullptr) {}
@@ -51,6 +54,7 @@ private:
 	//friend class IFileArchive;
 };
 
+/// local dynamic RAM memory region
 class LocalDynamicMem : public DynamicMemRegionAbstract {
 public:
 	static const uint8_t WORDSZ = 8;
@@ -105,7 +109,7 @@ private:
 	friend class LocalMemAllocator;
 };
 
-
+/// local RAM memory allocator
 class LocalMemAllocator : public MemoryAllocatorAbstract {
 public:
 	struct Deleter {

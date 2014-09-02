@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 Implement Remote file access
 
@@ -23,6 +23,8 @@ public:
 	virtual time_t update_time() const = 0;
 };
 
+
+/// remote file interface
 class RemoteFileInt : public RemoteFileInfoInt {
 public:
 	virtual void close() = 0;
@@ -40,6 +42,7 @@ public:
 
 typedef std::shared_ptr<RemoteFileInt> RemoteFileHdl;
 
+/// remote file repository
 class RemoteFileRepository {
 public:
 	enum RemoteCacheType {NOCACHE, PRIVATE_MEM_CACHE, FILE_CACHE}; //SHARED_MEM_CACHE

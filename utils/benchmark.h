@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 Function and classes for speed benchmarking.
 

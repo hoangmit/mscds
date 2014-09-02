@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/** \file
+
 Common random generator for string, vector and bits
 
 */

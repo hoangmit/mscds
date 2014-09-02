@@ -2,6 +2,10 @@
 
 #include "block_mem_mng.h"
 
+/** \file
+Common structures for InterBlockQuery and InterBlockBuilder
+*/
+
 namespace mscds {
 
 class StructIDList {

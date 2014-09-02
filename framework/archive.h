@@ -3,6 +3,8 @@
 #ifndef __ARCHIVE_H_
 #define __ARCHIVE_H_
 
+// This file defines interfaces for Archive classes
+
 #include "mem_models.h"
 #include "utils/endian.h"
 #include <stdint.h>
@@ -13,6 +15,7 @@
 
 namespace mscds {
 
+// DEPRECIATED
 struct ArchiveProperties {
 	bool writeable : 1 ; // out, save
 	bool readable : 1;  // in, load
@@ -24,6 +27,7 @@ struct ArchiveProperties {
 	void * ext2;
 };
 
+/// IO error
 class ioerror: public ::std::exception {
 public:
 	ioerror() {}
@@ -35,16 +39,20 @@ private:
 	std::string msg;
 };
 
+/// Output Archive to save data to disk
 class OutArchive {
 public:
 	virtual ~OutArchive() {}
+	/// adds a name for annotation
 	virtual OutArchive& var(const std::string&) { return * this; }
 	virtual OutArchive& var(const char*) { return *this; }
 	virtual OutArchive& annotate(const std::string&) { return * this; }
 
+	/// starts a class
 	virtual OutArchive& startclass(const std::string&, unsigned char version = 1) { return *this;  };
 	virtual OutArchive& endclass() { return *this; };
 	
+	/// saves a primitive variable
 	virtual OutArchive& save(uint32_t v) { v = to_le32(v); return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save(int32_t v)  { v = to_le32(v); return save_bin(&v, sizeof(v)); }
 	virtual OutArchive& save(uint64_t v) { v = to_le64(v); return save_bin(&v, sizeof(v)); }
@@ -53,44 +61,56 @@ public:
 	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
 	//--------------------------------------------------------------------
+	/// save a memory region
 	virtual OutArchive& save_mem_region(const void* ptr, size_t size);
-
 	virtual OutArchive& save_mem(const StaticMemRegionAbstract& mem);
 
+	/// save a memory region incrementally
 	virtual OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4) = 0;
 	virtual OutArchive& add_mem_region(const void* ptr, size_t size) = 0;
 	virtual OutArchive& end_mem_region() = 0;
 	
+	/// closes the archive
 	virtual void close() {}
 
+	/// returns the stream position
 	virtual size_t opos() const = 0;
-	//virtual ArchiveProp properties() = 0;
 };
 
 class InpArchive {
 public:
 	virtual ~InpArchive() {}
+	/// variable name annotation (to be match with OutArchive)
 	virtual InpArchive& var(const std::string&) { return *this; }
 	virtual InpArchive& var(const char*) { return *this; }
+
+	/// starts a class scope
 	virtual unsigned char loadclass(const std::string& name) { return 0; };
 	virtual InpArchive& endclass() { return *this; };
 
+	/// load primitive variable
 	virtual InpArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
 	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
 	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
 	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
 	//virtual InpArchive& load(size_t& v) { return load_bin(&v, sizeof(v)); }
 	
+	/// load values
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
 
 	// StaticMemRegion is defined in mem_models.h
+	/// load memory region
 	virtual StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS) = 0;
 	
+	/// current stream position
 	virtual size_t ipos() const = 0;
+	/// is end of file
 	virtual bool eof() const = 0;
+	/// close stream
 	virtual void close() {}
+
+	/// debug information
 	virtual void inspect(const std::string& param, std::ostream& out) const {}
-	//virtual ArchiveProp properties() = 0;
 };
 
 class SaveLoadInt {

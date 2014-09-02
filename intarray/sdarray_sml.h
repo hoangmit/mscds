@@ -1,6 +1,6 @@
 #pragma once
 
-/**
+/** \file
 
 Alternative implementation of sdarray with bigger block.
 
@@ -16,6 +16,7 @@ namespace mscds {
 
 class SDArraySml;
 
+/// Builder class for SDArraySml
 class SDArraySmlBuilder {
 public:
 	SDArraySmlBuilder();

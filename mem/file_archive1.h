@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 Implement Archive that save/load data to files. This archive load everything to 
 memory.
@@ -21,7 +21,7 @@ This is version 1 archive layout (data and meta-data is mixed in one segment.)
 
 namespace mscds {
 
-
+/// old file format, data region and meta-data is mixed
 class OFileArchive1: public OutArchive {
 public:
 	OutArchive& startclass(const std::string& name, unsigned char version=1);
@@ -34,7 +34,9 @@ public:
 	OutArchive& add_mem_region(const void* ptr, size_t size);
 	OutArchive& end_mem_region();
 
+	/// opens afile for writing
 	void open_write(const std::string& fname);
+	/// uses existing stream
 	void assign_write(std::ostream * o);
 	OFileArchive1();
 	~OFileArchive1() {close();}
@@ -61,8 +63,9 @@ public:
 	StaticMemRegionPtr load_mem_region(MemoryAccessType mtp = API_ACCESS);
 
 	size_t ipos() const;
-
+	/// opens a file to read
 	void open_read(const std::string& fname);
+	/// uses existing stream to read
 	void assign_read(std::istream * i);
 	void close();
 	bool eof() const;

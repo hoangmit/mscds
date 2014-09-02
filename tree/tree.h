@@ -1,8 +1,8 @@
 #pragma once
 
-/** 
+/**  \file
 
-O(n \log n)-bit tree using pointers.
+Implements O(n \log n)-bit tree using pointers.
 
 */
 

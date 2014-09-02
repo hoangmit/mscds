@@ -4,7 +4,7 @@
 #define __RANK_6P_H_
 
 /**
-
+\file
 Rank/Select auxiliary data structure that uses 6% of the input bit vector as the additional index.
 
 Based on "..." paper.
@@ -75,6 +75,8 @@ private:
 	friend struct BlockIntIterator;
 };
 
+
+/// Builder class for Rank6p
 class Rank6pBuilder {
 public:
 	static void build(const BitArray& b, Rank6p * o);
@@ -84,6 +86,7 @@ private:
 	static uint64_t getwordz(const BitArray& v, size_t idx);
 };
 
+/// Rank6p adds select hints
 class Rank6pHintSel {
 public:
 	void init(Rank6p& r);

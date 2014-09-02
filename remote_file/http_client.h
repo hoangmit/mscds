@@ -1,7 +1,8 @@
 
 #pragma once
 
-/*
+/* \file
+
 Implement HTTP client to read a remote file.
 */
 
@@ -18,6 +19,7 @@ struct RemoteFileInfo {
 	bool operator!=(const RemoteFileInfo& other) const { return !(*this == other); }
 };
 
+/// HTTP file
 struct HttpFileObj {
 public:
 	typedef std::function<void(const char*, size_t)> CallBack;

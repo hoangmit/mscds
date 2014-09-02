@@ -1,6 +1,7 @@
 #pragma once
 
-/**
+/** \file
+
 Interface of array of integers
 */
 

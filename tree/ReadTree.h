@@ -1,5 +1,6 @@
 #pragma once
-/**
+/** \file
+
 Read tree in Nexus format
 */
 

@@ -1,7 +1,7 @@
 /* -*- mode: c++; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4 -*- */
 /* vi: set expandtab shiftwidth=4 tabstop=4: */
 
-/**
+/*
  * \file
  *
  * <pre>

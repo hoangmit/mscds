@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Collection of functions to deal with files and paths
 
 */

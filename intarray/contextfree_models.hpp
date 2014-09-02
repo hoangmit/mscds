@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/**  \file
+
 Delta compression model for blkarray
 
 */

@@ -1,6 +1,7 @@
 #pragma once
 
-/**
+/** \file
+
 Defines abstracted memory interfaces
 
 */
@@ -14,6 +15,7 @@ Defines abstracted memory interfaces
 
 namespace mscds {
 
+/// Memory error
 class memory_error : public std::exception {
 public:
 	memory_error() {}
@@ -33,7 +35,7 @@ enum MemoryAlignmentType { DEFAULT, A1, A2, A4, A8 };
 enum EndiannessType {
 	/// Intel or ARM CPU
 	LITTLE_ENDIAN_ACCESS, 
-	// PowerPC CPU
+	/// PowerPC CPU
 	BIG_ENDIAN_ACCESS
 };
 
@@ -49,7 +51,14 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	return 0;
 }
 
-enum MemoryAccessType { API_ACCESS = 0, MAP_ON_REQUEST, FULL_MAPPING };
+enum MemoryAccessType {
+	/// there is no cache, cannot use "get_addr()"
+	API_ACCESS = 0,
+	// there is a cache
+	MAP_ON_REQUEST,
+	/// The memory region is local or fully cached
+	FULL_MAPPING
+};
 
 /// Static size Memory Region Interface
 struct StaticMemRegionAbstract {
@@ -78,19 +87,23 @@ struct StaticMemRegionAbstract {
 	/// stops using the region, and releases memory if necessary
 	virtual void close() = 0;
 	
-	/// small one time access function
+	/// gets a word at word index "wp". i.e. get_addr()[wp*8...(wp*8 - 1)]
 	virtual uint64_t getword(size_t wp) const = 0;
+	/// gets a char at index "i"
 	virtual char getchar(size_t i) const = 0;
-
+	/// sets value for a word at word index "wp"
 	virtual void setword(size_t wp, uint64_t val) = 0;
+	/// sets value for a char at index "i"
 	virtual void setchar(size_t i, char c) = 0;
 
+	/// reads data and store to pointer "dst"
 	virtual void read(size_t i, size_t rlen, void* dst) const = 0;
+	/// writes data to the memory region from "dst" pointer
 	virtual void write(size_t i, size_t wlen, const void* dst) = 0;
 
-	// scans the memory region using some call-back function
-	// The call-back function should return true to continue, and false to break
+	/// The call-back function should return true to continue, and false to break
 	typedef std::function<bool(const void* p, size_t len)> CallBack;
+	/// scans the memory region using given call-back function "cb"
 	virtual void scan(size_t i, size_t len, CallBack cb) const = 0;
 };
 
@@ -109,16 +122,16 @@ struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
 	/// appends a word to the end of the region
 	virtual void append(uint64_t word) = 0;
 
-	/// appends a memory address
+	/// appends data from a memory address
 	virtual void append(const void * ptr, size_t len) = 0;
 
-	/// appends another memory region
+	/// appends data from another memory region
 	virtual void append(StaticMemRegionAbstract& other) = 0;
 };
 
 //----------------------------------------------------------------------------
 
-/// Pointer to static memory region
+/// Pointer wrapper to static memory region
 class StaticMemRegionPtr : public StaticMemRegionAbstract {
 public:
 	StaticMemRegionPtr() : _impl(nullptr) {}
@@ -160,7 +173,7 @@ protected:
 	std::shared_ptr<StaticMemRegionAbstract> _ref;
 };
 
-/// Pointer to dynamic memory region
+/// Pointer wrapper to dynamic memory region
 class DynamicMemRegionPtr : public DynamicMemRegionAbstract {
 public:
 	DynamicMemRegionPtr() : _impl(nullptr) {}

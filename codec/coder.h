@@ -2,6 +2,7 @@
 #pragma once
 
 /** 
+\file
 
 Interface of Coder function and 2 common functions.
 

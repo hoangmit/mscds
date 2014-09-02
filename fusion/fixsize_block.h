@@ -1,6 +1,7 @@
 #pragma once
 
-/** 
+/** \file
+
 Experimental implementation of fusion block
 */
 

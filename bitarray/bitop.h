@@ -4,6 +4,7 @@
 #define __BIT_OP_H_
 
 /**
+\file
 Implement commmon bit operations within a word
 
 Defines the following functions:
@@ -220,6 +221,7 @@ namespace mscds {
 		return msb_intr(n) + (n&(n-1) ? 1 : 0);
 	}
 
+	/// returns floor(log2(n))
 	inline uint64_t floorlog2(uint64_t n) {
 		if (n == 0) return 0;
 		return msb_intr(n);

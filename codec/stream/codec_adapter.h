@@ -1,6 +1,7 @@
 #pragma once
 
 /** 
+\file
 
 Coder + stream
 

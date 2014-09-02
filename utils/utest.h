@@ -2,7 +2,7 @@
 #ifndef __UNIT_TEST_H_
 #define __UNIT_TEST_H_
 
-/** 
+/** \file
 
 Unit testing wrapper (avoid missing of gtest library).
 

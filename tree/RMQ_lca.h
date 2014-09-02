@@ -1,6 +1,7 @@
 #pragma once
 
-/**
+/** \file
+
 Data structure for Range Minimum/Maximum Query.
 
 RMQ using LCA data structure.
@@ -25,6 +26,9 @@ private:
 
 class RMQ_lca_builder {
 public:
+	struct Mapper {
+
+	};
 	static void build(std::vector<int>& inp, RMQ_lca_query * out, bool min_tree) {
 		BTree<unsigned int> sttree;
 

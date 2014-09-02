@@ -1,11 +1,8 @@
 #pragma once
 
-
-
 #include <cstdlib>
 #include <string>
 #include <stdint.h>
-
 
 /// Persistent bitmap (stored on disk)
 /**

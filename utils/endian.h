@@ -3,6 +3,12 @@
 #ifndef __CUSTOM_ENDIAN_H_
 #define __CUSTOM_ENDIAN_H_
 
+/**  \file
+
+Macros and functions to swap byte orders
+
+*/
+
 //#define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 //#define IS_BIG_ENDIAN (*(WORD *)"\0\x2" == 0x200)
 

@@ -1,6 +1,6 @@
 #pragma once
 
-/** 
+/**  \file
 
 Basic huffman compression model. 
 

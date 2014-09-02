@@ -1,6 +1,7 @@
 #pragma once
 
 /** 
+\file
 
 Fibonacci coding 
   http://en.wikipedia.org/wiki/Fibonacci_coding  

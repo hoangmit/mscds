@@ -1,6 +1,7 @@
 #pragma once
 
 /** 
+\file
 
 Golomb and Rice coding
 http://en.wikipedia.org/wiki/Golomb_coding

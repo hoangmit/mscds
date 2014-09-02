@@ -1,6 +1,7 @@
 #pragma once
 
 /** 
+\file
 
 Implement Adaptive huffman coding.
   

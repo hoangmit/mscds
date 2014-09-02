@@ -4,7 +4,7 @@
 #define __BALANCE_PARATHESIS_AUXILIARY_H_
 
 
-/** 
+/**  \file
 
 Implement basic balanced parathesis operations on bitarray.
 
@@ -23,6 +23,7 @@ Implement basic balanced parathesis operations on bitarray.
 
 namespace mscds {
 
+// for internal use
 class BP_superblock;
 class BP_block {
 public:

@@ -1,5 +1,10 @@
 #pragma once
 
+/**  \file
+
+Fused SDarray with select hints
+
+*/
 #include "sdarray_block.h"
 
 #include "bitarray/bitarray.h"

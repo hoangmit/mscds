@@ -7,7 +7,7 @@
 #include "bitstream.h"
 #include "bitop.h"
 
-// suitable for bitarray with high density of 1-bit (e.g. 100% -- 25% density)
+/** \file: suitable for bitarray with high density of 1-bit (e.g. 100% -- 25% density) */
 
 namespace mscds {
 
@@ -38,6 +38,7 @@ private:
 	friend class SelectDenseBuilder;
 };
 
+/// data structure to select 1-bit
 class SelectDense  {
 public:
 	/** the position of the (r+1)-th 1-value (from left to right) */
@@ -54,6 +55,7 @@ public:
 	friend class SelectDenseBuilder;
 };
 
+/// data structure to select 0-bit
 class Select0Dense {
 public:
 	uint64_t select0(uint64_t r) const {

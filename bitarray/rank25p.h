@@ -1,7 +1,7 @@
 #pragma once
 
 /** 
-
+\file
 Rank/Select auxiliary data structure that uses 25% of the input bit vector as the additional index.
 
 Based on "..." paper.

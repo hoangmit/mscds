@@ -7,11 +7,11 @@
 //#define IS_BIG_ENDIAN (*(WORD *)"\0\x2" == 0x200)
 
 #ifndef __BYTE_ORDER__
-  #define __ORDER_LITTLE_ENDIAN__ 0x4321
-  #define __ORDER_BIG_ENDIAN__ 0x1234
-#if defined(ARCH_IA32) || defined(ARCH_IA64) || defined(ARCH_AMD64) || defined(ARCH_ALPHA) || defined(ARCH_ARM) || defined(ARCH_MIPS) || \
-	defined(_M_IX86) || defined(_X86_) || defined(_M_X64) || defined(_AMD64_) || defined(_M_AMD64) || defined(_M_ARM) || defined(_ARM_) || defined(_IA64_)  \
-		|| defined(__i386__) || defined(__x86_64__) || defined(__amd64__) || defined(__LITTLE_ENDIAN__)
+  #define __ORDER_LITTLE_ENDIAN__ 0x1234
+  #define __ORDER_BIG_ENDIAN__ 0x4321
+  #if defined(ARCH_IA32) || defined(ARCH_IA64) || defined(ARCH_AMD64) || defined(ARCH_ALPHA) || defined(ARCH_ARM) || defined(ARCH_MIPS) || \
+	      defined(_M_IX86) || defined(_X86_) || defined(_M_X64) || defined(_AMD64_) || defined(_M_AMD64) || defined(_M_ARM) || defined(_ARM_) || defined(_IA64_)  \
+		  || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(__amd64__) || defined(__LITTLE_ENDIAN__)
     #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
     #ifndef __LITTLE_ENDIAN__
       #define __LITTLE_ENDIAN__
@@ -30,6 +30,10 @@
        #endif
     #endif
   #endif
+#elif (!defined(__LITTLE_ENDIAN__)) && (__BYTE_ORDER__== __ORDER_LITTLE_ENDIAN__)
+  #define __LITTLE_ENDIAN__
+#elif (!defined(__LITTLE_ENDIAN__)) && (__BYTE_ORDER__== __ORDER_BIG_ENDIAN__)
+  #define __BIG_ENDIAN__
 #endif
 
 #if defined(_MSC_VER)

@@ -141,7 +141,7 @@ public:
 	}
 	char get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
 	SString() { number_a = 0; }
-	SString(char* s, unsigned int len) {
+	SString(const char* s, unsigned int len) {
 		LocalMemAllocator a;
 		p = a.allocStaticMem(len);
 		p.write(0, len, s);

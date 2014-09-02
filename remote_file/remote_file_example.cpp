@@ -34,7 +34,7 @@ public:
 	/// empty constructor
 	SString();
 	/// constructor from existing string
-	SString(char* s, unsigned int len);
+	SString(const char* s, unsigned int len);
 	/// save to file
 	void save(OutArchive& ar) const;
 	/// load from file
@@ -73,7 +73,7 @@ inline char SString::get_adv(unsigned int i) const {
 
 inline SString::SString() { number_a = 0; }
 
-inline SString::SString(char *s, unsigned int len) {
+inline SString::SString(const char *s, unsigned int len) {
 	LocalMemAllocator a;
 	p = a.allocStaticMem(len);
 	p.write(0, len, s);

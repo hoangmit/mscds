@@ -14,6 +14,7 @@ Interface of Coder function and 2 common functions.
 #include <vector>
 #include <cassert>
 
+/// coder classes
 namespace coder {
 	typedef uint64_t NumTp;
 	typedef uint64_t CodeTp;

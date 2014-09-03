@@ -18,8 +18,15 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <vector>
+#include <stdint.h>
+#include "codec_block.h"
+
+
+namespace tests {
 
 using namespace mscds;
+using namespace std;
 
 void sdarray_block_test1() {
 	const unsigned n = 512 + rand() % 4; //block size, hardcoded, lol
@@ -67,7 +74,7 @@ public:
 	BlockMemManager mng;
 
 	size_t sum1, sum2;
-	
+
 	SDArrayBlock b1, b2;
 	static const unsigned BLKSIZE = 512;
 
@@ -180,7 +187,7 @@ TEST(fusion, rank_test3) {
 	auto& sda_h = bd2.g<1>();
 
 	SDArrayZero zero;
-	
+
 	sda_h.start_model();
 	for (unsigned i = 0; i < n; ++i) {
 		vals.push_back(rand() % 100);
@@ -227,7 +234,6 @@ void test3() {
 	bdx.build(&qsx);
 }
 
-#include "codec_block.h"
 
 TEST(fusion, codex_block) {
 	const unsigned int n = 1001, r = 100;
@@ -237,33 +243,33 @@ TEST(fusion, codex_block) {
 			vals.push_back(2);
 		else vals.push_back(rand() % r);
 
-	LiftStBuilder<HuffBlkBuilder> bd;
-	auto& x = bd.g<0>();
-	x.start_model();
-	for (unsigned i = 0; i < n; ++i)
-		x.model_add(vals[i]);
-	x.build_model();
-	bd.init();
-	for (unsigned i = 0; i < n; ++i) {
-		//std::get<0>(bd.list).add(vals[0]);
-		x.add(vals[i]);
-		bd.check_end_block();
-	}
-
-	LiftStQuery<HuffBlkQuery> qs;
-	bd.check_end_data();
-	
-	bd.build(&qs);
-	auto& y = qs.g<0>();
-	//y.debug_print(0);
-	//y.debug_print(1);
-	for (unsigned i = 0; i < n; ++i) {
-		auto v = y.get(i);
-		if (vals[i] != v) {
-			v=y.get(i);
+		LiftStBuilder<HuffBlkBuilder> bd;
+		auto& x = bd.g<0>();
+		x.start_model();
+		for (unsigned i = 0; i < n; ++i)
+			x.model_add(vals[i]);
+		x.build_model();
+		bd.init();
+		for (unsigned i = 0; i < n; ++i) {
+			//std::get<0>(bd.list).add(vals[0]);
+			x.add(vals[i]);
+			bd.check_end_block();
 		}
-		ASSERT_EQ(vals[i], v);
-	}
+
+		LiftStQuery<HuffBlkQuery> qs;
+		bd.check_end_data();
+
+		bd.build(&qs);
+		auto& y = qs.g<0>();
+		//y.debug_print(0);
+		//y.debug_print(1);
+		for (unsigned i = 0; i < n; ++i) {
+			auto v = y.get(i);
+			if (vals[i] != v) {
+				v = y.get(i);
+			}
+			ASSERT_EQ(vals[i], v);
+		}
 	{
 		unsigned i = 0;
 		HuffBlkQuery::Enum e;
@@ -287,6 +293,10 @@ TEST(fusion, sda_block) {
 void debug_cases() {
 	test3();
 }
+
+}//namespace
+
+using namespace tests;
 
 int main(int argc, char* argv[]) {
 	

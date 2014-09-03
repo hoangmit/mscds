@@ -4,6 +4,8 @@
 #include "utils/utest.h"
 #include <vector>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -74,6 +76,7 @@ TEST(codearr, sda1) {
 	}
 }
 
+}//namespace
 
 /*
 int main() {

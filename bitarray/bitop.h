@@ -26,7 +26,7 @@ Written and collected from various sources by Hoang
 #include <stdint.h>
 #include <cassert>
 
-
+/// mscds
 namespace mscds {
 
 #define ONES_STEP_4 ( 0x1111111111111111ULL )

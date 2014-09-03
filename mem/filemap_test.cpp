@@ -9,6 +9,8 @@
 
 #include <string>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -18,7 +20,7 @@ TEST(maptests, map1) {
 	fa.open_write(fn);
 	fa.startclass("testclass", 2);
 	for (int i = 0; i < 10; i++)
-		fa.save(i+1);
+	fa.save(i+1);
 	fa.endclass();
 	fa.close();
 
@@ -34,7 +36,7 @@ TEST(maptests, map1) {
 	SharedPtr p = fi.load_mem(0, 6*sizeof(v));
 	uint32_t * arr = (uint32_t *) p.get();
 	for (int i = 3; i < 3 + 6; i++)
-		ASSERT(i == arr[i - 3]);
+	ASSERT(i == arr[i - 3]);
 	fi.load(v);
 	ASSERT(9 == v);
 	fi.load(v);
@@ -50,7 +52,7 @@ TEST(maptests, map2) {
 	fa.open_write(fn);
 	fa.startclass("testclass", 2);
 	for (int i = 0; i < 10; i++)
-		fa.save(i+1);
+	fa.save(i+1);
 	fa.endclass();
 	fa.close();
 
@@ -66,7 +68,7 @@ TEST(maptests, map2) {
 	SharedPtr p = fi.load_mem(0, 6*sizeof(v));
 	uint32_t * arr = (uint32_t *) p.get();
 	for (int i = 3; i < 3 + 6; i++)
-		ASSERT(i == arr[i - 3]);
+	ASSERT(i == arr[i - 3]);
 	fi.load(v);
 	ASSERT(9 == v);
 	fi.load(v);
@@ -91,6 +93,7 @@ TEST(maptests, map3) {
 	ASSERT_EQ(str, s2);*/
 }
 
+}//namespace
 
 /*
 void test_map_all() {
@@ -98,6 +101,7 @@ void test_map_all() {
 	test_map2();
 	test_map3();
 }
+
 
 int main() {
 	test_map_all();

@@ -6,12 +6,13 @@
 
 using namespace std;
 using namespace app_ds;
-
+namespace app_ds {
 template<typename T>
 void printarr(const std::vector<T>& arr) {
 	for (auto it = arr.begin(); it != arr.end(); ++it)
 		cout << *it << "  ";
 	cout << endl;
+}
 }
 
 int main(int argc, char* argv[]) {

@@ -17,6 +17,7 @@ using namespace mscds;
 using namespace boost::network;
 using namespace boost::network::http;
 
+namespace mscds {
 
 struct HttpObjectReq {
 	typedef std::function<void(boost::iterator_range<const char*> const &, boost::system::error_code const &)> BodyCallBack;
@@ -28,7 +29,7 @@ struct HttpObjectReq {
 	std::string url;
 	unsigned int req_status;
 	//size_t total_size;
-	
+
 	HeaderInfo info_;
 
 	HttpObjectReq() {}
@@ -101,7 +102,7 @@ private:
 			throw remoteio_error(std::string("wrong http status code: ") +
 			std::to_string(req_status) + "  (" + std::to_string(start) + "," +
 			std::to_string(len) + ")");
-		
+
 		check_headers(response);
 		size_t ctl = 0;
 		if (info_.content_length(ctl))
@@ -116,8 +117,7 @@ private:
 
 //------------------------------------------------------------------------
 
-HttpFileObj::HttpFileObj(): pimpl(nullptr) {
-}
+HttpFileObj::HttpFileObj(): pimpl(nullptr) {}
 
 HttpFileObj::~HttpFileObj() {
 	//std::cout << "delete_http" << "(" << id_ << ")" << std::endl;
@@ -132,7 +132,7 @@ HttpFileObj::HttpFileObj(const std::string &url) {
 }
 
 void HttpFileObj::getInfo(RemoteFileInfo &info) {
-	HttpObjectReq * hobj = (HttpObjectReq *) pimpl;
+	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
 	if (hobj == nullptr) throw remoteio_error("http object is not created");
 	hobj->head();
 	if (!hobj->info_.content_length(info.filesize)) {
@@ -140,7 +140,8 @@ void HttpFileObj::getInfo(RemoteFileInfo &info) {
 			char buff[2];
 			hobj->getdata(0, 1, buff);
 			info.filesize = hobj->info_.last_range_info.total;
-		} catch (remoteio_error&) {
+		}
+		catch (remoteio_error&) {
 			throw remoteio_error("unable to find file size");
 		}
 	}
@@ -153,7 +154,7 @@ void HttpFileObj::getInfo(RemoteFileInfo &info) {
 
 void HttpFileObj::read_cont(size_t start, size_t len, char *dest) {
 	//std::cout << "read_http " << start << " - " << len << std::endl;
-	HttpObjectReq * hobj = (HttpObjectReq *) pimpl;
+	HttpObjectReq * hobj = (HttpObjectReq *)pimpl;
 	if (hobj == nullptr) throw remoteio_error("http object is not initialized");
 	hobj->getdata(start, len, dest);
 }
@@ -175,3 +176,5 @@ void HttpFileObj::stop_read() {
 	hobj->stop();
 }
 
+
+}//namespace

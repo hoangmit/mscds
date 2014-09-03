@@ -4,6 +4,8 @@
 #include <string>
 #include <stdint.h>
 
+namespace mscds {
+
 /// Persistent bitmap (stored on disk)
 /**
 This structure is used to store which remote block has been downloaded.
@@ -16,7 +18,7 @@ public:
 	void load(const std::string& path);
 
 	void close();
-	
+
 	bool getbit(size_t p) const;
 	void setbit(size_t p);
 	void clearbit(size_t p);
@@ -35,3 +37,4 @@ private:
 	uint32_t extlen;
 };
 
+}

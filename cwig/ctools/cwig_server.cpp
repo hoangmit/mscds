@@ -12,6 +12,8 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace app_ds {
+
 namespace http = boost::network::http;
 namespace network = boost::network;
 
@@ -53,7 +55,8 @@ struct file_cache {
 		assert(pos.second);
 		try {
 			cache.begin()->second.loadfile(doc_root_ + path);
-		} catch (std::runtime_error& ) {
+		}
+		catch (std::runtime_error&) {
 			cache.erase(pos.first->second);
 			table.erase(pos.first);
 			return false;
@@ -92,22 +95,21 @@ struct file_cache {
 		if (chr < 0) { out = "Unknown chromosome name"; return false; }
 		if (query.opname == "avg") {
 			json_dumps(qs.getChr(chr).avg_batch(query.start, query.end, query.winsize), ss);
-		}else
-		if (query.opname == "cov") {
+		} else
+			if (query.opname == "cov") {
 			json_dumps(qs.getChr(chr).coverage_batch(query.start, query.end, query.winsize), ss);
-		} else
-		if (query.opname == "min") {
-			json_dumps(qs.getChr(chr).min_value_batch(query.start, query.end, query.winsize), ss);
-		} else
-		if (query.opname == "max") {
-			json_dumps(qs.getChr(chr).max_value_batch(query.start, query.end, query.winsize), ss);
-		}
-		else {
-			out = "Unknown operation";
-			return false;
-		}
-		out = ss.str();
-		return true;
+			} else
+				if (query.opname == "min") {
+				json_dumps(qs.getChr(chr).min_value_batch(query.start, query.end, query.winsize), ss);
+				} else
+					if (query.opname == "max") {
+					json_dumps(qs.getChr(chr).max_value_batch(query.start, query.end, query.winsize), ss);
+					} else {
+					out = "Unknown operation";
+					return false;
+					}
+				out = ss.str();
+				return true;
 	}
 private:
 	void clear_() {
@@ -129,9 +131,9 @@ private:
 	}
 };
 
-struct connection_handler : boost::enable_shared_from_this<connection_handler> {
-	explicit connection_handler(file_cache & cache, bool verbose=true)
-	: file_cache_(cache), verbose_(verbose) {}
+struct connection_handler: boost::enable_shared_from_this<connection_handler> {
+	explicit connection_handler(file_cache & cache, bool verbose = true)
+		: file_cache_(cache), verbose_(verbose) {}
 
 	void operator()(std::string const & path, server::connection_ptr connection) {
 		if (verbose_)
@@ -147,16 +149,15 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 			ok = file_cache_.get(res, outx);
 			if (!ok) error(connection, outx);
 			else success(connection, outx);
-		}
-		else {
+		} else {
 			not_found(connection);
 		}
 	}
 
 	void success(server::connection_ptr connection, const std::string& data) {
 		static server::response_header headers[] = {
-			{ "Connection", "close" }
-			, { "Content-Type", "text/plain" }
+				{"Connection", "close"}
+				, {"Content-Type", "text/plain"}
 		};
 		connection->set_status(server::connection::ok);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
@@ -167,8 +168,8 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 
 	void error(server::connection_ptr connection, const std::string& msg) {
 		static server::response_header headers[] = {
-			{ "Connection", "close" }
-			, { "Content-Type", "text/plain" }
+				{"Connection", "close"}
+				, {"Content-Type", "text/plain"}
 		};
 		connection->set_status(server::connection::internal_server_error);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
@@ -179,8 +180,8 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 
 	void not_found(server::connection_ptr connection) {
 		static server::response_header headers[] = {
-			{ "Connection", "close" }
-			, { "Content-Type", "text/plain" }
+				{"Connection", "close"}
+				, {"Content-Type", "text/plain"}
 		};
 		connection->set_status(server::connection::not_found);
 		connection->set_headers(boost::make_iterator_range(headers, headers + 2));
@@ -195,7 +196,7 @@ struct connection_handler : boost::enable_shared_from_this<connection_handler> {
 
 struct request_server {
 	explicit request_server(file_cache & cache, bool verbose = true)
-	: cache_(cache), verbose_(verbose) {}
+		: cache_(cache), verbose_(verbose) {}
 
 	void operator()(
 		server::request const & request,
@@ -206,7 +207,7 @@ struct request_server {
 			(*h)(request.destination, connection);
 		} else {
 			static server::response_header error_headers[] = {
-				{ "Connection", "close" }
+					{"Connection", "close"}
 			};
 			connection->set_status(server::connection::not_supported);
 			connection->set_headers(boost::make_iterator_range(error_headers, error_headers + 1));
@@ -221,6 +222,10 @@ struct request_server {
 	bool verbose_;
 	file_cache & cache_;
 };
+
+}//namespace
+
+using namespace app_ds;
 
 int main(int argc, char * argv[]) {
 	file_cache cache("./");

@@ -13,6 +13,9 @@
 
 #include <iostream>
 #include <vector>
+
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -87,7 +90,7 @@ void test_size() {
 
 class RMQQuerySFixture {
 public:
-	RMQQuerySFixture() { }
+	RMQQuerySFixture() {}
 
 	void SetUp() {
 		unsigned int blksize = 32;
@@ -140,14 +143,14 @@ public:
 template<class T> void DoNotOptimizeAway(T&& datum)
 {
 #ifdef WIN32
-	if (_getpid() == 1)
+if (_getpid() == 1)
 #else
-	if (getpid() == 1)
+if (getpid() == 1)
 #endif
-	{
-		const void* p = &datum;
-		putchar(*static_cast<const char*>(p));
-	}
+{
+const void* p = &datum;
+putchar(*static_cast<const char*>(p));
+}
 }*/
 
 #define DoNotOptimizeAway(T) (T)
@@ -188,3 +191,5 @@ BENCHMARK_SET(rmq_benchmark) {
 	bm.run_all();
 	bm.report(0);
 }
+
+}//namespace

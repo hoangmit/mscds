@@ -10,6 +10,8 @@ Implement HTTP client to read a remote file.
 #include <memory>
 #include <functional>
 
+namespace mscds {
+
 struct RemoteFileInfo {
 	size_t filesize;
 	time_t last_update;
@@ -37,3 +39,4 @@ private:
 	std::shared_ptr<void> pimpl_ctl_;
 };
 
+}

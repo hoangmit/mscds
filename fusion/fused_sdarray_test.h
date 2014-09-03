@@ -4,6 +4,8 @@
 #include "block_mem_mng.h"
 #include "sdarray_block.h"
 
+namespace tests {
+
 struct MockBlk {
 	const static uint64_t header = 0x0102030405060708ull;
 	uint16_t v;
@@ -167,3 +169,4 @@ struct TwoSDA_Builder {
 	unsigned int blkcntx;
 };
 
+}//namespace

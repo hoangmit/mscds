@@ -2,9 +2,9 @@
 #include "dual_sda.h"
 #include "intarray/sdarray_sml.h"
 
-
+namespace tests {
 struct NullSetGet: public mscds::SDABSetterInterface,
-					public mscds::SDABGetterInterface {
+	public mscds::SDABGetterInterface {
 public:
 	static const unsigned int SIZE = 512;
 	NullSetGet() {
@@ -157,3 +157,4 @@ void test_dfsd(const std::vector<unsigned int>& lst) {
 	x.start.rank(100);
 	x.lg.rank(100);
 }
+}//namespace

@@ -15,11 +15,13 @@
 #include "utils/utils.h"
 
 #include "cwig/cwig.h"
+#include "utils/md5.h"
 
 using namespace std;
 using namespace mscds;
 
-
+namespace Example2 {
+/// Example: a class use StaticMemRegion, save and load from Archive
 class SString {
 public:
 	/// count the number of 'a' character in string
@@ -59,7 +61,7 @@ inline char SString::get_adv(unsigned int i) const {
 	if (p.memory_type() == FULL_MAPPING) {
 		ptr = (char*)p.get_addr();
 		return ptr[i];
-	}else if (p.memory_type() == MAP_ON_REQUEST) {
+	} else if (p.memory_type() == MAP_ON_REQUEST) {
 		p.request_map(i, 1);
 		ptr = (char*)p.get_addr();
 		return ptr[i];
@@ -128,6 +130,9 @@ void example_str1() {
 	assert(local.length() == remote.length());
 }
 
+}//namespace
+
+namespace tests {
 void example1() {
 	//default repository
 	RemoteFileRepository rep;
@@ -232,15 +237,15 @@ struct Remote_sdarray {
 
 	void test_remote_file() {
 		SDArraySml local, remote;
-		
+
 		IFileArchive1 fi;
 		fi.open_read("/tmp/sdarray.bin");
 		RemoteArchive1 rfi;
 		utils::Timer tm;
-		
+
 		rfi.open_url("http://biogpu.ddns.comp.nus.edu.sg/~hoang/bigWig/sdarray.bin", "", true);
-		
-		
+
+
 		local.load(fi);
 		remote.load(rfi);
 
@@ -254,8 +259,8 @@ struct Remote_sdarray {
 				throw runtime_error("wrong");
 			}
 		}
-		
-		
+
+
 		cout << "total time = " << tm.total() << endl;
 	}
 };
@@ -312,7 +317,7 @@ struct Remote_cwig2 {
 		//wgEncodeOpenChromChipGm19240CtcfSig wgEncodeBroadHistoneK562Chd4mi2Sig wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5
 		rfi.open_url("http://10.217.22.87/bigWig/wgEncodeBroadHistoneK562Chd4mi2Sig.cwig", "", true);
 		cout << "load" << endl;
-	
+
 		//rfi.open_url("https://www.dropbox.com/s/2wvbgygau0oqm3s/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.cwig", "", true);
 		local.load(fi);
 		remote.load(rfi);
@@ -330,10 +335,12 @@ struct Remote_cwig2 {
 	}
 };
 
-#include "utils/md5.h"
+}//namespace
+
+using namespace tests;
 
 int main() {
-	example_str1();
+	Example2::example_str1();
 	std::cout << utils::MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") << endl;
 
 	//example1();

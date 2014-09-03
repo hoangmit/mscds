@@ -3,6 +3,8 @@
 #include "sdarray_zero.h"
 #include "utils/utest.h"
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -59,6 +61,8 @@ TEST(sdarray_th, test2) {
 		test_cmp(vals);
 	}
 }
+
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

@@ -2,7 +2,7 @@
 
 \section intro_sec Introduction
 
-extsds is a framework that support developing compressed external memory data structures. The aim of this framework that support developing data structures with the following properties: (i) compressed or succinct (ii) external memory (iii) reusable. It includes a set of C++ libraries and their Python interfaces. 
+mscds is a framework that support developing compressed data structure format. The aim of this framework that support developing data structures with the following properties: (i) compressed or succinct (ii) external memory (iii) reusable. It includes a set of C++ libraries and their Python interfaces. 
 
 In this framework, a data structure is an information entity stored on external memory (disk) to support some future queries. The framework provides basic services to manage the stored data structures and its references in external memory. In addition, it also a provides a collection of basic data structures which to build more complex data structures. 
 
@@ -18,9 +18,7 @@ Support layer libraries:
  - mem: contains functions and classes that manages file, file buffers, and memory.
  - utils: contains common and frequently used ultilities functions
 
-Data structure libraries: 
 
- 
- \subpage external_software
+
  
  */

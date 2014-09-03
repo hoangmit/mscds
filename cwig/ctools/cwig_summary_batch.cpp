@@ -7,6 +7,8 @@
 using namespace std;
 using namespace app_ds;
 
+namespace app_ds {
+
 template<typename T>
 void printarr(const std::vector<T>& arr) {
 	for (auto it = arr.begin(); it != arr.end(); ++it)
@@ -19,7 +21,7 @@ struct Entry {
 	std::string chrom;
 	unsigned int st, ed;
 	bool changed;
-	Entry() : changed(true) {}
+	Entry(): changed(true) {}
 	void clear() {
 		chrom.clear();
 	}
@@ -35,8 +37,7 @@ struct Entry {
 		if (i == chrom.length() && chrom.length() > 0 && (*p == ' ' || *p == '\t')) {
 			//this->chrom = pre_chr; // no change
 			this->changed = false;
-		}
-		else {
+		} else {
 			while (*p != ' ' && *p != '\t' && i < s.length()) { ++p; ++i; }
 			this->chrom = std::string(s.c_str(), p);
 			this->changed = true;
@@ -75,6 +76,10 @@ void query_file(const std::string& fname, Func fx) {
 	}
 	fi.close();
 }
+
+}//namespace
+
+using namespace app_ds;
 
 int main(int argc, char* argv[]) {
 	if (argc != 4 && argc != 5) {

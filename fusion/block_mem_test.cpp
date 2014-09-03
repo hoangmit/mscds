@@ -6,6 +6,8 @@
 #include "utils/utest.h"
 #include "mem/info_archive.h"
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -155,7 +157,7 @@ void blk_mem_test1() {
 	x.load_all();
 
 	OClassInfoArchive ar;
-	
+
 	x.mng.save(ar);
 	std::cout << ar.printxml() << std::endl;
 }
@@ -179,7 +181,7 @@ TEST(fixed_interleaved_arr, test5) {
 	bd.add_data(data, a_id, ByteMemRange::val_c(4));
 	bd.add_data(data, b_id, ByteMemRange::val_c(5));
 	bd.add_data(data, c_id, ByteMemRange::val_c(6));
-	
+
 	/* build the output streams */
 	bd.store_context(header);
 	data.close();
@@ -214,6 +216,9 @@ void debug_run() {
 	test_ptr();
 }
 
+}//namespace
+
+using namespace tests;
 
 int main(int argc, char* argv[]) {
 	debug_run();

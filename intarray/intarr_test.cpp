@@ -7,6 +7,7 @@
 #include "utils/utest.h"
 #include <vector>
 
+namespace tests {
 
 using namespace std;
 using namespace mscds;
@@ -25,29 +26,29 @@ std::vector<unsigned int> gen_ones(unsigned int n) {
 
 std::vector<unsigned int> gen_zerosones(unsigned int n) {
 	std::vector<unsigned int> ret;
-	for (unsigned int i = 0; i < n; ++i) 
+	for (unsigned int i = 0; i < n; ++i)
 		ret.push_back(i % 2);
 	return ret;
 }
 
 std::vector<unsigned int> gen_inc(unsigned int n) {
 	std::vector<unsigned int> ret;
-	for (unsigned int i = 0; i < n; ++i) 
+	for (unsigned int i = 0; i < n; ++i)
 		ret.push_back(i);
 	return ret;
 }
 
 std::vector<unsigned int> gen_dec(unsigned int n) {
 	std::vector<unsigned int> ret;
-	for (unsigned int i = 0; i < n; ++i) 
+	for (unsigned int i = 0; i < n; ++i)
 		ret.push_back(i);
 	return ret;
 }
 
-std::vector<unsigned int> gen_rand(unsigned int n, unsigned int lower = 0, 
-								   unsigned int higher = 100) {
+std::vector<unsigned int> gen_rand(unsigned int n, unsigned int lower = 0,
+	unsigned int higher = 100) {
 	std::vector<unsigned int> ret;
-	for (unsigned int i = 0; i < n; ++i) 
+	for (unsigned int i = 0; i < n; ++i)
 		ret.push_back(lower +  rand() % (higher - lower));
 	return ret;
 }
@@ -295,6 +296,8 @@ TEST(RemapDtArray, testsuite) {
 		check<QueryTp, BuilderTp>(vec, true);
 	}
 }
+
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

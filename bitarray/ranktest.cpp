@@ -11,6 +11,8 @@
 #include <vector>
 #include <iostream>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -102,52 +104,52 @@ void test_rank(const std::vector<bool>& vec) {
 	for (unsigned int i = 1; i <= vec.size(); i++)
 		if (vec[i-1]) ranks[i] = ranks[i-1] + 1;
 		else ranks[i] = ranks[i-1];
-	BitArray v;
-	v = BitArrayBuilder::create(vec.size());
-	//v.fillzero();
-	for (unsigned int i = 0; i < vec.size(); i++) {
-		v.setbit(i, vec[i]);
-	}
-
-	for (unsigned int i = 0; i < vec.size(); i++) {
-		ASSERT(vec[i] == v.bit(i));
-	}
-
-	RankSelect r;
-	RankSelect::BuilderTp::build(v, &r);
-	for (unsigned int i = 0; i < vec.size(); ++i)
-		ASSERT_EQ(vec[i], r.access(i));
-	for (int i = 0; i <= vec.size(); ++i) {
-		if (ranks[i] != r.rank(i)) {
-			cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
-			ASSERT_EQ(ranks[i], r.rank(i));
+		BitArray v;
+		v = BitArrayBuilder::create(vec.size());
+		//v.fillzero();
+		for (unsigned int i = 0; i < vec.size(); i++) {
+			v.setbit(i, vec[i]);
 		}
-	}
-	unsigned int onecnt = 0;
-	for (unsigned int i = 0; i < vec.size(); ++i)
-		if (vec[i]) onecnt++;
-	int last = -1;
-	for (unsigned int i = 0; i < onecnt; ++i) {
-		int pos = r.select(i);
-		ASSERT_EQ(i, r.rank(pos));
-		ASSERT_EQ(i + 1, r.rank(pos + 1));
-		if (pos >= vec.size() || !vec[pos] || pos <= last) {
-			cout << "select " << i << "  " << r.select(i) << endl;
-			if (i > 0) r.select(i-1);
-			ASSERT_EQ(true, vec[pos]);
+
+		for (unsigned int i = 0; i < vec.size(); i++) {
+			ASSERT(vec[i] == v.bit(i));
 		}
-		ASSERT(pos > last);
-		last = pos;
-	}
-	last = -1;
-	for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
-		int pos = r.selectzero(i);
-		ASSERT_EQ(i, r.rankzero(pos)) << "pos =" << pos << "   i =" << i << "  len=" << r.length() << endl;
-		ASSERT_EQ(i + 1, r.rankzero(pos + 1));
-		ASSERT(pos < vec.size() && vec[pos] == false);
-		ASSERT(pos > last);
-		last = pos;
-	}
+
+		RankSelect r;
+		RankSelect::BuilderTp::build(v, &r);
+		for (unsigned int i = 0; i < vec.size(); ++i)
+			ASSERT_EQ(vec[i], r.access(i));
+		for (int i = 0; i <= vec.size(); ++i) {
+			if (ranks[i] != r.rank(i)) {
+				cout << "rank " << i << " " << ranks[i] << " " << r.rank(i) << endl;
+				ASSERT_EQ(ranks[i], r.rank(i));
+			}
+		}
+		unsigned int onecnt = 0;
+		for (unsigned int i = 0; i < vec.size(); ++i)
+			if (vec[i]) onecnt++;
+		int last = -1;
+		for (unsigned int i = 0; i < onecnt; ++i) {
+			int pos = r.select(i);
+			ASSERT_EQ(i, r.rank(pos));
+			ASSERT_EQ(i + 1, r.rank(pos + 1));
+			if (pos >= vec.size() || !vec[pos] || pos <= last) {
+				cout << "select " << i << "  " << r.select(i) << endl;
+				if (i > 0) r.select(i-1);
+				ASSERT_EQ(true, vec[pos]);
+			}
+			ASSERT(pos > last);
+			last = pos;
+		}
+		last = -1;
+		for (unsigned int i = 0; i < vec.size() - onecnt; ++i) {
+			int pos = r.selectzero(i);
+			ASSERT_EQ(i, r.rankzero(pos)) << "pos =" << pos << "   i =" << i << "  len=" << r.length() << endl;
+			ASSERT_EQ(i + 1, r.rankzero(pos + 1));
+			ASSERT(pos < vec.size() && vec[pos] == false);
+			ASSERT(pos > last);
+			last = pos;
+		}
 }
 
 void test_temp(int len) {
@@ -280,4 +282,4 @@ TEST(ranktest, rrr2) {
 	cout << endl;
 }
 
-
+}//namespace

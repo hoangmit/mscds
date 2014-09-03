@@ -6,6 +6,8 @@
 #include <iostream>
 #include <cassert>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -16,11 +18,11 @@ void test_bitarr1(int len = 2048) {
 		v[i] = (rand() % 2) == 1;
 		b.setbit(i, v[i]);
 	}
-	for (int i = 0; i < v.size(); ++i) { 
+	for (int i = 0; i < v.size(); ++i) {
 		ASSERT_EQ(v[i], b[i]);
 	}
 	for (int i = 0; i < v.size() / 8; i++) {
-		ASSERT_EQ(b.bits(i*8,8), b.byte(i));
+		ASSERT_EQ(b.bits(i*8, 8), b.byte(i));
 	}
 }
 
@@ -32,7 +34,7 @@ void test_bitarr2(int len = 2048) {
 		v[i] = (rand() % 2) == 1;
 		b.setbit(i, v[i]);
 	}
-	for (int i = 0; i < v.size(); ++i) { 
+	for (int i = 0; i < v.size(); ++i) {
 		ASSERT(v[i] == b[i]);
 	}
 	for (int d = 1; d <= 64; ++d) {
@@ -47,16 +49,16 @@ void test_bitarr2(int len = 2048) {
 			if (i > 0) bm1 = c[i-1];
 			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 			c.setbits(i, u, d);
-			if (u != c.bits(i,d)) {
-				cout << u << ' ' << c.bits(i,d);
-				c.setbits(i,u,d);
-				ASSERT(u == c.bits(i,d));
+			if (u != c.bits(i, d)) {
+				cout << u << ' ' << c.bits(i, d);
+				c.setbits(i, u, d);
+				ASSERT(u == c.bits(i, d));
 			}
 			if (i > 0) ASSERT(bm1 == c[i-1]);
 			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 		}
 	}
-	cout << "." ;
+	cout << ".";
 }
 
 void test_obitstream(int len = 2048) {
@@ -66,7 +68,7 @@ void test_obitstream(int len = 2048) {
 		if (rand() % 2 == 1) {
 			os.put1();
 			v.push_back(true);
-		}else {
+		} else {
 			os.put0();
 			v.push_back(false);
 		}
@@ -86,15 +88,14 @@ void test_ibitstream(int len, int idx) {
 	OBitStream os;
 	string debug;
 	for (int i = 0; i < len; ++i)
-		if (rand() % 2 == 1) { os.put1(); debug.append("1"); }
-		else { os.put0();  debug.append("0"); }
+		if (rand() % 2 == 1) { os.put1(); debug.append("1"); } else { os.put0();  debug.append("0"); }
 	os.close();
 	BitArray b;
 	string s = os.to_str();
 	ASSERT_EQ(debug, s);
 	IWBitStream is(os);
 	os.build(&b);
-	
+
 	int bl = len;
 	int pos = 0, j = 0;
 	while (pos < len) {
@@ -116,11 +117,9 @@ void test_append(int l1, int l2) {
 	OBitStream o1, o2;
 	string debug;
 	for (int i = 0; i < l1; ++i)
-		if (rand() % 2 == 1) { o1.put1(); debug.append("1"); }
-		else { o1.put0();  debug.append("0"); }
+		if (rand() % 2 == 1) { o1.put1(); debug.append("1"); } else { o1.put0();  debug.append("0"); }
 	for (int i = 0; i < l2; ++i)
-		if (rand() % 2 == 1) { o2.put1(); debug.append("1"); }
-		else { o2.put0();  debug.append("0"); }
+		if (rand() % 2 == 1) { o2.put1(); debug.append("1"); } else { o2.put0();  debug.append("0"); }
 	o2.close();
 	o1.append(o2);
 	o1.close();
@@ -270,6 +269,6 @@ TEST(bitarray, scan0_unfit) {
 	}
 }
 
-
+}//namespace
 
 //TESTALL_MAIN();

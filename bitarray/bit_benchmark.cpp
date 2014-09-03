@@ -8,10 +8,12 @@
 
 #include "bitstream.h"
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
-struct RankBMFix : public SharedFixtureItf {
+struct RankBMFix: public SharedFixtureItf {
 	void SetUp() {
 		unsigned int size = 50000000;
 		size_t onepc = 5000;
@@ -20,25 +22,25 @@ struct RankBMFix : public SharedFixtureItf {
 		for (int i = 0; i < size; ++i)
 			if (rand() % 10000 < onepc) ba.setbit(i, true);
 			else ba.setbit(i, false);
-		queries.clear();
-		queries.resize(queries_cnt);
-		for (unsigned int j = 0; j < queries_cnt; ++j) {
-			queries.push_back(utils::rand32() % size);
-		}
-		Rank25pBuilder br25;
-		br25.build(ba, &r25);
+			queries.clear();
+			queries.resize(queries_cnt);
+			for (unsigned int j = 0; j < queries_cnt; ++j) {
+				queries.push_back(utils::rand32() % size);
+			}
+			Rank25pBuilder br25;
+			br25.build(ba, &r25);
 
-		Rank6pBuilder br6;
-		br6.build(ba, &r6);
+			Rank6pBuilder br6;
+			br6.build(ba, &r6);
 
-		Rank3pBuilder br3;
-		br3.build(ba, &r3);
+			Rank3pBuilder br3;
+			br3.build(ba, &r3);
 
-		RRRBuilder brrr;
-		brrr.build(ba, &rr);
-		
-		RRR2Builder brrr2;
-		brrr2.build(ba, &rr2);
+			RRRBuilder brrr;
+			brrr.build(ba, &rr);
+
+			RRR2Builder brrr2;
+			brrr2.build(ba, &rr2);
 	}
 
 	void TearDown() {
@@ -173,3 +175,4 @@ BENCHMARK_SET(bitaccess_benchmark) {
 	bm.report(0);
 }
 
+}

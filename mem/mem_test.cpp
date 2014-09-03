@@ -19,6 +19,8 @@
 using namespace std;
 using namespace mscds;
 
+namespace tests {
+
 
 void testout1(OutArchive& out) {
 	out.startclass("test", 1);
@@ -35,7 +37,7 @@ void testinp1(InpArchive& inp) {
 	uint64_t v64;
 	auto version = inp.loadclass("test");
 	ASSERT_EQ(1, version);
-	
+
 	inp.load(v32);
 	ASSERT_EQ(13221, v32);
 	inp.load(v64);
@@ -72,7 +74,7 @@ TEST(farchive, file) {
 	fo.assign_write(&sbuf);
 	testout1(fo);
 	fo.close();
-	
+
 	IFileArchive1 fi;
 	fi.assign_read(&sbuf);
 	testinp1(fi);
@@ -131,63 +133,118 @@ TEST(farchive2, fmap_file) {
 	fi.close();
 }
 
+}//namespace
+
+namespace example {
+/// Example: a class use StaticMemRegion, save and load from Archive
 class SString {
 public:
-	unsigned int count_a() const {
-		size_t c = 0;
-		for (unsigned int i = 0; i < length(); ++i)
-			if (get(i) == 'a') c++;
-		return c;
-	}
-	char get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
-	SString() { number_a = 0; }
-	SString(const char* s, unsigned int len) {
-		LocalMemAllocator a;
-		p = a.allocStaticMem(len);
-		p.write(0, len, s);
-		number_a = count_a();
-	}
-	unsigned int length() const { return p.size(); }
-	void save(OutArchive& ar) const {
-		ar.startclass("string");
-		ar.var("count_a").save(number_a);
-		ar.var("string_mem").save_mem(p);
-		ar.endclass();
-	}
-	void load(InpArchive& ar) {
-		ar.loadclass("string");
-		ar.var("count_a").load(number_a);
-		p = ar.var("string_mem").load_mem_region();
-		ar.endclass();
-		if (count_a() != number_a) throw std::runtime_error("data mismatched");
-	}
+	/// count the number of 'a' character in string
+	unsigned int count_a() const;
+	/// the the i-th character
+	char get(unsigned int i) const;
+	/// the the i-th character (i.e. same as 'get'), 
+	/// using different APIs to read data
+	char get_adv(unsigned int i) const;
+	/// string length
+	unsigned int length() const;
+	/// empty constructor
+	SString();
+	/// constructor from existing string
+	SString(const char* s, unsigned int len);
+	/// save to file
+	void save(OutArchive& ar) const;
+	/// load from file
+	void load(InpArchive& ar);
 private:
 	unsigned int number_a;
-	StaticMemRegionPtr p;
+	mutable StaticMemRegionPtr p;
 };
 
+inline unsigned int SString::count_a() const {
+	size_t c = 0;
+	for (unsigned int i = 0; i < length(); ++i)
+		if (get(i) == 'a') c++;
+	return c;
+}
+
+inline char SString::get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
+
+inline char SString::get_adv(unsigned int i) const {
+	assert(i < length());
+	char *ptr = NULL;
+	if (p.memory_type() == FULL_MAPPING) {
+		ptr = (char*)p.get_addr();
+		return ptr[i];
+	} else if (p.memory_type() == MAP_ON_REQUEST) {
+		p.request_map(i, 1);
+		ptr = (char*)p.get_addr();
+		return ptr[i];
+	} else {
+		char ch;
+		// fall back to basic API
+		p.read(i, 1, &ch);
+		return ch;
+	}
+}
+
+inline SString::SString() { number_a = 0; }
+
+inline SString::SString(const char *s, unsigned int len) {
+	LocalMemAllocator a;
+	p = a.allocStaticMem(len);
+	p.write(0, len, s);
+	number_a = count_a();
+}
+
+inline unsigned int SString::length() const { return p.size(); }
+
+inline void SString::save(OutArchive &ar) const {
+	ar.startclass("string");
+	ar.var("count_a").save(number_a);
+	ar.var("string_mem").save_mem(p);
+	ar.endclass();
+}
+
+inline void SString::load(InpArchive &ar) {
+	ar.loadclass("string");
+	ar.var("count_a").load(number_a);
+	p = ar.var("string_mem").load_mem_region();
+	ar.endclass();
+	if (count_a() != number_a) throw std::runtime_error("data mismatched");
+}
+
+
 void example_str1() {
+	// create a string
 	SString original("testing a", 9);
+	// create output file
 	OFileArchive2 fo;
 	fo.open_write("C:/temp/string.bin");
+	// write to file
 	original.save(fo);
 	fo.close();
 
+	// declare empty string
 	SString local, remote;
 	IFileArchive2 fi;
+	// read from local file
 	fi.open_read("C:/temp/string.bin");
 	local.load(fi);
 	fi.close();
 
+	// check if length is correct
 	assert(original.length() == local.length());
 
+	// load from remote file
 	//RemoteArchive2 rfi;
 	//rfi.open_url("http://localhost/string.bin");
 	//remote.load(rfi);
 	//rfi.close();
 
-	//assert(local.length() == remote.length());
+	assert(local.length() == remote.length());
 }
+}//namespace
 
 /*
 TEST(farchive2, remote_file) {

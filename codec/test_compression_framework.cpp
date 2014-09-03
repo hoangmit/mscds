@@ -39,6 +39,9 @@ void design_arithmetic() {
 #include "huffman_code.h"
 #include "huffman_adp.hpp"
 
+#include "intarray/huffarray.h"
+
+namespace tests {
 using namespace std;
 using namespace coder;
 
@@ -71,7 +74,6 @@ TEST(huffman, encode_decode4) {
 }
 
 
-#include "intarray/huffarray.h"
 
 TEST(huffman, harray) {
 	vector<uint32_t> A;
@@ -107,6 +109,8 @@ TEST(huffman, harray2) {
 		ASSERT_EQ(A[i], arr.lookup(i));
 	}
 }
+
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

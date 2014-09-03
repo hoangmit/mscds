@@ -20,6 +20,8 @@
 #include <functional>
 #include <chrono>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 using namespace utils;
@@ -31,7 +33,7 @@ void gen_excess_seq(const string& s) {
 		if (c == ' ') continue;
 		if (c == '0') v -= 1;
 		else
-		if (c == '1') v += 1;
+			if (c == '1') v += 1;
 		cout << v << ", ";
 		if (i % 8 == 0) cout << endl;
 		++i;
@@ -65,7 +67,7 @@ void testmin(uint64_t v) {
 		cout << "actual  : (" << (int)y.first << "," << (int)y.second << ")" << endl;
 		gen_excess_seq(s);
 		min_excess_word(v);
-		ASSERT_EQ(x,y);
+		ASSERT_EQ(x, y);
 	}
 }
 
@@ -81,7 +83,7 @@ void test_rmq2(unsigned int len, unsigned int range, bool min_val = true) {
 	std::vector<int> vals = rand_vec<int>(len, range);
 	RMQ_index_table tbl;
 	RMQ_index_table::build(vals, min_val, &tbl);
-	
+
 	for (unsigned int i = 0; i < vals.size(); ++i) {
 		for (unsigned int j = i + 1; j <= vals.size(); ++j) {
 			size_t exp = RMQ_index_table::_slow_m_idx<int>(i, j, vals, min_val);
@@ -147,7 +149,7 @@ TEST(rmq_pm1, blk_table) {
 	}
 }
 
-void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) {
+void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct = true) {
 	vector<int> vals(len);
 	BitArray b = BitArrayBuilder::create(len);
 	int last = 0;
@@ -163,13 +165,13 @@ void test_rmq_pm1(unsigned int len, unsigned blksize = 4, bool min_struct=true) 
 		unsigned int ll = utils::ceildiv(len, 64);
 		vector<int> blkexp(ll);
 		for (unsigned int i = 0; i < ll; ++i) {
-			unsigned int edx = std::min((i + 1) * 64, len);
-			blkexp[i] = *std::min_element(vals.begin() + i * 64, vals.begin() + edx);
+		unsigned int edx = std::min((i + 1) * 64, len);
+		blkexp[i] = *std::min_element(vals.begin() + i * 64, vals.begin() + edx);
 		}
 		for (unsigned int i = 0; i < ll; ++i)
-			cout << blkexp[i] << ", ";
+		cout << blkexp[i] << ", ";
 		cout << endl;
-	}*/
+		}*/
 
 	RMQ_index_table tbl;
 	RMQ_index_table::build(vals, min_struct, &tbl);
@@ -247,6 +249,7 @@ TEST(rmq_pm1, saveload) {
 	inx.close();
 }
 
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

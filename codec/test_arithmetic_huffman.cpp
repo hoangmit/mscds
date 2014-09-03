@@ -4,6 +4,8 @@
 #include "huffman_code.h"
 #include "huffman_adp.hpp"
 
+namespace tests {
+
 using namespace std;
 using namespace coder;
 
@@ -19,14 +21,14 @@ void DISABLED_arithmetic_code_test1() {
 	OutBitStream::VecTp buf;
 	OutBitStream is(buf);
 	AC32_EncState enc;
-	enc.output = & is;
+	enc.output = &is;
 	enc.init();
 	for (int i = 0; i < n; ++i) {
 		//cout << (bv[i] ? "true  " : "false ");
 		//cout <<  enc.lo << " " << enc.hi << ' ';
 		if (!bv[i])
 			enc.update(0, zc, n);
-		else 
+		else
 			enc.update(zc, n, n);
 		//cout << endl;
 	}
@@ -34,7 +36,7 @@ void DISABLED_arithmetic_code_test1() {
 
 	InBitStream os(is);
 	AC32_DecState dec;
-	dec.input = & os;
+	dec.input = &os;
 	dec.init();
 	for (int i = 0; i < n; ++i) {
 		//cout << dec.lo << " " << dec.hi << " " << dec.code << "   ";		
@@ -53,9 +55,9 @@ void DISABLED_arithmetic_code_test1() {
 	dec.close();
 }
 
-TEST(huffman,test1) {
+TEST(huffman, test1) {
 	const int n = 5;
-	int arr[n] = {6,5,3,3,1};
+	int arr[n] = {6, 5, 3, 3, 1};
 	vector<unsigned int> v;
 	for (int i = 0; i < n; i++) v.push_back(arr[i]);
 	HuffmanCode code;
@@ -63,9 +65,9 @@ TEST(huffman,test1) {
 	ASSERT_EQ(tt, 6*2 + 5*2 + 3*2 + 3*3 + 1*3);
 }
 
-TEST(huffman,test2) {
+TEST(huffman, test2) {
 	const int n = 4;
-	int arr[n] = {1,2,1,4};//
+	int arr[n] = {1, 2, 1, 4};//
 	vector<unsigned int> v;
 	for (int i = 0; i < n; i++) v.push_back(arr[i]);
 	HuffmanCode code;
@@ -212,3 +214,5 @@ TEST(huffman, decode5) {
 		test_huffdec<HuffmanTree>(10000, 64);
 	}
 }
+
+}//namespace

@@ -31,7 +31,7 @@ struct StmFix : public SharedFixtureItf {
 
 		SDArrayBuilder bd1;
 		SDArraySmlBuilder bd2;
-		TwoSDA_Builder xd;
+		tests::TwoSDA_Builder xd;
 		SDArrayTHBuilder thb;
 		SDRankSelectBuilderSml srsb;
 
@@ -123,7 +123,7 @@ struct StmFix : public SharedFixtureItf {
 	std::vector<unsigned int> rankqs;
 	SDArrayQuery sd1;
 	SDArraySml sd2;
-	TwoSDA_Query qs;
+	tests::TwoSDA_Query qs;
 	SDArrayTH th;
 
 	SDArrayZero zero;

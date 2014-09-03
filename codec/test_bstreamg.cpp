@@ -6,11 +6,14 @@
 #include <iostream>
 
 #include "utils/utest.h"
+
+namespace tests {
+
 using namespace std;
 using namespace coder;
 using namespace mscds;
 
-TEST(EncBStream,delta_EncodeSmall1){
+TEST(EncBStream, delta_EncodeSmall1) {
 	OBitStream os;
 	DeltaCoder dc;
 	for (int i = 1; i <= 10; ++i) {
@@ -22,7 +25,7 @@ TEST(EncBStream,delta_EncodeSmall1){
 	ASSERT_EQ(s, "10100010101100011100110101111001000000010010000100010");
 }
 
-TEST(EncBStream,delta_EncodeSmall2) {
+TEST(EncBStream, delta_EncodeSmall2) {
 	OBitStream os;
 	DeltaCoder dc;
 	for (int i = 1; i <= 14; ++i) {
@@ -33,7 +36,7 @@ TEST(EncBStream,delta_EncodeSmall2) {
 	ASSERT(os.to_str() == "1010001010110001110011010111100100000001001000010001000100110001000010010010100100011");
 }
 
-TEST(EncBStream,delta_encodedecode_small1)  {
+TEST(EncBStream, delta_encodedecode_small1) {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -55,7 +58,7 @@ TEST(EncBStream,delta_encodedecode_small1)  {
 	ASSERT_EQ(10, c.first);
 }
 
-TEST(EncBStream,delta_encodedecode_small2)  {
+TEST(EncBStream, delta_encodedecode_small2) {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -77,7 +80,7 @@ TEST(EncBStream,delta_encodedecode_small2)  {
 	ASSERT_EQ(14, c.first);
 }
 
-TEST(EncBStream,delta_encodedecode_medium)  {
+TEST(EncBStream, delta_encodedecode_medium) {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -100,7 +103,7 @@ TEST(EncBStream,delta_encodedecode_medium)  {
 }
 
 
-TEST(EncBStream, delta_encodedecode_rand)  {
+TEST(EncBStream, delta_encodedecode_rand) {
 	OBitStream os;
 	DeltaCoder dc;
 	int i;
@@ -127,29 +130,29 @@ TEST(EncBStream, delta_encodedecode_rand)  {
 
 /*
 void EncBStream_golomb_encodedecode_small2()  {
-	VecOStream::VecTp store;
-	VecOStream v(store);
-	GolombCoder g(10);
-	EncWStream<VecOStream, GolombCoder> e(v,g);
-	int i;
-	for (i = 1; i <= 100; ++i) {
-		e.push(i);
-	}
-	e.stop();
-	// Decode
-	VecIStream v2(store, v.blen);
-	DecI64Stream<VecIStream, GolombCoder> d(v2,g);
-	i = 0;
-	while (!d.empty()) {
-		uint64_t v = d.pull();
-		++i;
-		ASSERT_EQ(i, v);
-	}
-	ASSERT_EQ(100, i);
+VecOStream::VecTp store;
+VecOStream v(store);
+GolombCoder g(10);
+EncWStream<VecOStream, GolombCoder> e(v,g);
+int i;
+for (i = 1; i <= 100; ++i) {
+e.push(i);
+}
+e.stop();
+// Decode
+VecIStream v2(store, v.blen);
+DecI64Stream<VecIStream, GolombCoder> d(v2,g);
+i = 0;
+while (!d.empty()) {
+uint64_t v = d.pull();
+++i;
+ASSERT_EQ(i, v);
+}
+ASSERT_EQ(100, i);
 }
 */
 
-TEST(EncBStream,seek_decode1) {
+TEST(EncBStream, seek_decode1) {
 	size_t len = 100;
 	vector<size_t> stpos;
 	stpos.resize(len + 2);
@@ -175,3 +178,4 @@ TEST(EncBStream,seek_decode1) {
 	}
 }
 
+}//namespace

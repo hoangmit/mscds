@@ -4,6 +4,11 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+
+#include "bitarray/rrr.h"
+
+namespace tests {
+
 using namespace std;
 using namespace mscds;
 
@@ -43,14 +48,14 @@ TEST(watarr, wat_1) {
 	ASSERT_EQ(7, wq.select(4, 1));
 }
 
-TEST(watarr, wat_2){
+TEST(watarr, wat_2) {
 	vector<uint64_t> v;
 	const int range = 8;
 	const int len = 100;
 	for (int i = 0; i < len; ++i)
 		v.push_back(rand() % range);
 
-	vector<int> Cnt(range,0);
+	vector<int> Cnt(range, 0);
 	for (int i = 0; i < len; ++i)
 		Cnt[v[i]]++;
 
@@ -73,10 +78,10 @@ TEST(watarr, wat_2){
 	}
 }
 
-#include "bitarray/rrr.h"
 
-TEST(watarr, wat_3){
-	
+
+TEST(watarr, wat_3) {
+
 	vector<uint64_t> v;
 	for (unsigned int i = 0; i < 9; i++)
 		v.push_back(i + 1);
@@ -159,7 +164,7 @@ TEST(watarr, rank_access_smallrange) {
 
 TEST(watarr, select_rank) {
 	vector<uint64_t> v;
-	int len = 1000, maxval=18;
+	int len = 1000, maxval = 18;
 	vector<vector<unsigned int> > pos(maxval);
 	for (int i = 0; i < len; ++i) {
 		unsigned int val = rand() %  maxval;
@@ -190,12 +195,12 @@ TEST(watarr, minmax_handmade_test) {
 
 	for (int i = 0; i < 8; ++i)
 		for (int j = i+1; j < 8; ++j) {
-			unsigned int maxv, minv;
-			maxv = *std::max_element(arr + i, arr + j);
-			minv = *std::min_element(arr + i, arr + j);
-			uint64_t pos;
-			ASSERT_EQ(maxv, wq.maxValue(i, j, pos));
-			ASSERT_EQ(minv, wq.minValue(i, j, pos));
+		unsigned int maxv, minv;
+		maxv = *std::max_element(arr + i, arr + j);
+		minv = *std::min_element(arr + i, arr + j);
+		uint64_t pos;
+		ASSERT_EQ(maxv, wq.maxValue(i, j, pos));
+		ASSERT_EQ(minv, wq.minValue(i, j, pos));
 		}
 }
 
@@ -216,7 +221,7 @@ void manuallist(int min_c, int max_c, int beg_pos, int end_pos, const vector<uin
 
 TEST(watarr, listing) {
 	vector<uint64_t> v;
-	int len = 50, maxval=18;
+	int len = 50, maxval = 18;
 	for (int i = 0; i < len; ++i) {
 		unsigned int val = rand() %  maxval;
 		v.push_back(val);
@@ -226,23 +231,23 @@ TEST(watarr, listing) {
 	WatBuilder::build(v, &wq);
 
 	for (int i = 0; i < len; ++i) {
-		for (int j = i; j <= len; ++j) 
+		for (int j = i; j <= len; ++j)
 			for (int v1 = 0; v1 < maxval; ++v1)
 				for (int v2 = v1; v2 <= maxval; ++v2) {
-					vector<pair<int, int> > exp;
-					manuallist(v1, v2, i, j, v, exp);
-					vector<pair<int, int> > rs;
-					wq.list_each(v1, v2, i, j, push_vec_ppii, &rs);
-					ASSERT_EQ(exp.size(), rs.size());
-					if (exp.size() > 0) {
-						std::sort(exp.begin(), exp.end());
-						std::sort(rs.begin(), rs.end());
-						for (int k = 0; k < exp.size(); ++k) {
-							//ASSERT_EQ(exp[k].first, rs[k].first);
-							//ASSERT_EQ(exp[k].second, rs[k].second);
-							ASSERT_EQ(exp[k], rs[k]);
-						}
-					}
+			vector<pair<int, int> > exp;
+			manuallist(v1, v2, i, j, v, exp);
+			vector<pair<int, int> > rs;
+			wq.list_each(v1, v2, i, j, push_vec_ppii, &rs);
+			ASSERT_EQ(exp.size(), rs.size());
+			if (exp.size() > 0) {
+				std::sort(exp.begin(), exp.end());
+				std::sort(rs.begin(), rs.end());
+				for (int k = 0; k < exp.size(); ++k) {
+					//ASSERT_EQ(exp[k].first, rs[k].first);
+					//ASSERT_EQ(exp[k].second, rs[k].second);
+					ASSERT_EQ(exp[k], rs[k]);
+				}
+			}
 				}
 	}
 }
@@ -335,4 +340,4 @@ TEST(grid, querytest2) {
 	cout << endl;
 }
 
-
+}//namespace

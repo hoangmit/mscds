@@ -16,6 +16,8 @@ Parse HTTP header for HTTP client.
 #include <ctime>
 
 
+namespace mscds {
+
 //typedef boost::network::http::basic_client<boost::network::http::tags::http_async_8bit_udp_resolve, 1, 1> client_t;
 
 std::string uri_encode(const std::string & sSrc);
@@ -43,7 +45,8 @@ struct HeaderInfo {
 	void clear();
 
 	void check_header(const std::string& name, const std::string& value);
-	
+
 
 };
 
+}//namespace

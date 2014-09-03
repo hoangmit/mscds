@@ -2,6 +2,9 @@
 #include "RMQ_sct.h"
 #include "utils/utest.h"
 #include <iostream>
+
+
+namespace tests {
 using namespace std;
 using namespace mscds;
 
@@ -50,9 +53,9 @@ void test_rmq(const vector<uint64_t>& vec) {
 
 TEST(test1, RMQ) {
 	const int len = 9;
-	int A[len] = {2,4,7,8,1,6,3,9,5};
+	int A[len] = {2, 4, 7, 8, 1, 6, 3, 9, 5};
 	vector<uint64_t> vec;
-	for (int i = 0; i < len; i++) vec.push_back(A[i]); 
+	for (int i = 0; i < len; i++) vec.push_back(A[i]);
 
 	test_rmq(vec);
 	/*min_structure
@@ -124,6 +127,9 @@ TEST(random_long, RMQ) {
 	}
 
 }
+
+}//namespace
+
 /*
 int main() {
 	test1();

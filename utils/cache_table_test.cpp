@@ -1,6 +1,8 @@
 #include "utils/cache_table.h"
 #include "utils/utest.h"
 
+namespace tests {
+
 using namespace utils;
 
 TEST(lru_cache, test_gereneral1) {
@@ -27,7 +29,7 @@ TEST(lru_cache, test_gereneral1) {
 
 	ret = cache.access(1);
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
-	
+
 	ret = cache.check(1);
 	ASSERT_EQ(LRU_Policy::FOUND_ENTRY, ret.type);
 
@@ -82,6 +84,8 @@ TEST(lru_cache, test_rlu2) {
 	ASSERT(LRU_Policy::NEW_ENTRY == ret.type || LRU_Policy::REPLACED_ENTRY == ret.type);
 	ASSERT_EQ(oldpos, ret.index);
 }
+
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

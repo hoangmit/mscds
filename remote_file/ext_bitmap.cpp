@@ -6,14 +6,15 @@
 
 typedef mman::MemoryMappedFile MappedFile;
 
-ExternalBitMap::ExternalBitMap() : impl(nullptr), ptr(nullptr), _len(0), onecnt(0) {}
+namespace mscds {
+
+ExternalBitMap::ExternalBitMap(): impl(nullptr), ptr(nullptr), _len(0), onecnt(0) {}
 ExternalBitMap::~ExternalBitMap() {
 	MappedFile * mmf = reinterpret_cast<MappedFile*>(impl);
 	if (mmf != nullptr) delete mmf;
 }
 
-void ExternalBitMap::create(const std::string &path, size_t len, unsigned int extlen, const char *extinfo)
-{
+void ExternalBitMap::create(const std::string &path, size_t len, unsigned int extlen, const char *extinfo) {
 	//header 
 	// -- identifier -- 4 bytes
 	// -- ext len  -- 4 bytes
@@ -28,12 +29,12 @@ void ExternalBitMap::create(const std::string &path, size_t len, unsigned int ex
 	const size_t extinfosize = ((extlen + 3) / 4) * 4;
 	const size_t bitsize = (len + 7) / 8;
 	mmf->create_rw(path, headersize + extinfosize + bitsize);
-	char* start = (char*) mmf->addr;
+	char* start = (char*)mmf->addr;
 	memcpy(start, "EBM_", 4);
-	*((uint32_t*) (start + 4)) = extlen;
-	*((uint64_t*) (start + 8)) = len;
-	*((uint64_t*) (start + 16)) = 0;
-	*((uint64_t*) (start + 24)) = headersize + extinfosize;
+	*((uint32_t*)(start + 4)) = extlen;
+	*((uint64_t*)(start + 8)) = len;
+	*((uint64_t*)(start + 16)) = 0;
+	*((uint64_t*)(start + 24)) = headersize + extinfosize;
 	memcpy(start + 32, extinfo, extlen);
 
 	this->_len = len;
@@ -104,3 +105,4 @@ const char *ExternalBitMap::get_extinfo() {
 	return start + 32;
 }
 
+}

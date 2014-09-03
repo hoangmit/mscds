@@ -605,7 +605,8 @@ struct SLG_Q {
 
 }//namespace
 
-
+namespace tests {
 void test_dsdd(const std::vector<unsigned int>& lst);
 void test_dfsd(const std::vector<unsigned int>& lst);
+}
 

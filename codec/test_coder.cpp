@@ -18,14 +18,14 @@
 #include <random>
 
 
+namespace tests {
+
 using namespace std;
 using namespace coder;
 using namespace utils;
 using namespace mscds;
 
-
-
-TEST(SmallNumbers,FibCoder) {
+TEST(SmallNumbers, FibCoder) {
 	ASSERT(binstr(FibCoder::encode(1)) == "11");
 	ASSERT(binstr(FibCoder::encode(2)) == "011");
 	ASSERT(binstr(FibCoder::encode(3)) == "0011");
@@ -51,7 +51,7 @@ TEST(DecodeEncode, FibCoder) {
 	}
 }
 //---------------------------------------------------------------------------
-TEST(SmallNumbers,GammaCoder) {
+TEST(SmallNumbers, GammaCoder) {
 	ASSERT(binstr(GammaCoder::encode(1)) == "1");
 	ASSERT(binstr(GammaCoder::encode(2)) == "010");
 	ASSERT(binstr(GammaCoder::encode(3)) == "011");
@@ -66,7 +66,7 @@ TEST(SmallNumbers,GammaCoder) {
 	ASSERT(binstr(GammaCoder::encode(10))== "0001010");
 }
 
-TEST(DecodeEncode,GammaCoder) {
+TEST(DecodeEncode, GammaCoder) {
 	for (unsigned int i = 1; i < 1000000; ++i) {
 		ASSERT_EQ(i, GammaCoder::decode2(GammaCoder::encode(i).first).first);
 		ASSERT_EQ(GammaCoder::encodelen(i), GammaCoder::encode(i).second);
@@ -75,7 +75,7 @@ TEST(DecodeEncode,GammaCoder) {
 }
 
 //---------------------------------------------------------------------------
-TEST(SmallNumbers,DeltaCoder) {
+TEST(SmallNumbers, DeltaCoder) {
 	ASSERT(binstr(DeltaCoder::encode(1)) == "1");
 	ASSERT(binstr(DeltaCoder::encode(2)) == "0100");
 	ASSERT(binstr(DeltaCoder::encode(3)) == "0101");
@@ -95,7 +95,7 @@ TEST(SmallNumbers,DeltaCoder) {
 	ASSERT(binstr(DeltaCoder::encode(15))== "00100111");
 }
 
-TEST(DecodeEncode,DeltaCoder) {
+TEST(DecodeEncode, DeltaCoder) {
 	for (unsigned int i = 1; i < 1000000; ++i) {
 		ASSERT(i == DeltaCoder::decode2(DeltaCoder::encode(i).first).first);
 		ASSERT_EQ(DeltaCoder::encodelen(i), DeltaCoder::encode(i).second);
@@ -116,7 +116,7 @@ TEST(CeilLog_Simple, Encode) {
 	ASSERT_EQ(4, ceillog2(9));
 }
 
-TEST(Encode1,RiceCoder) {
+TEST(Encode1, RiceCoder) {
 	RiceCoder r0(0);
 	ASSERT_EQ("0", binstr(r0.encode(0)));
 	ASSERT_EQ("10", binstr(r0.encode(1)));
@@ -125,7 +125,7 @@ TEST(Encode1,RiceCoder) {
 	ASSERT_EQ("11110", binstr(r0.encode(4)));
 	ASSERT_EQ("111110", binstr(r0.encode(5)));
 	ASSERT_EQ("1111110", binstr(r0.encode(6)));
-	
+
 	RiceCoder r1(1);
 	ASSERT_EQ(string("0")+"0", binstr(r1.encode(0)));
 	ASSERT_EQ(string("0")+"1", binstr(r1.encode(1)));
@@ -150,14 +150,14 @@ TEST(Encode1,RiceCoder) {
 	for (int i = 0; i < 5; ++i) {
 		RiceCoder rx(i);
 		for (int j = 0; j < 20; ++j) {
-			ASSERT_EQ(j, rx.decode2(rx.encode(j).first).first); 
+			ASSERT_EQ(j, rx.decode2(rx.encode(j).first).first);
 			ASSERT_EQ(rx.encodelen(j), rx.encode(j).second);
 			ASSERT_EQ(rx.encodelen(j), rx.decode2(rx.encode(j).first).second);
 		}
 	}
 }
 
-TEST(Encode1,GolombCoder) {
+TEST(Encode1, GolombCoder) {
 	GolombCoder g(10);
 	ASSERT_EQ(string("0")+"000", binstr(g.encode(0)));
 	ASSERT_EQ(string("0")+"100", binstr(g.encode(1)));
@@ -201,9 +201,11 @@ TEST(Encode1,GolombCoder) {
 	for (int j = 0; j < 150; ++j) {
 		ASSERT_EQ(j, g.decode2(g.encode(j).first).first);
 		ASSERT_EQ(g.encodelen(j), g.encode(j).second);
-		ASSERT_EQ(g.encodelen(j),g.decode2(g.encode(j).first).second);
+		ASSERT_EQ(g.encodelen(j), g.decode2(g.encode(j).first).second);
 	}
 }
+
+}//namespace
 
 /*
 TEST(DISABLED_estimate1,GolombAdpCoder) {

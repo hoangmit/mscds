@@ -16,6 +16,8 @@
 #include "utils/utest.h"
 #include "utils/utils.h"
 
+namespace tests {
+
 using namespace std;
 using namespace utils;
 using namespace mscds;
@@ -45,7 +47,7 @@ BitArray str2bits(const string& s) {
 	for (size_t i = 0; i < s.length(); i++)
 		if (s[i] == '(' || s[i] == '1') inp.setbit(i, true);
 		else inp.setbit(i, false);
-	return inp;
+		return inp;
 }
 
 BitArray ui642bits(uint64_t v, int len) {
@@ -62,7 +64,7 @@ TEST(BP_tree, find_pioneer1) {
 	string exp = "1000100000000111000000000000100100110001";
 	BitArray inp = str2bits(bps);
 
-	BitArray out = find_pioneers(inp,8);
+	BitArray out = find_pioneers(inp, 8);
 	for (int i = 0; i< bps.length(); ++i) {
 		ASSERT_EQ((exp[i] == '1'), out[i]);
 	}
@@ -74,18 +76,18 @@ TEST(BP_tree, test_find_pioneer2) {
 	string exp = "0000000000000000";
 	BitArray inp = str2bits(bps);
 
-	BitArray out = find_pioneers(inp,8);
+	BitArray out = find_pioneers(inp, 8);
 	for (int i = 0; i< bps.length(); ++i) {
 		ASSERT_EQ((exp[i] == '1'), out[i]);
 	}
 }
 
 TEST(BP_tree, blk1) {
-	{
-		BitArray b = str2bits(")");
-		BP_block block(b, 8);
-		ASSERT_EQ(0, block.forward_scan(0,-1));
-	}
+		{
+			BitArray b = str2bits(")");
+			BP_block block(b, 8);
+			ASSERT_EQ(0, block.forward_scan(0, -1));
+		}
 	{
 		BitArray b = str2bits("())");
 		BP_block block(b, 8);
@@ -102,10 +104,10 @@ TEST(BP_tree, blk2) {
 	for (int i = 0; i < 65536; ++i) {
 		BitArray b = ui642bits(i, 16);
 		BP_block block(b, 16);
-		if (block.forward_scan_slow(0, -1) != block.forward_scan(0,-1)) {
+		if (block.forward_scan_slow(0, -1) != block.forward_scan(0, -1)) {
 			ASSERT_EQ(block.forward_scan_slow(0, -1), block.forward_scan(0, -1));
 		}
-		if (block.forward_scan_slow(1, -1) != block.forward_scan(1,-1)) {
+		if (block.forward_scan_slow(1, -1) != block.forward_scan(1, -1)) {
 			ASSERT_EQ(block.forward_scan_slow(1, -1), block.forward_scan(1, -1));
 		}
 		ASSERT_EQ(block.backward_scan_slow(15, 1), block.backward_scan(15, 1));
@@ -133,7 +135,7 @@ BitArray generate_BPS(size_t len) {
 	assert(len % 2 == 0);
 	BitArray out = BitArrayBuilder::create(len);
 	size_t ex = 0, op = len/2, cl = len/2;
-	
+
 	for (size_t i = 0; i < len; ++i) {
 		bool bit;
 		if (ex == 0) bit = true;
@@ -144,7 +146,7 @@ BitArray generate_BPS(size_t len) {
 			out.setbit(i, true);
 			ex++;
 			op--;
-		}else {
+		} else {
 			out.setbit(i, false);
 			ex--;
 			cl--;
@@ -160,14 +162,14 @@ void test_near_bp(int blksize = 128) {
 	vector<int> enclose(blksize);
 	for (unsigned i = 0; i < b.length(); i++)
 		if (b[i]) {
-			if (!pos.empty()) enclose[i] = pos.top();
-			else enclose[i] = -1;
-			pos.push(i);
+		if (!pos.empty()) enclose[i] = pos.top();
+		else enclose[i] = -1;
+		pos.push(i);
 		} else {
-			int t = pos.top();
-			pos.pop();
-			match[i] = t;
-			match[t] = i;
+		int t = pos.top();
+		pos.pop();
+		match[i] = t;
+		match[t] = i;
 		}
 	BP_block block(b, blksize);
 	for (int i = 0; i < b.length(); i++) {
@@ -175,11 +177,11 @@ void test_near_bp(int blksize = 128) {
 			ASSERT_EQ(match[i], block.forward_scan(i, 0));
 			if (enclose[i] >= 0) {
 				ASSERT_EQ(enclose[i], block.backward_scan(i - 1, 1));
-			}else {
-				if (i > 0) 
+			} else {
+				if (i > 0)
 					ASSERT(BP_block::NOTFOUND == block.backward_scan(i - 1, 1));
 			}
-		}else {
+		} else {
 			ASSERT_EQ(match[i], block.backward_scan(i, 0));
 		}
 	}
@@ -191,27 +193,27 @@ void test_bp(const BitArray& b, int blksize) {
 	vector<int> enclose(b.length());
 	for (unsigned i = 0; i < b.length(); i++)
 		if (b[i]) {
-			if (!pos.empty()) enclose[i] = pos.top();
-			else enclose[i] = -1;
-			pos.push(i);
+		if (!pos.empty()) enclose[i] = pos.top();
+		else enclose[i] = -1;
+		pos.push(i);
 		} else {
-			int t = pos.top();
-			pos.pop();
-			match[i] = t;
-			match[t] = i;
-			enclose[i] = t;
+		int t = pos.top();
+		pos.pop();
+		match[i] = t;
+		match[t] = i;
+		enclose[i] = t;
 		}
 	BP_aux bps;
 	bps.build(b, blksize);
 	for (int i = 0; i < b.length(); i++) {
 		if (b[i]) {
 			ASSERT_EQ(match[i], bps.find_close(i));
-		}else {
+		} else {
 			ASSERT_EQ(match[i], bps.find_open(i));
 		}
 		if (enclose[i] >= 0) {
 			ASSERT_EQ(enclose[i], bps.enclose(i));
-		}else {
+		} else {
 			ASSERT(BP_block::NOTFOUND == bps.enclose(i));
 		}
 	}
@@ -223,15 +225,15 @@ void test_bp2(const BitArray& b, int blksize) {
 	vector<int> enclose(b.length());
 	for (unsigned i = 0; i < b.length(); i++)
 		if (b[i]) {
-			if (!pos.empty()) enclose[i] = pos.top();
-			else enclose[i] = -1;
-			pos.push(i);
+		if (!pos.empty()) enclose[i] = pos.top();
+		else enclose[i] = -1;
+		pos.push(i);
 		} else {
-			int t = pos.top();
-			pos.pop();
-			match[i] = t;
-			match[t] = i;
-			enclose[i] = t;
+		int t = pos.top();
+		pos.pop();
+		match[i] = t;
+		match[t] = i;
+		enclose[i] = t;
 		}
 	BP_aux bps;
 	bps.build(b, blksize);
@@ -249,12 +251,12 @@ void test_bp2(const BitArray& b, int blksize) {
 	for (int i = 0; i < b.length(); i++) {
 		if (b[i]) {
 			ASSERT_EQ(match[i], bps.find_close(i));
-		}else {
+		} else {
 			ASSERT_EQ(match[i], bps.find_open(i));
 		}
 		if (enclose[i] >= 0) {
 			ASSERT_EQ(enclose[i], bps.enclose(i));
-		}else {
+		} else {
 			ASSERT(BP_block::NOTFOUND == bps.enclose(i));
 		}
 	}
@@ -279,10 +281,10 @@ void test_rr_enclose() {
 	for (int i = 0; i < 20; i++) {
 		int l = rand() % 32;
 		int r = rand() % 32 + 32;
-		uint64_t exp = blkx.min_excess_pos(l,r);
+		uint64_t exp = blkx.min_excess_pos(l, r);
 		if (exp != bps.min_excess_pos(l, r)) {
 			uint64_t unexp = bps.min_excess_pos(l, r);
-			ASSERT_EQ(exp, blkx.min_excess_pos_slow(l,r));
+			ASSERT_EQ(exp, blkx.min_excess_pos_slow(l, r));
 			cout << bps.to_str() << endl;
 			ASSERT_EQ(exp, bps.min_excess_pos(l, r));
 		}
@@ -298,7 +300,7 @@ TEST(BP_tree, rr_enclose1) {
 	bps.build(b, 8);
 	int l = 18;
 	int r = 50;
-	ASSERT_EQ(46, bps.min_excess_pos(l,r));
+	ASSERT_EQ(46, bps.min_excess_pos(l, r));
 }
 
 void testsize() {
@@ -343,7 +345,7 @@ TEST(BP_tree, random_long) {
 		test_bp2(generate_BPS(1000), 16);
 		if (i % 10 == 0) cout << '.';
 	}
-	
+
 	for (int i = 0; i < 5000; i++) {
 		if (i % 1000 == 0) cout << '.';
 		test_rr_enclose();
@@ -351,13 +353,13 @@ TEST(BP_tree, random_long) {
 
 
 	test_bp(str2bits("()(()())(())()()"), 8);
-	
-	
+
+
 	for (int i = 0; i < 20000; i++) {
 		test_near_bp();
 		if (i % 1000 == 0) cout << '.';
 	}
-	
+
 	for (int i = 0; i < 10000; i++) {
 		test_bp(generate_BPS(100), 16);
 		if (i % 1000 == 0) cout << '.';
@@ -368,6 +370,8 @@ TEST(BP_tree, random_long) {
 	}
 	cout << endl;
 }
+
+}//namespace
 
 /*
 int main() {

@@ -3,6 +3,8 @@
 
 #include "utils/utest.h"
 
+namespace tests {
+
 using namespace mscds;
 using namespace std;
 
@@ -85,7 +87,7 @@ void test_gen(unsigned int len, double density) {
 		if (b[i]) cnt++;
 	SelectDense qs;
 	SelectDenseBuilder::build(b, &qs);
-	
+
 	int lastpos = -1;
 	for (unsigned int i = 0; i < cnt; ++i) {
 		int pos = qs.select(i);
@@ -112,6 +114,8 @@ TEST(select_dense, all) {
 	test_gen(2048, 0.15);
 
 }
+
+}//namespace
 
 /*
 int main(int argc, char* argv[]) {

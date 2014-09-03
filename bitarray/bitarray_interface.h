@@ -1,4 +1,5 @@
-class BitArray {
+namespace mscds {
+class BitArrayInterface {
 public:
 	const static unsigned int WORDLEN = 64;
 	
@@ -78,3 +79,4 @@ public:
 	/* return the string for debug */
 	std::string to_str() const;
 };
+}//namespace

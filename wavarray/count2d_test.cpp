@@ -12,6 +12,8 @@
 #include <random>
 #include <ctime>
 
+namespace tests {
+
 using namespace mscds;
 using namespace std;
 
@@ -19,7 +21,7 @@ TEST(count2d, test1) {
 	int px[10] = {0, 0, 1, 1, 4, 4, 3, 3, 5, 6};
 	int py[10] = {0, 1, 0, 1, 4, 3, 4, 3, 3, 4};
 	std::vector<Point> list;
-	for (int i = 0; i < 10; i++) 
+	for (int i = 0; i < 10; i++)
 		list.push_back(Point(px[i], py[i]));
 	Count2DBuilder bd;
 	Count2DQuery cq;
@@ -50,15 +52,15 @@ void test2x(unsigned int n, double p) {
 		count[i].resize(n + 1, 0);
 	}
 	int rp = p * n * n;
-	for (int i = 0; i < rp; i++)  {
+	for (int i = 0; i < rp; i++) {
 		int x = rand() % n;
 		int y = rand() % n;
 		matrix[x][y] = true;
 	}
 	for (int i = 1; i < n+1; ++i)
 		for (int j = 1; j < n+1; ++j) {
-			count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
-			if (matrix[i-1][j-1]) count[i][j] += 1;
+		count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
+		if (matrix[i-1][j-1]) count[i][j] += 1;
 		}
 	std::vector<Point> list;
 	Count2DBuilder bd;
@@ -72,9 +74,9 @@ void test2x(unsigned int n, double p) {
 
 	for (int i = 0; i < n+1; ++i)
 		for (int j = 0; j < n+1; ++j) {
-			int exp = count[i][j];
-			int val = cq.count(i,j);
-			ASSERT_EQ(exp, val);
+		int exp = count[i][j];
+		int val = cq.count(i, j);
+		ASSERT_EQ(exp, val);
 		}
 }
 
@@ -91,15 +93,15 @@ TEST(count2d, test3) {
 		count[i].resize(n + 1, 0);
 	}
 	int rp = p * n * n;
-	for (int i = 0; i < rp; i++)  {
+	for (int i = 0; i < rp; i++) {
 		int x = rand() % n;
 		int y = rand() % n;
 		matrix[x][y] = true;
 	}
 	for (int i = 1; i < n+1; ++i)
 		for (int j = 1; j < n+1; ++j) {
-			count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
-			if (matrix[i-1][j-1]) count[i][j] += 1;
+		count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
+		if (matrix[i-1][j-1]) count[i][j] += 1;
 		}
 	std::vector<Point> list;
 	Count2DBuilder bd;
@@ -122,9 +124,9 @@ TEST(count2d, test3) {
 
 	for (int i = 0; i < n+1; ++i)
 		for (int j = 0; j < n+1; ++j) {
-			int exp = count[i][j];
-			int val = cq.count(i,j);
-			ASSERT_EQ(exp, val);
+		int exp = count[i][j];
+		int val = cq.count(i, j);
+		ASSERT_EQ(exp, val);
 		}
 }
 
@@ -140,15 +142,15 @@ void test_grid_query1(unsigned int n, double p) {
 		count[i].resize(n + 1, 0);
 	}
 	int rp = p * n * n;
-	for (int i = 0; i < rp; i++)  {
+	for (int i = 0; i < rp; i++) {
 		int x = rand() % n;
 		int y = rand() % n;
 		matrix[x][y] = true;
 	}
 	for (int i = 1; i < n+1; ++i)
 		for (int j = 1; j < n+1; ++j) {
-			count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
-			if (matrix[i-1][j-1]) count[i][j] += 1;
+		count[i][j] = count[i-1][j] + count[i][j-1] - count[i-1][j-1];
+		if (matrix[i-1][j-1]) count[i][j] += 1;
 		}
 	std::vector<Point> list;
 	Count2DBuilder bd;
@@ -162,14 +164,14 @@ void test_grid_query1(unsigned int n, double p) {
 
 	for (int i = 0; i < n+1; ++i)
 		for (int j = 0; j < n+1; ++j) {
-			int exp = count[i][j];
-			int val = cq.count(i,j);
-			if (exp != val) {
-				Count2DQuery cqxx;
-				bd.build(list, &cqxx);
-				cq.count(i,j);
-				ASSERT_EQ(exp, val);
-			}
+		int exp = count[i][j];
+		int val = cq.count(i, j);
+		if (exp != val) {
+			Count2DQuery cqxx;
+			bd.build(list, &cqxx);
+			cq.count(i, j);
+			ASSERT_EQ(exp, val);
+		}
 		}
 	std::vector<unsigned int> qX, qY;
 	for (int i = 0; i < 4; i++)
@@ -241,4 +243,4 @@ TEST(count2d, all_rnd) {
 	cout << endl;
 }
 
-
+}//namespace

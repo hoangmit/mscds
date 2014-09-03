@@ -10,8 +10,11 @@
 #include <vector>
 #include <stdint.h>
 
+namespace tests {
+
 using namespace std;
 using namespace mscds;
+
 
 void testx() {
 	std::vector<unsigned int> df;
@@ -36,7 +39,7 @@ struct SDFix: public SharedFixtureItf {
 	void init() {
 		size = 50000000;
 		qsize = 2000000;
-		range =      1000000;
+		range = 1000000;
 		lowerrange = 1000000;
 		is_sort = false;
 	}
@@ -176,6 +179,9 @@ BENCHMARK_SET(seq_access_sda) {
 	bm.report(0); // <-- baseline
 }
 
+}//namespace
+
+using namespace tests;
 
 int main() {
 

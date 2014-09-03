@@ -2,6 +2,7 @@
 #include "utils/md5.h"
 #include "utils/utest.h"
 
+namespace tests {
 using namespace std;
 using namespace utils;
 
@@ -14,3 +15,5 @@ TEST(md5, test1) {
 	ASSERT_EQ("d174ab98d277d9f5a5611c2c9f419d9f", MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"));
 	ASSERT_EQ("57edf4a22be3c955ac49da2e2107b67a", MD5::hex("12345678901234567890123456789012345678901234567890123456789012345678901234567890"));
 }
+
+}//namespace

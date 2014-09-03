@@ -9,7 +9,7 @@
 #include "chrfmt.h"
 #include "framework/archive.h"
 
-
+/// namespace for applications
 namespace app_ds {
 
 class GenomeNumData;

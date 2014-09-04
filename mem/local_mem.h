@@ -43,7 +43,8 @@ public:
 		len = 0;
 		ptr = nullptr;
 	}
-	void scan(size_t i, size_t rlen, CallBack cb) const { assert(i + rlen <= len); cb(ptr + i, rlen); }
+	void scan(size_t i, size_t rlen, CallBackPlain cb) const { assert(i + rlen <= len); cb(ptr + i, rlen); }
+	void scan_c(size_t i, size_t rlen, CallBackContext cb, void* context) const { assert(i + rlen <= len); cb(context, ptr + i, rlen); }
 	~LocalStaticMem() { close(); }
 private:
 	size_t len;
@@ -67,7 +68,8 @@ public:
 	uint64_t getword(size_t wp) const { assert(wp < sz / WORDSZ); return data[wp]; }
 	char getchar(size_t i) const { assert(i < sz); return *(((char*)data.data()) + i); }
 	void read(size_t i, size_t rlen, void* dest) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); memcpy(dest, ptr + i, rlen); }
-	void scan(size_t i, size_t rlen, CallBack cb) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); cb(ptr + i, rlen); }
+	void scan(size_t i, size_t rlen, CallBackPlain cb) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); cb(ptr + i, rlen); }
+	void scan_c(size_t i, size_t rlen, CallBackContext cb, void* context) const { assert(i + rlen <= sz); char* ptr = ((char*)data.data()); cb(context, ptr + i, rlen); }
 
 	void setword(size_t wp, uint64_t val) { assert(wp < sz / WORDSZ); data[wp] = val; }
 	void setchar(size_t i, char c) { assert(i < sz);  char* ptr = ((char*)data.data()); *(ptr + i) = c; }

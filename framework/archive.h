@@ -128,10 +128,11 @@ inline OutArchive &OutArchive::save_mem(const StaticMemRegionAbstract &mem) {
 			add_mem_region(mem.get_addr(), mem.size());
 		}
 		else {
-			mem.scan(0, mem.size(), [this](const void*p, size_t len)->bool {
-				this->add_mem_region(p, len);
+			mem.scan_c(0, mem.size(), [](void* ct, const void*p, size_t len)->bool {
+				OutArchive* self = (OutArchive*) ct;
+				self->add_mem_region(p, len);
 				return true;
-			});
+			}, this);
 		}
 	}
 	end_mem_region();

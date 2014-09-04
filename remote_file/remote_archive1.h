@@ -44,7 +44,7 @@ public:
 	void setchar(size_t i, char c) { write(i, 1, &c); }
 
 	void read(size_t i, size_t rlen, void* dst) const;
-	void scan(size_t i, size_t len, CallBack cb) const;
+	void scan_c(size_t i, size_t len, CallBackContext cb, void* ctx) const;
 	void write(size_t i, size_t wlen, const void* dst);
 private:
 	RemoteFileHdl file;

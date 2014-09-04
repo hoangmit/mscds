@@ -54,7 +54,7 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 enum MemoryAccessType {
 	/// there is no cache, cannot use "get_addr()"
 	API_ACCESS = 0,
-	// there is a cache
+	/// there is a cache
 	MAP_ON_REQUEST,
 	/// The memory region is local or fully cached
 	FULL_MAPPING
@@ -102,9 +102,19 @@ struct StaticMemRegionAbstract {
 	virtual void write(size_t i, size_t wlen, const void* dst) = 0;
 
 	/// The call-back function should return true to continue, and false to break
-	typedef std::function<bool(const void* p, size_t len)> CallBack;
+	typedef bool(*CallBackPlain)(const void* p, size_t len);
+	typedef bool(*CallBackContext)(void* context, const void* p, size_t len);
 	/// scans the memory region using given call-back function "cb"
-	virtual void scan(size_t i, size_t len, CallBack cb) const = 0;
+	virtual void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const = 0;
+
+	inline static bool call_context(void* context, const void* p, size_t len) {
+		CallBackPlain pp = (CallBackPlain) context;
+		return pp(p, len);
+	}
+	/// scans the memory region using given call-back function "cb"
+	virtual void scan(size_t i, size_t len, CallBackPlain cb) const {
+		scan_c(i, len, call_context, cb);
+	}
 };
 
 /// Dynamic size memory region interface
@@ -167,7 +177,8 @@ public:
 	void setchar(size_t i, char c) { _impl->setchar(i, c); }
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
-	void scan(size_t i, size_t len, CallBack cb) const { _impl->scan(i, len, cb); }
+	void scan(size_t i, size_t len, CallBackPlain cb) const { _impl->scan(i, len, cb); }
+	void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan_c(i, len, cb, context); }
 protected:
 	StaticMemRegionAbstract * _impl;
 	std::shared_ptr<StaticMemRegionAbstract> _ref;
@@ -211,7 +222,8 @@ public:
 	void setchar(size_t i, char c) { _impl->setchar(i, c); }
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
-	void scan(size_t i, size_t len, CallBack cb) const { _impl->scan(i, len, cb); }
+	void scan(size_t i, size_t len, CallBackPlain cb) const { _impl->scan(i, len, cb); }
+	void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan_c(i, len, cb, context); }
 protected:
 	DynamicMemRegionAbstract * _impl;
 	std::shared_ptr<DynamicMemRegionAbstract> _ref;

@@ -40,7 +40,11 @@ set(Boost_USE_MULTI_THREADED ON)
 find_package( Boost 1.54.0
     REQUIRED unit_test_framework system regex date_time thread filesystem
     program_options chrono atomic )
-find_package( OpenSSL )
+
+if (NOT BOOST_NETWORK_DISABLE_HTTPS)
+	find_package( OpenSSL )
+endif()
+
 find_package( Threads )
 set(CMAKE_VERBOSE_MAKEFILE true)
 

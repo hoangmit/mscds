@@ -143,6 +143,7 @@ set(ZLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_LIBRARY zlibstatic)
 
 
+set(BOOST_NETWORK_DISABLE_HTTPS ON)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/netlib)
 set(NETLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/netlib)
 set(NETLIB_LIBRARIES cppnetlib-uri cppnetlib-client-connections)

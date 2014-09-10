@@ -8,10 +8,16 @@ FIND_PACKAGE(Boost 1.50 COMPONENTS thread system chrono date_time filesystem reg
 
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
-find_package(OpenSSL)
+if (BOOST_NETWORK_DISABLE_HTTPS)
+	#find_package(OpenSSL)
+endif()
+
+
 if (OPENSSL_FOUND)
     add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
     include_directories(${OPENSSL_INCLUDE_DIR})
+else()
+    add_definitions(-DBOOST_NETLIB_NO_SSL)
 endif()
 
 

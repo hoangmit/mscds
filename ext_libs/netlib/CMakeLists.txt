@@ -42,7 +42,7 @@ find_package( Boost 1.54.0
     program_options chrono atomic )
 
 if (NOT BOOST_NETWORK_DISABLE_HTTPS)
-	find_package( OpenSSL )
+	#find_package( OpenSSL )
 endif()
 
 find_package( Threads )

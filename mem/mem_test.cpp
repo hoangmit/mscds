@@ -135,8 +135,26 @@ TEST(farchive2, fmap_file) {
 
 }//namespace
 
+
 namespace example {
-/// Example: a class use StaticMemRegion, save and load from Archive
+
+class SString;
+class SStringBuilder;
+
+
+/// Example: Builder class for SString
+class SStringBuilder {
+public:
+	SStringBuilder();
+	/// append to the current string
+	void add(const char* s, unsigned int len);
+	/// build query data structure
+	void build(SString* out);
+private:
+	DynamicMemRegionPtr data;
+};
+
+/// Example: a class use StaticMemRegionPtr, save and load from Archive
 class SString {
 public:
 	/// count the number of 'a' character in string
@@ -150,16 +168,33 @@ public:
 	unsigned int length() const;
 	/// empty constructor
 	SString();
-	/// constructor from existing string
-	SString(const char* s, unsigned int len);
 	/// save to file
 	void save(OutArchive& ar) const;
 	/// load from file
 	void load(InpArchive& ar);
 private:
+	void init() { number_a = count_a(); }
+	friend class SStringBuilder;
+
 	unsigned int number_a;
-	mutable StaticMemRegionPtr p;
+	mutable StaticMemRegionPtr ptr;
 };
+
+SStringBuilder::SStringBuilder() {
+	LocalMemAllocator a;
+	data = a.allocDynMem();
+}
+
+inline void SStringBuilder::add(const char *s, unsigned int len) {
+	data.append(s, len);
+}
+
+void SStringBuilder::build(SString *out) {
+	LocalMemAllocator a;
+	out->ptr = a.convert(data);
+	out->init();
+	data.close();
+}
 
 inline unsigned int SString::count_a() const {
 	size_t c = 0;
@@ -168,56 +203,51 @@ inline unsigned int SString::count_a() const {
 	return c;
 }
 
-inline char SString::get(unsigned int i) const { assert(i < length()); return p.getchar(i); }
+inline char SString::get(unsigned int i) const { assert(i < length()); return ptr.getchar(i); }
 
 inline char SString::get_adv(unsigned int i) const {
 	assert(i < length());
-	char *ptr = NULL;
-	if (p.memory_type() == FULL_MAPPING) {
-		ptr = (char*)p.get_addr();
-		return ptr[i];
-	} else if (p.memory_type() == MAP_ON_REQUEST) {
-		p.request_map(i, 1);
-		ptr = (char*)p.get_addr();
-		return ptr[i];
+	char *tmp = NULL;
+	if (ptr.memory_type() == FULL_MAPPING) {
+		tmp = (char*)ptr.get_addr();
+		return tmp[i];
+	} else if (ptr.memory_type() == MAP_ON_REQUEST) {
+		ptr.request_map(i, 1);
+		tmp = (char*)ptr.get_addr();
+		return tmp[i];
 	} else {
 		char ch;
 		// fall back to basic API
-		p.read(i, 1, &ch);
+		ptr.read(i, 1, &ch);
 		return ch;
 	}
 }
 
 inline SString::SString() { number_a = 0; }
 
-inline SString::SString(const char *s, unsigned int len) {
-	LocalMemAllocator a;
-	p = a.allocStaticMem(len);
-	p.write(0, len, s);
-	number_a = count_a();
-}
-
-inline unsigned int SString::length() const { return p.size(); }
+inline unsigned int SString::length() const { return ptr.size(); }
 
 inline void SString::save(OutArchive &ar) const {
 	ar.startclass("string");
 	ar.var("count_a").save(number_a);
-	ar.var("string_mem").save_mem(p);
+	ar.var("string_mem").save_mem(ptr);
 	ar.endclass();
 }
 
 inline void SString::load(InpArchive &ar) {
 	ar.loadclass("string");
 	ar.var("count_a").load(number_a);
-	p = ar.var("string_mem").load_mem_region();
+	ptr = ar.var("string_mem").load_mem_region();
 	ar.endclass();
 	if (count_a() != number_a) throw std::runtime_error("data mismatched");
 }
 
-
 void example_str1() {
+	SStringBuilder bd;
+	bd.add("testing a", 9);
 	// create a string
-	SString original("testing a", 9);
+	SString original;
+	bd.build(&original);
 	// create output file
 	OFileArchive2 fo;
 	fo.open_write("C:/temp/string.bin");
@@ -234,6 +264,7 @@ void example_str1() {
 	fi.close();
 
 	// check if length is correct
+	assert(9 == original.length());
 	assert(original.length() == local.length());
 
 	// load from remote file
@@ -244,6 +275,7 @@ void example_str1() {
 
 	assert(local.length() == remote.length());
 }
+
 }//namespace
 
 /*

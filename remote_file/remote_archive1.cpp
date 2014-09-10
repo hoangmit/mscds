@@ -70,7 +70,7 @@ void RemoteMem::read(size_t i, size_t rlen, void *dst) const {
 	file->read((char*)dst, rlen);
 }
 
-void RemoteMem::scan_c(size_t i, size_t rlen, RemoteMem::CallBackContext cb, void* ctx) const {
+void RemoteMem::scan(size_t i, size_t rlen, RemoteMem::CallBackContext cb, void* ctx) const {
 	assert(i + rlen <= this->sz);
 	if (rlen == 0) return;
 	file->seekg(i + fstart);

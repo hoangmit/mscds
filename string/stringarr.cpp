@@ -151,7 +151,7 @@ std::string StringArr::get_str(unsigned int i) const {
 	} else {
 		std::string st;
 		st.reserve(v+1);
-		ba.scan_c(ps + 1, v, [](void*ctx, const void * p, size_t len){
+		ba.scan(ps + 1, v, [](void*ctx, const void * p, size_t len){
 			std::string* st = (std::string*) ctx;
 			st->append((const char*)p, len);
 			return true;

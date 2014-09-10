@@ -77,9 +77,6 @@ struct StaticMemRegionAbstract {
 	virtual bool request_map(size_t start, size_t len) = 0;
 
 	virtual ~StaticMemRegionAbstract() {}
-
-	/// UNIMPLEMENTED: returns the unique id for the region
-	virtual unsigned int model_id() const { return 0; }
 	
 	/// returns size of the region in bytes
 	virtual size_t size() const = 0;
@@ -105,7 +102,7 @@ struct StaticMemRegionAbstract {
 	typedef bool(*CallBackPlain)(const void* p, size_t len);
 	typedef bool(*CallBackContext)(void* context, const void* p, size_t len);
 	/// scans the memory region using given call-back function "cb"
-	virtual void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const = 0;
+	virtual void scan(size_t i, size_t len, CallBackContext cb, void* context) const = 0;
 
 	inline static bool call_context(void* context, const void* p, size_t len) {
 		CallBackPlain pp = (CallBackPlain) context;
@@ -113,7 +110,7 @@ struct StaticMemRegionAbstract {
 	}
 	/// scans the memory region using given call-back function "cb"
 	virtual void scan(size_t i, size_t len, CallBackPlain cb) const {
-		scan_c(i, len, call_context, cb);
+		scan(i, len, call_context, cb);
 	}
 };
 
@@ -125,6 +122,9 @@ struct DynamicMemRegionAbstract : public StaticMemRegionAbstract {
 	/// is truncated. If the new size is bigger, undefined data is appended to the
 	//// end of the region
 	virtual void resize(size_t size) = 0;
+
+	/// resize to 0
+	virtual void clear() { resize(0); }
 
 	/// appends a character at the end of the region, and increase the size by one
 	virtual void append(char c) = 0;
@@ -162,8 +162,6 @@ public:
 	const void* get_addr() const { return _impl->get_addr(); }
 	bool request_map(size_t start, size_t len) { return _impl->request_map(start, len); }
 
-
-	unsigned int model_id() const { return _impl->model_id(); }
 	size_t size() const { return _impl->size(); }
 	void close() { if (_impl != nullptr) { _impl->close(); _impl = nullptr; } }
 
@@ -178,7 +176,7 @@ public:
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
 	void scan(size_t i, size_t len, CallBackPlain cb) const { _impl->scan(i, len, cb); }
-	void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan_c(i, len, cb, context); }
+	void scan(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan(i, len, cb, context); }
 protected:
 	StaticMemRegionAbstract * _impl;
 	std::shared_ptr<StaticMemRegionAbstract> _ref;
@@ -191,6 +189,7 @@ public:
 	DynamicMemRegionPtr(std::shared_ptr<DynamicMemRegionAbstract> ref) : _ref(ref) { _impl = ref.get(); }
 	DynamicMemRegionPtr(DynamicMemRegionAbstract* ptr) : _impl(ptr) {}
 	~DynamicMemRegionPtr() {}
+	void clear() { _impl->clear(); }
 	void resize(size_t size) { _impl->resize(size); }
 	void append(char c) { _impl->append(c); }
 	void append(uint64_t word) { _impl->append(word); }
@@ -209,7 +208,6 @@ public:
 	const void* get_addr() const { return _impl->get_addr(); }
 	bool request_map(size_t start, size_t len) { return _impl->request_map(start, len); }
 
-	unsigned int model_id() const { return _impl->model_id(); }
 	size_t size() const { return _impl->size(); }
 	void close() { _impl->close(); }
 
@@ -223,7 +221,7 @@ public:
 
 	void write(size_t i, size_t wlen, const void* dst) { _impl->write(i, wlen, dst); }
 	void scan(size_t i, size_t len, CallBackPlain cb) const { _impl->scan(i, len, cb); }
-	void scan_c(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan_c(i, len, cb, context); }
+	void scan(size_t i, size_t len, CallBackContext cb, void* context) const { _impl->scan(i, len, cb, context); }
 protected:
 	DynamicMemRegionAbstract * _impl;
 	std::shared_ptr<DynamicMemRegionAbstract> _ref;

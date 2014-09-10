@@ -3,7 +3,7 @@
 #ifndef __ARCHIVE_H_
 #define __ARCHIVE_H_
 
-// This file defines interfaces for Archive classes
+/** \file This file defines interfaces for Archive classes */
 
 #include "mem_models.h"
 #include "utils/endian.h"
@@ -39,7 +39,7 @@ private:
 	std::string msg;
 };
 
-/// Output Archive to save data to disk
+/// Output Archive interface (to save data to disk)
 class OutArchive {
 public:
 	virtual ~OutArchive() {}
@@ -77,6 +77,7 @@ public:
 	virtual size_t opos() const = 0;
 };
 
+/// Input archive interface
 class InpArchive {
 public:
 	virtual ~InpArchive() {}
@@ -128,7 +129,7 @@ inline OutArchive &OutArchive::save_mem(const StaticMemRegionAbstract &mem) {
 			add_mem_region(mem.get_addr(), mem.size());
 		}
 		else {
-			mem.scan_c(0, mem.size(), [](void* ct, const void*p, size_t len)->bool {
+			mem.scan(0, mem.size(), [](void* ct, const void*p, size_t len)->bool {
 				OutArchive* self = (OutArchive*) ct;
 				self->add_mem_region(p, len);
 				return true;

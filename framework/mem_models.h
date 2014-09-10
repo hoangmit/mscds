@@ -104,13 +104,13 @@ struct StaticMemRegionAbstract {
 	/// scans the memory region using given call-back function "cb"
 	virtual void scan(size_t i, size_t len, CallBackContext cb, void* context) const = 0;
 
-	inline static bool call_context(void* context, const void* p, size_t len) {
+	static bool call_context(void* context, const void* p, size_t len) {
 		CallBackPlain pp = (CallBackPlain) context;
 		return pp(p, len);
 	}
 	/// scans the memory region using given call-back function "cb"
 	virtual void scan(size_t i, size_t len, CallBackPlain cb) const {
-		scan(i, len, call_context, cb);
+		scan(i, len, call_context, (void*)cb);
 	}
 };
 

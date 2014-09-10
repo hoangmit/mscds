@@ -75,6 +75,12 @@ public:
 
 	/// returns the stream position
 	virtual size_t opos() const = 0;
+private:
+	static bool _copy_in(void* ct, const void*p, size_t len) {
+		OutArchive* self = (OutArchive*)ct;
+		self->add_mem_region(p, len);
+		return true;
+	}
 };
 
 /// Input archive interface
@@ -127,13 +133,8 @@ inline OutArchive &OutArchive::save_mem(const StaticMemRegionAbstract &mem) {
 	if (mem.size() > 0) {
 		if (FULL_MAPPING == mem.memory_type()) {
 			add_mem_region(mem.get_addr(), mem.size());
-		}
-		else {
-			mem.scan(0, mem.size(), [](void* ct, const void*p, size_t len)->bool {
-				OutArchive* self = (OutArchive*) ct;
-				self->add_mem_region(p, len);
-				return true;
-			}, this);
+		} else {
+			mem.scan(0, mem.size(), OutArchive::_copy_in, this);
 		}
 	}
 	end_mem_region();

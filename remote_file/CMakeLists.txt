@@ -3,19 +3,18 @@ cmake_minimum_required(VERSION 2.6)
 project(remote_file)
 set(VERSION 0.1.1)
 
-#find_package(Boost)
 FIND_PACKAGE(Boost 1.50 COMPONENTS thread system chrono date_time filesystem regex REQUIRED)
 
 #LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
-if (BOOST_NETWORK_DISABLE_HTTPS)
-	#find_package(OpenSSL)
+if (USE_SSL)
+	find_package(OpenSSL)
 endif()
 
-
-if (OPENSSL_FOUND)
+if (OPENSSL_FOUND AND USE_SSL)
     add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
     include_directories(${OPENSSL_INCLUDE_DIR})
+    MESSAGE(STATUS "Use OpenSSL")
 else()
     add_definitions(-DBOOST_NETLIB_NO_SSL)
 endif()
@@ -24,9 +23,6 @@ endif()
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
 INCLUDE_DIRECTORIES(${NETLIB_INCLUDE_DIRS})
-
-#ADD_EXECUTABLE(netlib_test netlib_test.cpp)
-#TARGET_LINK_LIBRARIES(netlib_test ${Boost_LIBRARIES} cppnetlib-uri cppnetlib-client-connections) # cppnetlib-server-parsers
 
 SET(SRCS remote_file.cpp strptime.cpp http_client.cpp http_headers.cpp
 ext_bitmap.cpp memmapfile.cpp

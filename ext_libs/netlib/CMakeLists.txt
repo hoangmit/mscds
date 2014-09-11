@@ -41,8 +41,8 @@ find_package( Boost 1.54.0
     REQUIRED unit_test_framework system regex date_time thread filesystem
     program_options chrono atomic )
 
-if (NOT BOOST_NETWORK_DISABLE_HTTPS)
-	#find_package( OpenSSL )
+if (USE_SSL)
+	find_package( OpenSSL )
 endif()
 
 find_package( Threads )
@@ -57,7 +57,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DBOOST_NETWORK_DEBUG)
 endif()
 
-if (OPENSSL_FOUND)
+if (OPENSSL_FOUND AND USE_SSL)
     add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
     include_directories(${OPENSSL_INCLUDE_DIR})
 endif()

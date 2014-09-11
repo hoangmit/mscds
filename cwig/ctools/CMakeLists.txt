@@ -44,8 +44,11 @@ set_property(TARGET cwig_benchmark PROPERTY FOLDER "Apps/cTools")
 
 
 
-find_package(OpenSSL)
-if (OPENSSL_FOUND)
+if (USE_SSL)
+    find_package(OpenSSL)
+endif()
+
+if (OPENSSL_FOUND AND USE_SSL)
     add_definitions(-DBOOST_NETWORK_ENABLE_HTTPS)
     include_directories(${OPENSSL_INCLUDE_DIR})
 	set(SERVER_LIBS ${LIBS} ${OPENSSL_LIBRARIES} cppnetlib-uri cppnetlib-server-parsers )

@@ -23,18 +23,20 @@ set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
-	  "Choose the type of build, options are: None Debug Release."
-	  FORCE)
+	  "Choose the type of build, options are: None Debug Release." FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 ### Build PYTHON and JAVA API extension settings
 option(BUILD_EXT_API "Build Python and Java API" OFF)
 
+SET(USE_SSL OFF CACHE BOOL "Use OpenSSL library" FORCE)
+
+
+
 if (WIN32)
 	set(BUILD_EXT_API OFF)
 endif()
 
-add_definitions(-DBOOST_NETLIB_NO_SSL)
 
 MESSAGE(STATUS "C Compiler version: ${CMAKE_C_COMPILER_VERSION}")
 MESSAGE(STATUS "C++ Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
@@ -145,7 +147,6 @@ set(ZLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/zlib)
 set(ZLIB_LIBRARY zlibstatic)
 
 
-set(BOOST_NETWORK_DISABLE_HTTPS ON)
 add_subdirectory(${PROJECT_SOURCE_DIR}/ext_libs/netlib)
 set(NETLIB_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/ext_libs/netlib)
 set(NETLIB_LIBRARIES cppnetlib-uri cppnetlib-client-connections)

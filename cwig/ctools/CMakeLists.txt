@@ -69,19 +69,25 @@ set_property(TARGET cwig_server PROPERTY FOLDER "Apps/cTools")
 ####------------------------------------########
 ## Try to find JKENT_LIB for bigWig2cwig      ##
 
-option(BUILD_BIGWIG2CWIG "Found jkweb lib" OFF)
-set(JKENT_LIB_PATH "/somewhere/kent/src/lib/x86_64/jkweb.a")
+
+
+set(BUILD_BIGWIG2CWIG OFF)
+set(JKENT_LIB_INCLUDE_DIR "~/tools/kent/src/inc/")
+set(JKENT_LIB_PATH "~/tools/kent/src/lib/x86_64/")
 
 IF (BUILD_BIGWIG2CWIG)
-	find_library(JKENT_LIB NAMES "jkweb" PATHS JKENT_LIB_PATH)
+	find_library(JKENT_LIB NAMES "jkweb" 
+        PATHS ${JKENT_LIB_PATH} )
 ENDIF()
-IF (BUILD_BIGWIG2CWIG AND JKENT_LIB_FOUND)
-	include_directories(JKENT_LIB_INCLUDE_DIR)
+IF (BUILD_BIGWIG2CWIG AND JKENT_LIB)
+    find_package(ZLIB REQUIRED)
+    find_package(Threads REQUIRED)
+    find_package(OpenSSL REQUIRED)
+
+    MESSAGE(STATUS "Linking with :" ${JKENT_LIB})
+	include_directories(${JKENT_LIB_INCLUDE_DIR})
 	add_executable(bigWig2cwig bigWig2cwig.cpp bw_scan.cpp bw_scan.h)
-	target_link_libraries(bigWig2cwig ${LIBS} ${JKENT_LIB_LIBRARY})
+	target_link_libraries(bigWig2cwig ${LIBS} ${JKENT_LIB} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES} -lssl -lcrypto)
 ENDIF()
-
-
-
 
 

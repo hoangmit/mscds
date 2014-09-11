@@ -31,8 +31,6 @@ option(BUILD_EXT_API "Build Python and Java API" OFF)
 
 SET(USE_SSL OFF CACHE BOOL "Use OpenSSL library" FORCE)
 
-
-
 if (WIN32)
 	set(BUILD_EXT_API OFF)
 endif()
@@ -87,6 +85,11 @@ endif()
 
 MESSAGE(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
+IF(CMAKE_VERSION VERSION_EQUAL "3.0.0" OR
+	CMAKE_VERSION VERSION_GREATER "3.0.0")
+	CMAKE_POLICY(SET CMP0026 OLD)
+	CMAKE_POLICY(SET CMP0045 OLD)
+ENDIF()
 include(cmake/MergeStaticLibraries.cmake)
 
 ### setup directories-------------------------------------------

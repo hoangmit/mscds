@@ -7,8 +7,8 @@ FUNCTION(GET_DEPENDEND_OS_LIBS target result)
    FOREACH(lib ${deps})
     # Filter out keywords for used for debug vs optimized builds
     IF(NOT lib MATCHES "general" AND NOT lib MATCHES "debug" AND NOT lib MATCHES "optimized")
-      #GET_TARGET_PROPERTY(lib_location ${lib} LOCATION)
-	  SET(lib_location $<TARGET_FILE:${lib}>)
+      GET_TARGET_PROPERTY(lib_location ${lib} LOCATION)
+	  #SET(lib_location $<TARGET_FILE:${lib}>)
       IF(NOT lib_location)
         SET(ret ${ret} ${lib})
       ENDIF()
@@ -24,6 +24,8 @@ ENDFUNCTION()
 # We use it in MySQL to merge mysys,dbug,vio etc into mysqlclient
 
 FUNCTION(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
+
+
   # To produce a library we need at least one source file.
   # It is created by ADD_CUSTOM_COMMAND below and will helps
   # also help to track dependencies.
@@ -36,12 +38,12 @@ FUNCTION(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
   STRING(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
   
   FOREACH(LIB ${LIBS_TO_MERGE})
-    #IF (${BUILD_TYPE} STREQUAL "DEBUG")
-    #  GET_TARGET_PROPERTY (LIB_LOCATION ${LIB} LOCATION_DEBUG)
-    #ELSE (${BUILD_TYPE} STREQUAL "DEBUG")
-    #  GET_TARGET_PROPERTY (LIB_LOCATION ${LIB} LOCATION)
-    #ENDIF ()
-	SET(LIB_LOCATION $<TARGET_FILE:${LIB}>)
+    IF (${BUILD_TYPE} STREQUAL "DEBUG")
+      GET_TARGET_PROPERTY (LIB_LOCATION ${LIB} LOCATION_DEBUG)
+    ELSE ()
+      GET_TARGET_PROPERTY (LIB_LOCATION ${LIB} LOCATION)
+    ENDIF ()
+	#SET(LIB_LOCATION $<TARGET_FILE:${LIB}>)
     GET_TARGET_PROPERTY(LIB_TYPE ${LIB} TYPE)
     IF(NOT LIB_LOCATION)
        # 3rd party library like libz.so. Make sure that everything
@@ -54,7 +56,7 @@ FUNCTION(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
         SET(STATIC_LIBS ${STATIC_LIBS} ${LIB_LOCATION})
         ADD_DEPENDENCIES(${TARGET} ${LIB})
         # Extract dependend OS libraries
-        #GET_DEPENDEND_OS_LIBS(${LIB} LIB_OSLIBS)
+        GET_DEPENDEND_OS_LIBS(${LIB} LIB_OSLIBS)
         LIST(APPEND OSLIBS ${LIB_OSLIBS})
       ELSE()
         # This is a shared library our static lib depends on.
@@ -62,11 +64,11 @@ FUNCTION(MERGE_STATIC_LIBRARIES TARGET LIBS_TO_MERGE)
       ENDIF()
     ENDIF()
   ENDFOREACH()
-  #MESSAGE(STATUS "Merging libs: ${STATIC_LIBS}")
   IF(OSLIBS)
     LIST(REMOVE_DUPLICATES OSLIBS)
     TARGET_LINK_LIBRARIES(${TARGET} ${OSLIBS})
   ENDIF()
+  MESSAGE(STATUS "Merging libs: ${STATIC_LIBS}")
 
   # Make the generated dummy source file depended on all static input
   # libs. If input lib changes,the source file is touched

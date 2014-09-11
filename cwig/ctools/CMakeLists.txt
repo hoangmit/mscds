@@ -42,8 +42,6 @@ set_property(TARGET cwig2bedgraph PROPERTY FOLDER "Apps/cTools")
 set_property(TARGET cwig_benchmark PROPERTY FOLDER "Apps/cTools")
 
 
-
-
 if (USE_SSL)
     find_package(OpenSSL)
 endif()
@@ -67,3 +65,23 @@ if (UNIX)
 endif()
 strip_target(cwig_server)
 set_property(TARGET cwig_server PROPERTY FOLDER "Apps/cTools")
+
+####------------------------------------########
+## Try to find JKENT_LIB for bigWig2cwig      ##
+
+option(BUILD_BIGWIG2CWIG "Found jkweb lib" OFF)
+set(JKENT_LIB_PATH "/somewhere/kent/src/lib/x86_64/jkweb.a")
+
+IF (BUILD_BIGWIG2CWIG)
+	find_library(JKENT_LIB NAMES "jkweb" PATHS JKENT_LIB_PATH)
+ENDIF()
+IF (BUILD_BIGWIG2CWIG AND JKENT_LIB_FOUND)
+	include_directories(JKENT_LIB_INCLUDE_DIR)
+	add_executable(bigWig2cwig bigWig2cwig.cpp bw_scan.cpp bw_scan.h)
+	target_link_libraries(bigWig2cwig ${LIBS} ${JKENT_LIB_LIBRARY})
+ENDIF()
+
+
+
+
+

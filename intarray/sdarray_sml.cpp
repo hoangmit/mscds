@@ -37,7 +37,8 @@ void SDArraySmlBuilder::build(SDArraySml* out) {
 	out->len = cnt;
 	out->sum = p_sum;
 	bits.build(&out->bits);
-	out->table = BitArrayBuilder::create(table.size() * 64, (char*) (table.data()));
+	if (cnt > 0) out->table = BitArrayBuilder::create(table.size() * 64, (char*) (table.data()));
+	else out->table = BitArrayBuilder::create(0);
 	cnt = 0;
 	p_sum = 0;
 	pslast = 0;

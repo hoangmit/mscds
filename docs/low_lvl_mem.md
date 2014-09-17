@@ -175,21 +175,19 @@ void close()
 ### Advanced functions (Static Memory Region)
 
 3 memory access types:
-API_ACCESS
-MAP_ON_REQUEST
-FULL_MAPPING
-API_ACCESS: The memory is remote, and data is not cached. There is no consistent address of the data.
-MAP_ON_REQUEST: There is a persistent cache of the remote data in memory. User can read data directly using pointer access in request region.
-FULL_MAPPING: this is local memory or fully cached data.
+ * API_ACCESS: The memory is remote, and data is not cached. There is no consistent address of the data.
+ * MAP_ON_REQUEST: There is a persistent cache of the remote data in memory. User can read data directly using pointer access in request region.
+ * FULL_MAPPING: this is local memory or fully cached data.
 
-Memory Alignment Type
-A1 (byte), A2 (2 bytes), A4 (4 bytes), A8 (1 word)
+Memory Alignment Types: A1 (byte), A2 (2 bytes), A4 (4 bytes), A8 (1 word)
+
 Endianness Type
-LITTLE_ENDIAN_ACCESS
-BIG_ENDIAN_ACCESS
+ * LITTLE_ENDIAN_ACCESS
+ * BIG_ENDIAN_ACCESS
+
 Modification types:
-StaticMemRegion: cannot change size 
-DynamicMemRegion: can resize the region
+ * StaticMemRegion: cannot change size 
+ * DynamicMemRegion: can resize the region
 
 ~~~~~~~~~cpp
 MemoryAlignmentType alignment() const
@@ -226,24 +224,43 @@ void append(StaticMemRegionAbstract& other);
 
 
 Archive stores:
-Meta data
-small fixed size data e.g. length, number of one count
-Annotations
-names of variables
-Data structure class
-Memory regions
-Big chunk of memory
+ * Meta data: small fixed size data e.g. length, number of one count
+ * Annotations: names of variables
+ * Data structure class
+ * Memory regions: Big chunk of memory
 
 Archive is either:
-Input archive (InpArchive) : write data to disk
-Output archive (OutArchive): read data from disk/network to memory
+ * Input archive (InpArchive) : write data to disk
+ * Output archive (OutArchive): read data from disk/network to memory
+
 Many sub-types of archives
-Sub-types shares the interfaces but stores the data differently
-The subtypes return different types of MemoryRegion
+ * Sub-types shares the interfaces but stores the data differently
+ * The subtypes return different types of MemoryRegion
+
 Example of sub-types
-Type1: data and meta-data is stored in order of declarations
-Type2: meta-data is stored in consecutive locations for faster loading
-Statistic: only measure sizes
+ * Type1: data and meta-data is stored in order of declarations
+ * Type2: meta-data is stored in consecutive locations for faster loading
+ * Statistic: only measure sizes
+
+<div style="text-align:center;">
+<img src="./mem_images/archive_types.png" alt="Drawing" style="width: 420px;"/>
+</div>
+
+
+All files with same layout version are compatible.
+
+|Archive name|	Layout version|	Memory Cache|	Description|
+|------------|:--------------:|:-----------:|--------------|
+|IFileArchive1, OFileArchive1,IFileArchive2, OFileArchive2|	1, 2|	no|	Write to file, but load everything in memory|
+|OFileMapArchive1,OFileMapArchive1|1,2|	full|	file mapping cache, size unlimited, managed by OS|
+|OFileCCacheArchive|  _ |  | partial| (UNDONE)  custom cache with limited size.|
+|OMemArchive, IMemArchive|	1|	full|	In memory stream, no file is written|
+|OSizeEstArchive|	_	|full	|In memory to estimate data structure size|
+|OClassInfoArchive|	_	|full	|In memory, store annotation and meta-data to debug
+|OBindArchive|	_	|no	|duplicate data to two streams
+|RemoteArchive1,RemoteArchive2|	1,2|	full|	Access remote file on HTTP server. This uses a mirror file to cache remote file.|
+|RemoteArchiveNoCache|	2|	no|	Remote file without any cache|
+|RemoteArchiveMemCache|	2|	partial	|(UNDONE) Remote file with a shared memory cache|
 
 
 ~~~~~~~~~cpp

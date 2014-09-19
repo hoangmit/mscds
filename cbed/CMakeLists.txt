@@ -16,8 +16,5 @@ add_library(cbed ${SRCS} ${HEADERS})
 target_link_libraries(cbed mscdsa extcodec)
 set_property(TARGET cbed PROPERTY FOLDER "Apps")
 
-add_executable(t_cbed cbed_test.cpp)
-target_link_libraries(t_cbed cbed utils)
-set_target_properties(t_cbed PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-set_property(TARGET t_cbed PROPERTY FOLDER "Tests")
 
+add_test_exec(t_cbed FILES cbed_test.cpp LIBS cbed utils)

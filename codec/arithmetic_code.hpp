@@ -152,7 +152,7 @@ private:
 				/* //  the shifts at the end of this loop will erase the MSB
 				lo ^= MSB; 
 				hi ^= MSB; */
-			} else if ((lo & Q1) && hi < (MSB | Q1)) {
+			} else if ((lo & Q1) && hi < Q3) {
 				++underflow;
 				//cout << " u ";
 				lo ^= Q1;
@@ -188,6 +188,7 @@ private:
 
 	static const uint32_t MSB = 1ul << (sizeof(uint32_t)*8-1);;
 	static const uint32_t Q1 = 1ul << (sizeof(uint32_t)*8-2);
+	static const uint32_t Q3 = Q1 | MSB;
 	//const uint32_t Q3  = 0xC0000000ul;
 
 };
@@ -233,7 +234,7 @@ private:
 	void renomalize() {
 		do {
 			if ((hi < MSB) || (lo & MSB)) {}
-			else if ((lo & Q1) && hi < (MSB | Q1)) {
+			else if ((lo & Q1) && hi < Q3) {
 				lo ^= Q1;
 				hi |= Q1;
 				code ^= Q1;
@@ -251,7 +252,7 @@ private:
 
 	static const uint32_t MSB = 1ul << (sizeof(uint32_t)*8-1);
 	static const uint32_t Q1 = 1ul << (sizeof(uint32_t)*8-2);
-
+	static const uint32_t Q3 = (Q1 | MSB);
 };
 
 }

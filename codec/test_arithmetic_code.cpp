@@ -108,26 +108,33 @@ vector<bool> gen_bits(unsigned int n, double prob0 = 0.5) {
 
 
 TEST(arithmetic_code, binary1) {
-	vector<bool> v = gen_bits(5000, 0.5);
+	vector<bool> v = gen_bits(8000, 0.5);
 	test_bits(v);
-	v = gen_bits(5000, 0.2);
+	v = gen_bits(8000, 0.2);
 	test_bits(v);
-	v = gen_bits(5000, 0.8);
+	v = gen_bits(8000, 0.8);
 	test_bits(v);
 }
 
-vector<uint8_t> gen_byte_uni(unsigned int n) {
+vector<uint8_t> gen_byte_oe(unsigned int n, double prob_even=0.5) {
 	vector<uint8_t> out;
 	out.resize(n);
+	unsigned c0 = (unsigned)(prob_even * RAND_MAX);
 	for (int i = 0; i < n; i++) {
-		uint8_t val = rand() % 256;
+		uint8_t val = rand() % 128;
+		if (rand() < c0) val *= 2;
+		else val = val * 2 + 1;
 		out[i] = val;
 	}
 	return out;
 }
 
 TEST(arithmetic_code, char1) {
-	vector<uint8_t> v = gen_byte_uni(8000);
+	vector<uint8_t> v = gen_byte_oe(8000, 0.5);
+	test_uint8(v);
+	v = gen_byte_oe(8000, 0.2);
+	test_uint8(v);
+	v = gen_byte_oe(8000, 0.8);
 	test_uint8(v);
 }
 

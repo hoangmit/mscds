@@ -240,7 +240,7 @@ void CodeModelBuilder<Model>::clear() {
 template<typename Model>
 void CodeModelBuilder<Model>::init(const Config* conf /*= NULL */) {
 	if (conf == NULL) {
-		rate1 = 64; rate2 = 1023;
+		rate1 = 64; rate2 = 2047;
 	} else {
 		rate1 = conf->getInt("SAMPLE_RATE", 64);
 		rate2 = conf->getInt("BLOCK_RATE", 2047);

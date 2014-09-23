@@ -178,9 +178,10 @@ void HuffmanModel::clear() {
 void HuffmanModel::inspect(const std::string& cmd, std::ostream& out) const {
 	out << "huffman model" << '\n';
 	out << "size = " << freq.size() << '\n';
-	out << "# code  value  codelen" << "\n";
+	out << "# symbol  value  codelen" << "\n";
+	out << 0 << " " << '_' << " " << hc.codelen(0) << '\n';
 	for (unsigned int i = 0; i < freq.size(); ++i) {
-		out << i << " " << freq[i] << " " << hc.codelen(i) << '\n';
+		out << i+1 << " " << freq[i] << " " << hc.codelen(i+1) << '\n';
 	}
 }
 

@@ -13,9 +13,6 @@ Written by Hoang
 #include <vector>
 #include <stdint.h>
 #include <cassert>
-#include <stdexcept>
-#include <cstdlib>
-#include <limits>
 
 namespace coder {
 
@@ -24,7 +21,7 @@ namespace coder {
 struct OutBitStream {
 	typedef unsigned char ChrTp;
 	typedef std::vector<ChrTp> VecTp;
-	OutBitStream(VecTp& _v): v(_v), cache(0), mask(1), bitlen(0) {}
+	OutBitStream(VecTp* _v): v(_v), cache(0), mask(1), bitlen(0) {}
 	~OutBitStream() {close();}
 
 	void put_bit(bool bit) {
@@ -32,7 +29,7 @@ struct OutBitStream {
 		if (bit) cache |= mask;
 		if (mask != MAXMASK) mask <<= 1;
 		else {
-			v.push_back(cache);
+			v->push_back(cache);
 			cache = 0;
 			mask = 1;
 		}
@@ -44,7 +41,7 @@ struct OutBitStream {
 		if (bit) cache |= mask;
 		if (mask != MAXMASK) mask <<= 1;
 		else {
-			v.push_back(cache);
+			v->push_back(cache);
 			cache = 0;
 			mask = 1;
 		}
@@ -52,12 +49,12 @@ struct OutBitStream {
 
 	void close() {
 		if (mask > 1) {
-			v.push_back(cache);
+			v->push_back(cache);
 			mask = 1;
 		}
 	}
 
-	VecTp & v;
+	VecTp * v;
 	ChrTp cache, mask;
 	static const ChrTp MAXMASK = 1u << (sizeof(ChrTp) * 8 - 1);
 	size_t bitlen;
@@ -69,13 +66,13 @@ struct InBitStream {
 	typedef unsigned char ChrTp;
 	typedef std::vector<ChrTp> VecTp;
 
-	InBitStream(const VecTp& _v, size_t _bitlen): v(_v), bitlen(_bitlen), cache(0),
+	InBitStream(const VecTp* _v, size_t _bitlen): v(_v), bitlen(_bitlen), cache(0),
 			mask(1), pos(0), i(0) {
-		if (v.size() > 0) cache = v[0];
+		if (v->size() > 0) cache = (*v)[0];
 	}
-	InBitStream(const OutBitStream &in): v(in.v), bitlen(in.bitlen), cache(0),
+	InBitStream(const OutBitStream & in): v(in.v), bitlen(in.bitlen), cache(0),
 			mask(1), pos(0), i(0) {
-		if (v.size() > 0) cache = v[0];
+		if (v->size() > 0) cache =  (*v)[0];
 	}
 
 	bool is_empty() { return pos == bitlen; }
@@ -89,7 +86,7 @@ struct InBitStream {
 		bool ret = ((cache & mask) != 0);
 		if (mask != MAXMASK) mask <<= 1;
 		else {
-			if (i < v.size() - 1) cache = v[++i];
+			if (i < v->size() - 1) cache = (*v)[++i];
 			else cache = 0;
 			mask = 1;
 		}
@@ -100,7 +97,7 @@ struct InBitStream {
 	}
 
 	static const ChrTp MAXMASK = 1u << (sizeof(ChrTp) * 8 - 1);
-	const VecTp &v;
+	const VecTp * v;
 	ChrTp cache, mask;
 	size_t bitlen;
 	size_t pos, i;
@@ -112,10 +109,11 @@ public:
 	static const uint32_t MAX_PROB_RESOLUTION = 1ul << (sizeof(uint32_t)*8-1);
 public:
 	AC32_EncState(): output(NULL) {}
+	AC32_EncState(OutBitStream * out) { init(out); }
 
 	void init(OutBitStream * out) {
 		lo = 0;
-		hi = std::numeric_limits<uint32_t>::max();;
+		hi = ~lo;
 		underflow = 0;
 		output = out;
 	}
@@ -132,7 +130,6 @@ public:
 
 	void close() {
 		underflow++;
-		//set_bit(lo & Q1);
 		if (lo & Q1) {
 			//set_bit_opt<true>(); // alternative
 			// ignore the trailing 0
@@ -183,25 +180,25 @@ private:
 private:
 	OutBitStream * output;
 
+	size_t underflow;
 	uint32_t lo, hi;
-	uint32_t underflow;
 
 	static const uint32_t MSB = 1ul << (sizeof(uint32_t)*8-1);;
 	static const uint32_t Q1 = 1ul << (sizeof(uint32_t)*8-2);
 	static const uint32_t Q3 = Q1 | MSB;
 	//const uint32_t Q3  = 0xC0000000ul;
-
 };
 
 /// Arithmetic dencoder using 32-bit states
 class AC32_DecState {
 public:
 	AC32_DecState(): input(NULL) {}
+	AC32_DecState(InBitStream * inp) { init(inp); }
 
 	void init(InBitStream * inp) {
 		input = inp;
 		lo = 0;
-		hi = std::numeric_limits<uint32_t>::max();
+		hi = ~lo;
 		code = 0;
 		for (int i = 0; i < sizeof(uint32_t)*8; ++i) {
 			if (!input->is_empty())
@@ -211,7 +208,7 @@ public:
 	}
 
 	/// returns a number that fall between [lo_count, hi_count) 
-	/// where 'lo_count' and 'hi_count' were parameter of the encode funtion
+	/// where 'lo_count' and 'hi_count' were the parameters of the encode funtion
 	unsigned int decode_count(uint32_t total) {
 		uint64_t rlen = (uint64_t) hi - lo + 1;
 		uint64_t v = (uint64_t(code) - lo + 1) * total - 1;
@@ -232,7 +229,7 @@ public:
 	}
 private:
 	void renomalize() {
-		do {
+		for (;;) {
 			if ((hi < MSB) || (lo & MSB)) {}
 			else if ((lo & Q1) && hi < Q3) {
 				lo ^= Q1;
@@ -242,7 +239,7 @@ private:
 			lo <<= 1;
 			hi = (hi << 1) | 1;
 			code = (code << 1) | (input->get_bit() ? 1u : 0u);
-		} while (true);
+		}
 	}
 
 private:

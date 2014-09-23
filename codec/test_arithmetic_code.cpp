@@ -18,9 +18,8 @@ void test_bits(const vector<bool>& bv) {
 		else zc++;
 	}
 	OutBitStream::VecTp buf;
-	OutBitStream is(buf);
-	AC32_EncState enc;
-	enc.init(&is);
+	OutBitStream is(&buf);
+	AC32_EncState enc(&is);
 
 	for (int i = 0; i < n; ++i) {
 		if (!bv[i])
@@ -31,8 +30,7 @@ void test_bits(const vector<bool>& bv) {
 	enc.close();
 
 	InBitStream os(is);
-	AC32_DecState dec;
-	dec.init(&os);
+	AC32_DecState dec(&os);
 
 	for (unsigned int i = 0; i < n; ++i) {
 		unsigned int dc = dec.decode_count(n);
@@ -67,9 +65,9 @@ void test_uint8(const vector<uint8_t>& bv) {
 	ASSERT_EQ(cum_freq[alp_cnt], total);
 
 	OutBitStream::VecTp buf;
-	OutBitStream is(buf);
-	AC32_EncState enc;
-	enc.init(&is);
+	OutBitStream is(&buf);
+	AC32_EncState enc(&is);
+
 	for (unsigned int i = 0; i < n; ++i) {
 		uint8_t val = bv[i];
 		enc.update(cum_freq[val], cum_freq[val+1], total);
@@ -77,8 +75,7 @@ void test_uint8(const vector<uint8_t>& bv) {
 	enc.close();
 
 	InBitStream os(is);
-	AC32_DecState dec;
-	dec.init(&os);
+	AC32_DecState dec(&os);
 	for (unsigned int i = 0; i < n; ++i) {
 		unsigned int dc = dec.decode_count(n);
 		unsigned int idx = std::upper_bound(cum_freq.begin(), cum_freq.end(), dc) - cum_freq.begin();

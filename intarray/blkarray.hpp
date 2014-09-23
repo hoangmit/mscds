@@ -78,6 +78,7 @@ public:
 	typedef CodeModelArray<Model> QueryTp;
 
 	CodeModelBuilder();
+	~CodeModelBuilder();
 	void init(const Config* conf = NULL);
 	void add(uint32_t val);
 	void build(OutArchive& ar);
@@ -232,6 +233,7 @@ void CodeModelBuilder<Model>::add(uint32_t val) {
 
 template<typename Model>
 void CodeModelBuilder<Model>::clear() {
+	out.clear();
 	buf.clear(); bd.clear(); rate1 = 0; rate2 = 0; opos.clear();
 }
 
@@ -250,6 +252,10 @@ template<typename Model>
 CodeModelBuilder<Model>::CodeModelBuilder() {
 	init();
 }
+
+template<typename Model>
+CodeModelBuilder<Model>::~CodeModelBuilder() 
+{ out.close(); }
 
 template<typename Model>
 typename CodeModelArray<Model>::BlkPtr CodeModelArray<Model>::getBlk(unsigned int b) const {

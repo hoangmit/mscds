@@ -93,6 +93,7 @@ void HuffmanModel::startBuild(const Config *conf) {
 
 void HuffmanModel::add(uint32_t val) {
 	++mbdata.cnt[val];
+	++mbdata.n;
 }
 
 void HuffmanModel::endBuild() {

@@ -243,7 +243,7 @@ void CodeModelBuilder<Model>::init(const Config* conf /*= NULL */) {
 		rate1 = 64; rate2 = 1023;
 	} else {
 		rate1 = conf->getInt("SAMPLE_RATE", 64);
-		rate2 = conf->getInt("BLOCK_RATE", 1023);
+		rate2 = conf->getInt("BLOCK_RATE", 2047);
 	}
 	cnt = 0;
 }

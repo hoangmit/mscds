@@ -51,7 +51,7 @@ struct DeltaCodeStream {
 		return 0;
 	}
 	static uint64_t extract(const BitArray& ba, size_t start) {
-
+		return 0;
 	}
 
 };

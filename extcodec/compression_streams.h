@@ -16,6 +16,7 @@ Written by Hoang
 namespace mscds {
 
 struct ImplCompress {
+	virtual ~ImplCompress() {}
 	virtual std::ostream& out() = 0;
 	virtual size_t streamsize() = 0;
 	virtual void close() = 0;

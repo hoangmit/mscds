@@ -201,7 +201,7 @@ std::string OClassInfoArchive::printxml() {
 	std::ostringstream ss;
 	ClassListInfo& x = *((ClassListInfo*)impl);
 	if (!finalized) close();
-	if (!x.parents.size() != 1 && x.parents.top()->name != "root")
+	if (x.parents.size() != 1 || x.parents.top()->name != "root")
 		throw ioerror("not enough endclass");
 	x.parents.top()->printxml(ss);
 	return ss.str();

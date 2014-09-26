@@ -55,7 +55,7 @@ Below is an example of a simple data structure that only store a string and allo
 
 There are two classes the Builder class construct the string. The Query class allows user to read from the string. The `example()` function is how the functions are used. There are a few classes that were not introduced namely `DynamicMemRegionPtr`, `StaticMemRegionPtr`, `IFileArchive2` and `OFileArchive2`. They are different implementations of Memory Region and Archive. They will be mentioned in the subsequence sub-sections. In this example, we want to highlight the conventional flow of  interactions of data structure classes in the `example()` function.
 
-~~~~~~~~~cpp
+~~~~~~~~~ cpp
 #include "framework/mem_models.h"
 #include "framework/archive.h"
 #include "mem/local_mem.h"

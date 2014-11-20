@@ -25,7 +25,6 @@ Implemented by Hoang
 
 namespace mscds {
 
-
 /// Output Bit Stream
 class OBitStream {
 public:

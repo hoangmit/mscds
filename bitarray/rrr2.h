@@ -19,8 +19,6 @@ Implemented by Chai.
 #include <cstdint>
 #include <string>
 
-
-
 namespace mscds {
 
 class RRR2Builder;

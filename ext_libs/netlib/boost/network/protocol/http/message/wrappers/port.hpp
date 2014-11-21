@@ -25,11 +25,11 @@ namespace boost { namespace network { namespace http {
 
             typedef typename basic_request<Tag>::port_type port_type;
 
-            operator port_type() {
+            operator port_type() const {
                 return message_.port();
             }
 
-            operator boost::optional<boost::uint16_t> () {
+            operator boost::optional<boost::uint16_t> () const {
                 return uri::port_us(message_.uri());
             }
         };

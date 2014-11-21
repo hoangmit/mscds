@@ -92,7 +92,7 @@ namespace mscds {
 		BitArray v = BitArrayBuilder::create(length * alphabet_bit_num_);
 		v.fillzero();
 
-		std::vector<uint64_t> runlen, pos(list);
+		std::vector<uint64_t> runlen, pos(list.begin(), list.end());
 		runlen.push_back(length);
 		for (unsigned int d = 0; d < alphabet_bit_num_; ++d) {
 			for (unsigned int i = 0; i < length; ++i)
@@ -123,7 +123,7 @@ namespace mscds {
 		BitArray v = BitArrayBuilder::create(length * alphabet_bit_num_);
 		v.fillzero();
 
-		std::vector<uint64_t> runlen, pos(list);
+		std::vector<uint64_t> runlen, pos(list.begin(), list.end());
 		runlen.push_back(length);
 		for (unsigned int d = 0; d < alphabet_bit_num_; ++d) {
 			for (unsigned int i = 0; i < length; ++i)

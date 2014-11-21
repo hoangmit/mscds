@@ -68,7 +68,7 @@ include(cmake/function.cmake)
 fix_compiler_flags() #defined inside function.cmake
 
 if(GCC_COMPATIBLE_COMPILER)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -march=native -g")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -march=native -g -flto")
 elseif(MSVC)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
 	# 'expression': unreferenced local variable
@@ -180,6 +180,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/wavarray)
 add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 add_subdirectory(${PROJECT_SOURCE_DIR}/string)
 
+
 set(CORE_LIBS utils mem bitarray codec intarray wavarray tree string fusionarray)
 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
@@ -243,6 +244,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cwig2)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
+add_subdirectory(${PROJECT_SOURCE_DIR}/stdio_stream)
 
 ##========================================================
 export(TARGETS mscdsa FILE "${PROJECT_BINARY_DIR}/mscdsaTargets.cmake")

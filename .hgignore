@@ -1,3 +1,5 @@
 syntax: glob
 build
 gntf/old
+*.cpp.orig
+*.h.orig

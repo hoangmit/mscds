@@ -105,6 +105,38 @@ namespace mscds {
 	}
 
 	template<typename RankSelect>
+	void WatBuilderGen<RankSelect>::build(const std::vector<uint32_t>& list, WatQueryGen<RankSelect> * out) {
+		uint64_t alphabet_num = 0;
+		for (size_t i = 0; i < list.size(); ++i) {
+			if (list[i] >= alphabet_num)
+				alphabet_num = list[i];
+		}
+
+		uint64_t alphabet_bit_num_ = ceillog2(alphabet_num + 1);
+		//assert(Log2(alphabet_num) == msb_intr(alphabet_num - 1) + 1);
+
+		uint64_t length = static_cast<uint64_t>(list.size());
+		out->clear();
+		out->max_val = alphabet_num;
+		out->slength = length;
+		out->bitwidth = alphabet_bit_num_;
+		BitArray v = BitArrayBuilder::create(length * alphabet_bit_num_);
+		v.fillzero();
+
+		std::vector<uint64_t> runlen, pos(list);
+		runlen.push_back(length);
+		for (unsigned int d = 0; d < alphabet_bit_num_; ++d) {
+			for (unsigned int i = 0; i < length; ++i)
+				v.setbit(d*length + i, _getMSB(pos[i], d, alphabet_bit_num_) != 0);
+			if (d + 1 <  alphabet_bit_num_) {
+				_sortrun(d, alphabet_bit_num_, pos, runlen);
+			}
+		}
+		RankSelect::BuilderTp::build(v, &(out->bit_array));
+	}
+
+
+	template<typename RankSelect>
 	void WatBuilderGen<RankSelect>::build(const std::vector<uint64_t>& list, OutArchive & ar) {
 		WatQuery q;
 		build(list, &q);

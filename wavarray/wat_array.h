@@ -88,6 +88,7 @@ class WatBuilderGen {
 public:
 	//static std::vector<uint64_t> convert(const std::vector<unsigned int>& list);
 	static void build(const std::vector<uint64_t>& list, WatQueryGen<RankSelect> * out);
+	static void build(const std::vector<uint32_t>& list, WatQueryGen<RankSelect> * out);
 	static void build(const std::vector<uint64_t>& list, OutArchive & ar);
 private:
 };

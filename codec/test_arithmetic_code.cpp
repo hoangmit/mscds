@@ -77,7 +77,7 @@ void test_uint8(const vector<uint8_t>& bv) {
 	InBitStream os(is);
 	AC32_DecState dec(&os);
 	for (unsigned int i = 0; i < n; ++i) {
-		unsigned int dc = dec.decode_count(n);
+		unsigned int dc = dec.decode_count(total);
 		unsigned int idx = std::upper_bound(cum_freq.begin(), cum_freq.end(), dc) - cum_freq.begin();
 		ASSERT(idx > 0 && idx <= alp_cnt);
 		uint8_t val = idx - 1;

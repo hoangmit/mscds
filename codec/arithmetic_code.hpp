@@ -66,13 +66,22 @@ struct InBitStream {
 	typedef unsigned char ChrTp;
 	typedef std::vector<ChrTp> VecTp;
 
-	InBitStream(const VecTp* _v, size_t _bitlen): v(_v), bitlen(_bitlen), cache(0),
-			mask(1), pos(0), i(0) {
-		if (v->size() > 0) cache = (*v)[0];
+	InBitStream(const VecTp* _v, size_t _bitlen) {
+		init(_v, _bitlen);
 	}
-	InBitStream(const OutBitStream & in): v(in.v), bitlen(in.bitlen), cache(0),
-			mask(1), pos(0), i(0) {
-		if (v->size() > 0) cache =  (*v)[0];
+
+	InBitStream(const OutBitStream & in) {
+		init(in.v, in.bitlen);
+	}
+
+	void init(const VecTp* _v, size_t _bitlen) {
+		v = _v;
+		bitlen = _bitlen;
+		cache = 0;
+		mask = 1;
+		pos = 0;
+		i = 0;
+		if (v->size() > 0) cache = (*v)[0];
 	}
 
 	bool is_empty() { return pos == bitlen; }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 #include <cassert>
 
 namespace coder {
@@ -16,6 +17,8 @@ public:
 				len_enc->add(cur_len);
 				val_enc->add(cur_val);
 			}
+			cur_len = 1;
+			cur_val = val;
 		} else
 			cur_len += 1;
 	}
@@ -34,6 +37,34 @@ public:
 private:
 	PosEnc * len_enc;
 	EntropyEnc * val_enc;
+	size_t cur_len;
+	ValTp cur_val;
+};
+
+template<typename ValTp, class PosDec, class EntropyDec>
+class RunLenDec {
+public:
+	RunLenDec(PosDec* _len, EntropyDec * _val): cur_len(0), len_dec(_len), val_dec(_val) {}
+	ValTp get() {
+		if (cur_len == 0) {
+			cur_len = len_dec->get();
+			cur_val = val_dec->get();
+			assert(cur_len > 0);
+		}
+		cur_len -= 1;
+		return cur_val;
+	}
+
+	void reset() {
+		cur_len = 0;
+	}
+
+	void close() {
+	}
+private:
+	PosDec * len_dec;
+	EntropyDec * val_dec;
+
 	size_t cur_len;
 	ValTp cur_val;
 };
@@ -159,10 +190,12 @@ struct DequeStream {
 	ValTp get() {
 		ValTp v = data.front();
 		data.pop_front();
+		//std::cout << "get " << v << std::endl;
 		return v;
 	}
 
 	void add(ValTp v) {
+		//std::cout << "add " << v << std::endl;
 		data.push_back(v);
 	}
 

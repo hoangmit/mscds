@@ -3,6 +3,8 @@
 #include <vector>
 #include <cassert>
 
+namespace coder {
+
 template<typename ValTp, class PosEnc, class EntropyEnc>
 class RunLenEnc {
 public:
@@ -120,7 +122,8 @@ private:
 template<typename ValTp, class EntropyDec1, class EntropyDec2 = EntropyDec1>
 class MTFDec {
 public:
-	MTFDec(unsigned int _max_size, EntropyDec1 * ctl, EntropyEnc2 * val): max_size(_max_size), control(ctl), value(val) {
+	MTFDec(unsigned int _max_size, EntropyDec1 * ctl, EntropyEnc2 * val): 
+		max_size(_max_size), control(ctl), value(val) {
 		assert(max_size > 0);
 		lst.reserve(max_size);
 	}
@@ -151,4 +154,4 @@ private:
 };
 
 
-
+}//namespace

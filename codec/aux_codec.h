@@ -9,7 +9,8 @@ namespace coder {
 template<typename ValTp, class PosEnc, class EntropyEnc>
 class RunLenEnc {
 public:
-	RunLenEnc(PosEnc* _len, EntropyEnc * _val): cur_len(0), len_enc(_len), val_enc(_val) {}
+	RunLenEnc(PosEnc* _len, EntropyEnc * _val):
+		cur_len(0), len_enc(_len), val_enc(_val) {}
 
 	void add(ValTp val) {
 		if (val != cur_val) {
@@ -44,7 +45,9 @@ private:
 template<typename ValTp, class PosDec, class EntropyDec>
 class RunLenDec {
 public:
-	RunLenDec(PosDec* _len, EntropyDec * _val): cur_len(0), len_dec(_len), val_dec(_val) {}
+	RunLenDec(PosDec* _len, EntropyDec * _val):
+		cur_len(0), len_dec(_len), val_dec(_val) {}
+
 	ValTp get() {
 		if (cur_len == 0) {
 			cur_len = len_dec->get();

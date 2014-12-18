@@ -1,5 +1,6 @@
 
 #include "arithmetic_code.hpp"
+#include "ac_models.h"
 
 #include "utils/utest.h"
 #include <stdint.h>
@@ -103,7 +104,6 @@ vector<bool> gen_bits(unsigned int n, double prob0 = 0.5) {
 	return out;
 }
 
-
 TEST(arithmetic_code, binary1) {
 	vector<bool> v = gen_bits(8000, 0.5);
 	test_bits(v);
@@ -134,6 +134,54 @@ TEST(arithmetic_code, char1) {
 	v = gen_byte_oe(8000, 0.8);
 	test_uint8(v);
 }
+
+template<class Model, class ChrTp = uint8_t>
+void test_ac_enc_dec(const std::vector<ChrTp>& bv) {
+	// create model
+	Model mod;
+	for (ChrTp c: bv)
+		mod.add(c);
+	mod.init_model();
+
+	// encoding
+	AC_OutStream outx;
+	EncBinder<Model> ex;
+	ex.bind(&outx, &mod);
+	for (ChrTp c: bv)
+		ex.encode(c);
+	ex.close();
+
+	//std::cout << "compress into: " << outx.bitlength() << std::endl;
+	// decoding
+	AC_InpStream inx;
+	inx.recv(outx);
+	DecBinder<Model> dex;
+	dex.bind(&inx, &mod);
+	for (unsigned int i = 0; i < bv.size(); ++i) {
+		//std::cout << i << std::endl;
+		auto c = bv[i];
+		uint8_t d = dex.decode();
+		ASSERT_EQ(c, d);
+	}
+	dex.close();
+}
+
+
+TEST(arithmetic_code, static_stream1) {
+	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+	test_ac_enc_dec<StaticAC_Model>(v);
+}
+
+TEST(arithmetic_code, semistatic_stream1) {
+	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+	test_ac_enc_dec<SemiStaticAC_Model>(v);
+}
+
+TEST(arithmetic_code, adaptive_stream1) {
+	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+	test_ac_enc_dec<AdaptiveAC_Model>(v);
+}
+
 
 /*
 int main(int argc, char* argv[]) {

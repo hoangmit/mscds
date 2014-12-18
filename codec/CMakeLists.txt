@@ -18,6 +18,8 @@ golomb_coder.h
 huffman_code.h
 huffman_adp.hpp
 arithmetic_code.hpp
+ac_models.h
+aux_codec.h
 vbyte.h
 stream/codec_adapter.h
 )

@@ -8,7 +8,7 @@ namespace coder {
 template<typename ValTp, class PosEnc, class EntropyEnc>
 class RunLenEnc {
 public:
-	RunLen(PosEnc* _len, EntropyEnc * _val): cur_len(0), len_enc(_len), val_enc(_val) {}
+	RunLenEnc(PosEnc* _len, EntropyEnc * _val): cur_len(0), len_enc(_len), val_enc(_val) {}
 
 	void add(ValTp val) {
 		if (val != cur_val) {
@@ -42,7 +42,7 @@ template<typename ValTp>
 class MTFBdList {
 public:
 	typedef int IdxTp;
-	MTFList(unsigned int msize) {
+	MTFBdList(unsigned int msize) {
 		max_size = msize;
 		lst.reserve(max_size);
 	}
@@ -81,6 +81,9 @@ public:
 	void clear() {
 		lst.clear();
 	}
+	unsigned int get_max_size() const {
+		return max_size;
+	}
 private:
 	std::vector<ValTp> lst;
 	unsigned int max_size;
@@ -89,16 +92,15 @@ private:
 template<typename ValTp, class EntropyEnc1, class EntropyEnc2 = EntropyEnc1>
 class MTFEnc {
 public:
-	MTFEnc(unsigned int _max_size, EntropyEnc1* ctl, EntropyEnc2* val): max_size(_max_size), control(ctl), value(val) {
-		assert(max_size > 0);
-		lst.reserve(max_size);
+	MTFEnc(unsigned int _max_size, EntropyEnc1* ctl, EntropyEnc2* val):
+		lst(_max_size), control(ctl), value(val) {
 	}
 
 	void add(ValTp val) {
 		int idx = lst.findadd(val);
 		// save to streams
 		if (idx < 0) {
-			control->add(max_size);
+			control->add(lst.get_max_size());
 			value->add(val);
 		} else {
 			control->add(idx);
@@ -122,18 +124,16 @@ private:
 template<typename ValTp, class EntropyDec1, class EntropyDec2 = EntropyDec1>
 class MTFDec {
 public:
-	MTFDec(unsigned int _max_size, EntropyDec1 * ctl, EntropyEnc2 * val): 
-		max_size(_max_size), control(ctl), value(val) {
-		assert(max_size > 0);
-		lst.reserve(max_size);
+	MTFDec(unsigned int _max_size, EntropyDec1 * ctl, EntropyDec2 * val):
+		lst(_max_size), control(ctl), value(val) {
 	}
 
 	ValTp get() {
 		unsigned int idx = control->get();
 		ValTp v;
-		if (idx == max_size) {
+		if (idx == lst.get_max_size()) {
 			v = value->get();
-			lst.replace(idx, v);
+			lst.replace(-1, v);
 		} else
 			v = lst.get(idx);
 		return v;
@@ -151,6 +151,26 @@ private:
 	MTFBdList<ValTp> lst;
 	EntropyDec1 * control;
 	EntropyDec2 * value;
+};
+
+
+template<typename ValTp>
+struct DequeStream {
+	ValTp get() {
+		ValTp v = data.front();
+		data.pop_front();
+		return v;
+	}
+
+	void add(ValTp v) {
+		data.push_back(v);
+	}
+
+	void reset() {}
+
+	void close() {}
+
+	std::deque<ValTp> data;
 };
 
 

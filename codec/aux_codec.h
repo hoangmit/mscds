@@ -58,6 +58,10 @@ public:
 		return cur_val;
 	}
 
+	bool hasNext() {
+		return (cur_len > 0) || (len_dec->has_next());
+	}
+
 	void reset() {
 		cur_len = 0;
 	}
@@ -141,6 +145,7 @@ public:
 		}
 	}
 
+
 	void reset() {
 		lst.clear();
 	}
@@ -173,6 +178,10 @@ public:
 		return v;
 	}
 
+	bool hasNext() {
+		return control->hasNext();
+	}
+
 	void reset() {
 		lst.clear();
 	}
@@ -200,6 +209,10 @@ struct DequeStream {
 	void add(ValTp v) {
 		//std::cout << "add " << v << std::endl;
 		data.push_back(v);
+	}
+
+	bool hasNext() {
+		return !(data.empty());
 	}
 
 	void reset() {}

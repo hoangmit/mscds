@@ -130,8 +130,8 @@ private:
 template<typename ValTp, class EntropyEnc1, class EntropyEnc2 = EntropyEnc1>
 class MTFEnc {
 public:
-	MTFEnc(unsigned int _max_size, EntropyEnc1* ctl, EntropyEnc2* val):
-		lst(_max_size), control(ctl), value(val) {
+	MTFEnc(EntropyEnc1* ctl, EntropyEnc2* val, unsigned int _max_size=8):
+		control(ctl), value(val), lst(_max_size) {
 	}
 
 	void add(ValTp val) {
@@ -163,8 +163,8 @@ private:
 template<typename ValTp, class EntropyDec1, class EntropyDec2 = EntropyDec1>
 class MTFDec {
 public:
-	MTFDec(unsigned int _max_size, EntropyDec1 * ctl, EntropyDec2 * val):
-		lst(_max_size), control(ctl), value(val) {
+	MTFDec(EntropyDec1 * ctl, EntropyDec2 * val, unsigned int _max_size=8):
+		control(ctl), value(val), lst(_max_size) {
 	}
 
 	ValTp get() {

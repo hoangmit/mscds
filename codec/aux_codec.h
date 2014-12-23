@@ -59,7 +59,7 @@ public:
 	}
 
 	bool hasNext() {
-		return (cur_len > 0) || (len_dec->has_next());
+		return (cur_len > 0) || (len_dec->hasNext());
 	}
 
 	void reset() {

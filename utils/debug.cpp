@@ -57,6 +57,6 @@ void register_handler() {
 }
 
 }//namespace
-#elseif
+#else
 void utils::register_handler(){}
 #endif

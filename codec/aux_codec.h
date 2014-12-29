@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -236,5 +237,79 @@ struct DequeStream {
 	std::deque<ValTp> data;
 };
 
+
+template<class Next, bool diff = false, bool neg = false>
+struct TransformEnc {
+	TransformEnc() {}
+
+	template<typename... Params>
+	void bind(Params... params) {
+		out.bind(params...);
+		last = 0;
+	}
+	void reset() {
+		last = 0;
+	}
+
+	void add(int inum) {
+		auto num = inum;
+		if (diff) {
+			num = inum - last;
+			last = inum;
+		}
+		if (neg) {
+			if (num < 0) num = (-num)*2 - 1;
+			else num = 2 * num;
+		}
+		assert(num >= 0);
+		out.add(num);
+	}
+
+	void close() {
+		out.close();
+		last = 0;
+	}
+
+	int last;
+	Next out;
+};
+
+template<class Next, bool diff = false, bool neg = false>
+struct TransformDec {
+	TransformDec() {}
+
+	template<typename... Params>
+	void bind(Params... params) {
+		out.bind(params...);
+		last = 0;
+	}
+	void reset() {
+		last = 0;
+	}
+
+	int get() {
+		int num = out.get();
+		if (neg) {
+			if (num % 2 == 0) num /= 2;
+			else num = -((num + 1) / 2);
+		}
+		if (diff) {
+			num = num + last;
+			last = num;
+		}
+		return num;
+	}
+
+	bool hasNext() {
+		return out.hasNext();
+	}
+
+	void close() {
+		out.close();
+		last = 0;
+	}
+	int last;
+	Next out;
+};
 
 }//namespace

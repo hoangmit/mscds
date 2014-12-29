@@ -27,6 +27,7 @@ struct DbgHelper {
 	static void setflag(bool b) { flag = b; }
 };
 
+void register_handler();
 
 }//namespace
 #endif //__UTILS_DEBUG_H_

@@ -9,8 +9,13 @@ namespace coder {
 template<typename ValTp, class PosEnc, class EntropyEnc>
 class RunLenEnc {
 public:
-	RunLenEnc(PosEnc* _len, EntropyEnc * _val):
-		cur_len(0), len_enc(_len), val_enc(_val) {}
+	RunLenEnc(): val_enc(nullptr), len_enc(nullptr) {}
+
+	void bind(PosEnc* _len, EntropyEnc * _val) {
+		cur_len = 0;
+		len_enc = _len;
+		val_enc = _val;
+	}
 
 	void add(ValTp val) {
 		if (val != cur_val) {
@@ -24,16 +29,14 @@ public:
 			cur_len += 1;
 	}
 
-	void reset() {
-		cur_len = 0;
-	}
-
 	void close() {
 		if (cur_len > 0) {
 			len_enc->add(cur_len);
 			val_enc->add(cur_val);
-			reset();
 		}
+		cur_len = 0;
+		len_enc = nullptr;
+		val_enc = nullptr;
 	}
 private:
 	PosEnc * len_enc;
@@ -45,8 +48,13 @@ private:
 template<typename ValTp, class PosDec, class EntropyDec>
 class RunLenDec {
 public:
-	RunLenDec(PosDec* _len, EntropyDec * _val):
-		cur_len(0), len_dec(_len), val_dec(_val) {}
+	RunLenDec(): len_dec(nullptr), val_dec(nullptr) {}
+
+	void bind(PosDec* _len, EntropyDec * _val) {
+		cur_len = 0;
+		len_dec = _len;
+		val_dec = _val;
+	}
 
 	ValTp get() {
 		if (cur_len == 0) {
@@ -62,11 +70,10 @@ public:
 		return (cur_len > 0) || (len_dec->hasNext());
 	}
 
-	void reset() {
-		cur_len = 0;
-	}
-
 	void close() {
+		cur_len = 0;
+		len_dec = nullptr;
+		val_dec = nullptr;
 	}
 private:
 	PosDec * len_dec;
@@ -80,8 +87,11 @@ template<typename ValTp>
 class MTFBdList {
 public:
 	typedef int IdxTp;
-	MTFBdList(unsigned int msize) {
+	MTFBdList(): max_size(0) {}
+
+	void init(unsigned int msize) {
 		max_size = msize;
+		lst.clear();
 		lst.reserve(max_size);
 	}
 
@@ -130,8 +140,12 @@ private:
 template<typename ValTp, class EntropyEnc1, class EntropyEnc2 = EntropyEnc1>
 class MTFEnc {
 public:
-	MTFEnc(EntropyEnc1* ctl, EntropyEnc2* val, unsigned int _max_size=8):
-		control(ctl), value(val), lst(_max_size) {
+	MTFEnc(): control(nullptr), value(nullptr) {}
+
+	void bind(EntropyEnc1* ctl, EntropyEnc2* val, unsigned int _max_size=8) {
+		control = ctl;
+		value = val;
+		lst.init(_max_size);
 	}
 
 	void add(ValTp val) {
@@ -145,13 +159,10 @@ public:
 		}
 	}
 
-
-	void reset() {
-		lst.clear();
-	}
-
 	void close() {
-		reset();
+		lst.clear();
+		control = nullptr;
+		value = nullptr;
 	}
 private:
 	MTFBdList<ValTp> lst;
@@ -163,8 +174,13 @@ private:
 template<typename ValTp, class EntropyDec1, class EntropyDec2 = EntropyDec1>
 class MTFDec {
 public:
-	MTFDec(EntropyDec1 * ctl, EntropyDec2 * val, unsigned int _max_size=8):
-		control(ctl), value(val), lst(_max_size) {
+	MTFDec():
+		control(nullptr), value(nullptr), lst() {}
+
+	void bind(EntropyDec1 * ctl, EntropyDec2 * val, unsigned int _max_size=8) {
+		control = ctl;
+		value = val;
+		lst.init(_max_size);
 	}
 
 	ValTp get() {
@@ -182,12 +198,10 @@ public:
 		return control->hasNext();
 	}
 
-	void reset() {
-		lst.clear();
-	}
-
 	void close() {
-		reset();
+		lst.clear();
+		control = nullptr;
+		value = nullptr;
 	}
 
 private:
@@ -199,6 +213,8 @@ private:
 
 template<typename ValTp>
 struct DequeStream {
+	void bind() {}
+
 	ValTp get() {
 		ValTp v = data.front();
 		data.pop_front();
@@ -215,9 +231,7 @@ struct DequeStream {
 		return !(data.empty());
 	}
 
-	void reset() {}
-
-	void close() {}
+	void close() { }
 
 	std::deque<ValTp> data;
 };

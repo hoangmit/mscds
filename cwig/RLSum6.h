@@ -58,6 +58,8 @@ public:
 	
 	unsigned int range_len(unsigned int i) const;
 	double range_value(unsigned int i) const;
+	double range_min(unsigned int i, unsigned int j) const;
+	double range_max(unsigned int i, unsigned int j) const;
 	double range_psum(unsigned int i) const;
 	unsigned int last_position() const { return length() > 0 ? range_start(length()-1) + range_len(length() - 1) : 0; }
 

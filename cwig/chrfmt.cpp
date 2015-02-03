@@ -45,12 +45,21 @@ void ChrNumDataBuilder::build(ChrNumData* out) {
 	if (ranges[i - 1].ed > ranges[i].st)
 		throw std::runtime_error("input contains overlapping intervals");
 	out->minmax_opt = minmax_opt;
-	std::vector<double> minmaxr(ranges.size());
+	unsigned int ml;
+	if (ranges.size() == 0) ml = 0;
+	else ml = ((ranges.size()  + (MIN_MAX_SAMPLE_RATE - 1)) / MIN_MAX_SAMPLE_RATE) - 1;
+	std::vector<double> minr(ml);
+	std::vector<double> maxr(ml);
 	ChrNumValBuilderType bd;
-	unsigned int i = 0;
-	for (auto it = ranges.begin(); it != ranges.end(); ++it) {
-		minmaxr[i] = it->val;
-		++i;
+	for (unsigned int i = 0; i < minr.size(); ++i) {
+		double minv = std::numeric_limits<double>::max(), maxv = std::numeric_limits<double>::min();
+		unsigned p = MIN_MAX_SAMPLE_RATE * i;
+		for (unsigned int j = 0; j < MIN_MAX_SAMPLE_RATE && p + j < ranges.size(); ++j) {
+			minv = std::min<double>(minv, ranges[p+j].val);
+			maxv = std::max<double>(maxv, ranges[p+j].val);
+		}
+		minr[i] = minv;
+		maxr[i] = maxv;
 	}
 	//bd.add_all(&ranges);
 	for (auto it = ranges.begin(); it != ranges.end(); ++it) {
@@ -61,11 +70,11 @@ void ChrNumDataBuilder::build(ChrNumData* out) {
 	ranges.clear();
 
 	if (out->minmax_opt & MIN_OP) {
-		BitArray b = build_supercartisian_tree(true, minmaxr.begin(), minmaxr.end());
+		BitArray b = build_supercartisian_tree(true, minr.begin(), minr.end());
 		out->min.build(b, 512);
 	}
 	if (out->minmax_opt & MAX_OP) {
-		BitArray b = build_supercartisian_tree(false, minmaxr.begin(), minmaxr.end());
+		BitArray b = build_supercartisian_tree(false, maxr.begin(), maxr.end());
 		out->max.build(b, 512);
 	}
 	out->has_annotation = has_annotation;
@@ -187,7 +196,8 @@ double ChrNumData::min_value(unsigned int st, unsigned int ed) const {
 		auto ls = vals.find_intervals(st, ed);
 		if (ls.first < ls.second) {
 			unsigned int i = min.m_idx(ls.first, ls.second);
-			return vals.range_value(i);
+			unsigned int p = i * MIN_MAX_SAMPLE_RATE;
+			return vals.range_min(p, p + MIN_MAX_SAMPLE_RATE);
 		}
 		else return 0;
 	}
@@ -200,7 +210,8 @@ double ChrNumData::max_value(unsigned int st, unsigned int ed) const {
 		auto ls = vals.find_intervals(st, ed);
 		if (ls.first < ls.second) {
 			unsigned int i = max.m_idx(ls.first, ls.second);
-			return vals.range_value(i);
+			unsigned int p = i * MIN_MAX_SAMPLE_RATE;
+			return vals.range_max(p, p + MIN_MAX_SAMPLE_RATE);;
 		}
 		else return 0;
 	}

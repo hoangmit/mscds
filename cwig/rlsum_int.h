@@ -19,6 +19,8 @@ public:
 	virtual unsigned int range_start(unsigned int i) const = 0;
 	virtual unsigned int range_len(unsigned int i) const = 0;
 	virtual T range_value(unsigned int i) const = 0;
+	virtual T range_max(unsigned int i, unsigned int j) const = 0;
+	virtual T range_min(unsigned int i, unsigned int j) const = 0;
 	virtual T range_psum(unsigned int i) const = 0;
 
 	virtual unsigned int count_range(unsigned int pos) const = 0;

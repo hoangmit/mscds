@@ -31,7 +31,7 @@ private:
 	static void pack(bool pack_values, const std::vector<uint64_t>& lst, std::vector<uint64_t>& nlst, uint64_t& maxval);
 };
 
-/// Single level RMQ table (uses O(n^2) space)
+/// Single level RMQ table (uses O(n log(n)) word-space)
 class RMQ_table {
 public:
 	RMQ_table() {}

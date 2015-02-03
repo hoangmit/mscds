@@ -78,6 +78,8 @@ public:
 	unsigned int range_start(unsigned int i) const;
 	unsigned int range_len(unsigned int i) const;
 	double range_value(unsigned int i) const;
+	double range_min(unsigned int i, unsigned int j) const;
+	double range_max(unsigned int i, unsigned int j) const;
 	double range_psum(unsigned int i) const;
 
 	unsigned int last_position() const { return length() > 0 ? range_start(length()-1) + range_len(length() - 1) : 0; }
@@ -253,6 +255,33 @@ template<typename IVS>
 double IntValQueryG<IVS>::range_value(unsigned int idx) const {
 	return data.get_val(idx);
 }
+
+template<typename IVS>
+double IntValQueryG<IVS>::range_min(unsigned int i, unsigned int j) const {
+	typename IVS::Enum e;
+	assert(i < j);
+	data.getEnum(i, &e);
+	double minv = std::numeric_limits<double>::max();
+	while (i < j && e.hasNext()) {
+		minv = std::min<double>(minv, e.next());
+		++i;
+	}
+	return minv;
+}
+
+template<typename IVS>
+double IntValQueryG<IVS>::range_max(unsigned int i, unsigned int j) const {
+	typename IVS::Enum e;
+	assert(i < j);
+	data.getEnum(i, &e);
+	double maxv = std::numeric_limits<double>::min();
+	while (i < j && e.hasNext()) {
+		maxv = std::max<double>(maxv, e.next());
+		++i;
+	}
+	return maxv;
+}
+
 
 template<typename IVS>
 double IntValQueryG<IVS>::sqrSum_intv(unsigned int idx, unsigned int leftpos) const {

@@ -41,6 +41,8 @@ private:
 
 	bool has_annotation;
 	mscds::StringArrBuilder annbd;
+	friend class ChrNumData;
+	static const unsigned MIN_MAX_SAMPLE_RATE = 16;
 };
 
 /// query cwig data in one chromosome
@@ -121,6 +123,7 @@ private:
 	bool has_annotation;
 	minmaxop_t minmax_opt;
 	friend class ChrNumDataBuilder;
+	static const unsigned MIN_MAX_SAMPLE_RATE = ChrNumDataBuilder::MIN_MAX_SAMPLE_RATE;
 };
 
 

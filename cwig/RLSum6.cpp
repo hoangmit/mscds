@@ -70,6 +70,30 @@ double RunLenSumArray6::range_value(unsigned int i) const {
 	return vals.access(i);
 }
 
+double RunLenSumArray6::range_min(unsigned int i, unsigned int j) const {
+	assert(i < j);
+	SampledSumQuery::Enum e;
+	vals.getEnum(i, &e);
+	double minv = std::numeric_limits<double>::max();
+	while (i < j && e.hasNext()) {
+		minv = std::min<double>(minv, e.next());
+		++i;
+	}
+	return minv;
+}
+
+double RunLenSumArray6::range_max(unsigned int i, unsigned int j) const {
+	assert(i < j);
+	SampledSumQuery::Enum e;
+	vals.getEnum(i, &e);
+	double maxv = std::numeric_limits<double>::min();
+	while (i < j && e.hasNext()) {
+		maxv = std::max<double>(maxv, e.next());
+		++i;
+	}
+	return maxv;
+}
+
 double RunLenSumArray6::range_psum(unsigned int i) const {
 	//return vals.sum(i, 0);
 	return sum(range_start(i));

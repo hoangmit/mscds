@@ -105,7 +105,7 @@ public:
 	void clear();
 	uint64_t length() const;
 	uint32_t lookup(unsigned int i) const;
-	uint32_t operator[](unsigned int pos) { return lookup(pos); }
+	uint32_t operator[](unsigned int pos) const { return lookup(pos); }
 
 	struct Enum: public EnumeratorInt<uint64_t> {
 	public:

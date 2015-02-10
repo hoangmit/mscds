@@ -16,6 +16,7 @@ transform_utils.hpp
 contextfree_models.hpp
 sdarray_th.h
 sdarray_zero.h
+runlen.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})

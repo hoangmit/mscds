@@ -1,8 +1,10 @@
 #include "file_marker.h"
+#include "utils/hash_utils.h"
 #include <cstring>
 
 namespace mscds {
 
+using utils::FNV_hash;
 
 void FileMarker::class_start(OutArchive &out, const std::string &name, unsigned char version) {
 	uint32_t v = FNV_hash::hash24(name) | (((uint32_t)version) << 24);

@@ -13,6 +13,7 @@ modp_numtoa.cpp
 cache_table.cpp
 benchmark.cpp
 md5.cpp
+hash_utils.cpp
 )
 
 
@@ -29,6 +30,7 @@ cache_table.h
 rand_data.h
 benchmark.h
 md5.h
+hash_utils.h
 endian.h
 )
 

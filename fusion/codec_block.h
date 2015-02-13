@@ -16,7 +16,6 @@ Experimental implementation of fusion block
 
 namespace mscds {
 
-
 template<typename Model>
 class CodeInterBlkBuilder: public InterBlockBuilderTp {
 public:

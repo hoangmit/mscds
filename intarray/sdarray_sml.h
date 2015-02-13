@@ -22,6 +22,7 @@ public:
 	SDArraySmlBuilder();
 
 	void add(uint64_t val);
+	/** add increasing values */
 	void add_inc(uint64_t pos);
 
 	void build(SDArraySml* out);

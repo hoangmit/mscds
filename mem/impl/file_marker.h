@@ -43,27 +43,6 @@ public:
 	static void check_mem_start(InpArchive& inp, MemoryAlignmentType& t);
 };
 
-/* Fowler / Noll / Vo (FNV) Hash */
-struct FNV_hash {
-
-	/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
-	static const uint32_t InitialFNV = 2166136261U;
-	static const uint32_t FNVMultiple = 16777619;
-
-	static uint32_t hash32(const std::string& s) {
-		uint32_t hash = InitialFNV;
-		for (size_t i = 0; i < s.length(); i++) {
-			hash = hash ^ (s[i]);       /* xor the low 8 bits */
-			hash = hash * FNVMultiple;  /* multiply by the magic number */
-		}
-		return hash;
-	}
-
-	static uint32_t hash24(const std::string& s)  {
-		uint32_t hash = hash32(s);
-		return (hash >> 24) ^ (hash & 0xFFFFFFU);
-	}
-};
 
 
 }//namespace

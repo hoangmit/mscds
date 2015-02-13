@@ -32,6 +32,23 @@ template<typename T> inline void hash_combine(size_t & seed, T const& v) {
 	seed ^= std::hash<T>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
+class PearsonHash {
+public:
+	template<typename T = uint32_t>
+	static T hash(const void *buf, size_t len) {
+		T ret;
+		_pearson_hash_mix(buf, len, &ret, sizeof(ret));
+		return ret;
+	}
+
+	template<typename T = uint32_t>
+	static T hash(const std::string& s) {
+		return hash<T>(s.c_str(), s.length());
+	}
+
+private:
+	static void _pearson_hash(const void *buf, size_t len, void* out, size_t osize);
+};
 
 /* The MIT License
 
@@ -39,17 +56,19 @@ Copyright (C) 2012 Zilong Tan (eric.zltan@gmail.com)
 ...
 */
 
+class FastHash {
+public:
+	static uint32_t hash32(const void *buf, size_t len, uint32_t seed = 3);
 
-uint32_t fasthash32(const void *buf, size_t len, uint32_t seed=3);
+	static uint64_t hash64(const void *buf, size_t len, uint64_t seed = 3);
 
-uint64_t fasthash64(const void *buf, size_t len, uint64_t seed=3);
+	static uint32_t hash32(const std::string& s, uint32_t seed = 3) {
+		return hash32(s.c_str(), s.length(), seed);
+	}
 
-inline uint32_t fasthash32(const std::string& s, uint32_t seed = 3) {
-	return fasthash32(s.c_str(), s.length(), seed);
-}
-
-inline uint64_t fasthash64(const std::string& s, uint64_t seed = 3) {
-	return fasthash64(s.c_str(), s.length(), seed);
-}
+	static uint64_t fasthash64(const std::string& s, uint64_t seed = 3) {
+		return hash64(s.c_str(), s.length(), seed);
+	}
+};
 
 }

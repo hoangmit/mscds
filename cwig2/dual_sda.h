@@ -59,7 +59,7 @@ template<typename G>
 class SDArrayBlockG {
 public:
 	typedef uint64_t ValueType;
-	SDArrayBlockG(const G& getter_): getter(getter_), bits(NULL), lastblk(~0ull) {}
+	SDArrayBlockG(const G& getter_): getter(getter_), bits(NULL), lastblk(~0ull), select_hints(0), upper_pos(0) {}
 	void bind(BitArray* bits_) { bits = bits_; }
 	void loadBlock(unsigned int id);
 	ValueType prefixsum(unsigned int  p) const;

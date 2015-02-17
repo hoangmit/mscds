@@ -191,7 +191,7 @@ public:
 		posq.clear();
 	}
 	
-	~QueryFixture() {}
+	virtual ~QueryFixture() {}
 
 	unsigned int inp_len, query_size;
 	std::vector<std::pair<unsigned int, unsigned int> > inp;

@@ -44,6 +44,7 @@ class SharedFixtureItf {
 public:
 	virtual void SetUp() = 0;
 	virtual void TearDown() = 0;
+	virtual ~SharedFixtureItf(){}
 };
 
 template<typename SharedFixture>

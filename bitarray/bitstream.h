@@ -260,7 +260,7 @@ inline void IWBitStream::init(StaticMemRegionPtr _data, size_t blen, size_t star
 	if (blen > 0) {
 		cur = data.getword(ptr);
 		++ptr;
-	}
+	} else { cur = 0; }
 	nxt = 0;
 	j = 0;
 	skipw(start_idx % WORDLEN);

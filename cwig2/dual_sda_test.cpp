@@ -30,6 +30,7 @@ void testx() {
 struct SDFix: public SharedFixtureItf {
 
 	SDFix() {}
+	~SDFix() {}
 
 	unsigned int size, qsize, range, lowerrange;
 	bool is_sort;

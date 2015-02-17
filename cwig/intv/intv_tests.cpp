@@ -190,6 +190,8 @@ public:
 		idxq.clear();
 		posq.clear();
 	}
+	
+	~QueryFixture() {}
 
 	unsigned int inp_len, query_size;
 	std::vector<std::pair<unsigned int, unsigned int> > inp;

@@ -85,8 +85,8 @@ TEST(Intv, test1) {
 	unsigned int i = 0;
 	for (auto p : inp) {
 		auto x = lst.get(i);
-		ASSERT_EQ(inp[i].first, x.first);
-		ASSERT_EQ(inp[i].second, x.second);
+		ASSERT_EQ(p.first, x.first);
+		ASSERT_EQ(p.second, x.second);
 		++i;
 	}
 }

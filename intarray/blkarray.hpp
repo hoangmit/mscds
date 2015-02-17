@@ -170,7 +170,7 @@ void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
 	IWBitStream is;
 	is.init(ptr->bits, ptr->blkptr(blk));
 	model.loadModel(is);
-	unsigned int subsize = is.get(32);
+	is.get(32); // unsigned int subsize =  // avoid unused variable warning
 	this->len = is.get(32);
 	this->blk = blk;
 }

@@ -37,6 +37,11 @@ public:
 		runlen.load(ar.var("table"));
 		ar.endclass();
 	}
+	void clear() {
+		rcnt = 0;
+		data.clear();
+		runlen.clear();
+	}
 	typedef RunLenBuilder BuilderTp;
 private:
 	friend class RunLenBuilder;

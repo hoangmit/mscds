@@ -9,7 +9,6 @@ class RunLenBuilder;
 class RunLenArr {
 public:
 	RunLenArr(): rcnt(0) {}
-	void clear();
 	unsigned int lookup(unsigned int idx) const {
 		assert(rcnt > 0);
 		if (idx == 0)

@@ -26,6 +26,10 @@ void SDArraySmlBuilder::add(uint64_t val) {
 	pslast += val;
 }
 
+uint64_t SDArraySmlBuilder::current_sum() {
+	return pslast;
+}
+
 void SDArraySmlBuilder::add_inc(uint64_t pos) {
 	assert(pos >= pslast);
 	add(pos - pslast);

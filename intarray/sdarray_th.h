@@ -19,7 +19,7 @@ public:
 	SDArrayTHBuilder();
 	void add(uint64_t val);
 	void add_inc(uint64_t pos);
-
+	uint64_t current_sum();
 	void build(SDArrayTH* out);
 private:
 	std::vector<uint64_t> vals;

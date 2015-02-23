@@ -14,6 +14,10 @@ void mscds::SDArrayTHBuilder::add(uint64_t val) {
 	vals.push_back(last);
 }
 
+uint64_t mscds::SDArrayTHBuilder::current_sum() {
+	return last;
+}
+
 void mscds::SDArrayTHBuilder::add_inc(uint64_t pos) {
 	assert(pos >= last);
 	vals.push_back(pos);

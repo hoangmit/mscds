@@ -29,6 +29,8 @@ public:
 	void build(OutArchive& ar);
 	void clear();
 
+	uint64_t current_sum();
+
 	static const uint64_t BLKSIZE;
 	static const uint16_t SUBB_PER_BLK;
 	typedef SDArraySml QueryTp;

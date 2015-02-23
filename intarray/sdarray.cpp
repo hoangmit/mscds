@@ -48,13 +48,17 @@ SDArrayBuilder::SDArrayBuilder() : size_(0), sum_(0), last(0) {}
 SDArrayBuilder::~SDArrayBuilder(){}
 
 
-void SDArrayBuilder::add(uint64_t val){
+void SDArrayBuilder::add(uint64_t val) {
 	vals_.push_back(val);
 	size_++;
 	if (vals_.size() == BLOCK_SIZE) {
 		build_inc();
 	}
 	last += val;
+}
+
+uint64_t SDArrayBuilder::current_sum() {
+	return last;
 }
 
 void SDArrayBuilder::add_inc(uint64_t val) {

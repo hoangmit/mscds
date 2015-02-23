@@ -50,6 +50,7 @@ public:
 	void add(uint64_t val);
 
 	void add_inc(uint64_t val);
+	uint64_t current_sum();
 
 	void build_bits(BitArray& ba, SDArrayQuery * out);
 	/*

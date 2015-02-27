@@ -32,6 +32,7 @@ benchmark.h
 md5.h
 hash_utils.h
 endian.h
+version.h
 )
 
 include_directories(${GTEST_INCLUDE_DIRS})

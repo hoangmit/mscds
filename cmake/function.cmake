@@ -186,3 +186,13 @@ macro (add_test_exec target) #FILES a.cpp LIBS lib1 lib2
 	set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 	set_property(TARGET ${target} PROPERTY FOLDER "Tests")
 endmacro()
+
+
+macro (convert_to_shared_lib target_name)
+    if (UNIX)
+    	ADD_CUSTOM_COMMAND(TARGET lib${target_name}.so POST_BUILD
+    		COMMAND ${CMAKE_CC} -shared -Wl,--whole-archive $<TARGET_FILE:${target_name}> -Wl,-no-whole-archive -o lib${target_name}.so
+    		COMMENT "Convert to shared lib: ${target_name}"
+    	)
+    endif()
+endmacro()

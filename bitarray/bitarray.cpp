@@ -194,6 +194,7 @@ void BitArraySeqBuilder::done() {
 }*/
 
 FixedWArray FixedWArray::build(const std::vector<unsigned int> &values) {
+	if (values.size() == 0) return FixedWArray();
 	unsigned int max_val = *max_element(values.begin(), values.end());
 	unsigned int width = ceillog2(max_val + 1);
 	FixedWArray out = create(values.size(), width);

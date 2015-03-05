@@ -66,6 +66,8 @@ struct StaticMemRegionAbstract {
 	virtual MemoryAlignmentType alignment() const = 0;
 	/// returns the memory access type
 	virtual MemoryAccessType memory_type() const = 0;
+	/// return if the memory implementation is safe for multi-core parallel access
+	virtual bool is_thread_safe() const { return false; }
 	/// returns the original endinanness 
 	virtual EndiannessType endianness_type() const { return LITTLE_ENDIAN_ACCESS; } //only little-endian is supported at the moment
 	
@@ -73,7 +75,7 @@ struct StaticMemRegionAbstract {
 	/// This functions is only available in FULL_MAPPING and MAP_ON_REQUEST modes
 	virtual const void* get_addr() const = 0;
 	
-	/// fills the data. only available in MAP_ON_REQUEST mode
+	/// fills the data, only available in MAP_ON_REQUEST mode
 	virtual bool request_map(size_t start, size_t len) = 0;
 
 	virtual ~StaticMemRegionAbstract() {}

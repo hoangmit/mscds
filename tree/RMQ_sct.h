@@ -40,8 +40,8 @@ public:
 	}
 
 	size_t m_idx(size_t st, size_t ed) const;
-	size_t psv(size_t p) const;
-	size_t nsv(size_t p) const;
+	//size_t psv(size_t p) const;
+	//size_t nsv(size_t p) const;
 	size_t length() const;
 
 	void save(OutArchive& ar) const { bp.save(ar); }

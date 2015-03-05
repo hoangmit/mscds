@@ -520,6 +520,11 @@ uint64_t SDRankSelectSml::rank(uint64_t p) const {
 	else return k - 1;
 }
 
+bool SDRankSelectSml::bit(uint64_t p) const {
+	uint64_t r = rank(p);
+	return select(r) == p;
+}
+
 void SDRankSelectSml::load(InpArchive& ar) {
 	ar.loadclass("sd_rank_select_sml");
 	qs.load(ar);

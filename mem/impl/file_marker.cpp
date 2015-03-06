@@ -17,7 +17,7 @@ unsigned char FileMarker::check_class_start(InpArchive &inp, const std::string &
 	uint32_t hash = FNV_hash::hash24(name);
 	uint32_t v;
 	inp.load_bin(&v, sizeof(v));
-	if ((v & 0xFFFFFF) != hash) throw ioerror("wrong hash");
+	if ((v & 0xFFFFFF) != hash) throw ioerror(std::string("Wrong hash tag: ") + name);
 	return v >> 24;
 }
 
@@ -33,7 +33,7 @@ void FileMarker::file_header(FileMarker::HeaderBlock& fh) {
 
 void FileMarker::check_file_header(FileMarker::HeaderBlock &fh, size_t &data, size_t &control) {
 	if (memcmp(&(fh.magic), "axc2", 4) != 0)
-		throw ioerror("header mismatch");
+		throw ioerror("File header mismatch");
 	control = fh.control_ptr;
 	data = sizeof(fh);
 }
@@ -46,7 +46,7 @@ void FileMarker::check_control_start(InpArchive &inp) {
 	char buff[5];
 	inp.load_bin(buff, 4);
 	buff[4] = '\0';
-	if (strcmp(buff, "ctrl") != 0)  throw ioerror("control block mismatch");
+	if (strcmp(buff, "ctrl") != 0)  throw ioerror("Control block mismatch");
 }
 
 void FileMarker::mem_start(OutArchive &out, MemoryAlignmentType align) {
@@ -62,7 +62,7 @@ void FileMarker::check_mem_start(InpArchive &inp, MemoryAlignmentType &t) {
 	inp.load_bin((char*)(&header), sizeof(header));
 
 	if ((header >> 8) != 0x924924)
-		throw ioerror("wrong mem_region start or corrupted data");
+		throw ioerror("Wrong mem_region start or corrupted data");
 	MemoryAlignmentType align = (MemoryAlignmentType) (header & 0xFF);
 	uint32_t nsz = 0;
 	//inp.load_bin((char*)(&nsz), sizeof(nsz));

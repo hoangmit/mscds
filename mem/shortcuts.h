@@ -19,7 +19,7 @@ inline void save_to_file(const T& a, const std::string& name) {
 template<typename T>
 inline void load_from_file(T& a, const std::string& name) {
 	IFileMapArchive2 fi;
-    fi.open_read(inpf);
+	fi.open_read(name);
 	a.load(fi);
 	fi.close();
 }
@@ -27,7 +27,7 @@ inline void load_from_file(T& a, const std::string& name) {
 template<typename T>
 inline void force_load_from_file(T& a, const std::string& name) {
 	IFileArchive2 fi;
-	fi.open_read(inpf);
+	fi.open_read(name);
 	a.load(fi);
 	fi.close();
 }

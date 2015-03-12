@@ -81,15 +81,6 @@ private:
 	char * buffer;
 };
 
-/// short-cut to save data structure to a file
-template<typename T>
-inline void save_to_file(const T& a, const std::string& name) {
-	OFileArchive2 ar;
-	ar.open_write(name);
-	a.save(ar);
-	ar.close();
-}
-
 
 }//namespace
 

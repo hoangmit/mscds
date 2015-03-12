@@ -2,6 +2,7 @@
 #include "utils/utest.h"
 #include "nintv_fuse.h"
 #include "cwig/intv/intv_rand_gen.hpp"
+#include "mem/shortcuts.h"
 
 #include "utils/benchmark.h"
 

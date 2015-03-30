@@ -72,6 +72,9 @@ public:
 	/** return the value of rank(p) */
 	uint64_t rank(uint64_t p) const;
 
+	/** return a pair of rank(p) and prefixsum(rank(p)) */
+	uint64_t rank2(uint64_t p, uint64_t& select) const;
+
 	/** clear the array (length becomes 0) */
 	void clear();
 
@@ -139,9 +142,6 @@ private:
 	BitArray table;
 	uint64_t len, sum;
 	
-	// cache to speed up the case: select(rank(p))
-	mutable int64_t c_select, c_rank, c_preselect; 
-
 	friend class SDArraySmlBuilder;
 	static const uint64_t BLKSIZE;
 	static const uint64_t SUBB_SIZE;

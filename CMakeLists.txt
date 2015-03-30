@@ -68,7 +68,7 @@ include(cmake/function.cmake)
 fix_compiler_flags() #defined inside function.cmake
 
 if(GCC_COMPATIBLE_COMPILER)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -march=native -g -flto")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O3 -march=native -g ") #-flto
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-sign-compare -Wno-reorder -Wno-unused-variable -Wno-unused-but-set-variable  -Wno-unused-local-typedefs")
 elseif(MSVC)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)

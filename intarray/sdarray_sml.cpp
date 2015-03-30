@@ -141,10 +141,6 @@ uint64_t SDArraySml::getBits(uint64_t x, uint64_t beg, uint64_t num) {
 
 uint64_t SDArraySml::prefixsum(size_t p) const {
 	if (p >= len) return this->sum;
-	#ifdef CACHE_SELECT_RANK
-	if (c_select >= 0 && p == c_rank) return c_select;
-	if (c_preselect >= 0 && p == c_rank - 1) return c_preselect;
-	#endif
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
 	uint64_t sum  = table.word(bpos * 3);
@@ -209,6 +205,14 @@ uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
 	return cur - prev;
 }
 
+uint64_t SDArraySml::rank2(uint64_t p, uint64_t& select) const {
+	uint64_t v = rank(p);
+	//TODO: optimize this
+	select = prefixsum(v);
+	return v;
+}
+
+
 //number of 1 that is less than val
 uint64_t SDArraySml::rank(uint64_t val) const {
 	if (val > sum) return len;
@@ -224,13 +228,6 @@ uint64_t SDArraySml::rank(uint64_t val) const {
 	assert(val > table.word(lo*3));
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
 	uint64_t ret = lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
-	#ifdef CACHE_SELECT_RANK
-	if (c_select >= 0) {
-		c_select += table.word(lo*3); 
-		c_rank += lo * BLKSIZE;
-		if (c_preselect >= 0) c_preselect += table.word(lo*3);
-	}
-	#endif
 	return ret;
 }
 
@@ -248,13 +245,6 @@ uint64_t SDArraySml::rank(uint64_t val, uint64_t lo, uint64_t hi) const {
 	assert(val > table.word(lo*3));
 	assert(lo < table.word_count()/3 || val <= table.word((lo+1)*3));
 	uint64_t ret = lo * BLKSIZE + rankBlk(lo, val - table.word(lo*3));
-	#ifdef CACHE_SELECT_RANK
-	c_rank += lo * BLKSIZE;
-	if (c_select >= 0)
-		c_select += table.word(lo*3); 
-	if (c_preselect >= 0)
-		c_preselect += table.word(lo*3);
-	#endif
 	return ret;
 }
 
@@ -271,29 +261,14 @@ uint64_t SDArraySml::rankBlk(uint64_t blk, uint64_t val) const {
 		//assert(scan_zerohi_bitslow(blkptr + width*BLKSIZE, vhi-1) + 1 == hipos);
 		rank = hipos - vhi;
 	}
-	#ifdef CACHE_SELECT_RANK
-	c_rank = rank+1;
-	c_select = c_preselect = -1;
-	#endif
 	uint64_t curlo = 0;
 	while (rank < BLKSIZE && bits.bit(blkptr + width*BLKSIZE + hipos)) {
 		curlo =  bits.bits(blkptr + width * rank, width);
-		#ifdef CACHE_SELECT_RANK
-		c_preselect = c_select;
-		c_select = ((hipos - rank) << width) | curlo;
-		#endif
 		if (curlo >= vlo)
 			return rank+1;
-		#ifdef CACHE_SELECT_RANK
-		++c_rank;
-		#endif
 		++rank;
 		++hipos;
 	}
-	#ifdef CACHE_SELECT_RANK
-	c_preselect = c_select;
-	c_select = -1;
-	#endif
 	return rank+1;
 }
 
@@ -318,7 +293,6 @@ void SDArraySml::dump_text(std::ostream& fo) const {
 		fo << lookup(i) << ' ';
 	fo << '\n';
 }
-
 
 std::string SDArraySml::to_str(bool psum) const {
 	std::ostringstream ss;
@@ -346,9 +320,6 @@ void SDArraySml::clear() {
 	len = 0;
 	bits.clear();
 	table.clear();
-	#ifdef CACHE_SELECT_RANK
-	c_select = c_preselect = -1;
-	#endif
 }
 
 void SDArraySml::save(OutArchive& ar) const {

@@ -132,7 +132,7 @@ private:
 	double sum_intv(unsigned int idx, unsigned int leftpos = 0) const;
 	double sqrSum_intv(unsigned int idx, unsigned int leftpos = 0) const;
 
-	friend class IntValBuilder;
+	friend class IntValBuilderG<IVS>;
 	static const unsigned int rate = IVS::SUM_GAP; // = 64
 
 	friend BuilderTp;

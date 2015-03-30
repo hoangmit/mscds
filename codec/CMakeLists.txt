@@ -21,6 +21,7 @@ arithmetic_code.hpp
 ac_models.h
 aux_codec.h
 vbyte.h
+utf8.h
 stream/codec_adapter.h
 )
 

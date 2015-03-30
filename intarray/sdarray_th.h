@@ -41,6 +41,11 @@ public:
 
 	/** return the value of rank(p) */
 	uint64_t rank(uint64_t p) const;
+	uint64_t rank2(uint64_t val, uint64_t& select) const {
+		uint64_t v = rank(val);
+		select = prefixsum(v);
+		return v;
+	}
 
 	/** clear the array (length becomes 0) */
 	void clear();

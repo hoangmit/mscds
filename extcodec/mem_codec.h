@@ -16,9 +16,9 @@ namespace mscds {
 class MemoryCodecMethod {
 public:
 	virtual size_t compress_c(const char* input, size_t input_length, std::string* output) const = 0;
-	size_t compress(const std::string& input, std::string* output)  const { return compress_c(input.c_str(), input.length(), output); }
+	virtual size_t compress(const std::string& input, std::string* output)  const { return compress_c(input.c_str(), input.length(), output); }
 	virtual bool uncompress_c(const char* compressed, size_t compressed_length, std::string* uncompressed) const = 0;
-	bool uncompress(const std::string& compressed, std::string* uncompressed) const { return uncompress_c(compressed.c_str(), compressed.length(), uncompressed); }
+	virtual bool uncompress(const std::string& compressed, std::string* uncompressed) const { return uncompress_c(compressed.c_str(), compressed.length(), uncompressed); }
 };
 
 class SnappyCodec : public MemoryCodecMethod {

@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 2.6)
 
 project(extcodec)
 
-#find_package(Boost COMPONENTS iostreams)
-#if (MSVC)
-#	set(Boost_LIBRARY_DIR C:/lib/boost_1_54_0/lib)
-#	message("dir = " ${Boost_LIBRARY_DIR})
-#	link_directories(${Boost_LIBRARY_DIR})
-#endif()
 
 include_directories(${ZLIB_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})

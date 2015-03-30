@@ -135,8 +135,6 @@ private:
 	friend class IntValBuilderG<IVS>;
 	static const unsigned int rate = IVS::SUM_GAP; // = 64
 
-	friend BuilderTp;
-
 	IVS data;
 };
 

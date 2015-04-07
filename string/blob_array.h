@@ -1,13 +1,16 @@
 #pragma once
 
+
 /**  \file
 
-Implement an array of strings
+Implement an array of blob (binary large object)
 */
 
 #include "bitarray/bitarray.h"
 #include "framework/archive.h"
 #include "intarray/sdarray_sml.h"
+
+#include "stringarr.h"
 
 #include <string>
 #include <deque>
@@ -15,30 +18,20 @@ Implement an array of strings
 
 namespace mscds {
 
-class StringArr;
+class BlobArr;
 
-/// data structure may pad 0 at the end of each string for safety
-class StringArrBuilder {
+class BlobArrBuilder {
 public:
 	void add(const std::string& s);
-	void build(StringArr* out);
+	void build(BlobArr* out);
 	void build(mscds::OutArchive& ar);
 private:
 	std::deque<std::string> store;
 };
 
-class StringInt {
+class BlobArr {
 public:
-	virtual const char* c_str() = 0;
-	virtual size_t length() const = 0;
-	virtual ~StringInt() {}
-};
-
-typedef std::shared_ptr<StringInt> StringPtr;
-
-class StringArr {
-public:
-	StringArr();
+	BlobArr();
 	StringPtr get(unsigned int i) const;
 	std::string get_str(unsigned int i) const;
 	size_t length() const { return cnt; }
@@ -52,7 +45,7 @@ private:
 	bool mapping;
 	mutable mscds::StaticMemRegionPtr ba;
 	mscds::SDArraySml start;
-	friend class StringArrBuilder;
+	friend class BlobArrBuilder;
 };
 
 }//namespace

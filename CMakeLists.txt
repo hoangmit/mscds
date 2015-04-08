@@ -195,7 +195,9 @@ set(MSCDS_VERSION_MINOR 1)
 set(MSCDS_VERSION_PATCH 0)
 set(MSCDS_VERSION_STRING ${MSCDS_VERSION_MAJOR}.${MSCDS_VERSION_MINOR}.${MSCDS_VERSION_PATCH})
 
-MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}")
+MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
+
+MERGE_STATIC_LIBRARIES(mscdsa "${CORE_LIBS}" extcodeca)
 #set_target_properties(mscdsa PROPERTIES
 #         LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 #set_target_properties(mscdsa PROPERTIES
@@ -215,8 +217,6 @@ set_target_properties(mscdsa
 
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/unittests)
-
-MERGE_STATIC_LIBRARIES(extcodeca "extcodec;${SNAPPY_LIBRARY};${ZLIB_LIBRARY}")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/remote_file)
 MERGE_STATIC_LIBRARIES(remote_access "remote_file;cppnetlib-client-connections;cppnetlib-uri;cppnetlib-server-parsers")

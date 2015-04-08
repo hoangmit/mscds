@@ -72,7 +72,7 @@ void test_rl(const std::vector<uint8_t> & vec) {
 }
 
 TEST(MTF_RL_, test_1) {
-	auto v = gen_vec(500000000, 20);
+	auto v = gen_vec(20000000, 20);
 	test_mtf(v);
 	test_rl(v);
 }

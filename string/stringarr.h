@@ -31,6 +31,10 @@ class StringInt {
 public:
 	virtual const char* c_str() = 0;
 	virtual size_t length() const = 0;
+	virtual std::string str() {
+		const char* p = c_str();
+		return std::string(p, p + length());
+	}
 	virtual ~StringInt() {}
 };
 

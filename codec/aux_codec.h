@@ -13,6 +13,7 @@ public:
 	RunLenEnc(): val_enc(nullptr), len_enc(nullptr) {}
 
 	void bind(PosEnc* _len, EntropyEnc * _val) {
+		cur_val = 0;
 		cur_len = 0;
 		len_enc = _len;
 		val_enc = _val;

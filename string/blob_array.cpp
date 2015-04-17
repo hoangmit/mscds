@@ -6,7 +6,6 @@
 
 namespace mscds {
 
-
 void BlobArrBuilder::add(const std::string &s) {
 	store.push_back(s);
 }
@@ -27,7 +26,6 @@ void BlobArrBuilder::build(BlobArr *out) {
 	os.close();
 	out->cnt = store.size();
 	assert((os.length() + 63) / 64 == (out->tlen + 7) / 8);
-	size_t arrlen = (out->tlen + 7)/ 8;
 	out->ba = os.build();
 	bd.build(&(out->start));
 

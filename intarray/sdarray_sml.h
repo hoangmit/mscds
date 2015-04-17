@@ -187,6 +187,11 @@ public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t select(uint64_t r) const { assert(r < one_count()); return qs.prefixsum(r+1); }
 	
+	/** return the value of prefix_sum(i) */
+	uint64_t prefixsum(size_t i) const { return qs.prefixsum(i); }
+
+	uint64_t total() const { return qs.total(); }
+
 	// gap between p-th position of one and (p-1)-th position 
 	const SDArraySml& sdarray() const { return qs; }
 

@@ -16,7 +16,7 @@ Wavelet array in generic form
 #include <list>
 #include <cassert>
 #include "bitarray/rank6p.h"
-#include "bitarray/rrr2.h"
+#include "bitarray/rrr.h"
 #include "framework/archive.h"
 
 namespace mscds {
@@ -137,8 +137,8 @@ typedef WatQueryGen<Rank6p> WatQuery;
 typedef WatBuilderGen<Rank6p> WatBuilder;
 typedef GridQueryGen<WatQuery> GridQuery;
 
-typedef WatQueryGen<RRR2> WatRRRQuery;
-typedef WatBuilderGen<RRR2> WatRRRBuilder;
+typedef WatQueryGen<RRR> WatRRRQuery;
+typedef WatBuilderGen<RRR> WatRRRBuilder;
 
 } //namespace
 

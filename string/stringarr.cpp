@@ -33,7 +33,6 @@ void StringArrBuilder::build(StringArr *out) {
 	os.close();
 	out->cnt = store.size();
 	assert((os.length() + 63) / 64 == (out->tlen + 7) / 8);
-	size_t arrlen = (out->tlen + 7)/ 8;
 	out->ba = os.build();
 	bd.build(&(out->start));
 
@@ -99,7 +98,6 @@ void StringArr::clear() {
 	start.clear();
 	mapping = false;
 }
-
 
 StringArr::StringArr() { clear(); }
 

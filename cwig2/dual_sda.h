@@ -385,7 +385,6 @@ struct SLG_Builder {
 		void lower(unsigned int i, uint64_t value) { p.cur_blk.lower2[i] = value; }
 		void finishblock() {}
 
-
 		void length(uint64_t l) {}
 		void total_sum(uint64_t ts) {}
 	} _lgst;

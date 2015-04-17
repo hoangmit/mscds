@@ -39,9 +39,6 @@ public:
 	/** return the value of prefix_sum(i) */
 	uint64_t prefixsum(size_t i) const;
 	
-	/** return a pair of rank(p) and prefixsum(rank(p)) */
-	uint64_t rank2(uint64_t p, uint64_t& select) const;
-
 	/** return the value of rank(p) */
 	uint64_t rank(uint64_t p) const;
 	uint64_t rank2(uint64_t val, uint64_t& select) const {

@@ -88,9 +88,6 @@ public:
    */
 	uint64_t prefixsum(uint64_t pos) const;
 	
-	/** return a pair of rank(p) and prefixsum(rank(p)) */
-	uint64_t rank2(uint64_t p, uint64_t& select) const;
-
 	/*
    * @ret vals_[0]+vals_[1]+...+vals_[pos-1] and set vals_[pos] to val
    */

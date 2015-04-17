@@ -19,6 +19,7 @@ sdarray_th.h
 sdarray_zero.h
 runlen.h
 sdarray_blk.h
+vlen_array.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})

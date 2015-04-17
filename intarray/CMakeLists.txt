@@ -6,6 +6,7 @@ set(SRCS sdarray.cpp sdarray_sml.cpp deltaarray.cpp huffarray.cpp
 gamma_arr.cpp
 remap_dt.cpp
 sdarray_th.cpp
+sdarray_blk.cpp
 )
 
 set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 
@@ -17,6 +18,7 @@ contextfree_models.hpp
 sdarray_th.h
 sdarray_zero.h
 runlen.h
+sdarray_blk.h
 )
 
 add_library(intarray ${SRCS} ${HEADERS})

@@ -91,7 +91,7 @@ TEST(sdatest, sdarray_increasing) {
 	}
 
 	for (uint64_t i = 0; i < sum; i += 17) {
-		vector<uint64_t>::iterator it = upper_bound(cums.begin(), cums.end(), i);
+		vector<uint64_t>::iterator it = lower_bound(cums.begin(), cums.end(), i);
 		size_t ind = it - cums.begin() - 1;
 
 		ASSERT(i >= cums[ind]);
@@ -99,7 +99,7 @@ TEST(sdatest, sdarray_increasing) {
 			ASSERT(i <= cums[ind+1]);
 		}
 
-		//ASSERT_EQ(ind, sda.find(i));
+		ASSERT_EQ(ind, sda.rank(i));
 	}
 }
 
@@ -133,7 +133,7 @@ TEST(sdatest, sdarray_random) {
 	for (uint64_t i = 0; i < M; ++i) {
 		uint64_t val = rand() % sum;
 
-		vector<uint64_t>::iterator it = upper_bound(cums.begin(), cums.end(), val);
+		vector<uint64_t>::iterator it = lower_bound(cums.begin(), cums.end(), val);
 		size_t ind = it - cums.begin() - 1;
 
 		ASSERT(val >= cums[ind]);
@@ -141,7 +141,7 @@ TEST(sdatest, sdarray_random) {
 			ASSERT(val <= cums[ind+1]);
 		}
 
-		//ASSERT_EQ(ind, sda.find(val));
+		ASSERT_EQ(ind, sda.rank(val));
 	}
 }
 

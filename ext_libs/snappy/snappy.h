@@ -44,6 +44,12 @@
 
 #include "snappy-stubs-public.h"
 
+// Windows does not define ssize_t by default.  This is a workaround.
+#if defined(_WIN32)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 namespace snappy {
   class Source;
   class Sink;

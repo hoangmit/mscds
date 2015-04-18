@@ -98,7 +98,7 @@ vector<bool> gen_bits(unsigned int n, double prob0 = 0.5) {
 	out.resize(n);
 	unsigned c0 = (unsigned) (prob0 * RAND_MAX);
 	for (int i = 0; i < n; i++) {
-		bool val = rand() < c0 == 0 ? false : true;
+		bool val = (rand() < c0) ? false : true;
 		out[i] = val;
 	}
 	return out;

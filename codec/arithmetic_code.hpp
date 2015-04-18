@@ -13,6 +13,7 @@ Written by Hoang
 #include <vector>
 #include <stdint.h>
 #include <cassert>
+#include <queue>
 
 namespace coder {
 
@@ -20,7 +21,7 @@ namespace coder {
 /// Output bit stream for arithmetic coder
 struct OutBitStream {
 	typedef unsigned char ChrTp;
-	typedef std::vector<ChrTp> VecTp;
+	typedef std::deque<ChrTp> VecTp;
 	OutBitStream(VecTp* _v): v(_v), cache(0), mask(1), bitlen(0) {}
 	~OutBitStream() {close();}
 
@@ -64,7 +65,7 @@ struct OutBitStream {
 /// Input bit stream for arithmetic coder
 struct InBitStream {
 	typedef unsigned char ChrTp;
-	typedef std::vector<ChrTp> VecTp;
+	typedef std::deque<ChrTp> VecTp;
 
 	InBitStream(const VecTp* _v, size_t _bitlen) {
 		init(_v, _bitlen);
@@ -140,9 +141,9 @@ public:
 	void close() {
 		underflow++;
 		if (lo & Q1) {
-			//set_bit_opt<true>(); // alternative
+			set_bit_opt<true>(); // alternative
 			// ignore the trailing 0
-			output->put_bit(true);
+			//output->put_bit(true);
 		} else set_bit_opt<false>();
 		output->close();
 		init(NULL);

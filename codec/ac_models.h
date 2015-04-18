@@ -220,7 +220,8 @@ struct AC_OutStream {
 	AC_OutStream(): buf(), outbuf(&buf), enc(&outbuf) {}
 
 	typedef coder::OutBitStream::ChrTp ChrTp;
-	std::vector<ChrTp> buf;
+	typedef coder::OutBitStream::VecTp VecTp;
+	VecTp buf;
 	coder::OutBitStream outbuf;
 	coder::AC32_EncState enc;
 
@@ -243,7 +244,8 @@ struct AC_InpStream {
 	}
 
 	typedef coder::InBitStream::ChrTp ChrTp;
-	std::vector<ChrTp> buf;
+	typedef coder::InBitStream::VecTp VecTp;
+	VecTp buf;
 	coder::InBitStream inbuf;
 	coder::AC32_DecState dec;
 

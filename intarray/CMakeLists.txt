@@ -7,6 +7,7 @@ gamma_arr.cpp
 remap_dt.cpp
 sdarray_th.cpp
 sdarray_blk.cpp
+vlen_array.cpp
 )
 
 set(HEADERS sdarray.h sdarray_sml.h deltaarray.h intarray.h 

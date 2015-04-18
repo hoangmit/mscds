@@ -1,8 +1,12 @@
 #pragma once
 
-#include <stdint.h>
+
+
 #include "framework/archive.h"
 #include "sdarray_sml.h"
+#include <stdint.h>
+#include <deque>
+
 
 namespace mscds {
 
@@ -43,9 +47,17 @@ private:
 class VLenArrayBuilder {
 public:
 	typedef VLenArray QueryTp;
-	void add(unsigned int val);
-	void build(QueryTp * out);
+	void add(unsigned int val) {
+		vals.push_back(val);
+	}
+    void build(QueryTp * out);
 private:
+	void _add(unsigned blen, unsigned value);
+
+	OBitStream bout;
+	SDArraySmlBuilder clen;
+
+	std::deque<unsigned> vals;
 };
 
 }//namespace

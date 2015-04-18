@@ -21,20 +21,13 @@ public:
 
 	uint64_t length() const { return codelen.length(); }
 
-	uint32_t lookup(unsigned int i) const {
-		uint64_t ps;
-		unsigned w = codelen.lookup(i, ps);
-		if (w==0) {
-			return opcode[0];
-		} else
-		if (w <= op_bwidth) {
-			unsigned idx = code.bits(ps, w);
-			return opcode[idx + (1 << w) - 1];
-		} else {
-			return code.bits(ps, w);
-		}
-	}
+	uint32_t lookup(unsigned int i) const;
 	uint32_t operator[](unsigned int pos) const { return lookup(pos); }
+	typedef GenericEnum<VLenArray, unsigned> Enum;
+
+	void getEnum(unsigned int i, Enum* e) const {
+		e->_set(this, i);
+	}
 	typedef VLenArrayBuilder BuilderTp;
 private:
 	SDArraySml codelen;

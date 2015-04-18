@@ -33,5 +33,17 @@ public:
 	virtual ~EnumeratorInt() {}
 };
 
+template<typename Base, typename T>
+class GenericEnum: public EnumeratorInt<T> {
+public:
+	GenericEnum(): base(nullptr), i(0), sz(0) {}
+	GenericEnum(const Base* b): base(b), i(0) {sz = base->length();}
+	bool hasNext() const { return i < sz; }
+	T next() { return base->lookup(i++); }
+	void _set(const Base* b, size_t idx) { base = b; i = idx; sz = base->length(); }
+private:
+	size_t i, sz;
+	const Base * base;
+};
 
 }//namespace

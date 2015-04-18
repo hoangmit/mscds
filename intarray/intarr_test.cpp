@@ -1,9 +1,11 @@
 #include "gamma_arr.h"
 #include "huffarray.h"
 #include "deltaarray.h"
+#include "vlen_array.h"
 #include "remap_dt.h"
 #include "sdarray.h"
 #include "sdarray_sml.h"
+#include "runlen.h"
 #include "utils/utest.h"
 #include <vector>
 
@@ -271,6 +273,64 @@ TEST(HuffDiffArray, testsuite) {
 TEST(RemapDtArray, testsuite) {
 	typedef RemapDtArray QueryTp;
 	typedef RemapDtArrayBuilder BuilderTp;
+	std::vector<unsigned int> vec;
+	vec = gen_zeros(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zeros(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
+	vec = gen_inc(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_dec(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_rand(10000, 0, 100);
+	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(50000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
+}
+
+TEST(RunLen, testsuite) {
+	typedef RunLenArr QueryTp;
+	typedef RunLenBuilder BuilderTp;
+	std::vector<unsigned int> vec;
+	vec = gen_zeros(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zeros(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_ones(10000);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(50);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_zerosones(10000);
+	check<QueryTp, BuilderTp>(vec);
+
+	vec = gen_inc(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_dec(100);
+	check<QueryTp, BuilderTp>(vec);
+	vec = gen_rand(10000, 0, 100);
+	check<QueryTp, BuilderTp>(vec);
+	for (int i = 0; i < 5; ++i) {
+		vec = gen_rand(50000, 0, 1000);
+		check<QueryTp, BuilderTp>(vec, true);
+	}
+}
+
+TEST(VLenArray, testsuite) {
+	typedef VLenArray QueryTp;
+	typedef VLenArrayBuilder BuilderTp;
 	std::vector<unsigned int> vec;
 	vec = gen_zeros(50);
 	check<QueryTp, BuilderTp>(vec);

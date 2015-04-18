@@ -21,6 +21,11 @@ public:
 	size_t length() const {
 		return runlen.total();
 	}
+	typedef GenericEnum<RunLenArr, unsigned> Enum;
+
+	void getEnum(unsigned int i, Enum* e) const {
+		e->_set(this, i);
+	}
 	/** save and load functions */
 	void save(OutArchive& ar) const {
 		ar.startclass("RunLenArray", 1);

@@ -45,7 +45,7 @@ void test_bitarr2(int len = 2048) {
 				ASSERT(v[j] == ((up & 1) > 0));
 				up >>= 1;
 			}
-			bool bm1, bp1;
+			bool bm1 = false, bp1;
 			if (i > 0) bm1 = c[i-1];
 			if (i + d + 1 < v.size()) bp1 = c[i+d+1];
 			c.setbits(i, u, d);

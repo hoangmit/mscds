@@ -278,26 +278,25 @@ namespace mscds {
 namespace mscds {
 
 	/** \brief returns the value of ceiling of log_2(n) */
-	inline uint64_t ceillog2(uint64_t n) {
+	inline unsigned int ceillog2(uint64_t n) {
 		if (n == 0) return 0;
-		return msb_intr(n) + (n&(n-1) ? 1 : 0);
+		return msb_intr((unsigned long long)n) + (n&(n-1) ? 1 : 0);
 	}
 
-	inline uint64_t ceillog2(uint32_t n) {
+	inline unsigned int ceillog2(uint32_t n) {
 		if (n == 0) return 0;
-		return msb_intr(n) + (n&(n-1) ? 1 : 0);
+		return msb_intr((unsigned int) n) + (n&(n-1) ? 1 : 0);
 	}
-
 
 	/// returns floor(log2(n))
-	inline uint64_t floorlog2(uint64_t n) {
+	inline unsigned int floorlog2(uint64_t n) {
 		if (n == 0) return 0;
-		return msb_intr(n);
+		return msb_intr((unsigned long long)n);
 	}
 
-	inline uint64_t floorlog2(uint32_t n) {
+	inline unsigned int floorlog2(uint32_t n) {
 		if (n == 0) return 0;
-		return msb_intr(n);
+		return msb_intr((unsigned int)n);
 	}
 }
 

@@ -104,21 +104,21 @@ inline uint64_t selectword(uint64_t x, uint64_t r){
 namespace mscds{
 #if defined (_WIN64)
 	#pragma intrinsic(_BitScanReverse64)
-	inline unsigned int msb_intr(unsigned long long number) {
+	inline unsigned int msb_intr(unsigned long long int number) {
 		unsigned long index;
 		_BitScanReverse64(&index, number);
 		return index;
 	}
 
 	#pragma intrinsic(_BitScanForward64)
-	inline unsigned int lsb_intr(unsigned long long number) {
+	inline unsigned int lsb_intr(unsigned long long int number) {
 		unsigned long index;
 		_BitScanForward64(&index, number);
 		return index;
 	}
 
 	#pragma intrinsic(__popcnt64)
-	inline unsigned int popcnt(unsigned long long number) {
+	inline unsigned int popcnt(unsigned long long int number) {
 		return (unsigned int) __popcnt64(number);
 	}
 
@@ -144,7 +144,7 @@ namespace mscds{
 #else
 	// use _BitScanReverse64, _BitScanForward64 and __popcnt64 for 64x compiler
 	#pragma intrinsic(_BitScanReverse)
-	inline unsigned int msb_intr(unsigned long long number) {
+	inline unsigned int msb_intr(unsigned long long int number) {
 		unsigned long index;
 		//unsigned char isNonzero;
 
@@ -162,7 +162,7 @@ namespace mscds{
 	}
 
 	#pragma intrinsic(_BitScanForward)
-	inline unsigned int lsb_intr(unsigned long long number) {
+	inline unsigned int lsb_intr(unsigned long long int number) {
 		unsigned long index;
 		//unsigned char isNonzero;
 		assert(number != 0);
@@ -177,7 +177,7 @@ namespace mscds{
 	}
 
 	#pragma intrinsic(__popcnt)
-	inline unsigned int popcnt(unsigned long long number) {
+	inline unsigned int popcnt(unsigned long long int number) {
 		return __popcnt(number >> 32) + __popcnt(number & 0xFFFFFFFFull);
 	}
 
@@ -208,14 +208,15 @@ namespace mscds{
 #if defined(__GNUC__)
 
 namespace mscds {
-	inline unsigned int msb_intr(unsigned long long number) {
+	inline unsigned int msb_intr(unsigned long long int number) {
 		return sizeof(number) * 8 -  __builtin_clzll(number) - 1;
 	}
 
-	inline unsigned int lsb_intr(unsigned long long number) {
+	inline unsigned int lsb_intr(unsigned long long int number) {
 		return __builtin_ctzll(number);
 	}
-	inline unsigned int popcnt(unsigned long long number) {
+
+	inline unsigned int popcnt(unsigned long long int number) {
 		return __builtin_popcountll(number);
 	}
 
@@ -226,6 +227,7 @@ namespace mscds {
 	inline unsigned int lsb_intr(unsigned int number) {
 		return __builtin_ctz(number);
 	}
+
 	inline unsigned int popcnt(unsigned int number) {
 		return __builtin_popcount(number);
 	}

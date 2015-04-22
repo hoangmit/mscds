@@ -122,6 +122,25 @@ namespace mscds{
 		return (unsigned int) __popcnt64(number);
 	}
 
+	#pragma intrinsic(_BitScanReverse)
+	inline unsigned int msb_intr(unsigned int number) {
+		unsigned long index;
+		_BitScanReverse(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(_BitScanForward)
+	inline unsigned int lsb_intr(unsigned int number) {
+		unsigned long index;
+		_BitScanForward64(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(__popcnt)
+	inline unsigned int popcnt(unsigned int number) {
+		return (unsigned int) __popcnt64(number);
+	}
+
 #else
 	// use _BitScanReverse64, _BitScanForward64 and __popcnt64 for 64x compiler
 	#pragma intrinsic(_BitScanReverse)
@@ -161,6 +180,25 @@ namespace mscds{
 	inline unsigned int popcnt(unsigned long long number) {
 		return __popcnt(number >> 32) + __popcnt(number & 0xFFFFFFFFull);
 	}
+
+	#pragma intrinsic(_BitScanReverse)
+	inline unsigned int msb_intr(unsigned int number) {
+		unsigned long index;
+		_BitScanReverse(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(_BitScanForward)
+	inline unsigned int lsb_intr(unsigned int number) {
+		unsigned long index;
+		_BitScanForward64(&index, number);
+		return index;
+	}
+
+	#pragma intrinsic(__popcnt)
+	inline unsigned int popcnt(unsigned int number) {
+		return (unsigned int)__popcnt64(number);
+	}
 #endif
 }
 
@@ -179,6 +217,17 @@ namespace mscds {
 	}
 	inline unsigned int popcnt(unsigned long long number) {
 		return __builtin_popcountll(number);
+	}
+
+	inline unsigned int msb_intr(unsigned int number) {
+		return sizeof(number) * 8 -  __builtin_clz(number) - 1;
+	}
+
+	inline unsigned int lsb_intr(unsigned int number) {
+		return __builtin_ctz(number);
+	}
+	inline unsigned int popcnt(unsigned int number) {
+		return __builtin_popcount(number);
 	}
 }
 #endif // GNUC
@@ -205,9 +254,22 @@ namespace mscds {
 		x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FULL;
 		return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
 	}
-	
+
+	inline unsigned int popcnt_comp(uint32_t x) {
+		/*
+		x = x  - ((x >> 1)  & 0x33333333333u)
+			- ((x >> 2)  & 0x11111111111u);
+		x = (x +  (x >> 3)) & 0x30707070707u;
+		return x % 63;
+		*/		
+		x = x - ((x >> 1) & 0x55555555u);
+		x = (x & 0x33333333u) + ((x >> 2) & 0x33333333u);
+		return (((x + (x >> 4)) & 0x0F0F0F0Fu) * 0x01010101u) >> 24;
+	}
 	unsigned int lsb_table(uint64_t number);
 	unsigned int msb_table(uint64_t number);
+	unsigned int lsb_table(uint32_t number);
+	unsigned int msb_table(uint32_t number);
 
 	
 }//namespace
@@ -221,8 +283,19 @@ namespace mscds {
 		return msb_intr(n) + (n&(n-1) ? 1 : 0);
 	}
 
+	inline uint64_t ceillog2(uint32_t n) {
+		if (n == 0) return 0;
+		return msb_intr(n) + (n&(n-1) ? 1 : 0);
+	}
+
+
 	/// returns floor(log2(n))
 	inline uint64_t floorlog2(uint64_t n) {
+		if (n == 0) return 0;
+		return msb_intr(n);
+	}
+
+	inline uint64_t floorlog2(uint32_t n) {
 		if (n == 0) return 0;
 		return msb_intr(n);
 	}

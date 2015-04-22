@@ -55,4 +55,7 @@ namespace mscds {
 		if (number & 0xffffffff00000000ULL) return 32 + msb_table32(number >> 32);
 		else return msb_table32(number);
 	}
+	unsigned int lsb_table(uint32_t number) { return lsb_table32(number); }
+	unsigned int msb_table(uint32_t number) { return msb_table32(number); }
+
 };

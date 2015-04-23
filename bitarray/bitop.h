@@ -293,12 +293,22 @@ namespace mscds {
 	/// returns floor(log2(n))
 	inline unsigned int floorlog2(uint64_t n) {
 		if (n == 0) return 0;
-		return msb_intr((unsigned long long)n);
+		return msb_intr(n);
 	}
 
 	inline unsigned int floorlog2_32(uint32_t n) {
 		if (n == 0) return 0;
-		return msb_intr32((unsigned int)n);
+		return msb_intr32(n);
+	}
+
+	inline unsigned int val_bit_len(uint64_t n) {
+		if (n == 0) return 0;
+		else return msb_intr(n) + 1;
+	}
+
+	inline unsigned int val_bit_len32(uint32_t n) {
+		if (n == 0) return 0;
+		else return msb_intr32(n) + 1;
 	}
 }
 

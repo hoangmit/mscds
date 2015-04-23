@@ -11,6 +11,78 @@ namespace tests {
 using namespace std;
 using namespace mscds;
 
+TEST(BitOp, CeilLog_Simple) {
+	ASSERT_EQ(0, ceillog2_32(0u));
+	ASSERT_EQ(0, ceillog2_32(1u));
+	ASSERT_EQ(1, ceillog2_32(2u));
+	ASSERT_EQ(2, ceillog2_32(3u));
+	ASSERT_EQ(2, ceillog2_32(4u));
+	ASSERT_EQ(3, ceillog2_32(5u));
+	ASSERT_EQ(3, ceillog2_32(6u));
+	ASSERT_EQ(3, ceillog2_32(7u));
+	ASSERT_EQ(3, ceillog2_32(8u));
+	ASSERT_EQ(4, ceillog2_32(9u));
+
+	ASSERT_EQ(0, ceillog2(0ull));
+	ASSERT_EQ(0, ceillog2(1ull));
+	ASSERT_EQ(1, ceillog2(2ull));
+	ASSERT_EQ(2, ceillog2(3ull));
+	ASSERT_EQ(2, ceillog2(4ull));
+	ASSERT_EQ(3, ceillog2(5ull));
+	ASSERT_EQ(3, ceillog2(6ull));
+	ASSERT_EQ(3, ceillog2(7ull));
+	ASSERT_EQ(3, ceillog2(8ull));
+	ASSERT_EQ(4, ceillog2(9ull));
+}
+
+TEST(BitOp, FloorLog_Simple) {
+	ASSERT_EQ(0, floorlog2_32(0u));
+	ASSERT_EQ(0, floorlog2_32(1u));
+	ASSERT_EQ(1, floorlog2_32(2u));
+	ASSERT_EQ(1, floorlog2_32(3u));
+	ASSERT_EQ(2, floorlog2_32(4u));
+	ASSERT_EQ(2, floorlog2_32(5u));
+	ASSERT_EQ(2, floorlog2_32(6u));
+	ASSERT_EQ(2, floorlog2_32(7u));
+	ASSERT_EQ(3, floorlog2_32(8u));
+	ASSERT_EQ(3, floorlog2_32(9u));
+
+	ASSERT_EQ(0, floorlog2(0ull));
+	ASSERT_EQ(0, floorlog2(1ull));
+	ASSERT_EQ(1, floorlog2(2ull));
+	ASSERT_EQ(1, floorlog2(3ull));
+	ASSERT_EQ(2, floorlog2(4ull));
+	ASSERT_EQ(2, floorlog2(5ull));
+	ASSERT_EQ(2, floorlog2(6ull));
+	ASSERT_EQ(2, floorlog2(7ull));
+	ASSERT_EQ(3, floorlog2(8ull));
+	ASSERT_EQ(3, floorlog2(9ull));
+}
+
+TEST(BitOp, BitLen_Simple) {
+	ASSERT_EQ(0, val_bit_len32(0u));
+	ASSERT_EQ(1, val_bit_len32(1u));
+	ASSERT_EQ(2, val_bit_len32(2u));
+	ASSERT_EQ(2, val_bit_len32(3u));
+	ASSERT_EQ(3, val_bit_len32(4u));
+	ASSERT_EQ(3, val_bit_len32(5u));
+	ASSERT_EQ(3, val_bit_len32(6u));
+	ASSERT_EQ(3, val_bit_len32(7u));
+	ASSERT_EQ(4, val_bit_len32(8u));
+	ASSERT_EQ(4, val_bit_len32(9u));
+
+	ASSERT_EQ(0, val_bit_len(0ull));
+	ASSERT_EQ(1, val_bit_len(1ull));
+	ASSERT_EQ(2, val_bit_len(2ull));
+	ASSERT_EQ(2, val_bit_len(3ull));
+	ASSERT_EQ(3, val_bit_len(4ull));
+	ASSERT_EQ(3, val_bit_len(5ull));
+	ASSERT_EQ(3, val_bit_len(6ull));
+	ASSERT_EQ(3, val_bit_len(7ull));
+	ASSERT_EQ(4, val_bit_len(8ull));
+	ASSERT_EQ(4, val_bit_len(9ull));
+}
+
 void test_bitarr1(int len = 2048) {
 	vector<bool> v(len);
 	BitArray b = BitArrayBuilder::create(len);

@@ -103,30 +103,6 @@ TEST(DecodeEncode, DeltaCoder) {
 	}
 }
 
-TEST(CeilLog_Simple, Encode) {
-	ASSERT_EQ(0, ceillog2(0u));
-	ASSERT_EQ(0, ceillog2(1u));
-	ASSERT_EQ(1, ceillog2(2u));
-	ASSERT_EQ(2, ceillog2(3u));
-	ASSERT_EQ(2, ceillog2(4u));
-	ASSERT_EQ(3, ceillog2(5u));
-	ASSERT_EQ(3, ceillog2(6u));
-	ASSERT_EQ(3, ceillog2(7u));
-	ASSERT_EQ(3, ceillog2(8u));
-	ASSERT_EQ(4, ceillog2(9u));
-
-	ASSERT_EQ(0, ceillog2(0ull));
-	ASSERT_EQ(0, ceillog2(1ull));
-	ASSERT_EQ(1, ceillog2(2ull));
-	ASSERT_EQ(2, ceillog2(3ull));
-	ASSERT_EQ(2, ceillog2(4ull));
-	ASSERT_EQ(3, ceillog2(5ull));
-	ASSERT_EQ(3, ceillog2(6ull));
-	ASSERT_EQ(3, ceillog2(7ull));
-	ASSERT_EQ(3, ceillog2(8ull));
-	ASSERT_EQ(4, ceillog2(9ull));
-}
-
 TEST(Encode1, RiceCoder) {
 	RiceCoder r0(0);
 	ASSERT_EQ("0", binstr(r0.encode(0)));

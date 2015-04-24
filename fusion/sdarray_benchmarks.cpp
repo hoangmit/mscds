@@ -25,6 +25,7 @@ struct StmFix : public SharedFixtureItf {
 
 	void SetUp() {
 		size = SIZE;
+		//this->size = size;
 		// generate test cases and data structure here
 		unsigned int range = 500;
 		this->qsize = QSIZE;
@@ -86,7 +87,6 @@ struct StmFix : public SharedFixtureItf {
 		dbd2.check_end_data();
 		dbd2.build(&dualsda);
 
-		this->size = size;
 		lookupqs.resize(qsize);
 		queries = NULL;
 		assert(qsize <= size);

@@ -58,7 +58,7 @@ public:
 
 	void clear() { bdlst.clear(); numchr = 0; lastchr.clear(); meta.clear(); empty_chrom = true;  }
 private:
-	Config * conf;
+	//Config * conf;
 	std::string meta;
 	std::vector<std::string> names;
 	std::list<ChrBuilderTp> bdlst;

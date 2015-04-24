@@ -56,8 +56,7 @@ private:
 	mscds::SDArraySml span;
 
 	//mscds::RMQ_pm1_minmax minmax_depth;
-
-	size_t len;
+	//size_t len;
 	friend class IntvLstBuilder;
 };
 

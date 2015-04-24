@@ -81,6 +81,8 @@ public:
 	uint8_t byte(size_t pos) const;
 	/** reads one word (64 bits) */
 	uint64_t word(size_t pos) const;
+	/** reads 32 bits block */
+	uint32_t get_uint32(size_t pos) const;
 
 	/** reads 64-bits at ''bitindex'' location (optimized version) */
 	uint64_t bits64(size_t bitindex) const;
@@ -140,6 +142,10 @@ inline void BitArray::clear() { bitlen = 0; data = StaticMemRegionPtr(); }
 
 inline void BitArray::setword(size_t pos, uint64_t val) { assert(pos < word_count()); data.setword(pos, val); }
 inline uint64_t BitArray::word(size_t pos) const { assert(pos < word_count()); return data.getword(pos); }
+inline uint32_t BitArray::get_uint32(size_t pos) const { assert((pos+1)*32 <= length());
+	if (pos % 2 == 0) return data.getword(pos / 2) & 0xFFFFFFFFu;
+	else return data.getword(pos / 2) >> 32;
+}
 inline size_t BitArray::word_count() const { return ceildiv(bitlen, WORDLEN); }
 
 //inline const uint64_t* BitArray::data_ptr() const { return data; }

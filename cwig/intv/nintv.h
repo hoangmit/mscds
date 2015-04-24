@@ -156,7 +156,7 @@ public:
 	void getEnum(PosType idx, Enum *e) const;
 	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
-	size_t len, maxpos, ngrp;
+	size_t len, maxpos;
 	mscds::SDRankSelectSml gstart, ilen;
 	mscds::SDRankSelectSml gcnt;
 	friend class NIntvGroupBuilder;

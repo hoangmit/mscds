@@ -58,6 +58,9 @@ if (BUILD_DYNAMIC_CODE AND GCC_COMPATIBLE_COMPILER)
 endif()
 if (GCC_COMPATIBLE_COMPILER AND (LINK_STATIC_LIBS))
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
+	# prefer static libraries,
+	# alternatively can specify the name exactly. e.g. find_library(OPENSSL_LIBRARY NAMES libssl.a ssl)
+	set(CMAKE_FIND_LIBRARY_SUFFIXES .a .so ${CMAKE_FIND_LIBRARY_SUFFIXES}) 
 	MESSAGE(STATUS "Added linker flags:  -static-libgcc -static-libstdc++")
 endif()
 

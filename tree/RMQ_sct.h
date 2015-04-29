@@ -31,7 +31,7 @@ class RMQ_sct {
 	BP_aux bp;
 public:
 	template<typename T>
-	void build(const std::vector<T>& arr, bool minstr = true, unsigned int blksize = 256) {
+	void build(const T& arr, bool minstr = true, unsigned int blksize = 256) {
 		BitArray b = build_supercartisian_tree(minstr, arr.begin(), arr.end());
 		bp.build(b, blksize);
 	}

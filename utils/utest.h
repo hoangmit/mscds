@@ -11,11 +11,6 @@ Unit testing wrapper (avoid missing of gtest library).
 #define PRT(x) cout<< #x <<"="<<(x) << endl
 
 #include <iostream>
-
-#if defined(_USE_OWN_TEST_LIB_)
-
-#ifndef ASSERT
-
 #include <type_traits>
 
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
@@ -23,7 +18,7 @@ Unit testing wrapper (avoid missing of gtest library).
 // http://en.wikipedia.org/wiki/Assert.h
 
 
-namespace has_insertion_operator_impl {
+namespace _has_insertion_operator_impl_ {
 	typedef char no;
 	typedef char yes[2];
 
@@ -45,7 +40,7 @@ namespace has_insertion_operator_impl {
 		typename std::enable_if<has_insertion_operator<T>::value,
 		void>::type
 		_print_cerr(const T &t) {
-			std::cerr << t << "\n";
+		std::cerr << t << "\n";
 	}
 	template<typename T> inline
 		typename std::enable_if<!has_insertion_operator<T>::value,
@@ -65,15 +60,22 @@ namespace has_insertion_operator_impl {
 	}
 }
 
-
-#define __FAILED_MSG(err, file, line, func) \
+#define __FAILED_MSG_(err, file, line, func) \
 	((void)(std::cerr << "Assertion failed: `" << err << "`, file: "<<file<<", func: "<< func <<", line: "<< line << "\n"), abort(), 0)
 
-#define ASSERT(cond) \
-	(void)( (!!(cond)) || __FAILED_MSG(#cond, __FILE__, __LINE__, __FUNCTION__))
+#define _ASSERT_(cond) \
+	(void)( (!!(cond)) || __FAILED_MSG_(#cond, __FILE__, __LINE__, __FUNCTION__))
 
 //#define ASSERT_EQ(exp,val) ASSERT((exp)==(val))
-#define ASSERT_EQ(exp,val) has_insertion_operator_impl::_assert_cmp(exp, val, #exp, #val, __FILE__, __LINE__, __FUNCTION__)
+#define _ASSERT_EQ_(exp,val) _has_insertion_operator_impl_::_assert_cmp(exp, val, #exp, #val, __FILE__, __LINE__, __FUNCTION__)
+
+
+#if defined(_USE_OWN_TEST_LIB_)
+
+#ifndef ASSERT
+
+#define ASSERT _ASSERT_
+#define ASSERT_EQ _ASSERT_EQ_
 
 #endif //ASSERT
 

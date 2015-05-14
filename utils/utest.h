@@ -85,8 +85,8 @@ namespace _has_insertion_operator_impl_ {
 
 #else //USE_OWN_TEST_LIB
 
-// #include <gtest/gtest.h>
-#include "ext_libs/gtest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
+// #include "ext_libs/gtest/include/gtest/gtest.h"
 
 #define ASSERT ASSERT_TRUE
 #define TESTALL_MAIN() int main(int argc, char **argv) { ::testing::InitGoogleTest(&argc, argv); return RUN_ALL_TESTS(); }

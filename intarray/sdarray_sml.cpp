@@ -163,6 +163,7 @@ uint64_t SDArraySml::select_hi(uint64_t hints, uint64_t start, uint32_t off) con
 }
 
 uint64_t SDArraySml::lookup(const uint64_t p) const {
+	assert(p < length());
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
 	uint64_t info   = table.word(bpos * 3 + 1);
@@ -184,6 +185,7 @@ uint64_t SDArraySml::lookup(const uint64_t p) const {
 }
 
 uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
+	assert(p < length());
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
 	uint64_t info   = table.word(bpos * 3 + 1);

@@ -21,6 +21,9 @@ Defines the following functions:
     ceillog2: ceil(log2(x))
 
 Written and collected from various sources by Hoang
+
+http://graphics.stanford.edu/~seander/bithacks.html
+
 */
 
 #include <stdint.h>
@@ -221,7 +224,7 @@ namespace mscds {
 	}
 
 	inline unsigned int msb_intr32(unsigned int number) {
-		return sizeof(number) * 8 -  __builtin_clz(number) - 1;
+		return sizeof(number) * 8 - 1 -  __builtin_clz(number);
 	}
 
 	inline unsigned int lsb_intr32(unsigned int number) {
@@ -235,18 +238,24 @@ namespace mscds {
 #endif // GNUC
 
 namespace mscds {
-	inline uint8_t revbits(uint8_t c) {
-		return (uint8_t)((c * 0x0202020202ULL & 0x010884422010ULL) % 1023);
+	inline uint8_t revbits_comp8_v2(uint8_t b) {
+		return (uint8_t)((b * 0x0202020202ULL & 0x010884422010ULL) % 1023);
 	}
+
+	inline uint8_t revbits_comp8(uint8_t b) {
+		return ((b * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
+	}
+
+	uint8_t revbits_table8(uint8_t b);
 
 	inline uint32_t revbits(uint32_t v) {
 		uint32_t c;
 		unsigned char * p = (unsigned char *) &v;
 		unsigned char * q = (unsigned char *) &c;
-		q[3] = revbits(p[0]);
-		q[2] = revbits(p[1]);
-		q[1] = revbits(p[2]);
-		q[0] = revbits(p[3]);
+		q[3] = revbits_table8(p[0]);
+		q[2] = revbits_table8(p[1]);
+		q[1] = revbits_table8(p[2]);
+		q[0] = revbits_table8(p[3]);
 		return c;
 	}
 
@@ -257,13 +266,14 @@ namespace mscds {
 		return ((x * 0x0101010101010101ULL) >> 56) & 0x7FULL;
 	}
 
-	inline unsigned int popcnt_comp32(uint32_t x) {
-		/*
+	inline unsigned int popcnt_comp32_v2(uint32_t x) {
 		x = x  - ((x >> 1)  & 0x33333333333u)
 			- ((x >> 2)  & 0x11111111111u);
 		x = (x +  (x >> 3)) & 0x30707070707u;
 		return x % 63;
-		*/		
+	}
+
+	inline unsigned int popcnt_comp32(uint32_t x) {
 		x = x - ((x >> 1) & 0x55555555u);
 		x = (x & 0x33333333u) + ((x >> 2) & 0x33333333u);
 		return (((x + (x >> 4)) & 0x0F0F0F0Fu) * 0x01010101u) >> 24;
@@ -273,6 +283,8 @@ namespace mscds {
 	unsigned int lsb_table32(uint32_t number);
 	unsigned int msb_table32(uint32_t number);
 
+	unsigned int msb_debruijn32(uint32_t v);
+	unsigned int lsb_debruijn32(uint32_t v);
 	
 }//namespace
 

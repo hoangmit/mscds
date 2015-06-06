@@ -12,6 +12,7 @@ Unit testing wrapper (avoid missing of gtest library).
 
 #include <iostream>
 #include <type_traits>
+#include <stdexcept>
 
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
 // http://stackoverflow.com/questions/37473/how-can-i-assert-without-using-abort
@@ -60,8 +61,22 @@ namespace _has_insertion_operator_impl_ {
 	}
 }
 
+struct _mscds_assertion_fail_: public std::exception {
+	virtual const char* what() const throw() { return "assertion_failed"; }
+};
+
+//#define _OWNTEST_THROW_EXCEPTION_
+
+inline void _abort() {
+#ifndef  _OWNTEST_THROW_EXCEPTION_
+	abort();
+#else
+	throw _mscds_assertion_fail_();
+#endif
+}
+
 #define __FAILED_MSG_(err, file, line, func) \
-	((void)(std::cerr << "Assertion failed: `" << err << "`, file: "<<file<<", func: "<< func <<", line: "<< line << "\n"), abort(), 0)
+	((void)(std::cerr << "Assertion failed: `" << err << "`, file: "<<file<<", func: "<< func <<", line: "<< line << "\n"), _abort(), 0)
 
 #define _ASSERT_(cond) \
 	(void)( (!!(cond)) || __FAILED_MSG_(#cond, __FILE__, __LINE__, __FUNCTION__))

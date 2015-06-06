@@ -56,4 +56,34 @@ namespace mscds {
 		else return msb_table32(number);
 	}
 
+	unsigned int msb_debruijn32(uint32_t v) {
+		static const uint8_t DeBruijnClz[32] = {0, 9, 1, 10, 13, 21, 2, 29, 11, 14,
+			16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26,
+			5, 4, 31};
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		return DeBruijnClz[(uint32_t)(v * 0x07C4ACDDU) >> 27];
+	}
+
+	unsigned int lsb_debruijn32(uint32_t v) {
+		static const uint8_t DeBruijnCtz[32] = {
+			0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+			31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+		};
+		return DeBruijnCtz[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
+	}
+
+	uint8_t revbits_table8(uint8_t b) {
+		static const unsigned char BitReverseTable256[256] =
+		{
+#   define R2(n)     n,     n + 2*64,     n + 1*64,     n + 3*64
+#   define R4(n) R2(n), R2(n + 2*16), R2(n + 1*16), R2(n + 3*16)
+#   define R6(n) R4(n), R4(n + 2*4 ), R4(n + 1*4 ), R4(n + 3*4 )
+			R6(0), R6(2), R6(1), R6(3)
+		};
+		return BitReverseTable256[b];
+	}
 };

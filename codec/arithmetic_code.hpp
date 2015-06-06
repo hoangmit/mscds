@@ -14,13 +14,14 @@ Written by Hoang
 #include <stdint.h>
 #include <cassert>
 #include <queue>
+#include "bitarray/bitop.h"
 
 namespace coder {
 
 
 /// Output bit stream for arithmetic coder
 struct OutBitStream {
-	typedef unsigned char ChrTp;
+	typedef uint16_t ChrTp;
 	typedef std::deque<ChrTp> VecTp;
 	OutBitStream(VecTp* _v): v(_v), cache(0), mask(1), bitlen(0) {}
 	~OutBitStream() {close();}
@@ -64,7 +65,7 @@ struct OutBitStream {
 
 /// Input bit stream for arithmetic coder
 struct InBitStream {
-	typedef unsigned char ChrTp;
+	typedef uint16_t ChrTp;
 	typedef std::deque<ChrTp> VecTp;
 
 	InBitStream(const VecTp* _v, size_t _bitlen) {
@@ -79,27 +80,70 @@ struct InBitStream {
 		v = _v;
 		bitlen = _bitlen;
 		cache = 0;
-		mask = 1;
+		clen = 0;
 		pos = 0;
 		i = 0;
-		if (v->size() > 0) cache = (*v)[0];
 	}
 
-	bool is_empty() { return pos == bitlen; }
+	bool is_empty() { return pos >= bitlen; }
 
 	/// return one bit in the stream.
 	/// This must return some bit, even overflow
 	bool get_bit() {
-		if (is_empty())
-			return false;
+		if (is_empty()) return false;
 		pos++;
-		bool ret = ((cache & mask) != 0);
-		if (mask != MAXMASK) mask <<= 1;
-		else {
-			if (i < v->size() - 1) cache = (*v)[++i];
-			else cache = 0;
-			mask = 1;
+		if (clen == 0) {
+			cache = (*v)[i++];
+			clen = sizeof(ChrTp)*8;
 		}
+		bool ret = (cache & 1) != 0;
+		cache >>= 1;
+		clen -= 1;
+		return ret;
+	}
+
+	static unsigned revbitL(unsigned v, uint8_t len) {
+		unsigned ret = 0;
+		while (len > 8) {
+			ret = (ret << 8) | mscds::revbits_table8(v & 0xFF);
+			v = v >> 8;
+			len -= 8;
+		}
+		// does not reserve bits [len+1:]
+		if (len > 0) {
+			v = mscds::revbits_table8(v & 0xFF) >> (8-len);
+			ret = (ret << len) | v;
+		}
+		return ret;
+	}
+
+	unsigned get_bits(uint8_t len) {
+		// must have the same resut as:
+		//unsigned code = 0;
+		//for (unsigned i = 0; i < len; ++i)
+		//	code = (code << 1) | (input->get_bit() ? 1u : 0u);
+		//return code;
+		if (is_empty()) 
+			return 0;
+		if (len == 1) return get_bit();
+		pos += len;
+		unsigned ret = 0;
+		uint8_t shift = 0;
+		while (len>0) {
+			if (clen == 0) {
+				if (i < v->size()) cache = (*v)[i++];
+				else cache = 0;
+				clen = sizeof(ChrTp)*8;
+			}
+			uint8_t dt = std::min<uint8_t>(clen, len);
+
+			ret |= (cache << shift);
+			cache >>= dt;
+			len -= dt;
+			clen -= dt;
+			shift += dt;
+		}
+		ret = revbitL(ret, shift);
 		return ret;
 	}
 
@@ -108,7 +152,8 @@ struct InBitStream {
 
 	static const ChrTp MAXMASK = 1u << (sizeof(ChrTp) * 8 - 1);
 	const VecTp * v;
-	ChrTp cache, mask;
+	ChrTp cache;
+	uint8_t clen;
 	size_t bitlen;
 	size_t pos, i;
 };
@@ -116,7 +161,7 @@ struct InBitStream {
 /// Arithmetic encoder using 32-bit states
 class AC32_EncState {
 public:
-	static const uint32_t MAX_PROB_RESOLUTION = 1ul << (sizeof(uint32_t)*8-1);
+	static const uint32_t MAX_PROB_RESOLUTION = 1ul << (sizeof(uint32_t)*8-2);
 public:
 	AC32_EncState(): output(NULL) {}
 	AC32_EncState(OutBitStream * out) { init(out); }
@@ -161,7 +206,6 @@ private:
 				hi ^= MSB; */
 			} else if ((lo & Q1) && hi < Q3) {
 				++underflow;
-				//cout << " u ";
 				lo ^= Q1;
 				hi |= Q1; /* hi ^= MSB; */
 			} else break;
@@ -230,7 +274,7 @@ public:
 		uint64_t rlen = (uint64_t) hi - lo + 1;
 		hi = lo + ((rlen * hi_count / total) - 1);
 		lo = lo + (rlen * lo_count / total);
-		renomalize();
+		fast_renomalize();
 	}
 
 	void close() {
@@ -249,6 +293,30 @@ private:
 			lo <<= 1;
 			hi = (hi << 1) | 1;
 			code = (code << 1) | (input->get_bit() ? 1u : 0u);
+		}
+	}
+
+	void fast_renomalize() {
+		if ((hi < MSB) || (lo & MSB)) {
+			uint32_t k = (hi ^ lo);
+			uint8_t shift = sizeof(hi)*8 - mscds::msb_intr(k) - 1;
+			code = (code << shift) | input->get_bits(shift);
+			hi <<= shift;
+			hi |= ~((~0u) << shift);
+			lo <<= shift;
+		}
+		if ((lo & Q1) && hi < Q3) {
+			//underflow
+			uint32_t k = ((hi - lo) >> 1) | (~(hi ^ lo));
+			uint8_t shift = sizeof(hi)*8 - mscds::msb_intr(k) - 2;
+			code = (code << shift) | input->get_bits(shift);
+
+			code ^= MSB;
+			hi <<= shift;
+			hi |= ~((~0u) << shift);
+			hi |= MSB;
+			lo <<= shift;
+			lo &= (MSB-1);
 		}
 	}
 

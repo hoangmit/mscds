@@ -36,11 +36,11 @@ void test_bits(const vector<bool>& bv) {
 	for (unsigned int i = 0; i < n; ++i) {
 		unsigned int dc = dec.decode_count(n);
 		bool val = dc >= zc;
-		ASSERT_EQ(bv[i], val);
 		if (bv[i] != val) {
 			cout << "wrong";
 			throw runtime_error("wrong");
 		}
+		ASSERT_EQ(bv[i], val);
 		if (val) dec.update(zc, n, n);
 		else dec.update(0, zc, n);
 	}
@@ -82,11 +82,11 @@ void test_uint8(const vector<uint8_t>& bv) {
 		unsigned int idx = std::upper_bound(cum_freq.begin(), cum_freq.end(), dc) - cum_freq.begin();
 		ASSERT(idx > 0 && idx <= alp_cnt);
 		uint8_t val = idx - 1;
-		ASSERT_EQ(bv[i], val);
 		if (bv[i] != val) {
 			cout << "wrong";
 			throw runtime_error("wrong");
 		}
+		ASSERT_EQ(bv[i], val);
 		dec.update(cum_freq[val], cum_freq[val+1], total);
 	}
 
@@ -105,12 +105,14 @@ vector<bool> gen_bits(unsigned int n, double prob0 = 0.5) {
 }
 
 TEST(arithmetic_code, binary1) {
-	vector<bool> v = gen_bits(8000, 0.5);
-	test_bits(v);
-	v = gen_bits(8000, 0.2);
-	test_bits(v);
-	v = gen_bits(8000, 0.8);
-	test_bits(v);
+	for (unsigned i = 0; i < 20; ++i) {
+		vector<bool> v = gen_bits(8000, 0.5);
+		test_bits(v);
+		v = gen_bits(8000, 0.2);
+		test_bits(v);
+		v = gen_bits(8000, 0.8);
+		test_bits(v);
+	}
 }
 
 vector<uint8_t> gen_byte_oe(unsigned int n, double prob_even=0.5) {
@@ -127,12 +129,14 @@ vector<uint8_t> gen_byte_oe(unsigned int n, double prob_even=0.5) {
 }
 
 TEST(arithmetic_code, char1) {
-	vector<uint8_t> v = gen_byte_oe(8000, 0.5);
-	test_uint8(v);
-	v = gen_byte_oe(8000, 0.2);
-	test_uint8(v);
-	v = gen_byte_oe(8000, 0.8);
-	test_uint8(v);
+	for (unsigned i = 0; i < 20; ++i) {
+		vector<uint8_t> v = gen_byte_oe(8000, 0.5);
+		test_uint8(v);
+		v = gen_byte_oe(8000, 0.2);
+		test_uint8(v);
+		v = gen_byte_oe(8000, 0.8);
+		test_uint8(v);
+	}
 }
 
 template<class Model, class ChrTp = uint8_t>
@@ -161,6 +165,10 @@ void test_ac_enc_dec(const std::vector<ChrTp>& bv) {
 		//std::cout << i << std::endl;
 		auto c = bv[i];
 		uint8_t d = dex.decode();
+		if (c != d) {
+			cout << "wrong";
+			throw runtime_error("wrong");
+		}
 		ASSERT_EQ(c, d);
 	}
 	dex.close();
@@ -168,28 +176,34 @@ void test_ac_enc_dec(const std::vector<ChrTp>& bv) {
 
 
 TEST(arithmetic_code, static_stream1) {
-	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
-	test_ac_enc_dec<StaticAC_Model>(v);
+	for (unsigned i = 0; i < 5; ++i) {
+		vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+		test_ac_enc_dec<StaticAC_Model>(v);
+	}
 }
 
 TEST(arithmetic_code, semistatic_stream1) {
-	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
-	test_ac_enc_dec<SemiStaticAC_Model>(v);
+	for (unsigned i = 0; i < 5; ++i) {
+		vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+		test_ac_enc_dec<SemiStaticAC_Model>(v);
+	}
 }
 
 TEST(arithmetic_code, adaptive_stream1) {
-	vector<uint8_t> v = gen_byte_oe(100000, 0.5);
-	test_ac_enc_dec<AdaptiveAC_Model>(v);
+	for (unsigned i = 0; i < 5; ++i) {
+		vector<uint8_t> v = gen_byte_oe(100000, 0.5);
+		test_ac_enc_dec<AdaptiveAC_Model>(v);
+	}
 }
 
 
-/*
+
 int main(int argc, char* argv[]) {
-	//::testing::GTEST_FLAG(catch_exceptions) = "0";
-	//::testing::GTEST_FLAG(break_on_failure) = "1";
+	::testing::GTEST_FLAG(catch_exceptions) = "0";
+	::testing::GTEST_FLAG(break_on_failure) = "1";
 	//::testing::GTEST_FLAG(filter) = "*.*";
 	::testing::InitGoogleTest(&argc, argv);
 	int rs = RUN_ALL_TESTS();
 	return rs;
-}*/
+}
 

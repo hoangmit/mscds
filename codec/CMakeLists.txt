@@ -37,12 +37,12 @@ endif(${BIGENDIAN})
 add_library(codec ${SRC} ${HEADER})
 target_link_libraries(codec ${LIBS})
 
-add_test_files(test_coder.cpp test_bstreamg.cpp test_huffman.cpp test_arithmetic_code.cpp test_aux_stream.cpp)
+add_test_files(test_coder.cpp test_bstreamg.cpp test_huffman.cpp test_aux_stream.cpp)
 
 
 add_test_files(test_compression_framework.cpp)
 
 
-#add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils codec)
+add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils bitarray codec)
 #add_library(codec_stream codec_adapter.h)
 #target_link_libraries(codec_stream codec bitarray)

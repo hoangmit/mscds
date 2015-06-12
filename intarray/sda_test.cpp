@@ -96,7 +96,7 @@ TEST(sdatest, sdarray_increasing) {
 
 		ASSERT(i <= cums[ind]);
 		if (ind > 0) {
-			ASSERT(i > cums[ind]);
+			ASSERT(i > cums[ind-1]);
 		}
 
 		ASSERT_EQ(ind, sda.rank(i));

@@ -49,7 +49,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
     }
 
     //---------------------Building tables R and S---------------------------
-    unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
+	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
     uint64_t num_of_blocks = b.length() % 15 == 0 ? b.length() / 15 : b.length() / 15 + 1;
 	o->R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
@@ -141,7 +141,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
     }
 
     //---------------------Building tables R and S---------------------------
-    unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
+	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
     uint64_t num_of_blocks = b.length() % 15 == 0 ? b.length() / 15 : b.length() / 15 + 1;
 	BitArray R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
@@ -285,7 +285,7 @@ uint64_t RRR::partialsum(uint64_t block) const {
 }
 
 uint64_t RRR::positionS(uint64_t block) const {
-    unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
+	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
     unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957);
     uint64_t j = (block / SAMPLE_INT) < (posS.length() / bits_per_posS) ? (block / SAMPLE_INT) : (posS.length() / bits_per_posS - 1);
     uint64_t pos = posS.bits(j * bits_per_posS, bits_per_posS);
@@ -304,8 +304,8 @@ uint64_t RRR::rank(const uint64_t p) const {
     uint64_t sum = partialsum(block);
     if (block * 15 == p) return sum;
     uint64_t pos = positionS(block);
-    unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
-    unsigned int Elength[16] = {1, 16, 121, 576, 1941, 4944, 9949, 16384, 22819, 27824, 30827, 32192, 32647, 32752, 32767, 32768}; //cumulative sum of (15 C i)
+	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
+    static const unsigned int Elength[16] = {1, 16, 121, 576, 1941, 4944, 9949, 16384, 22819, 27824, 30827, 32192, 32647, 32752, 32767, 32768}; //cumulative sum of (15 C i)
     unsigned int blockcount = R.bits(block * 4, 4);
     unsigned int offset = S.bits(pos, logtable[blockcount]);
     unsigned int word = blockcount == 0 ? 0 : E.bits((Elength[blockcount - 1] + offset) * 16, 16);
@@ -354,8 +354,8 @@ uint64_t RRR::select(const uint64_t r) const {
     sum -= R.bits(block * 4, 4);
 
     uint64_t pos = positionS(block);
-    unsigned int logtable[16] = {0, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 0}; //ceil(log2(15 C i))
-    unsigned int Elength[16] = {1, 16, 121, 576, 1941, 4944, 9949, 16384, 22819, 27824, 30827, 32192, 32647, 32752, 32767, 32768}; //cumulative sum of (15 C i)
+    static const unsigned int logtable[16] = {0, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 0}; //ceil(log2(15 C i))
+	static const unsigned int Elength[16] = {1, 16, 121, 576, 1941, 4944, 9949, 16384, 22819, 27824, 30827, 32192, 32647, 32752, 32767, 32768}; //cumulative sum of (15 C i)
     unsigned int blockcount = R.bits(block * 4, 4);
     unsigned int offset = S.bits(pos, logtable[blockcount]);
     unsigned int word = blockcount == 0 ? 0 : E.bits((Elength[blockcount - 1] + offset) * 16, 16);

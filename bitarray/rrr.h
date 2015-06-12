@@ -7,7 +7,7 @@
 \file
 RRR Compressed Rank/Select data structure 
 
-Based on "" paper.
+Based on "Fast, Small, Simple Rank/Select on Bitmaps. G. Navarro and E. Providel. SEA 2012" paper.
 
 Implemented by Chai.
 

@@ -297,26 +297,30 @@ private:
 	}
 
 	void fast_renomalize() {
+		uint8_t shift = 0;
 		if ((hi < MSB) || (lo & MSB)) {
 			uint32_t k = (hi ^ lo);
-			uint8_t shift = sizeof(hi)*8 - mscds::msb_intr(k) - 1;
-			code = (code << shift) | input->get_bits(shift);
+			shift = sizeof(hi)*8 - mscds::msb_intr(k) - 1;
 			hi <<= shift;
 			hi |= ~((~0u) << shift);
 			lo <<= shift;
+			//code = (code << shift) | input->get_bits(shift);
 		}
 		if ((lo & Q1) && hi < Q3) {
 			//underflow
 			uint32_t k = ((hi - lo) >> 1) | (~(hi ^ lo));
-			uint8_t shift = sizeof(hi)*8 - mscds::msb_intr(k) - 2;
-			code = (code << shift) | input->get_bits(shift);
-
-			code ^= MSB;
-			hi <<= shift;
-			hi |= ~((~0u) << shift);
+			uint8_t ushift = sizeof(hi)*8 - mscds::msb_intr(k) - 2;
+			hi <<= ushift;
+			hi |= ~((~0u) << ushift);
 			hi |= MSB;
-			lo <<= shift;
+			lo <<= ushift;
 			lo &= (MSB-1);
+
+			ushift += shift;
+			code = (code << ushift) | input->get_bits(ushift);
+			code ^= MSB;
+		} else {
+			code = (code << shift) | input->get_bits(shift);
 		}
 	}
 

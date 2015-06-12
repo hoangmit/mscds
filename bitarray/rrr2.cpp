@@ -134,7 +134,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
     combination.setbits(131008, 916312070471295232, 64); //63 C 31
 
     //---------------------Building tables R and S---------------------------
-    uint64_t num_of_blocks = (b.length() & 63) == 0 ? b.length() / 63 : b.length() / 63 + 1;
+    uint64_t num_of_blocks = (b.length() % 63) == 0 ? b.length() / 63 : b.length() / 63 + 1;
 	BitArray R = BitArrayBuilder::create(6 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0, curr_word;
@@ -343,7 +343,7 @@ uint64_t RRR2::rank(const uint64_t p) const {
 	unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
     uint64_t offset = S.bits(pos, logval);
     uint64_t word = decode(offset, curr_popcnt);
-    return sum + popcnt(word & ((1ull << (p & 63)) - 1));
+    return sum + popcnt(word & ((1ull << (p % 63)) - 1));
 }
 
 uint64_t RRR2::rankzero(uint64_t p) const {

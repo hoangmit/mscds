@@ -142,7 +142,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
 
     //---------------------Building tables R and S---------------------------
 	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
-    uint64_t num_of_blocks = (b.length() & 15) == 0 ? b.length() / 15 : b.length() / 15 + 1;
+    uint64_t num_of_blocks = (b.length() % 15) == 0 ? b.length() / 15 : b.length() / 15 + 1;
 	BitArray R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0;
@@ -310,7 +310,7 @@ uint64_t RRR::rank(const uint64_t p) const {
     unsigned int offset = S.bits(pos, logtable[blockcount]);
     unsigned int word = blockcount == 0 ? 0 : E.bits((Elength[blockcount - 1] + offset) * 16, 16);
 
-    return sum + popcnt(word & ((1 << (p & 15)) - 1));
+    return sum + popcnt(word & ((1 << (p % 15)) - 1));
 
 }
 

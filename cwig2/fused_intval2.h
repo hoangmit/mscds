@@ -9,7 +9,6 @@
 #include "cwig2/intv/nintv_fuse.h"
 #include "float_int_map.h"
 
-#include "intarray/sdarray.h"
 
 #include "fusedstorage.h"
 #include "fusedstorage2.h"

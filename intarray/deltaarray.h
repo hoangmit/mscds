@@ -19,7 +19,7 @@ This uses "blkarray" and "diffarray"
 #include "codec/deltacoder.h"
 #include "bitarray/bitstream.h"
 
-#include "intarray/sdarray.h"
+#include "intarray/sdarray_sml.h"
 #include "intarray/intarray.h"
 #include "intarray/diffarray.hpp"
 
@@ -40,7 +40,7 @@ public:
 private:
 	coder::DeltaCoder dc;
 	OBitStream enc;
-	SDArrayBuilder ptrbd;
+	SDArraySmlBuilder ptrbd;
 	unsigned int sample_rate, i;
 };
 
@@ -74,7 +74,7 @@ public:
 private:
 	uint64_t len;
 	unsigned int sample_rate;
-	SDArrayQuery ptr;
+	SDArraySml ptr;
 	BitArray enc;
 	friend class DeltaCodeArrBuilder;
 };

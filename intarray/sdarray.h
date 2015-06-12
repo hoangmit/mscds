@@ -66,7 +66,6 @@ private:
 	void packLows(uint64_t begPos, uint64_t width);
 	static uint64_t log2(uint64_t x);
 
-
 	std::vector<uint64_t> Ltable_;
 	std::vector<uint64_t> B_;
 	size_t size_;

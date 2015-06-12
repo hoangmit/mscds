@@ -95,9 +95,9 @@ public:
 	uint64_t lookup(uint64_t pos, uint64_t& prev_sum) const;
 
 	/*
-   * @ret Return ind s.t. prefixSum(ind) <= val < prefixSum(ind+1) or NOTFOUND if not exist
+   * @ret Return ind s.t. prefixSum(ind-1) < val <= prefixSum(ind) or NOTFOUND if not exist
    */
-	uint64_t rank(uint64_t val) const; // upper_bound(val) - 1
+	uint64_t rank(uint64_t val) const; //  BUG: current value is : (upper_bound(val) - 1) --> need to change to lower_bound(val)
 	uint64_t rank2(uint64_t val, uint64_t& select) const {
 		uint64_t v = rank(val);
 		select = prefixsum(v);

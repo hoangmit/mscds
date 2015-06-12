@@ -9,6 +9,7 @@
 
 
 #include <vector>
+#include <fstream>
 #include <iostream>
 
 namespace tests {
@@ -78,6 +79,15 @@ std::vector<bool> bits_sparse(int len) {
 		else v.push_back(false);
 	}
 	return v;
+}
+
+std::vector<bool> bits_vsparse(int len, unsigned dist=5000) {
+	std::vector<bool> ret;
+	ret.resize(len, false);
+	for (unsigned i = 0; i < len; ++i) 
+		if (i % dist == 0) 
+			ret[i] = true;
+	return ret;
 }
 
 std::vector<bool> bits_imbal(int len) {
@@ -183,12 +193,22 @@ void test_temp(int len) {
 	}
 }
 
+std::vector<bool> read_file(const std::string& name) {
+	std::ifstream fi(name.c_str());
+	int x;
+	std::vector<bool> rd;
+	while (fi >> x)
+		rd.push_back(x != 0);
+	return rd;
+}
+
 TEST(ranktest, rank25p) {
 	test_rank<Rank25p>(bits_one());
 	test_rank<Rank25p>(bits_zero());
 	test_rank<Rank25p>(bits_onezero());
 	test_rank<Rank25p>(bits_oneonezero());
 	test_rank<Rank25p>(bits_zerozeroone());
+	
 	for (int i = 0; i < 200; i++) {
 		SCOPED_TRACE("Random");
 		test_rank<Rank25p>(bits_dense(2046 + rand() % 4));
@@ -198,10 +218,31 @@ TEST(ranktest, rank25p) {
 	}
 	test_rank<Rank25p>(bits_dense(100000));
 	test_rank<Rank25p>(bits_sparse(100000));
+	test_rank<Rank25p>(bits_vsparse(200000));
 	cout << endl;
 }
 
 TEST(ranktest, rank6p) {
+	test_rank<Rank6p>(bits_vsparse(200000));
+	/*
+	//auto vec = read_file("C:/temp/bits.txt");
+	BitArray vx = BitArrayBuilder::create(vec.size());
+	for (unsigned i = 0; i < vec.size(); ++i)
+		vx.setbit(i, vec[i]);
+	Rank6p rx;
+	Rank6pBuilder::build(vx, &rx);
+	rx.select(80053);
+	test_rank<Rank6p>(vec);*/
+
+	test_rank<Rank6p>(bits_vsparse(200000, 4000));
+
+	for (int i = 0; i < 50; ++i) {
+		test_rank<Rank6p>(bits_dense(20000 + rand() % 4));
+		test_rank<Rank6p>(bits_sparse(20000 + rand() % 4));
+		test_rank<Rank6p>(bits_imbal(20000 + rand() % 4));
+		if (i % 10 == 0) cout << "+";
+	}
+
 	for (int i = 0; i < 100; i++) {
 		test_temp(4094 + rand() % 4);
 		if (i % 10 == 0) cout << ".";
@@ -212,6 +253,7 @@ TEST(ranktest, rank6p) {
 	test_rank<Rank6p>(bits_onezero());
 	test_rank<Rank6p>(bits_oneonezero());
 	test_rank<Rank6p>(bits_zerozeroone());
+
 	for (int i = 0; i < 200; i++) {
 		SCOPED_TRACE("Random");
 		test_rank<Rank6p>(bits_dense(2046 + rand() % 4));
@@ -239,6 +281,8 @@ TEST(ranktest, rank3p) {
 	}
 	test_rank<Rank3p>(bits_dense(100000));
 	test_rank<Rank3p>(bits_sparse(100000));
+	test_rank<Rank3p>(bits_vsparse(200000));
+	test_rank<Rank3p>(bits_vsparse(200000, 4000));
 	cout << endl;
 }
 

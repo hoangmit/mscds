@@ -161,7 +161,9 @@ uint64_t Rank6p::subblkrank(size_t blk, unsigned int off) const {
 
 uint64_t Rank6p::select(const uint64_t r) const {
 	assert(r < onecnt);
-	uint64_t lo = 0, len = inv.word_count() / 2;
+	//TODO: change to use upper_bound
+	uint64_t end = inv.word_count() / 2;
+	uint64_t lo = 0, len = end;
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;
@@ -171,8 +173,11 @@ uint64_t Rank6p::select(const uint64_t r) const {
 		}else
 			len = d;
 	}
-	if (lo >= inv.word_count() / 2 || r < blkrank(lo))
+	
+	if (lo >= end || r < blkrank(lo))
 		lo -= 1;
+	//skip 0 blocks
+	while (lo + 1 < end && r >= blkrank(lo+1)) lo++;
 	return selectblock(lo, r - blkrank(lo));
 }
 
@@ -191,6 +196,7 @@ uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 			d -= wr;
 		widx += 1;
 	}
+	assert(false);
 	return ~0ull;
 }
 
@@ -204,7 +210,9 @@ uint64_t Rank6p::subblkrank0(size_t blk, unsigned int off) const {
 
 uint64_t Rank6p::selectzero(const uint64_t r) const {
 	assert(r < bits.length() - onecnt);
-	uint64_t lo = 0, len = inv.word_count() / 2;
+	//TODO: change to use upper_bound
+	uint64_t end = inv.word_count() / 2;
+	uint64_t lo = 0, len = end;
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;
@@ -216,6 +224,7 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	}
 	if (lo >= inv.word_count() / 2 || r < blkrank0(lo))
 		lo -= 1;
+	while (lo + 1 < end && r >= blkrank0(lo+1)) lo++;
 	return selectblock0(lo, r - blkrank0(lo));
 }
 
@@ -234,6 +243,7 @@ uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 			d -= wr;
 		widx += 1;
 	}
+	assert(false);
 	return ~0ull;
 }
 
@@ -279,8 +289,10 @@ void Rank6pHintSel::init(BitArray& b) {
 
 uint64_t Rank6pHintSel::select(uint64_t r) const {
 	assert(r < rankst.one_count());
+	//TODO: change to use upper_bound
 	uint64_t lo = hints[r >> 12]; //  % 4096
-	uint64_t len = hints[(r >> 12) + 1] - lo;
+	uint64_t end = hints[(r >> 12) + 1];
+	uint64_t len = end - lo;
 	while (len > 0) {
 		uint64_t d = len / 2;
 		uint64_t mid = lo + d;
@@ -292,6 +304,7 @@ uint64_t Rank6pHintSel::select(uint64_t r) const {
 	}
 	if (lo >= rankst.inv.word_count() / 2 || r < rankst.blkrank(lo))
 		lo--;
+	while (lo + 1 < end && r >= rankst.blkrank(lo + 1)) lo++;
 	return rankst.selectblock(lo, r - rankst.blkrank(lo));
 }
 

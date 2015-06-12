@@ -94,9 +94,9 @@ TEST(sdatest, sdarray_increasing) {
 		vector<uint64_t>::iterator it = lower_bound(cums.begin(), cums.end(), i);
 		size_t ind = it - cums.begin() - 1;
 
-		ASSERT(i >= cums[ind]);
-		if (ind+1 < cums.size()) {
-			ASSERT(i <= cums[ind+1]);
+		ASSERT(i <= cums[ind]);
+		if (ind > 0) {
+			ASSERT(i > cums[ind]);
 		}
 
 		ASSERT_EQ(ind, sda.rank(i));

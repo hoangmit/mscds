@@ -70,7 +70,7 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
         o->onecnt += curr_popcnt;
         o->R.setbits(idxR, curr_popcnt, 6);
         hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-        logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(o->combination.word(63 * 32 + hold)) / 0.3010299957);
+		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(o->combination.word(63 * 32 + hold));
         SBitStream.puts(encode(curr_word, curr_popcnt, o->combination), logval);
         idxR += 6;
         idxB += step;
@@ -86,7 +86,7 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
     }
 
     //----------------------Building sumR and posS------------------------
-    unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceil(log10(o->onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceillog2(o->onecnt);
 	o->sumR = BitArrayBuilder::create(((num_of_blocks + SAMPLE_INT - 1) / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
@@ -97,7 +97,7 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
         sum += o->R.bits(idxR, 6);
     }
 
-    unsigned int bits_per_posS = ceil(log10(o->S.length()) / 0.3010299957);
+	unsigned int bits_per_posS = ceillog2(o->S.length());
 	o->posS = BitArrayBuilder::create(((num_of_blocks + SAMPLE_INT - 1) / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
@@ -107,7 +107,7 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
 
         curr_popcnt = o->R.bits(idxR, 6);
         hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-        logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(o->combination.word(63 * 32 + hold)) / 0.3010299957);
+		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(o->combination.word(63 * 32 + hold));
         sum += logval;
     }
     o->len=b.length();
@@ -134,7 +134,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
     combination.setbits(131008, 916312070471295232, 64); //63 C 31
 
     //---------------------Building tables R and S---------------------------
-    uint64_t num_of_blocks = b.length() % 63 == 0 ? b.length() / 63 : b.length() / 63 + 1;
+    uint64_t num_of_blocks = (b.length() & 63) == 0 ? b.length() / 63 : b.length() / 63 + 1;
 	BitArray R = BitArrayBuilder::create(6 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0, curr_word;
@@ -153,7 +153,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
         onecnt += curr_popcnt;
         R.setbits(idxR, curr_popcnt, 6);
         hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-        logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(combination.word(63 * 32 + hold)) / 0.3010299957);
+		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
         SBitStream.puts(encode(curr_word, curr_popcnt, combination), logval);
         idxR += 6;
         idxB += step;
@@ -175,7 +175,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
     }
 
     //----------------------Building sumR and posS------------------------
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
 	BitArray sumR = BitArrayBuilder::create(((num_of_blocks + SAMPLE_INT - 1) / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
@@ -186,7 +186,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
         sum += R.bits(idxR, 6);
     }
 
-    unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957);
+	unsigned int bits_per_posS = ceillog2(S.length());
 	BitArray posS = BitArrayBuilder::create(((num_of_blocks + SAMPLE_INT - 1) / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
@@ -196,7 +196,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
 
         curr_popcnt = R.bits(idxR, 6);
         hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-        logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(combination.word(63 * 32 + hold)) / 0.3010299957);
+		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
         sum += logval;
     }
 
@@ -279,7 +279,7 @@ bool RRR2::bit(uint64_t p) const {
 }
 
 uint64_t RRR2::partialsum(uint64_t block) const {
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t j = (block / SAMPLE_INT) < (sumR.length() / bits_per_sumR) ? (block / SAMPLE_INT) : (sumR.length() / bits_per_sumR - 1);
     uint64_t sum = sumR.bits(j * bits_per_sumR, bits_per_sumR);
 
@@ -290,14 +290,14 @@ uint64_t RRR2::partialsum(uint64_t block) const {
 }
 
 uint64_t RRR2::positionS(uint64_t block) const {
-    unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957), curr_popcnt, logval;
+	unsigned int bits_per_posS = ceillog2(S.length()), curr_popcnt, logval;
     uint64_t j = (block / SAMPLE_INT) < (posS.length() / bits_per_posS) ? (block / SAMPLE_INT) : (posS.length() / bits_per_posS - 1);
     uint64_t pos = posS.bits(j * bits_per_posS, bits_per_posS);
 
     for (j = j * SAMPLE_INT; j < block; ++j) {
         curr_popcnt = R.bits(j * 6, 6);
         int hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-        logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(combination.word(63 * 32 + hold)) / 0.3010299957);
+		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
         pos += logval;
     }
 
@@ -340,10 +340,10 @@ uint64_t RRR2::rank(const uint64_t p) const {
     uint64_t pos = positionS(block);
     unsigned int curr_popcnt = R.bits(block * 6, 6);
     hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-    unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(combination.word(63 * 32 + hold)) / 0.3010299957);
+	unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
     uint64_t offset = S.bits(pos, logval);
     uint64_t word = decode(offset, curr_popcnt);
-    return sum + popcnt(word & ((1ull << (p % 63)) - 1));
+    return sum + popcnt(word & ((1ull << (p & 63)) - 1));
 }
 
 uint64_t RRR2::rankzero(uint64_t p) const {
@@ -354,7 +354,7 @@ uint64_t RRR2::rankzero(uint64_t p) const {
 uint64_t RRR2::select(const uint64_t r) const {
 	assert(r < onecnt); //onecnt cannot be 0
     uint64_t i = r + 1;
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t start = 0, end = sumR.length() / bits_per_sumR - 1, avg;
     uint64_t sum, sum2;
 
@@ -389,7 +389,7 @@ uint64_t RRR2::select(const uint64_t r) const {
     uint64_t pos = positionS(block);
     unsigned int curr_popcnt = R.bits(block * 6, 6);
     hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-    unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceil(log10(combination.word(63 * 32 + hold)) / 0.3010299957);
+	unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(combination.word(63 * 32 + hold));
     uint64_t offset = S.bits(pos, logval);
     uint64_t word = decode(offset, curr_popcnt);
     return selectword(word, i - sum - 1)  + block * 63;

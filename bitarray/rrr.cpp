@@ -82,7 +82,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
 	}
 
     //----------------------Building sumR and posS------------------------
-    unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceil(log10(o->onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = o->onecnt == 1 ? 1 : ceillog2(o->onecnt);
     o->sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
@@ -93,7 +93,7 @@ void RRRBuilder::build(const BitArray& b, RRR * o) {
         sum += o->R.bits(idxR, 4);
     }
 
-    unsigned int bits_per_posS = ceil(log10(o->S.length()) / 0.3010299957);
+	unsigned int bits_per_posS = ceillog2(o->S.length());
 	o->posS = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
@@ -142,7 +142,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
 
     //---------------------Building tables R and S---------------------------
 	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
-    uint64_t num_of_blocks = b.length() % 15 == 0 ? b.length() / 15 : b.length() / 15 + 1;
+    uint64_t num_of_blocks = (b.length() & 15) == 0 ? b.length() / 15 : b.length() / 15 + 1;
 	BitArray R = BitArrayBuilder::create(4 * num_of_blocks);
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0;
@@ -173,7 +173,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
         return;
 
     //----------------------Building sumR and posS------------------------
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
 	BitArray sumR = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_sumR);
     uint64_t sum = 0;
 
@@ -184,7 +184,7 @@ void RRRBuilder::build(const BitArray &b, OutArchive &ar) {
         sum += R.bits(idxR, 4);
     }
 
-    unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957);
+	unsigned int bits_per_posS = ceillog2(S.length());
 	BitArray posS = BitArrayBuilder::create((num_of_blocks / SAMPLE_INT == 0 ? 1 : num_of_blocks / SAMPLE_INT) * bits_per_posS);
     sum = idxB = 0;
 
@@ -274,7 +274,7 @@ bool RRR::bit(uint64_t p) const {
 }
 
 uint64_t RRR::partialsum(uint64_t block) const {
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t j = (block / SAMPLE_INT) < (sumR.length() / bits_per_sumR) ? (block / SAMPLE_INT) : (sumR.length() / bits_per_sumR - 1);
     uint64_t sum = sumR.bits(j * bits_per_sumR, bits_per_sumR);
 
@@ -286,7 +286,7 @@ uint64_t RRR::partialsum(uint64_t block) const {
 
 uint64_t RRR::positionS(uint64_t block) const {
 	static const unsigned int logtable[16] = {1, 4, 7, 9, 11, 12, 13, 13, 13, 13, 12, 11, 9, 7, 4, 1}; //ceil(log2(15 C i))
-    unsigned int bits_per_posS = ceil(log10(S.length()) / 0.3010299957);
+	unsigned int bits_per_posS = ceillog2(S.length());
     uint64_t j = (block / SAMPLE_INT) < (posS.length() / bits_per_posS) ? (block / SAMPLE_INT) : (posS.length() / bits_per_posS - 1);
     uint64_t pos = posS.bits(j * bits_per_posS, bits_per_posS);
 
@@ -310,7 +310,7 @@ uint64_t RRR::rank(const uint64_t p) const {
     unsigned int offset = S.bits(pos, logtable[blockcount]);
     unsigned int word = blockcount == 0 ? 0 : E.bits((Elength[blockcount - 1] + offset) * 16, 16);
 
-    return sum + popcnt(word & ((1 << (p % 15)) - 1));
+    return sum + popcnt(word & ((1 << (p & 15)) - 1));
 
 }
 
@@ -321,7 +321,7 @@ uint64_t RRR::rankzero(uint64_t p) const {
 uint64_t RRR::select(const uint64_t r) const {
 	assert(r < onecnt); //onecnt cannot be 0
     uint64_t i = r + 1;
-    unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceil(log10(onecnt) / 0.3010299957);
+	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t start = 0, end = sumR.length() / bits_per_sumR - 1, avg;
     uint64_t sum, sum2;
 

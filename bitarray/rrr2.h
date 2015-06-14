@@ -26,10 +26,8 @@ class RRR2HintSel;
 
 /// RRR2 data structure
 class RRR2 : public RankSelect {
-private:
-    BitArray R, S, sumR, posS, combination;
-	uint64_t onecnt, len;
 public:
+	RRR2();
 	uint64_t rank(uint64_t p) const;
 	uint64_t rankzero(uint64_t p) const;
 	uint64_t select(uint64_t r) const;
@@ -50,6 +48,11 @@ public:
 	//const BitArray& getBitArray() const { return bits; }
 	typedef RRR2Builder BuilderTp;
 private:
+	BitArray R, S, sumR, posS;
+	uint64_t onecnt, len;
+	static uint64_t nCk[2048];
+	static void _init_nCk();
+private:
     uint64_t partialsum(uint64_t block) const;
     uint64_t positionS(uint64_t block) const;
     uint64_t decode(uint64_t offset, unsigned int k) const;
@@ -61,7 +64,8 @@ private:
 
 class RRR2Builder {
 public:
-    static uint64_t encode(uint64_t w, unsigned int k, const BitArray& combination);
+	static void init_table();
+    static uint64_t encode(uint64_t w, unsigned int k);
 	static void build(const BitArray& b, RRR2 * o);
 	static void build(const BitArray& b, OutArchive& ar);
 	typedef RRR2 QueryTp;

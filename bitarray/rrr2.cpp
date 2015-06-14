@@ -11,6 +11,7 @@ namespace mscds {
 
 static bool _init_table = false;
 uint64_t RRR2::nCk[2048];
+uint8_t RRR2::code_len[64];
 
 uint64_t RRR2Builder::getwordz(const BitArray& v, size_t idx) {
 	if (idx < v.word_count()) return v.word(idx);
@@ -51,6 +52,11 @@ void RRR2::_init_nCk() {
 	nCk[63*32 + 30] = 860778005594247040ull; //63 C 30
 	nCk[63*32 + 31] = 916312070471295232ull; //63 C 31
 
+	for (uint8_t n = 0; n < 64; ++n) {
+		uint8_t hold = n > 31 ? 63 - n : n;
+		uint8_t logval = (n == 0 || n == 63) ? 1 : ceillog2(RRR2::nCk[63 * 32 + hold]);
+		code_len[n] = logval;
+	}
 	_init_table = true;
 }
 
@@ -67,7 +73,6 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
     OBitStream SBitStream;
     uint64_t idxR = 0, idxB = 0, curr_word;
     unsigned int step, curr_popcnt, logval;
-    int hold;
     o->onecnt = 0;
     
     while (idxB < b.length()) {
@@ -80,8 +85,7 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
         curr_popcnt = popcnt(curr_word);
         o->onecnt += curr_popcnt;
         o->R.setbits(idxR, curr_popcnt, 6);
-        hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(RRR2::nCk[63 * 32 + hold]);
+		logval = RRR2::code_len[curr_popcnt];
         SBitStream.puts(encode(curr_word, curr_popcnt), logval);
         idxR += 6;
         idxB += step;
@@ -117,11 +121,11 @@ void RRR2Builder::build(const BitArray& b, RRR2 * o) {
             o->posS.setbits(idxR / (6 * SAMPLE_INT) * bits_per_posS, sum, bits_per_posS);
 
         curr_popcnt = o->R.bits(idxR, 6);
-        hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(RRR2::nCk[63 * 32 + hold]);
+		logval = RRR2::code_len[curr_popcnt];
         sum += logval;
     }
     o->len=b.length();
+	o->_init_variables();
 }
 
 void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
@@ -136,7 +140,6 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
     uint64_t idxR = 0, idxB = 0, curr_word;
     unsigned int step, curr_popcnt, logval;
     uint64_t onecnt = 0;
-    int hold;
     
     while (idxB < b.length()) {
         if (idxB + 63 <= b.length())
@@ -148,8 +151,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
         curr_popcnt = popcnt(curr_word);
         onecnt += curr_popcnt;
         R.setbits(idxR, curr_popcnt, 6);
-        hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(RRR2::nCk[63 * 32 + hold]);
+		logval = RRR2::code_len[curr_popcnt];
         SBitStream.puts(encode(curr_word, curr_popcnt), logval);
         idxR += 6;
         idxB += step;
@@ -190,8 +192,7 @@ void RRR2Builder::build(const BitArray &b, OutArchive &ar) {
             posS.setbits(idxR / (6 * SAMPLE_INT) * bits_per_posS, sum, bits_per_posS);
 
         curr_popcnt = R.bits(idxR, 6);
-        hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(RRR2::nCk[63 * 32 + hold]);
+		logval = RRR2::code_len[curr_popcnt];
         sum += logval;
     }
 
@@ -263,9 +264,13 @@ void RRR2::load(InpArchive &ar) {
 	//bits.load(ar.var("bits"));
 	ar.endclass();
 	//if (bits.length() != blen) throw std::runtime_error("length mismatch");
+	_init_variables();
 }
 
-
+void RRR2::_init_variables() {
+	bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
+	bits_per_posS = ceillog2(S.length());
+}
 
 bool RRR2::bit(uint64_t p) const {
     return (rank(p+1)-rank(p))==1;
@@ -273,25 +278,21 @@ bool RRR2::bit(uint64_t p) const {
 }
 
 uint64_t RRR2::partialsum(uint64_t block) const {
-	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t j = (block / SAMPLE_INT) < (sumR.length() / bits_per_sumR) ? (block / SAMPLE_INT) : (sumR.length() / bits_per_sumR - 1);
     uint64_t sum = sumR.bits(j * bits_per_sumR, bits_per_sumR);
-
     for (j = j * SAMPLE_INT; j < block; ++j)
         sum += R.bits(j * 6, 6);
-
     return sum;
 }
 
 uint64_t RRR2::positionS(uint64_t block) const {
-	unsigned int bits_per_posS = ceillog2(S.length()), curr_popcnt, logval;
+	unsigned int curr_popcnt, logval;
     uint64_t j = (block / SAMPLE_INT) < (posS.length() / bits_per_posS) ? (block / SAMPLE_INT) : (posS.length() / bits_per_posS - 1);
     uint64_t pos = posS.bits(j * bits_per_posS, bits_per_posS);
 
     for (j = j * SAMPLE_INT; j < block; ++j) {
         curr_popcnt = R.bits(j * 6, 6);
-        int hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-		logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(nCk[63 * 32 + hold]);
+		logval = code_len[curr_popcnt];
         pos += logval;
     }
 
@@ -327,14 +328,12 @@ uint64_t RRR2::rank(const uint64_t p) const {
     if (onecnt == 0)
         return 0;
 
-    int hold;
     uint64_t block = p / 63;
     uint64_t sum = partialsum(block);
     if (block * 63 == p) return sum;
     uint64_t pos = positionS(block);
     unsigned int curr_popcnt = R.bits(block * 6, 6);
-    hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-	unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(nCk[63 * 32 + hold]);
+	unsigned int logval = code_len[curr_popcnt];
     uint64_t offset = S.bits(pos, logval);
     uint64_t word = decode(offset, curr_popcnt);
     return sum + popcnt(word & ((1ull << (p % 63)) - 1));
@@ -348,7 +347,6 @@ uint64_t RRR2::rankzero(uint64_t p) const {
 uint64_t RRR2::select(const uint64_t r) const {
 	assert(r < onecnt); //onecnt cannot be 0
     uint64_t i = r + 1;
-	unsigned int bits_per_sumR = onecnt == 1 ? 1 : ceillog2(onecnt);
     uint64_t start = 0, end = sumR.length() / bits_per_sumR - 1, avg;
     uint64_t sum, sum2;
 
@@ -379,11 +377,9 @@ uint64_t RRR2::select(const uint64_t r) const {
     }
 
     sum -= R.bits(block * 6, 6);
-    int hold;
     uint64_t pos = positionS(block);
     unsigned int curr_popcnt = R.bits(block * 6, 6);
-    hold = curr_popcnt > 31 ? 63 - curr_popcnt : curr_popcnt;
-	unsigned int logval = (curr_popcnt == 0 || curr_popcnt == 63) ? 1 : ceillog2(nCk[63 * 32 + hold]);
+	unsigned int logval = code_len[curr_popcnt];
     uint64_t offset = S.bits(pos, logval);
     uint64_t word = decode(offset, curr_popcnt);
     return selectword(word, i - sum - 1)  + block * 63;

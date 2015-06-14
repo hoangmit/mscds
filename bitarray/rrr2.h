@@ -50,8 +50,12 @@ public:
 private:
 	BitArray R, S, sumR, posS;
 	uint64_t onecnt, len;
+	unsigned bits_per_sumR, bits_per_posS;
+
 	static uint64_t nCk[2048];
+	static uint8_t code_len[64];
 	static void _init_nCk();
+	void _init_variables();
 private:
     uint64_t partialsum(uint64_t block) const;
     uint64_t positionS(uint64_t block) const;

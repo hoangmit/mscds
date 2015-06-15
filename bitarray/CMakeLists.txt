@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 
 project(bitarray)
 
-set(SRCS rank6p.cpp rank3p.cpp bitop.cpp bitarray.cpp bitstream.cpp rrr.cpp rrr2.cpp
+set(SRCS rank6p.cpp rank3p.cpp bitop.cpp bitarray.cpp bitstream.cpp
+rrr.cpp rrr2.cpp
 select_dense.cpp
 )
-set(HEADERS bitarray.h rank6p.h rank3p.h rank25p.h rankselect.h bitop.h bitstream.h rrr.h rrr2.h
+set(HEADERS bitarray.h rank6p.h rank3p.h rank25p.h rankselect.h bitop.h bitstream.h
+rrr.h rrr2.h
 select_dense.h
 bitrange.h
 )

@@ -149,6 +149,7 @@ void mscds::SDArrayTH::save(OutArchive& ar) const {
 	saux1.save_aux(ar.var("aux1"));
 	ar.close();
 }
+
 void mscds::SDArrayTH::load(InpArchive& ar) {
 	ar.loadclass("sdarray_th");
 	ar.var("len").load(len);

@@ -111,7 +111,7 @@ void RMQ_table_builder::build(const std::vector<uint64_t>& lst, RMQ_table * t, b
 	//t->init_width(); // initialize idx_bwidth and val_bwidth
 	unsigned int idx_bwidth = ceillog2(t->len);
 	unsigned int val_bwidth = ceillog2(t->max_val+1);
-	t->rval = FixedWArray::create(nlst.size(), val_bwidth);
+	t->rval = FixedWArrayBuilder::create(nlst.size(), val_bwidth);
 	t->rval.fillzero();
 	for (size_t i = 0; i < nlst.size(); ++i) 
 		t->rval.set(i, nlst[i]);
@@ -120,7 +120,7 @@ void RMQ_table_builder::build(const std::vector<uint64_t>& lst, RMQ_table * t, b
 	vector<uint64_t> last(t->len);
 	for (size_t i = 0; i < t->len; ++i) last[i] = i;
 	assert(nl < 64);
-	t->table = FixedWArray::create((t->len*(nl-1) - (1ULL<<(nl-1)) + 1), idx_bwidth);
+	t->table = FixedWArrayBuilder::create((t->len*(nl-1) - (1ULL<<(nl-1)) + 1), idx_bwidth);
 	for (size_t d = 1; d < nl; ++d) {
 		uint64_t span = 1ULL << (d-1);
 		for (size_t i = 0; i < t->len - span; i++) {

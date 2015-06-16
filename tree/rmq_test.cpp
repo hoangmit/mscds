@@ -51,7 +51,7 @@ void test_rmq(const vector<uint64_t>& vec) {
 	cout << '.';
 }
 
-TEST(test1, RMQ) {
+TEST(RMQ, test1) {
 	const int len = 9;
 	int A[len] = {2, 4, 7, 8, 1, 6, 3, 9, 5};
 	vector<uint64_t> vec;
@@ -82,7 +82,7 @@ void test_sct(const vector<uint64_t>& vec) {
 }
 
 
-TEST(test2, RMQ) {
+TEST(RMQ, test2) {
 	for (int i = 0; i < 100; i++) {
 		test_rmq(rand_vec<uint64_t>(126 + rand() % 4));
 		test_rmq(rand_vec<uint64_t>(126 + rand() % 4, 100));
@@ -114,7 +114,7 @@ void test_cmp(const vector<uint64_t>& x) {
 	}
 }
 
-TEST(random_long, RMQ) {
+TEST(RMQ, random_long) {
 	for (size_t i = 0; i < 100; i++) {
 		if (i % 10 == 0) cout << '.';
 		test_sct(rand_vec<uint64_t>(rand() % 10 + 100, 20));

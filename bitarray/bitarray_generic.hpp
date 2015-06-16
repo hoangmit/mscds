@@ -179,9 +179,9 @@ inline void BitArrayGeneric<WordAccess>::setbit(size_t bitindex, bool value) {
 
 template<typename WordAccess>
 inline uint8_t BitArrayGeneric<WordAccess>::byte(size_t pos) const {
-    assert(pos * 8 < _bitlen);
+    assert(pos * 8 < length());
 	uint64_t _word = this->word(pos / 8);
-	return (uint8_t)((_word >> (pos % 8)) & 0xFF);
+	return (uint8_t)((_word >> (8*(pos % 8))) & 0xFF);
 }
 
 template<typename WordAccess>

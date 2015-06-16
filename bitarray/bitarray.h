@@ -81,6 +81,8 @@ public:
 	uint8_t byte(size_t pos) const;
 	/** reads one word (64 bits) */
 	uint64_t word(size_t pos) const;
+	/** returns the number of 1-bit in the word at `p` */
+	uint8_t popcntw(size_t pos) const;
 	/** reads 32 bits block */
 	uint32_t get_uint32(size_t pos) const;
 
@@ -142,6 +144,7 @@ inline void BitArray::clear() { bitlen = 0; data = StaticMemRegionPtr(); }
 
 inline void BitArray::setword(size_t pos, uint64_t val) { assert(pos < word_count()); data.setword(pos, val); }
 inline uint64_t BitArray::word(size_t pos) const { assert(pos < word_count()); return data.getword(pos); }
+inline uint8_t BitArray::popcntw(size_t pos) const { return popcnt(data.getword(pos)); }
 inline uint32_t BitArray::get_uint32(size_t pos) const { assert((pos+1)*32 <= length());
 	if (pos % 2 == 0) return data.getword(pos / 2) & 0xFFFFFFFFu;
 	else return data.getword(pos / 2) >> 32;
@@ -199,7 +202,7 @@ inline BitArray BitArray::clone_mem() const {
 inline BitArray::~BitArray() { }
 
 inline uint64_t BitArray::bits64(size_t bitindex) const {
-	assert(bitindex + 64 <= bitlen);
+	assert(bitindex + WORDLEN <= bitlen);
 	uint64_t i = bitindex / WORDLEN;
 	unsigned int j = bitindex % WORDLEN;
 	if (j == 0) return word(i);

@@ -23,7 +23,7 @@ uint64_t BitArray::count_one() const {
 	uint64_t ret = 0;
 	const uint64_t wc = bitlen / WORDLEN;
 	for (size_t i = 0; i < wc; i++)
-		ret += popcnt(word(i));
+		ret += popcntw(i);
 	for (size_t i = (bitlen / WORDLEN)*WORDLEN; i < bitlen; i++)
 		if (bit(i)) ret++;
 	return ret;
@@ -40,9 +40,11 @@ int64_t BitArray::scan_bits(uint64_t start, uint32_t res) const {
 		++wpos;
 	}
 	while(wpos < this->word_count()) {
-		uint64_t word = this->word(wpos);
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+		uint32_t bitcnt = popcntw(wpos);
+		if (bitcnt > res) {
+			uint64_t word = this->word(wpos);
+			return (wpos << 6) - start + selectword(word, res);
+		}
 		res -= bitcnt;
 		++wpos;
 	}
@@ -80,7 +82,7 @@ int64_t BitArray::scan_zeros(uint64_t start, uint32_t res) const {
 	uint64_t wpos = start >> 6;
 	if ((start & 63) != 0) {
 		uint64_t word = ~(this->word(wpos));
-		if (wpos + 1 == word_count() && length() % 64 != 0)
+		if (wpos + 1 == word_count() && length() % WORDLEN != 0)
 			word &= (1ull << (length() % 64)) - 1;
 		word >>= (start & 63);
 		uint32_t bitcnt = popcnt(word);
@@ -89,18 +91,22 @@ int64_t BitArray::scan_zeros(uint64_t start, uint32_t res) const {
 		++wpos;
 	}
 	while (wpos + 1 < this->word_count()) {
-		uint64_t word = ~(this->word(wpos));
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+		uint32_t bitcnt = WORDLEN - popcntw(wpos);
+		if (bitcnt > res) {
+			uint64_t word = ~(this->word(wpos));
+			return (wpos << 6) - start + selectword(word, res);
+		}
 		res -= bitcnt;
 		++wpos;
 	}
 	if (wpos + 1 == this->word_count()) {
-		uint64_t word = ~(this->word(wpos));
-		if (length() % 64 != 0)
-			word &= (1ull << (length() % 64)) - 1;
-		uint32_t bitcnt = popcnt(word);
-		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
+		uint32_t bitcnt = WORDLEN - popcntw(wpos);
+		if (bitcnt > res) {
+			uint64_t word = ~(this->word(wpos));
+			if (length() % WORDLEN != 0)
+				word &= (1ull << (length() % 64)) - 1;
+			return (wpos << 6) - start + selectword(word, res);
+		}
 	}
 	return -1;
 }

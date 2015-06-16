@@ -10,6 +10,7 @@ set(HEADERS bitarray.h rank6p.h rank3p.h rank25p.h rankselect.h bitop.h bitstrea
 rrr.h rrr2.h
 select_dense.h
 bitrange.h
+bitarray_generic.hpp
 )
 
 add_library(bitarray ${SRCS} ${HEADERS})

@@ -256,7 +256,7 @@ uint64_t Rank3p::countone(uint64_t start, uint64_t end) const {
 
     for (uint64_t i=start; i<end; ) {
         if (i + 64 <= end) {
-            hold+=popcnt(bits.word(i / 64));
+            hold+=bits.popcntw(i / 64);
             i+=64;
         }
         else {

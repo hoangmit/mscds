@@ -29,7 +29,7 @@ RRR_Codec::CodeTp RRR_Codec::decode(uint8_t n, uint8_t k, RRR_Codec::CodeTp offs
 	if (k == 0) return 0;
 	CodeTp mask = (~0ull) >> (64-n);
 	if (k == n) return mask;
-	CodeTp word = 0ull;
+	CodeTp word = 0;
 	unsigned int j = 0;
 
 	while (k > 0) {

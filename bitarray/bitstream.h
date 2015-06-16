@@ -84,14 +84,14 @@ public:
 	}
 
 	IWBitStream(const BitArray& b) {
-		init(b.data_ptr(), b.length(), 0);
+		init(b._data._data, b.length(), 0);
 	}
 
 	// important
 	void init(StaticMemRegionPtr _data, size_t blen, size_t start_idx = 0);
 
 	void init(const BitArray& b, size_t start_idx = 0) {
-		init(b.data_ptr(), b.length(), start_idx);
+		init(b._data._data, b.length(), start_idx);
 	}
 
 	void clear();

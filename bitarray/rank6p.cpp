@@ -138,7 +138,7 @@ uint64_t Rank6p::rank(const uint64_t p) const {
 
 	uint64_t val = (inv.word(blk) & 0x3FFFFFFFFFFFFULL) + subblkrank(blk, ((p >> 8) & 7ULL));
 	for (unsigned int i = 0; i < (unsigned int) (wpos & 3ULL); ++i)
-		val += popcnt(bits.word(i + (wpos & ~3ULL)));
+		val += bits.popcntw(i + (wpos & ~3ULL));
 	return val + word_rank(wpos, p & 63ULL);
 }
 
@@ -189,7 +189,7 @@ uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 	d = d - subblkrank(blk*2, j);
 	uint64_t widx = blk * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr = popcnt(bits.word(widx));
+		unsigned int wr = bits.popcntw(widx);
 		if (d < wr)
 			return blk * 2048 + 256* j + 64 * k + selectword(bits.word(widx), d);
 		else
@@ -236,7 +236,7 @@ uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 	d = d - subblkrank0(lo*2, j);
 	uint64_t widx = lo * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr =  popcnt(~bits.word(widx));
+		unsigned int wr = 64-bits.popcntw(widx);
 		if (d < wr)
 			return lo * 2048 + 256* j + 64 * k + selectword(~bits.word(widx), d);
 		else

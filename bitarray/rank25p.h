@@ -56,12 +56,12 @@ inline void Rank25pBuilder::build(const BitArray& b, Rank25p * o) {
 	uint64_t i = 0;
 	while (i < o->bits.word_count()) {
 		o->inv.setword(pos, cnt);
-		cnt += popcnt(o->bits.word(i));
+		cnt += o->bits.popcntw(i);
 		for(unsigned int j = 1;  j < 8; j++) {
 			uint64_t v = o->inv.word(pos + 1);
 			v |= (cnt - o->inv.word(pos)) << 9 * (j - 1);
 			o->inv.setword(pos + 1, v);
-			if (i + j < o->bits.word_count()) cnt += popcnt(o->bits.word(i + j));
+			if (i + j < o->bits.word_count()) cnt += o->bits.popcntw(i + j);
 		}
 		i += 8; pos += 2;
 	}

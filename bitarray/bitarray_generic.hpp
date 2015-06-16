@@ -185,21 +185,21 @@ inline uint8_t BitArrayGeneric<WordAccess>::byte(size_t pos) const {
 }
 
 template<typename WordAccess>
-void BitArrayGeneric<WordAccess>::fillzero() {
+inline void BitArrayGeneric<WordAccess>::fillzero() {
 	//std::fill(data, data + word_count(), 0ull);
 	size_t wc = word_count();
     for (size_t i = 0; i < wc; ++i) _data.setword(i, 0ull);
 }
 
 template<typename WordAccess>
-void BitArrayGeneric<WordAccess>::fillone() {
+inline void BitArrayGeneric<WordAccess>::fillone() {
 	//std::fill(data, data + word_count(), ~0ull);
 	size_t wc = word_count();
     for (size_t i = 0; i < wc; ++i) _data.setword(i, ~0ull);
 }
 
 template<typename WordAccess>
-uint64_t BitArrayGeneric<WordAccess>::count_one() const {
+inline uint64_t BitArrayGeneric<WordAccess>::count_one() const {
     if (_bitlen == 0) return 0;
 	uint64_t ret = 0;
     const uint64_t wc = _bitlen / WORDLEN;
@@ -211,7 +211,7 @@ uint64_t BitArrayGeneric<WordAccess>::count_one() const {
 }
 
 template<typename WordAccess>
-int64_t BitArrayGeneric<WordAccess>::scan_bits(uint64_t start, uint32_t res) const {
+inline int64_t BitArrayGeneric<WordAccess>::scan_bits(uint64_t start, uint32_t res) const {
 	assert(start < length());
 	uint64_t wpos = start >> 6;
 	if ((start & 63) != 0) {
@@ -234,7 +234,7 @@ int64_t BitArrayGeneric<WordAccess>::scan_bits(uint64_t start, uint32_t res) con
 }
 
 template<typename WordAccess>
-int64_t BitArrayGeneric<WordAccess>::scan_next(uint64_t start) const {
+inline int64_t BitArrayGeneric<WordAccess>::scan_next(uint64_t start) const {
 	assert(start < length());
 	uint64_t wpos = start >> 6;
 	if ((start & 63) != 0) {
@@ -252,7 +252,7 @@ int64_t BitArrayGeneric<WordAccess>::scan_next(uint64_t start) const {
 }
 
 template<typename WordAccess>
-int64_t BitArrayGeneric<WordAccess>::scan_bits_slow(uint64_t start, uint32_t res) const {
+inline int64_t BitArrayGeneric<WordAccess>::scan_bits_slow(uint64_t start, uint32_t res) const {
 	for (size_t i = start; i < length(); i++) {
 		if (this->bit(i)) {
 			if (res == 0) return i - start;
@@ -263,7 +263,7 @@ int64_t BitArrayGeneric<WordAccess>::scan_bits_slow(uint64_t start, uint32_t res
 }
 
 template<typename WordAccess>
-int64_t BitArrayGeneric<WordAccess>::scan_zeros(uint64_t start, uint32_t res) const {
+inline int64_t BitArrayGeneric<WordAccess>::scan_zeros(uint64_t start, uint32_t res) const {
 	uint64_t wpos = start >> 6;
 	if ((start & 63) != 0) {
 		uint64_t word = ~(this->word(wpos));
@@ -297,7 +297,7 @@ int64_t BitArrayGeneric<WordAccess>::scan_zeros(uint64_t start, uint32_t res) co
 }
 
 template<typename WordAccess>
-int64_t BitArrayGeneric<WordAccess>::scan_zeros_slow(uint64_t start, uint32_t res) const {
+inline int64_t BitArrayGeneric<WordAccess>::scan_zeros_slow(uint64_t start, uint32_t res) const {
 	for (size_t i = start; i < length(); i++) {
 		if (!this->bit(i)) {
 			if (res == 0) return i - start;
@@ -308,7 +308,7 @@ int64_t BitArrayGeneric<WordAccess>::scan_zeros_slow(uint64_t start, uint32_t re
 }
 
 template<typename WordAccess>
-InpArchive& BitArrayGeneric<WordAccess>::load_nocls(InpArchive& ar) {
+inline InpArchive& BitArrayGeneric<WordAccess>::load_nocls(InpArchive& ar) {
     ar.var("bit_len").load(_bitlen);
     if (_bitlen > 0) 
 		_data.load(ar.var("bits"));
@@ -316,7 +316,7 @@ InpArchive& BitArrayGeneric<WordAccess>::load_nocls(InpArchive& ar) {
 }
 
 template<typename WordAccess>
-InpArchive& BitArrayGeneric<WordAccess>::load(InpArchive& ar) {
+inline InpArchive& BitArrayGeneric<WordAccess>::load(InpArchive& ar) {
 	ar.loadclass("Bitvector");
 	load_nocls(ar);
 	ar.endclass();
@@ -324,7 +324,7 @@ InpArchive& BitArrayGeneric<WordAccess>::load(InpArchive& ar) {
 }
 
 template<typename WordAccess>
-OutArchive& BitArrayGeneric<WordAccess>::save_nocls(OutArchive& ar) const {
+inline OutArchive& BitArrayGeneric<WordAccess>::save_nocls(OutArchive& ar) const {
     ar.var("bit_len").save(_bitlen);
     if (_bitlen > 0)
 		_data.save(ar.var("bits"));		
@@ -332,7 +332,7 @@ OutArchive& BitArrayGeneric<WordAccess>::save_nocls(OutArchive& ar) const {
 }
 
 template<typename WordAccess>
-OutArchive& BitArrayGeneric<WordAccess>::save(OutArchive& ar) const {
+inline OutArchive& BitArrayGeneric<WordAccess>::save(OutArchive& ar) const {
 	ar.startclass("Bitvector", 1);
 	save_nocls(ar);
 	ar.endclass();
@@ -340,7 +340,7 @@ OutArchive& BitArrayGeneric<WordAccess>::save(OutArchive& ar) const {
 }
 
 template<typename WordAccess>
-std::string BitArrayGeneric<WordAccess>::to_str() const {
+inline std::string BitArrayGeneric<WordAccess>::to_str() const {
 	assert(length() < (1UL << 16));
 	std::string s;
     for (unsigned int i = 0; i < _bitlen; ++i)

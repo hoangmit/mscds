@@ -61,13 +61,13 @@ static std::vector<uint64_t> gen_rnd2(unsigned len, unsigned chance) {
 	return ret;
 }
 
-
+template<typename WordAccess>
 static void check(const std::vector<uint64_t>& vals) {
-	RRR_WordAccessBuilder bd;
+	typename WordAccess::BuilderTp bd;
 	for (unsigned i = 0; i < vals.size(); ++i) {
 		bd.add(vals[i]);
 	}
-	RRR_WordAccess qs;
+	WordAccess qs;
 	bd.build(&qs);
 	for (unsigned i = 0; i < vals.size(); ++i) {
 		unsigned v = qs.popcntw(i), exp = popcnt(vals[i]);
@@ -90,22 +90,41 @@ static void check(const std::vector<uint64_t>& vals) {
 }
 
 TEST(rrr_word, test1) {
-	check(gen1(2001, 5));
-	check(gen1(2001));
-	check(gen0(2001));
-	check(gen0(2001, 5));
+	check<RRR_WordAccess>(gen1(2001, 5));
+	check<RRR_WordAccess>(gen1(2001));
+	check<RRR_WordAccess>(gen0(2001));
+	check<RRR_WordAccess>(gen0(2001, 5));
 }
 
 TEST(rrr_word, test_rnd1) {
 	for (unsigned i = 0; i < 200; ++i) {
-		check(gen_rnd(2000 + rand() % 100));
-		check(gen_rnd2(2000 + rand() % 100, 50));
-		check(gen_rnd2(2000 + rand() % 100, 950));
+		check<RRR_WordAccess>(gen_rnd(2000 + rand() % 100));
+		check<RRR_WordAccess>(gen_rnd2(2000 + rand() % 100, 50));
+		check<RRR_WordAccess>(gen_rnd2(2000 + rand() % 100, 950));
 		if (i % 20 == 0) cout << '.';
 	}
 	cout << endl;
 }
 
+TEST(rrr_word, test2) {
+	check<AdaptiveWordAccesss>(gen1(2001, 5));
+	check<AdaptiveWordAccesss>(gen1(2001));
+	check<AdaptiveWordAccesss>(gen0(2001));
+	check<AdaptiveWordAccesss>(gen0(2001, 5));
+}
+
+TEST(rrr_word, test_rnd2) {
+	for (unsigned i = 0; i < 200; ++i) {
+		check<AdaptiveWordAccesss>(gen_rnd(2000 + rand() % 100));
+		check<AdaptiveWordAccesss>(gen_rnd2(2000 + rand() % 100, 50));
+		check<AdaptiveWordAccesss>(gen_rnd2(2000 + rand() % 100, 950));
+		if (i % 20 == 0) cout << '.';
+	}
+	cout << endl;
+}
+
+
+/*
 int main(int argc, char* argv[]) {
 	::testing::GTEST_FLAG(catch_exceptions) = "0";
 	::testing::GTEST_FLAG(break_on_failure) = "1";
@@ -113,4 +132,4 @@ int main(int argc, char* argv[]) {
 	int rs = RUN_ALL_TESTS();
 	return rs;
 	return 0;
-}
+}*/

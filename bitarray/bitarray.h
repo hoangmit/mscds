@@ -73,6 +73,10 @@ class BitArray: public BitArrayGeneric<MemRegionWordAccess> {
 public:
 	BitArray() {}
 	BitArray(size_t bitlen);
+	BitArray(const BitArray& other) = default;
+	BitArray& operator=(const BitArray& other) = default;
+	BitArray(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); }
+	BitArray& operator=(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
 };
 
 

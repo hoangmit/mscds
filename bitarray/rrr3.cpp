@@ -112,7 +112,94 @@ void RRR_WordAccess::save(OutArchive &ar) const {
 	ar.endclass();
 }
 
-size_t RRR_WordAccess::count() const { return bitcnt.length() / 6; }
+size_t RRR_WordAccess::word_count() const { return bitcnt.length() / 6; }
+
+void RRR_WordAccess::clear() {
+    opos.clear();
+    offset.clear();
+    bitcnt.clear();
+    pmark.clear();
+    overflow.clear();
+}
+
+AdaptiveWordAccesss::AdaptiveWordAccesss() { cache.clear(); }
+
+uint64_t AdaptiveWordAccesss::getword(size_t i) const {
+    if (mark.bit(i)) {
+        unsigned p = mark.rank(i);
+        return cache.get(p, [this, p](size_t i) {return this->rrr.getword(i); });
+    } else {
+        unsigned p = mark.rankzero(i);
+        return raw.word(p);
+    }
+}
+
+uint8_t AdaptiveWordAccesss::popcntw(size_t i) const {
+    if (mark.bit(i)) {
+        unsigned p = mark.rank(i);
+        return rrr.popcntw(p);
+    } else {
+        unsigned p = mark.rankzero(i);
+        return popcnt(raw.word(p));
+    }
+}
+
+void AdaptiveWordAccesss::load(InpArchive &ar) {
+    ar.loadclass("adaptive_rrr");
+    mark.load(ar.var("mark"));
+    raw.load(ar.var("raw"));
+    rrr.load(ar.var("rrr"));
+    ar.endclass();
+    cache.clear();
+}
+
+void AdaptiveWordAccesss::save(OutArchive &ar) const {
+    ar.startclass("adaptive_rrr");
+    mark.save(ar.var("mark"));
+    raw.save(ar.var("raw"));
+    rrr.save(ar.var("rrr"));
+    ar.endclass();
+}
+
+void AdaptiveWordAccesss::clear() {
+    mark.clear();
+    raw.clear();
+    rrr.clear();
+    cache.clear();
+}
+
+size_t AdaptiveWordAccesss::word_count() const {
+    return rrr.word_count() + raw.word_count();
+}
+
+void AdaptiveWordAccesssBuilder::add(uint64_t word) {
+    unsigned k = popcnt(word);
+    //break even at <24 and >40
+    if (k < 24 || k > 40) {
+        mark.put1();
+        rrr.add(word);
+    } else {
+        mark.put0();
+        raw.puts(word);
+    }
+}
+
+void AdaptiveWordAccesssBuilder::build(AdaptiveWordAccesss *out) {
+    BitArray _mark;
+    mark.build(&_mark);
+    Rank25pBuilder::build(_mark, &out->mark);
+    raw.build(&out->raw);
+    rrr.build(&out->rrr);
+}
+
+void AdaptiveWordAccesssBuilder::build_array(const BitArray &ba, AdaptiveWordAccesss *out) {
+    unsigned wc = ba.word_count();
+    AdaptiveWordAccesssBuilder bd;
+    for (unsigned i = 0; i < wc; ++i) {
+        bd.add(ba.word(i));
+    }
+    bd.build(out);
+}
 
 }//namespace
 

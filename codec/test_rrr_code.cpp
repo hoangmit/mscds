@@ -59,6 +59,7 @@ TEST(rrr_codec, test1) {
 TEST(rrr_codec, test2) {
 	for (unsigned int i = 0; i < 200000; ++i) {
 		test_rnd(rand() % 64 + 1);
+		test_rnd(rand() % 64 + 1, rand() % 1000 + 1);
 		if (i % 400 == 0) cout << '.';
 	}
 	std::cout << std::endl;

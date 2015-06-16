@@ -17,7 +17,7 @@ set(PYTHON_LIBRARY "/usr/lib64/libpython2.6.so")
 #-Options-----------------------------------------------------------------------------------------
 
 project(mscds)
-set(VERSION 0.1.1)
+set(VERSION 0.2.1)
 
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
@@ -185,7 +185,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/tree)
 add_subdirectory(${PROJECT_SOURCE_DIR}/string)
 
 
-set(CORE_LIBS utils mem bitarray codec intarray wavarray tree string fusionarray)
+set(CORE_LIBS utils mem codec bitarray intarray wavarray tree string fusionarray)
 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
    CACHE PATH "Single Directory for all Libraries")  

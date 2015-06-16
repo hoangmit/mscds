@@ -8,13 +8,13 @@ namespace coder{
 struct RRR_Codec {
 	typedef uint64_t CodeTp;
 	RRR_Codec();
-	CodeTp encode(uint8_t n, uint8_t k, CodeTp val);
-	CodeTp decode(uint8_t n, uint8_t k, CodeTp offset);
+	CodeTp encode(uint8_t n, uint8_t k, CodeTp val) const;
+	CodeTp decode(uint8_t n, uint8_t k, CodeTp offset) const;
 
-	uint8_t offset_len(uint8_t n, uint8_t k);
+	uint8_t offset_len(uint8_t n, uint8_t k) const;
 
-	uint8_t rank(uint8_t n, uint8_t k, CodeTp val);
-	uint8_t select(uint8_t n, uint8_t k, CodeTp val);
+	uint8_t rank(uint8_t n, uint8_t k, CodeTp val) const;
+	uint8_t select(uint8_t n, uint8_t k, CodeTp val) const;
 
 	static uint64_t nCk_val(unsigned n, unsigned k);
 	static void _init_tables();

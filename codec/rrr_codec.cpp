@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstring>
+
 namespace coder {
 
 static bool _table_ready = false;
@@ -10,7 +11,7 @@ uint8_t RRR_Codec::_code_len[65*64 + 1];
 
 RRR_Codec::RRR_Codec() { _init_tables(); }
 
-RRR_Codec::CodeTp RRR_Codec::encode(uint8_t n, uint8_t k, RRR_Codec::CodeTp val) {
+RRR_Codec::CodeTp RRR_Codec::encode(uint8_t n, uint8_t k, RRR_Codec::CodeTp val) const {
 	CodeTp r = 0;
 	if (k == 0 || n == k) return 0;
 	for (int j = 0; k > 0; ++j) {
@@ -25,7 +26,7 @@ RRR_Codec::CodeTp RRR_Codec::encode(uint8_t n, uint8_t k, RRR_Codec::CodeTp val)
 	return r;
 }
 
-RRR_Codec::CodeTp RRR_Codec::decode(uint8_t n, uint8_t k, RRR_Codec::CodeTp offset) {
+RRR_Codec::CodeTp RRR_Codec::decode(uint8_t n, uint8_t k, RRR_Codec::CodeTp offset) const {
 	if (k == 0) return 0;
 	CodeTp mask = (~0ull) >> (64-n);
 	if (k == n) return mask;
@@ -48,7 +49,7 @@ RRR_Codec::CodeTp RRR_Codec::decode(uint8_t n, uint8_t k, RRR_Codec::CodeTp offs
 	return word;
 }
 
-uint8_t RRR_Codec::offset_len(uint8_t n, uint8_t k) {
+uint8_t RRR_Codec::offset_len(uint8_t n, uint8_t k) const {
 	return _code_len[n*64+k];
 }
 

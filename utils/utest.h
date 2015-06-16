@@ -14,6 +14,8 @@ Unit testing wrapper (avoid missing of gtest library).
 #include <type_traits>
 #include <stdexcept>
 
+#if defined(_USE_OWN_TEST_LIB_)
+
 // http://stackoverflow.com/questions/5252375/custom-c-assert-macro
 // http://stackoverflow.com/questions/37473/how-can-i-assert-without-using-abort
 // http://en.wikipedia.org/wiki/Assert.h
@@ -84,8 +86,6 @@ inline void _abort() {
 //#define ASSERT_EQ(exp,val) ASSERT((exp)==(val))
 #define _ASSERT_EQ_(exp,val) _has_insertion_operator_impl_::_assert_cmp(exp, val, #exp, #val, __FILE__, __LINE__, __FUNCTION__)
 
-
-#if defined(_USE_OWN_TEST_LIB_)
 
 #ifndef ASSERT
 

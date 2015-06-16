@@ -149,8 +149,9 @@ inline uint64_t BitArrayGeneric<WordAccess>::bits(size_t bitindex, unsigned int 
 
 template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::setbits(size_t bitindex, uint64_t value, unsigned int len) {
-	assert(len <= WORDLEN && len > 0);
+	assert(len <= WORDLEN);
     assert(bitindex + len <= _bitlen);
+	if (len == 0) return ;
 	uint64_t i = bitindex / WORDLEN;
 	unsigned int j = bitindex % WORDLEN;
 	//uint64_t mask = (len < WORDLEN) ? ((1ull << len) - 1) : ~0ull; // & (~0ull >> (WORDLEN - len))
@@ -180,8 +181,9 @@ inline void BitArrayGeneric<WordAccess>::setbit(size_t bitindex, bool value) {
 template<typename WordAccess>
 inline uint8_t BitArrayGeneric<WordAccess>::byte(size_t pos) const {
     assert(pos * 8 < length());
-	uint64_t _word = this->word(pos / 8);
-	return (uint8_t)((_word >> (8*(pos % 8))) & 0xFF);
+	/*uint64_t _word = this->word(pos / 8);
+	return (uint8_t)((_word >> (8*(pos % 8))) & 0xFF);*/
+	return _data.getchar(pos);
 }
 
 template<typename WordAccess>
@@ -268,7 +270,7 @@ inline int64_t BitArrayGeneric<WordAccess>::scan_zeros(uint64_t start, uint32_t 
 	if ((start & 63) != 0) {
 		uint64_t word = ~(this->word(wpos));
 		if (wpos + 1 == word_count() && length() % WORDLEN != 0)
-			word &= (1ull << (length() % 64)) - 1;
+			word &= (1ull << (length() % WORDLEN)) - 1;
 		word >>= (start & 63);
 		uint32_t bitcnt = popcnt(word);
 		if (bitcnt > res) return selectword(word, res);
@@ -285,13 +287,11 @@ inline int64_t BitArrayGeneric<WordAccess>::scan_zeros(uint64_t start, uint32_t 
 		++wpos;
 	}
 	if (wpos + 1 == this->word_count()) {
-		uint32_t bitcnt = WORDLEN - popcntw(wpos);
-		if (bitcnt > res) {
-			uint64_t word = ~(this->word(wpos));
-			if (length() % WORDLEN != 0)
-				word &= (1ull << (length() % 64)) - 1;
-			return (wpos << 6) - start + selectword(word, res);
-		}
+		uint64_t word = ~(this->word(wpos));
+		if (length() % 64 != 0)
+			word &= (1ull << (length() % 64)) - 1;
+		uint32_t bitcnt = popcnt(word);
+		if (bitcnt > res) return (wpos << 6) - start + selectword(word, res);
 	}
 	return -1;
 }

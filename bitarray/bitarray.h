@@ -59,7 +59,13 @@ struct MemRegionWordAccess {
 
 	uint64_t getword(size_t i) const { return _data.getword(i); }
 	void setword(size_t i, uint64_t v) { _data.setword(i, v); }
-	uint8_t popcntw(size_t i) { return popcnt(getword(i)); }
+	uint8_t getchar(size_t i) const {
+		/*uint64_t _word = this->getword(i / 8);
+		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);*/
+		return _data.getchar(i);
+	}
+
+	uint8_t popcntw(size_t i) const { return popcnt(getword(i)); }
 	StaticMemRegionPtr _data;
 };
 
@@ -71,19 +77,13 @@ public:
 
 
 //------------------------------------------------------------------------
+class FixedWArrayBuilder;
+
 class FixedWArray {
-private:
-	BitArray b;
-	unsigned int width;
 public:
 	FixedWArray(): width(0) {}
 	FixedWArray(const FixedWArray& other): b(other.b), width(other.width) {}
 	FixedWArray(const BitArray& bits, unsigned int width_): b(bits), width(width_) {}
-	static FixedWArray create(size_t len, unsigned int width) {
-		 return FixedWArray(BitArrayBuilder::create(len*width), width);
-	}
-
-	static FixedWArray build(const std::vector<unsigned int>& values);
 
 	uint64_t operator[](size_t i) const { return b.bits(i*width, width); }
 	void set(size_t i, uint64_t v) { b.setbits(i*width, v, width); }
@@ -96,12 +96,55 @@ public:
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
 	std::string to_str() const;
+private:
+	friend class FixedWArrayBuilder;
+	BitArray b;
+	unsigned int width;
+};
+
+class FixedWArrayBuilder {
+public:
+	template<typename Itr>
+	static void build_s(Itr bg, Itr ed, FixedWArray* out) {
+		unsigned width = 0;
+		uint64_t len = 0;
+		for (Itr it = bg; it != ed; ++it) {
+			uint64_t v = *it;
+			unsigned l = val_bit_len(v);
+			if (width < l) width = l;
+			++len;
+		}
+		out->b = BitArrayBuilder::create(len*width);
+		out->width = width;
+		uint64_t i = 0;
+		uint64_t mask = (~0ull) >> (64-width);
+		for (Itr it = bg; it != ed; ++it) {
+			out->set(i, (*it) & mask);
+			++i;
+		}
+	}
+	void build_s(const std::vector<unsigned int>& values, FixedWArray* out);
+
+	static FixedWArray create(size_t len, unsigned int width) {
+		return FixedWArray(BitArrayBuilder::create(len*width), width);
+	}
+
+	void add(uint64_t v) { vals.push_back(v);}
+	void build(FixedWArray* out) {
+		build_s(vals.begin(), vals.end(), out);
+		vals.clear();
+	}
+	void clear() {
+		vals.clear();
+	}
+private:
+	std::vector<uint64_t> vals;
 };
 
 
 template<typename Iterator>
 FixedWArray bsearch_hints(Iterator start, size_t arrlen, size_t rangelen, unsigned int lrate) {
-	FixedWArray hints = FixedWArray::create((rangelen >> lrate) + 2, ceillog2(arrlen + 1));
+	FixedWArray hints = FixedWArrayBuilder::create((rangelen >> lrate) + 2, ceillog2(arrlen + 1));
 	uint64_t i = 0, j = 0, p = 0;
 	do {
 		hints.set(i, p);

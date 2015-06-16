@@ -46,9 +46,9 @@ add_test_files(test_compression_framework.cpp test_rrr_code.cpp test_arithmetic_
 
 
 
-#add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils bitarray codec)
+#add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils codec)
 #add_library(codec_stream codec_adapter.h)
 #target_link_libraries(codec_stream codec bitarray)
 
 
-#add_test_exec(t_rrr_code FILES test_rrr_code.cpp LIBS utils bitarray codec)
+#add_test_exec(t_rrr_code FILES test_rrr_code.cpp LIBS utils codec)

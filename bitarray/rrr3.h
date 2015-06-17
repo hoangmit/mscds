@@ -12,6 +12,11 @@ class RRR_WordAccessBuilder;
 class RRR_WordAccess {
 public:
     uint64_t getword(size_t i) const;
+	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
+	uint8_t getchar(size_t i) const {
+		uint64_t _word = this->getword(i / 8);
+		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
+	}
     uint8_t popcntw(size_t i) const;
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
@@ -88,6 +93,11 @@ class AdaptiveWordAccesss {
 public:
     AdaptiveWordAccesss();
     uint64_t getword(size_t i) const;
+	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
+	uint8_t getchar(size_t i) const {
+		uint64_t _word = this->getword(i / 8);
+		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
+	}
 
     uint8_t popcntw(size_t i) const;
 
@@ -116,5 +126,7 @@ private:
 	OBitStream mark, raw;
 	RRR_WordAccessBuilder rrr;
 };
+
+typedef BitArrayGeneric<AdaptiveWordAccesss> RRR_BitArray;
 
 }//namespace

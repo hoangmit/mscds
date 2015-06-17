@@ -107,5 +107,33 @@ BitArray mscds::BitArrayBuilder::adopt(size_t bitlen, StaticMemRegionPtr p) {
     return v;
 }
 
+mscds::InpArchive &mscds::BitArray::load_nocls(mscds::InpArchive &ar) {
+    ar.var("bit_len").load(_bitlen);
+    if (_bitlen > 0)
+        _data.load(ar.var("bits"));
+    return ar;
+}
+
+InpArchive &BitArray::load(InpArchive &ar) {
+    ar.loadclass("Bitvector");
+    load_nocls(ar);
+    ar.endclass();
+    return ar;
+}
+
+OutArchive &BitArray::save_nocls(OutArchive &ar) const {
+    ar.var("bit_len").save(_bitlen);
+    if (_bitlen > 0)
+        _data.save(ar.var("bits"));
+    return ar;
+}
+
+OutArchive &BitArray::save(OutArchive &ar) const {
+    ar.startclass("Bitvector", 1);
+    save_nocls(ar);
+    ar.endclass();
+    return ar;
+}
+
 
 }//namespace

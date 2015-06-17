@@ -43,7 +43,7 @@ public:
 	static BitArray adopt(size_t bitlen, StaticMemRegionPtr p);
 };
 
-struct MemRegionWordAccess {
+struct MemRegionWordAccess: public WordAccessInterface {
 	MemRegionWordAccess() = default;
 	MemRegionWordAccess(const MemRegionWordAccess& other) = default;
 	MemRegionWordAccess(MemRegionWordAccess&& other): _data(std::move(other._data)) {};
@@ -77,6 +77,14 @@ public:
 	BitArray& operator=(const BitArray& other) = default;
 	BitArray(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); }
 	BitArray& operator=(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
+
+	/** load the BitArray from InpArchive */
+    InpArchive& load(InpArchive& ar);
+    InpArchive& load_nocls(InpArchive& ar);
+
+    /** save the BitArray to OutArchive */
+    OutArchive& save(OutArchive& ar) const;
+    OutArchive& save_nocls(OutArchive& ar) const;
 };
 
 

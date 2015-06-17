@@ -1,5 +1,5 @@
 #include "select_dense.h"
-#include "bitstream.h"
+#include "select_dense_block.h"
 
 #include "utils/utest.h"
 
@@ -23,7 +23,7 @@ void test_bit(double density) {
 	const unsigned bxl = 800;
 	auto v = generate_list(1.0 / density * bxl, density);
 	if (v.size() > 512) v.resize(512);
-	Block bx;
+	DenseSelectBlock bx;
 	bx.h.v1 = 0;
 	OBitStream out;
 	bx.build(v, out, 0, 0);
@@ -39,7 +39,7 @@ void test_store_case(unsigned int casex) {
 		vals[i] = rand() % 2048;
 	}
 
-	Block bx;
+	DenseSelectBlock bx;
 	bx.h.v1 = 0;
 	OBitStream out;
 	bx._write_case(casex, 11, vals, out, 0);

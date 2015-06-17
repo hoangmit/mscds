@@ -25,7 +25,7 @@ class RRR2Builder;
 class RRR2HintSel;
 
 /// RRR2 data structure
-class RRR2 : public RankSelect {
+class RRR2: public RankSelectInterface {
 public:
 	RRR2();
 	uint64_t rank(uint64_t p) const;

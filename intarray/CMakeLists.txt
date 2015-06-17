@@ -7,6 +7,7 @@ gamma_arr.cpp
 remap_dt.cpp
 sdarray_th.cpp
 sdarray_blk.cpp
+sdarray_c.cpp
 vlen_array.cpp
 )
 
@@ -18,8 +19,9 @@ transform_utils.hpp
 contextfree_models.hpp
 sdarray_th.h
 sdarray_zero.h
-runlen.h
 sdarray_blk.h
+sdarray_c.h
+runlen.h
 vlen_array.h
 )
 

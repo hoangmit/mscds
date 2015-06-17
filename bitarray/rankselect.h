@@ -14,7 +14,7 @@ Common interface of rank/select data structures
 namespace mscds {
 
 /// Rank/Select data structure interface
-class RankSelect {
+class RankSelectInterface {
 public:
 	/// returns the number of 1-bits in [0..p) (from 0, until p, p is excluded)
 	virtual uint64_t rank(uint64_t p) const = 0;

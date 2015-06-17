@@ -24,11 +24,7 @@ class Rank3pBuilder;
 class Rank3pHintSel;
 
 /// Rank Auxiliary data structure that uses additional 3% of the the original input
-class Rank3p : public RankSelect {
-private:
-	BitArray bits;
-    BitArray l0, l1_l2, sampling;
-	uint64_t onecnt;
+class Rank3p: public RankSelectInterface {
 public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t rankzero(uint64_t p) const;
@@ -49,6 +45,10 @@ public:
 	void save(OutArchive& ar) const;
 	const BitArray& getBitArray() const { return bits; }
 	typedef Rank3pBuilder BuilderTp;
+private:
+	BitArray bits;
+	BitArray l0, l1_l2, sampling;
+	uint64_t onecnt;
 private:
     uint64_t l0rank(uint64_t blk) const;
     uint64_t l1rank(uint64_t blk) const;

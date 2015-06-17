@@ -19,7 +19,7 @@ namespace mscds {
 class Rank25pBuilder;
 
 /// Rank Auxiliary data structure that uses additional 25% of the the original input
-class Rank25p : public RankSelect {
+class Rank25p: public RankSelectInterface {
 	BitArray inv, bits;
 	uint64_t onecnt;
 public:

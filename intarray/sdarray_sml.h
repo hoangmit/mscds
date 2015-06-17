@@ -168,7 +168,7 @@ private:
 
 
 /// Rank Select interface of SDArraySml
-class SDRankSelectSml: public RankSelect {
+class SDRankSelectSml: public RankSelectInterface {
 public:
 	SDRankSelectSml() {}
 	~SDRankSelectSml() { clear(); }

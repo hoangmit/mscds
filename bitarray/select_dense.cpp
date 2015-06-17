@@ -1,15 +1,18 @@
 
 #include "select_dense.h"
+#include "select_dense_block.h"
+
 #include <algorithm>
 
 namespace mscds {
 
-unsigned int Block::_numbit(unsigned int p) {
+
+unsigned int DenseSelectBlock::_numbit(unsigned int p) {
 	if (p == 0) return 0;
 	else return ceillog2(p + 1);
 }
 
-bool Block::_check_span(unsigned int span, const std::vector<unsigned int> &inp, const unsigned int max_diff) {
+bool DenseSelectBlock::_check_span(unsigned int span, const std::vector<unsigned int> &inp, const unsigned int max_diff) {
 	assert(span > 0);
 	if (span > 1)
 		for (unsigned int i = 0; i < BLK_COUNT; i += span) {
@@ -19,7 +22,7 @@ bool Block::_check_span(unsigned int span, const std::vector<unsigned int> &inp,
 	return true;
 }
 
-std::vector<unsigned int> Block::_make_span(unsigned int span, const std::vector<unsigned int> &inp, unsigned int &width) {
+std::vector<unsigned int> DenseSelectBlock::_make_span(unsigned int span, const std::vector<unsigned int> &inp, unsigned int &width) {
 	std::vector<unsigned int> ret((BLK_COUNT + span - 1)/span);
 	width = 0;
 	unsigned p = 0;
@@ -30,7 +33,7 @@ std::vector<unsigned int> Block::_make_span(unsigned int span, const std::vector
 	return ret;
 }
 
-void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, uint64_t start_val, unsigned int start_flow) {
+void DenseSelectBlock::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, uint64_t start_val, unsigned int start_flow) {
 	assert(_inp.size() <= BLK_COUNT);
 	assert(std::is_sorted(_inp.begin(), _inp.end()));
 	std::vector<unsigned int> inp = _inp;
@@ -70,19 +73,19 @@ void Block::build(const std::vector<unsigned int> &_inp, OBitStream &overflow, u
 	_write_case(z, w, vals, overflow, start_flow);
 }
 
-unsigned int Block::get_span() const {
+unsigned int DenseSelectBlock::get_span() const {
 	unsigned int casex = (h.v1 >> (8*7)) & 7;
 	if (casex == 0) return 74;
 	else return 512 >> (casex + 2);
 }
 
-unsigned int Block::get_sublen() const {
+unsigned int DenseSelectBlock::get_sublen() const {
 	unsigned int casex = (h.v1 >> (8*7)) & 7;
 	if (casex == 0) return 7;
 	else return (1u << (casex + 2));
 }
 
-void Block::_write_case(unsigned int z, unsigned int w, const std::vector<unsigned int> &vals,
+void DenseSelectBlock::_write_case(unsigned int z, unsigned int w, const std::vector<unsigned int> &vals,
 							   mscds::OBitStream &overflow, unsigned int start_flow) {
 	unsigned int exp = z == 0 ? 7 : (1u<< (z+2));
 	assert(exp == vals.size());
@@ -113,11 +116,11 @@ void Block::_write_case(unsigned int z, unsigned int w, const std::vector<unsign
 	}
 }
 
-uint64_t Block::blk_ptr() const {
+uint64_t DenseSelectBlock::blk_ptr() const {
 	return h.v1 & MASK_1;
 }
 
-unsigned int Block::_get_case0(unsigned int pos) const {
+unsigned int DenseSelectBlock::_get_case0(unsigned int pos) const {
 	assert(pos < 7);
 	if (pos == 0) return 0;
 	pos -= 1;
@@ -130,7 +133,7 @@ unsigned int Block::_get_case0(unsigned int pos) const {
 	}
 }
 
-unsigned int Block::get_casex(unsigned int pos, const BitArray &v, unsigned int start) const {
+unsigned int DenseSelectBlock::get_casex(unsigned int pos, const BitArray &v, unsigned int start) const {
 	unsigned int casex = (h.v1 >> (8*7)) & 7;
 	if (casex == 0) return _get_case0(pos);
 	uint64_t ptr = start + (h.v2  & 0x00FFFFFFFFFFFFFFull);
@@ -145,16 +148,16 @@ unsigned int Block::get_casex(unsigned int pos, const BitArray &v, unsigned int 
 template<typename F>
 size_t __SelectDenseBuilder_build(const BitArray &b, SelectDenseAux *o, F f,
 		OBitStream& header, OBitStream& overflow) {
-	std::vector<unsigned int> v(Block::BLK_COUNT);
+    std::vector<unsigned int> v(DenseSelectBlock::BLK_COUNT);
 	unsigned p = 0;
 	size_t cnt = 0;
-	Block bx;
+    DenseSelectBlock bx;
 	for (unsigned int i = 0; i < b.length(); ++i) {
 		if (f(b[i])) {
 			v[p++] = i;
 			cnt++;
 		}
-		if (p == Block::BLK_COUNT) {
+        if (p == DenseSelectBlock::BLK_COUNT) {
 			bx.build(v, overflow, 0, 0);
 			header.puts(bx.h.v1);
 			header.puts(bx.h.v2);
@@ -205,9 +208,9 @@ void SelectDenseBuilder::build0(const BitArray &b, Select0Dense *o) {
 
 std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
 	assert(r < this->cnt);
-	uint64_t blk = r / Block::BLK_COUNT;
-	uint64_t p = r % Block::BLK_COUNT;
-	Block bx;
+    uint64_t blk = r / DenseSelectBlock::BLK_COUNT;
+    uint64_t p = r % DenseSelectBlock::BLK_COUNT;
+    DenseSelectBlock bx;
 	bx.h.v1 = ptrs.word(blk*2);
 	bx.h.v2 = ptrs.word(blk*2 + 1);
 	uint64_t sloc = bx.blk_ptr();

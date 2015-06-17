@@ -9,7 +9,7 @@
 namespace mscds {
 class RRR_WordAccessBuilder;
 
-class RRR_WordAccess {
+class RRR_WordAccess: public WordAccessInterface {
 public:
     uint64_t getword(size_t i) const;
 	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
@@ -89,7 +89,7 @@ private:
 
 class AdaptiveWordAccesssBuilder;
 
-class AdaptiveWordAccesss {
+class AdaptiveWordAccesss: public WordAccessInterface {
 public:
     AdaptiveWordAccesss();
     uint64_t getword(size_t i) const;

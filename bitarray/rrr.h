@@ -27,7 +27,7 @@ class RRRHintSel;
 
 
 /// RRR rank select data structure
-class RRR : public RankSelect {
+class RRR : public RankSelectInterface {
 private:
     BitArray E, R, S, sumR, posS;
 	uint64_t onecnt, len;

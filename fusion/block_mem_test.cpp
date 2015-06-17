@@ -46,8 +46,8 @@ void test_ptr() {
 	//BitArray ba(b1);
 	p1.reset();
 	p2.reset();
-	p1.loadBlock(b1, 0, b1.length());
-	p2.loadBlock(b2, 0, b2.length(), w2);
+	p1.loadBlock(&b1, 0, b1.length());
+	p2.loadBlock(&b2, 0, b2.length(), w2);
 
 	for (unsigned int i = 0; i <= n; ++i) {
 		unsigned v1 = p1.start(i);

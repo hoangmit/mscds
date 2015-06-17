@@ -80,19 +80,16 @@ public:
 	IWBitStream(){ clear(); }
 	IWBitStream(const OBitStream& os) {
 		LocalMemAllocator alloc;
-		init(alloc.convert(os.os), os.length(), 0);
+		_own_data = alloc.convert(os.os);
+		init(&_own_data, os.length(), 0);
 	}
 
 	IWBitStream(const BitArray& b) {
-		init(b._data._data, b.length(), 0);
+		init(&b, b.length(), 0);
 	}
 
 	// important
-	void init(StaticMemRegionPtr _data, size_t blen, size_t start_idx = 0);
-
-	void init(const BitArray& b, size_t start_idx = 0) {
-		init(b._data._data, b.length(), start_idx);
-	}
+	void init(const WordAccessInterface* _data, size_t blen, size_t start_idx = 0);
 
 	void clear();
 
@@ -122,7 +119,8 @@ private:
 	size_t _init_len;
 	uint16_t j;
 	size_t ptr;
-	StaticMemRegionPtr data;
+	const WordAccessInterface* data;
+	MemRegionWordAccess _own_data;
 };
 
 
@@ -253,12 +251,12 @@ inline bool OBitStream::getbit(uint64_t pos) const { return (os.getword(pos / WO
 //------------------------------------------------------------------------
 
 
-inline void IWBitStream::init(StaticMemRegionPtr _data, size_t blen, size_t start_idx) {
+inline void IWBitStream::init(const WordAccessInterface* _data, size_t blen, size_t start_idx) {
 	data = _data;
 	ptr = (start_idx / WORDLEN);
 	this->blen = blen - start_idx + (start_idx % WORDLEN);
 	if (blen > 0) {
-		cur = data.getword(ptr);
+		cur = data->word(ptr);
 		++ptr;
 	} else { cur = 0; }
 	nxt = 0;
@@ -273,7 +271,7 @@ inline void IWBitStream::clear() {
 	blen = 0;
 	ptr = 0;
 	//_extracted = 0;
-	data.close();
+	data = nullptr;
 }
 
 inline void IWBitStream::skipw(uint16_t len) {
@@ -288,7 +286,7 @@ inline void IWBitStream::skipw(uint16_t len) {
 	} else {
 		//fetch next word
 		if (blen > WORDLEN + j) {
-			nxt = data.getword(ptr);
+			nxt = data->word(ptr);
 			++ptr;
 		} else nxt = 0;
 		j = WORDLEN + j - len;
@@ -314,7 +312,7 @@ inline void IWBitStream::skipw_other(uint16_t len) {
 	if (len > j) {
 		cur |= nxt >> (len - j);
 		len -= j;
-		nxt = data.getword(ptr);
+		nxt = data->word(ptr);
 		++ptr;
 		j = WORDLEN;
 	}

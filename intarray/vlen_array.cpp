@@ -20,8 +20,7 @@ void VLenArray::load(InpArchive& ar) {
 	opcode.resize(ln);
 	BitArray a;
 	a.load(ar.var("opcode"));
-	IWBitStream inb;
-	inb.init(a);
+	IWBitStream inb(a);
 	for (unsigned int i = 0; i < opcode.size(); ++i)
 		opcode[i] = inb.get(32);
 	ar.endclass();

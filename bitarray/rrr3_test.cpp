@@ -78,10 +78,10 @@ static void check(const std::vector<uint64_t>& vals) {
 		ASSERT_EQ(exp, v);
 	}
 	for (unsigned i = 0; i < vals.size(); ++i) {
-		uint64_t v = qs.getword(i), exp = vals[i];
+		uint64_t v = qs.word(i), exp = vals[i];
 		if (v != exp) {
 			cout << "Wrong" << endl;
-			qs.getword(i);
+			qs.word(i);
 		}
 		ASSERT_EQ(exp, v);
 	}

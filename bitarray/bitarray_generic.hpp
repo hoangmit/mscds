@@ -6,12 +6,27 @@
 
 namespace mscds {
 
-struct BitArrayQueryInterface {
-	~BitArrayQueryInterface() {}
+struct WordAccessInterface {
+	~WordAccessInterface() {}
+	virtual uint64_t word(size_t i) const = 0;
+
+	virtual void setword(size_t i, uint64_t v) = 0;
+
+	virtual uint8_t byte(size_t i) const {
+		uint64_t _word = this->word(i / 8);
+		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
+	}
+	virtual uint8_t popcntw(size_t i) const { return popcnt(word(i)); }
+};
+
+struct BitArrayInterface: public WordAccessInterface {
+	~BitArrayInterface() {}
 	/** returns the length of the array */
 	virtual size_t length() const = 0;
 	/** returns the number of words */
 	virtual size_t word_count() const = 0;
+	/** counts how many one inside the array */
+	virtual uint64_t count_one() const = 0;
 
 	/** read one bit */
 	virtual bool bit(size_t bitindex) const = 0;
@@ -31,20 +46,10 @@ struct BitArrayQueryInterface {
 	virtual int64_t scan_zeros(uint64_t start, uint32_t res) const = 0;
 };
 
-struct WordAccessInterface {
-	~WordAccessInterface() {}
-	virtual uint64_t getword(size_t i) const = 0;
-	virtual void setword(size_t i, uint64_t v) = 0;
-	virtual uint8_t getchar(size_t i) const {
-		uint64_t _word = this->getword(i / 8);
-		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
-	}
-	virtual uint8_t popcntw(size_t i) const { return popcnt(getword(i)); }
-};
-
 /// BitArray
 template<typename WordAccess>
-struct BitArrayGeneric: public BitArrayQueryInterface {
+class BitArrayGeneric: public BitArrayInterface {
+public:
 	const static unsigned int WORDLEN = 64;
 
 	/** sets one bit at "bitindex" with "value" */
@@ -119,7 +124,7 @@ struct BitArrayGeneric: public BitArrayQueryInterface {
 		/* return (a != 0 ? ((a - 1) / b) + 1 : 0); // overflow free version */
 		return (a + b - 1) / b;
 	}
-//private:
+protected:
     size_t _bitlen;
     WordAccess _data;
 };
@@ -130,14 +135,14 @@ template<typename WordAccess>
 inline BitArrayGeneric<WordAccess>::BitArrayGeneric(): _bitlen(0) {}
 
 template<typename WordAccess>
-inline void BitArrayGeneric<WordAccess>::clear() { _bitlen = 0; _data = StaticMemRegionPtr(); }
+inline void BitArrayGeneric<WordAccess>::clear() { _bitlen = 0; _data = WordAccess(); }
 
 template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::setword(size_t pos, uint64_t val) { assert(pos < word_count()); _data.setword(pos, val); }
 template<typename WordAccess>
-inline uint64_t BitArrayGeneric<WordAccess>::word(size_t pos) const { assert(pos < word_count()); return _data.getword(pos); }
+inline uint64_t BitArrayGeneric<WordAccess>::word(size_t pos) const { assert(pos < word_count()); return _data.word(pos); }
 template<typename WordAccess>
-inline uint8_t BitArrayGeneric<WordAccess>::popcntw(size_t pos) const { return popcnt(_data.getword(pos)); }
+inline uint8_t BitArrayGeneric<WordAccess>::popcntw(size_t pos) const { return _data.popcntw(pos); }
 template<typename WordAccess>
 inline uint32_t BitArrayGeneric<WordAccess>::get_uint32(size_t pos) const {
 	assert((pos+1)*32 <= length());
@@ -210,7 +215,7 @@ inline uint8_t BitArrayGeneric<WordAccess>::byte(size_t pos) const {
     assert(pos * 8 < length());
 	/*uint64_t _word = this->word(pos / 8);
 	return (uint8_t)((_word >> (8*(pos % 8))) & 0xFF);*/
-	return _data.getchar(pos);
+	return _data.byte(pos);
 }
 
 template<typename WordAccess>

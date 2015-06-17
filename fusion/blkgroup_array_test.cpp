@@ -48,7 +48,7 @@ void sdarray_block_test1() {
 	out.close();
 	out.build(&ba);
 	SDArrayBlock bdl;
-	bdl.loadBlock(ba, 0, 0);
+	bdl.loadBlock(&ba, 0, 0);
 
 	for (unsigned i = 0; i < n; ++i) {
 		auto l = r.lookup(i);

@@ -69,6 +69,7 @@ struct BitRange {
 	BitRange() : ba(nullptr), start(0), len(0) {}
 	BitRange(const BitRange& other) : ba(other.ba), start(other.start), len(other.len) {}
 	BitRange(BitArray* ba_, size_t start_, size_t len_) : ba(ba_), start(start_), len(len_) {}
+	BitRange(const BitArrayInterface* ba_, size_t start_, size_t len_): ba(ba_), start(start_), len(len_) {}
 
 	uint64_t bits(size_t start_, size_t len_) const {
 		assert(start + start_ + len_ <= start + len);
@@ -83,17 +84,17 @@ struct BitRange {
 		return bits(64*i, 64);
 	}
 
-	void setbits(size_t start_, uint64_t value, unsigned int len_) {
+	/*void setbits(size_t start_, uint64_t value, unsigned int len_) {
 		assert(start_ <= start && start_ + len_ <= start + len);
 		ba->setbits(start + start_, value, len_);
-	}
+	}*/
 
 	BitRange inc_front(unsigned int l) const {
 		assert(l <= len);
 		return BitRange(ba, start + l, len - l);
 	}
 
-	BitArray* ba;
+	const BitArrayInterface* ba;
 	size_t start, len;
 };
 

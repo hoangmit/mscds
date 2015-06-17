@@ -57,22 +57,23 @@ struct MemRegionWordAccess: public WordAccessInterface {
 	void load(InpArchive& ar) { _data = ar.load_mem_region(); }
 	void save(OutArchive& ar) const { ar.save_mem(_data); }
 
-	uint64_t getword(size_t i) const { return _data.getword(i); }
+	uint64_t word(size_t i) const { return _data.getword(i); }
 	void setword(size_t i, uint64_t v) { _data.setword(i, v); }
-	uint8_t getchar(size_t i) const {
+	uint8_t byte(size_t i) const {
 		/*uint64_t _word = this->getword(i / 8);
 		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);*/
 		return _data.getchar(i);
 	}
 
-	uint8_t popcntw(size_t i) const { return popcnt(getword(i)); }
+	uint8_t popcntw(size_t i) const { return popcnt(word(i)); }
 	StaticMemRegionPtr _data;
 };
 
 class BitArray: public BitArrayGeneric<MemRegionWordAccess> {
 public:
-	BitArray() {}
+	BitArray();
 	BitArray(size_t bitlen);
+    BitArray(const MemRegionWordAccess& mem, size_t bitlen);
 	BitArray(const BitArray& other) = default;
 	BitArray& operator=(const BitArray& other) = default;
 	BitArray(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); }
@@ -85,6 +86,9 @@ public:
     /** save the BitArray to OutArchive */
     OutArchive& save(OutArchive& ar) const;
     OutArchive& save_nocls(OutArchive& ar) const;
+
+	StaticMemRegionPtr data_ptr() const { return _data._data; }
+	friend class BitArrayBuilder;
 };
 
 

@@ -60,7 +60,7 @@ class SDArrayBlockG {
 public:
 	typedef uint64_t ValueType;
 	SDArrayBlockG(const G& getter_): getter(getter_), bits(NULL), lastblk(~0ull), select_hints(0), upper_pos(0) {}
-	void bind(BitArray* bits_) { bits = bits_; }
+	void bind(const BitArrayInterface* bits_) { bits = bits_; }
 	void loadBlock(unsigned int id);
 	ValueType prefixsum(unsigned int  p) const;
 	ValueType lookup(unsigned int p) const;
@@ -82,7 +82,7 @@ private:
 	const G& getter;
 	uint16_t width;
 	uint64_t select_hints;
-	mscds::BitArray* bits;
+	const mscds::BitArrayInterface* bits;
 	size_t upper_pos;
 	size_t lastblk;
 };

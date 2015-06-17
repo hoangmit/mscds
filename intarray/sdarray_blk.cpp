@@ -47,14 +47,14 @@ void SDArrayBlock::saveBlock(OBitStream *bits) {
 }
 
 void SDArrayBlock::loadBlock(const BitRange& br) {
-	loadBlock(*br.ba, br.start, br.len);
+	loadBlock(br.ba, br.start, br.len);
 }
 
-void SDArrayBlock::loadBlock(const BitArray &ba, size_t pt, size_t len) {
+void SDArrayBlock::loadBlock(const BitArrayInterface *ba, size_t pt, size_t len) {
 	if (pt != lastpt) {
 		this->bits = ba;
-		width = ba.bits(pt, 7);
-		select_hints = ba.bits(pt + 7, 64);
+		width = ba->bits(pt, 7);
+		select_hints = ba->bits(pt + 7, 64);
 		blkptr = pt + 7 + 64;
 		lastpt = pt;
 	}
@@ -62,7 +62,7 @@ void SDArrayBlock::loadBlock(const BitArray &ba, size_t pt, size_t len) {
 
 SDArrayBlock::ValueType SDArrayBlock::prefixsum(unsigned int p) const {
 	if (p == 0) return 0;
-	ValueType lo = (width > 0) ? bits.bits(blkptr + width * (p - 1), width) : 0;
+	ValueType lo = (width > 0) ? bits->bits(blkptr + width * (p - 1), width) : 0;
 	ValueType hi = select_hi(select_hints, blkptr + width*BLKSIZE, p - 1) + 1 - p;
 	return ((hi << width) | lo);
 }
@@ -71,13 +71,13 @@ SDArrayBlock::ValueType SDArrayBlock::lookup(unsigned int off) const {
 	uint64_t prev = 0;
 	int64_t prehi = 0;
 	if (off > 0) {
-		ValueType prelo = bits.bits(blkptr + width * (off - 1), width);
+		ValueType prelo = bits->bits(blkptr + width * (off - 1), width);
 		prehi = select_hi(select_hints, blkptr + width*BLKSIZE, off - 1) + 1 - off;
 		prev = ((prehi << width) | prelo);
 	}
-	ValueType lo = bits.bits(blkptr + width * off, width);
+	ValueType lo = bits->bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	ValueType hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
+	ValueType hi = prehi + bits->scan_next(blkptr + width*BLKSIZE + prehi + off);
 	ValueType cur = ((hi << width) | lo);
 	return cur - prev;
 	//return sum + prev;
@@ -87,13 +87,13 @@ SDArrayBlock::ValueType SDArrayBlock::lookup(unsigned int off, ValueType &prev_s
 	ValueType prev = 0;
 	ValueType prehi = 0;
 	if (off > 0) {
-		ValueType prelo = bits.bits(blkptr + width * (off - 1), width);
+		ValueType prelo = bits->bits(blkptr + width * (off - 1), width);
 		prehi = select_hi(select_hints, blkptr + width*BLKSIZE, off - 1) + 1 - off;
 		prev = ((prehi << width) | prelo);
 	}
-	ValueType lo = bits.bits(blkptr + width * off, width);
+	ValueType lo = bits->bits(blkptr + width * off, width);
 	//uint64_t hi = prehi + scan_hi_bits(blkptr + width*BLKSIZE + prehi + off, 0);
-	ValueType hi = prehi + bits.scan_next(blkptr + width*BLKSIZE + prehi + off);
+	ValueType hi = prehi + bits->scan_next(blkptr + width*BLKSIZE + prehi + off);
 	ValueType cur = ((hi << width) | lo);
 	prev_sum = prev;
 	return cur - prev;
@@ -109,8 +109,8 @@ unsigned int SDArrayBlock::rank(ValueType val) const {
 		rank = hipos - vhi;
 	}
 	ValueType curlo = 0;
-	while (rank < BLKSIZE && bits.bit(blkptr + width*BLKSIZE + hipos)) {
-		curlo = bits.bits(blkptr + width * rank, width);
+	while (rank < BLKSIZE && bits->bit(blkptr + width*BLKSIZE + hipos)) {
+		curlo = bits->bits(blkptr + width * rank, width);
 		if (curlo >= vlo)
 			return rank + 1;
 		++rank;
@@ -125,7 +125,7 @@ unsigned int SDArrayBlock::select_hi(uint64_t hints, uint64_t start, uint32_t of
 	if (res == SUBB_SIZE - 1)
 		return getBits(hints, subblkpos * 10, 10);
 	unsigned int gb = subblkpos > 0 ? getBits(hints, (subblkpos - 1) * 10, 10) + 1 : 0;
-	return bits.scan_bits(start + gb, res) + gb;
+	return bits->scan_bits(start + gb, res) + gb;
 }
 
 uint64_t SDArrayBlock::getBits(uint64_t x, uint64_t beg, uint64_t num) {
@@ -143,7 +143,7 @@ unsigned int SDArrayBlock::select_zerohi(uint64_t hints, uint64_t start, uint32_
 		sbpos = getBits(hints, (sblk - 1) * 10, 10) + 1;
 		res -= sbpos - sblk * SUBB_SIZE;
 	}
-	return sbpos + bits.scan_zeros(start + sbpos, res);
+	return sbpos + bits->scan_zeros(start + sbpos, res);
 }
 
 }//namespace

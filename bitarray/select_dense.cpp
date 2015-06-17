@@ -226,7 +226,7 @@ std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
 	//return sloc + stx + px;
 }
 
-void SelectDenseAux::load_aux(InpArchive &ar, BitArray &b) {
+void SelectDenseAux::load_aux(InpArchive &ar, const BitArray &b) {
 	ar.loadclass("select_dense_aux");
 	ar.var("cnt").load(cnt);
 	ar.var("bitlen").load(len);

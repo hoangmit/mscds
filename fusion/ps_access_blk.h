@@ -131,7 +131,7 @@ private:
 		auto cp = coder::DeltaCoder::decode2(v);
 		cp.first -= 1;
 		fv = cp.first;
-		blk.loadBlock(*br.ba, br.start + cp.second, br.len - cp.second);
+		blk.loadBlock(br.ba, br.start + cp.second, br.len - cp.second);
 		lastblk = blkid;
 	}
 

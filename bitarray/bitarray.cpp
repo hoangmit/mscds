@@ -73,7 +73,9 @@ void FixedWArrayBuilder::build_s(const std::vector<unsigned int> &values, FixedW
 		out->set(i, values[i]);
 }
 
-mscds::BitArray::BitArray(size_t bitlen) {
+BitArray::BitArray() {}
+
+BitArray::BitArray(size_t bitlen) {
     this->_bitlen = bitlen;
     size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
     LocalMemAllocator alloc;
@@ -81,7 +83,12 @@ mscds::BitArray::BitArray(size_t bitlen) {
     if (arrlen > 0) _data.setword(arrlen - 1, 0);
 }
 
-BitArray mscds::BitArrayBuilder::create(size_t bitlen) {
+BitArray::BitArray(const MemRegionWordAccess &mem, size_t bitlen) {
+    _data = mem;
+    _bitlen = bitlen;
+}
+
+BitArray BitArrayBuilder::create(size_t bitlen) {
     BitArray v;
     if (bitlen == 0) return v;
     assert(bitlen > 0);
@@ -93,21 +100,21 @@ BitArray mscds::BitArrayBuilder::create(size_t bitlen) {
     return v;
 }
 
-BitArray mscds::BitArrayBuilder::create(size_t bitlen, const char *ptr) {
+BitArray BitArrayBuilder::create(size_t bitlen, const char *ptr) {
     BitArray v = create(bitlen);
     size_t bytelen = (size_t)BitArray::ceildiv(bitlen, 8);
     v._data._data.write(0, bytelen, (const void*)ptr);
     return v;
 }
 
-BitArray mscds::BitArrayBuilder::adopt(size_t bitlen, StaticMemRegionPtr p) {
+BitArray BitArrayBuilder::adopt(size_t bitlen, StaticMemRegionPtr p) {
     BitArray v;
     v._data = p;
     v._bitlen = bitlen;
     return v;
 }
 
-mscds::InpArchive &mscds::BitArray::load_nocls(mscds::InpArchive &ar) {
+InpArchive &mscds::BitArray::load_nocls(mscds::InpArchive &ar) {
     ar.var("bit_len").load(_bitlen);
     if (_bitlen > 0)
         _data.load(ar.var("bits"));

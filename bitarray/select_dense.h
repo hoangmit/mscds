@@ -24,14 +24,18 @@ public:
 	static void build0(const BitArray& b, Select0Dense * o);
 };
 
+class SelectDense;
+
 /// Auxiliary data structure for select for dense input (100% to 25% 1-bit)
 class SelectDenseAux {
 public:
 	std::pair<uint64_t, uint32_t> pre_select(uint64_t r) const;
-	void load_aux(InpArchive& ar, BitArray& b);
+	void load_aux(InpArchive& ar, const BitArray& b);
 	void save_aux(OutArchive& ar) const;
 	void clear();
-
+protected:
+	friend class SelectDense;
+	friend class Select0Dense;
 	size_t cnt, len;
 private:
 	BitArray ptrs, overflow;
@@ -46,7 +50,7 @@ public:
 		auto p = aux.pre_select(r);
 		return p.first + bits.scan_bits(p.first, p.second);
 	}
-	const BitArray& getBitArray() const { return bits; }
+	//const BitArray& getBitArray() const { return bits; }
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
 public:

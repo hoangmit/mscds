@@ -8,7 +8,7 @@ namespace tests {
 using namespace mscds;
 using namespace std;
 
-std::vector<unsigned int> generate_list(unsigned int bvlen, double density) {
+static std::vector<unsigned int> generate_list(unsigned int bvlen, double density) {
 	assert(density <= 1.0 && density >= 0);
 	std::vector<unsigned int> ret;
 	for (unsigned int i = 0; i < bvlen; ++i)
@@ -19,7 +19,7 @@ std::vector<unsigned int> generate_list(unsigned int bvlen, double density) {
 }
 
 
-void test_bit(double density) {
+static void test_bit(double density) {
 	const unsigned bxl = 800;
 	auto v = generate_list(1.0 / density * bxl, density);
 	if (v.size() > 512) v.resize(512);
@@ -29,7 +29,7 @@ void test_bit(double density) {
 	bx.build(v, out, 0, 0);
 }
 
-void test_store_case(unsigned int casex) {
+static void test_store_case(unsigned int casex) {
 	unsigned int len;
 	if (casex == 0) len = 7;
 	else len = 1u << (casex + 2);
@@ -80,7 +80,7 @@ BitArray gen_bits(unsigned int len, double density) {
 	return b;
 }
 
-void test_gen(unsigned int len, double density) {
+static void test_gen(unsigned int len, double density) {
 	BitArray b = gen_bits(len, density);
 	unsigned cnt = 0;
 	for (unsigned int i = 0; i < b.length(); ++i)

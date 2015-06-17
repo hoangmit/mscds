@@ -18,18 +18,18 @@ struct MockBlk {
 	}
 
 	void loadBlock(const mscds::BitRange& br) {
-		loadBlock(*br.ba, br.start, br.len);
+		loadBlock(br.ba, br.start, br.len);
 	}
 
-	void loadBlock(const mscds::BitArray& ba, size_t pt, size_t len) {
+	void loadBlock(const mscds::BitArrayInterface* ba, size_t pt, size_t len) {
 		uint64_t x;
 		assert(64 + 16 <= len);
-		x = ba.bits(pt, 64);
+		x = ba->bits(pt, 64);
 		if (x != header) {
 			throw std::runtime_error("wrong load");
 		}
 
-		v = ba.bits(pt + 64, 16);
+		v = ba->bits(pt + 64, 16);
 	}
 };
 

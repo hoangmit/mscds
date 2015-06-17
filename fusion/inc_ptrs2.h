@@ -73,16 +73,16 @@ public:
 		start_.resize(1);
 	}
 
-	void loadBlock(BitArray& ba, size_t pt, size_t len, uint8_t w_out) {
+	void loadBlock(const BitArrayInterface * ba, size_t pt, size_t len, uint8_t w_out) {
 		this->w = w_out;
 		start_.resize(1);
 		start_[0] = 0;
-		uint64_t ec = ba.bits(pt, std::min<unsigned int>(len, 64));
+		uint64_t ec = ba->bits(pt, std::min<unsigned int>(len, 64));
 		auto p = coder::DeltaCoder::decode2(ec);
 		p.first -= 1;
 
 		this->mind = p.first;
-		this->ba = &ba;
+		this->ba = ba;
 		this->base_pt = p.second + pt;
 		valid = true;
 		assert(len >= p.second + w * count_);
@@ -111,7 +111,7 @@ private:
 	unsigned int count_;
 
 	unsigned int w, base_pt, mind;
-	BitArray * ba;
+	const BitArrayInterface * ba;
 };
 
 }//namespace

@@ -2,14 +2,15 @@
 
 #include "bitarray/rrr3.h"
 #include "bitarray/bitarray.h"
+#include "sdarray_blk.h"
 
 namespace mscds {
 
 class SDArrayCompress {
 public:
 private:
-	BitArray lower;
-	RRR_BitArray upper;
+	
+	RRR_BitArray bits;
 };
 
 }//namespace

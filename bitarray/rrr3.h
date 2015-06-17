@@ -11,10 +11,10 @@ class RRR_WordAccessBuilder;
 
 class RRR_WordAccess: public WordAccessInterface {
 public:
-    uint64_t getword(size_t i) const;
+    uint64_t word(size_t i) const;
 	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
 	uint8_t getchar(size_t i) const {
-		uint64_t _word = this->getword(i / 8);
+		uint64_t _word = this->word(i / 8);
 		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
 	}
     uint8_t popcntw(size_t i) const;
@@ -44,14 +44,14 @@ private:
 class WordCache {
 public:
 	WordCache() { clear(); }
-
+	static const unsigned CACHE_SIZE = 4;
 	void clear() {
-		for (unsigned i = 0; i < 4; ++i) cache[i].first = ~0ull;
+		for (unsigned i = 0; i < CACHE_SIZE; ++i) cache[i].first = ~0ull;
 	}
 
 	template<typename Func>
 	uint64_t get(size_t i, Func fx) const {
-		Entry & px = cache[i & 3];
+		Entry & px = cache[i % CACHE_SIZE];
 		if (px.first == i) {
 			return px.second;
 		} else {
@@ -62,7 +62,7 @@ public:
 		}
 	}
 	typedef std::pair<size_t, uint64_t> Entry;
-	mutable Entry cache[4];
+	mutable Entry cache[CACHE_SIZE];
 };
 
 class RRR_WordAccessBuilder {
@@ -92,10 +92,10 @@ class AdaptiveWordAccesssBuilder;
 class AdaptiveWordAccesss: public WordAccessInterface {
 public:
     AdaptiveWordAccesss();
-    uint64_t getword(size_t i) const;
+    uint64_t word(size_t i) const;
 	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
 	uint8_t getchar(size_t i) const {
-		uint64_t _word = this->getword(i / 8);
+		uint64_t _word = this->word(i / 8);
 		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
 	}
 

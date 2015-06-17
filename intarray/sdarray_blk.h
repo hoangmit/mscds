@@ -15,14 +15,14 @@ public:
 	void add(ValueType v);
 	void saveBlock(OBitStream* bits);
 	void loadBlock(const BitRange& br);
-	void loadBlock(const BitArray & ba, size_t pt, size_t len);
+	void loadBlock(const BitArrayInterface * ba, size_t pt, size_t len);
 
 	ValueType prefixsum(unsigned int  p) const;
 	ValueType lookup(unsigned int p) const;
 	ValueType lookup(unsigned int p, ValueType& prev_sum) const;
 	unsigned int rank(ValueType val) const;
 
-	void clear() { lastpt = ~0ULL; vals.clear(); bits.clear(); width = 0; select_hints = 0; blkptr = 0; }
+	void clear() { lastpt = ~0ULL; vals.clear(); bits = nullptr; width = 0; select_hints = 0; blkptr = 0; }
 	SDArrayBlock() { clear(); }
 	static const unsigned int BLKSIZE = 512;
 private:
@@ -41,7 +41,7 @@ private:
 	size_t lastpt;
 
 	size_t blkptr;
-	BitArray bits;
+	const BitArrayInterface * bits;
 	//template<typename>
 	friend class SDArrayFuse;
 };

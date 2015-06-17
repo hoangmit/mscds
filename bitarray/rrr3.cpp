@@ -65,7 +65,7 @@ void RRR_WordAccessBuilder::build_array(const BitArray &ba, RRR_WordAccess *out)
 //--------------------------------------------------------
 
 
-uint64_t RRR_WordAccess::getword(size_t i) const {
+uint64_t RRR_WordAccess::word(size_t i) const {
     uint8_t k = popcntw(i);
     unsigned len = codec.offset_len(64, k);
     uint64_t start = offset_loc(i);
@@ -124,10 +124,10 @@ void RRR_WordAccess::clear() {
 
 AdaptiveWordAccesss::AdaptiveWordAccesss() { cache.clear(); }
 
-uint64_t AdaptiveWordAccesss::getword(size_t i) const {
+uint64_t AdaptiveWordAccesss::word(size_t i) const {
     if (mark.bit(i)) {
         unsigned p = mark.rank(i);
-        return cache.get(p, [this, p](size_t i) {return this->rrr.getword(i); });
+        return cache.get(p, [this, p](size_t i) {return this->rrr.word(i); });
     } else {
         unsigned p = mark.rankzero(i);
         return raw.word(p);

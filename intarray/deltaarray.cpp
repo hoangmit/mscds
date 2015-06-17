@@ -44,7 +44,7 @@ namespace mscds {
 	void DeltaCodeArr::getEnum(uint64_t pos, Enum * e) const {
 		uint64_t p = ptr.prefixsum(pos / sample_rate + 1);
 		const unsigned int r = pos % sample_rate;
-		e->is.init(enc, p);
+		e->is.init_array(enc, p);
 		for (unsigned int i = 0; i < r; ++i)
 			e->next();
 	}

@@ -168,7 +168,7 @@ template<typename Model>
 void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
 	this->ptr = ptr;
 	IWBitStream is;
-	is.init(ptr->bits, ptr->blkptr(blk));
+	is.init_array(ptr->bits, ptr->blkptr(blk));
 	model.loadModel(is);
 	is.get(32); // unsigned int subsize =  // avoid unused variable warning
 	this->len = is.get(32);
@@ -178,7 +178,7 @@ void CodeModelBlk<Model>::mload(const PointerModel * ptr, unsigned int blk) {
 template<typename Model>
 void CodeModelBlk<Model>::set_stream(unsigned int i, IWBitStream& is) const {
 	assert(ptr->p0(i) == this->blk);
-	is.init(ptr->bits, ptr->subblkptr(blk, ptr->p1(i)));
+	is.init_array(ptr->bits, ptr->subblkptr(blk, ptr->p1(i)));
 	auto r = ptr->p3(i);
 
 	for (unsigned int j = 0; j < r; ++j)

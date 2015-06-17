@@ -87,6 +87,7 @@ TEST(RMQ, test2) {
 		test_rmq(rand_vec<uint64_t>(126 + rand() % 4));
 		test_rmq(rand_vec<uint64_t>(126 + rand() % 4, 100));
 	}
+	std::cout << std::endl;
 }
 
 void test_cmp(const vector<uint64_t>& x) {
@@ -125,7 +126,7 @@ TEST(RMQ, random_long) {
 		test_cmp(rand_vec<uint64_t>(rand() % 10 + 100, 20));
 		test_cmp(rand_vec<uint64_t>(rand() % 10 + 10000));
 	}
-
+	std::cout << std::endl;
 }
 
 }//namespace

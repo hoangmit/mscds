@@ -172,7 +172,7 @@ TEST(EncBStream, seek_decode1) {
 	os.build(&b);
 	IWBitStream is;
 	for (size_t i = 0; i < len; ++i) {
-		is.init(&b, stpos[i]);
+		is.init(b, stpos[i]);
 		CodePr c = dc.decode2(is.peek());
 		ASSERT_EQ(i + 1, c.first);
 	}

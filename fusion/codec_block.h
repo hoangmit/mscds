@@ -93,7 +93,7 @@ public:
 		auto br = mng->getData(did, blk);
 		unsigned int w = br.bits(0, 8);
 		unsigned int st = br.bits(8 + sblk * w, w);
-		e->is.init(br.ba, br.start + st);
+		e->is.init_range(br, st);
 
 		for (unsigned int i = 0; i < px; ++i)
 			e->next();
@@ -260,7 +260,7 @@ template<typename Model>
 void CodeInterBlkQuery<Model>::load_model() {
 	auto br = mng->getGlobal(sid);
 	IWBitStream is;
-	is.init(br.ba, br.start);
+	is.init_range(br, 0);
 	model.loadModel(is, true);
 	len = is.get();
 }
@@ -279,7 +279,7 @@ void CodeInterBlkQuery<Model>::Enum::move_blk(unsigned int blk) {
 	auto br = data->mng->getData(data->did, blk);
 	unsigned int w = br.bits(0, 8);
 	unsigned int st = br.bits(8, w);
-	is.init(br.ba, br.start + st);
+	is.init_range(br, st);
 }
 
 }//namespace

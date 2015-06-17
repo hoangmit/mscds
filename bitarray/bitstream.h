@@ -21,7 +21,7 @@ Implemented by Hoang
 #include "../framework/archive.h"
 #include "../mem/local_mem.h"
 #include "bitarray.h"
-
+#include "bitrange.h"
 
 namespace mscds {
 
@@ -81,15 +81,23 @@ public:
 	IWBitStream(OBitStream& os) {
 		LocalMemAllocator alloc;
 		_own_data = alloc.move(os.os);
-		init(&_own_data, os.length(), 0);
+		_init(&_own_data, os.length(), 0);
 	}
 
 	IWBitStream(const BitArray& b) {
-		init(&b, b.length(), 0);
+		_init(&b, b.length(), 0);
 	}
 
 	// important
-	void init(const WordAccessInterface* _data, size_t blen, size_t start_idx = 0);
+	void _init(const WordAccessInterface* _data, size_t blen, size_t start_idx = 0);
+
+	void init(const BitArray& b, size_t start_idx = 0) {
+		_init(&b, b.length(), start_idx);
+	}
+
+	void init_range(const BitRange& br, size_t start_idx = 0) {
+		_init(br.ba, br.start + br.len, br.start + start_idx);
+	}
 
 	void clear();
 
@@ -251,7 +259,7 @@ inline bool OBitStream::getbit(uint64_t pos) const { return (os.getword(pos / WO
 //------------------------------------------------------------------------
 
 
-inline void IWBitStream::init(const WordAccessInterface* _data, size_t blen, size_t start_idx) {
+inline void IWBitStream::_init(const WordAccessInterface* _data, size_t blen, size_t start_idx) {
 	data = _data;
 	ptr = (start_idx / WORDLEN);
 	this->blen = blen - start_idx + (start_idx % WORDLEN);

@@ -111,6 +111,7 @@ public:
 		sz = other.sz;
 		data.clear();
 		data.swap(other.data);
+		return *this;
 	}
 private:
 	size_t sz;

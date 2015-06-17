@@ -70,6 +70,12 @@ struct StaticMemRegionAbstract {
 	virtual bool is_thread_safe() const { return false; }
 	/// returns the original endinanness 
 	virtual EndiannessType endianness_type() const { return LITTLE_ENDIAN_ACCESS; } //only little-endian is supported at the moment
+
+	/// returns if this is the unique reference of the memory
+	virtual bool is_unique_ref() const { return false; }
+
+	/// returns if the memory is editable
+	virtual bool is_writable() const { return false; }
 	
 	/// gets the address the region in memory. 
 	/// This functions is only available in FULL_MAPPING and MAP_ON_REQUEST modes
@@ -167,6 +173,7 @@ public:
 	size_t size() const { return _impl->size(); }
 	void close() { if (_impl != nullptr) { _impl->close(); _impl = nullptr; } }
 
+	bool is_unique_ref() const { return _ref->is_unique_ref() && _ref.unique(); }
 
 	//small one time access
 	uint64_t getword(size_t wp) const { return _impl->getword(wp);}
@@ -206,6 +213,7 @@ public:
 
 	MemoryAlignmentType alignment() const { return _impl->alignment(); }
 	MemoryAccessType memory_type() const { return _impl->memory_type(); }
+	bool is_unique_ref() const { return _ref->is_unique_ref() && _ref.unique(); }
 	//direct access 
 	const void* get_addr() const { return _impl->get_addr(); }
 	bool request_map(size_t start, size_t len) { return _impl->request_map(start, len); }
@@ -238,8 +246,11 @@ public:
 	/// allocates a dynamic memory region
 	virtual DynamicMemRegionPtr allocDynMem(size_t init_sz = 0) = 0;
 
-	/// converts dynamic memory to static memory
-	virtual StaticMemRegionPtr convert(const DynamicMemRegionAbstract& mem) = 0;
+	/// copy dynamic memory to static memory
+	virtual StaticMemRegionPtr copy(const DynamicMemRegionAbstract& mem) = 0;
+
+	/// moves dynamic memory to static memory (clear the original)
+	virtual StaticMemRegionPtr move(DynamicMemRegionAbstract& mem) = 0;
 };
 
 //--------------------------------------------------------------------------------

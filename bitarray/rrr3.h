@@ -127,6 +127,20 @@ private:
 	RRR_WordAccessBuilder rrr;
 };
 
-typedef BitArrayGeneric<AdaptiveWordAccesss> RRR_BitArray;
+class RRR_BitArrayBuilder;
+
+struct RRR_BitArray: public BitArrayGeneric<AdaptiveWordAccesss> {
+	typedef RRR_BitArrayBuilder BuilderTp;
+	friend class RRR_BitArrayBuilder;
+};
+
+
+class RRR_BitArrayBuilder {
+public:
+	static void build_array(const BitArray& ba, RRR_BitArray* out) {
+		AdaptiveWordAccesssBuilder::build_array(ba, &(out->_data));
+	}
+private:
+};
 
 }//namespace

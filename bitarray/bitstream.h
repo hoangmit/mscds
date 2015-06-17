@@ -78,9 +78,9 @@ class IWBitStream {
 public:
 	const static uint16_t WORDLEN = 64;
 	IWBitStream(){ clear(); }
-	IWBitStream(const OBitStream& os) {
+	IWBitStream(OBitStream& os) {
 		LocalMemAllocator alloc;
-		_own_data = alloc.convert(os.os);
+		_own_data = alloc.move(os.os);
 		init(&_own_data, os.length(), 0);
 	}
 
@@ -227,13 +227,13 @@ inline bool OBitStream::is_accessiable() const { return (j == 0); }
 inline void OBitStream::build(BitArray* out) {
 	close();
 	LocalMemAllocator alloc;
-	*out = BitArrayBuilder::adopt(bitlen, alloc.convert(os));
+	*out = BitArrayBuilder::adopt(bitlen, alloc.move(os));
 }
 
 inline StaticMemRegionPtr OBitStream::build() {
 	close();
 	LocalMemAllocator alloc;
-	return alloc.convert(os);
+	return alloc.move(os);
 }
 
 inline void OBitStream::pushout() {

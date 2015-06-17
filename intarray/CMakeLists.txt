@@ -38,3 +38,4 @@ add_test_files(intarr_test.cpp)
 
 add_test_files(sda_th_test.cpp)
 
+add_test_exec(t_sda_c FILES sda_c_test.cpp LIBS mscdsa gtest)

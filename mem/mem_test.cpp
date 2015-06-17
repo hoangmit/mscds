@@ -95,16 +95,36 @@ TEST(farchive, file_map) {
 	fi.close();
 }
 
-TEST(local_mem, test1) {
+TEST(local_mem, test_copy) {
 	LocalMemAllocator alloc;
 	unsigned int sz = 100;
 	auto sm = alloc.allocDynMem(sz);
 	for (unsigned int i = 0; i < 100; ++i)
 		sm.setchar(i, rand() % 256);
 
-	auto dm = alloc.convert(sm);
+	auto dm = alloc.copy(sm);
 	for (unsigned int i = 0; i < 100; ++i)
 		ASSERT_EQ(dm.getchar(i), sm.getchar(i));
+}
+
+TEST(local_mem, test_move) {
+	LocalMemAllocator alloc;
+	std::vector<char> save;
+	unsigned int sz = 100;
+	auto sm = alloc.allocDynMem(sz);
+	for (unsigned int i = 0; i < sz; ++i) {
+		char ch = rand() % 256;
+		sm.setchar(i, ch);
+		save.push_back(ch);
+	}
+
+	auto dm = alloc.move(sm);
+	ASSERT_EQ(0, sm.size());
+	sm.append((char) 1);
+	ASSERT_EQ(1, sm.size());
+	ASSERT_EQ(sz, dm.size());
+	for (unsigned int i = 0; i < sz; ++i)
+		ASSERT_EQ(save[i], dm.getchar(i));
 }
 
 TEST(farchive2, normal_file) {
@@ -191,7 +211,7 @@ inline void SStringBuilder::add(const char *s, unsigned int len) {
 
 void SStringBuilder::build(SString *out) {
 	LocalMemAllocator a;
-	out->ptr = a.convert(data);
+	out->ptr = a.move(data);
 	out->init();
 	data.close();
 }

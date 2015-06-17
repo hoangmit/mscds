@@ -8,7 +8,7 @@ namespace tests {
 using namespace std;
 using namespace mscds;
 
-void test_cmp(const std::vector<unsigned int>& vals) {
+static void test_cmp(const std::vector<unsigned int>& vals) {
 	size_t len = vals.size();
 	SDArrayTHBuilder bd;
 	SDArrayTH arr;

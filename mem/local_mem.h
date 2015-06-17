@@ -19,11 +19,12 @@ class LocalMemModel;
 /// local static RAM memory region
 class LocalStaticMem : public StaticMemRegionAbstract {
 public:
-	LocalStaticMem() : len(0), ptr(nullptr) {}
+	LocalStaticMem(): len(0), ptr(nullptr) {}
 	static const uint8_t WORDSZ = 8;
 	bool has_direct_access() const { return true; }
 	//MemoryAlignmentType alignment() const { return alignment_tp; }
 	MemoryAlignmentType alignment() const { return A8; }
+	bool is_writable() const { return true; }
 
 	unsigned int model_id() const { return 1; }
 	MemoryAccessType memory_type() const { return FULL_MAPPING; }
@@ -39,10 +40,9 @@ public:
 	void setword(size_t wp, uint64_t val) { assert(wp < len / WORDSZ); *(((uint64_t*)ptr) + wp) = val; }
 	void setchar(size_t i, char c) { assert(i < len); ptr[i] = c; }
 	void write(size_t i, size_t wlen, const void* src) { assert(i + wlen <= len); memcpy(ptr + i, src, wlen); }
-	void close() {
-		len = 0;
-		ptr = nullptr;
-	}
+	bool is_unique_ref() const { return true; }
+	void close() { clear(); }
+	void clear() { len = 0; ptr = nullptr; _s.reset(); }
 	void scan(size_t i, size_t rlen, CallBackPlain cb) const { assert(i + rlen <= len); cb(ptr + i, rlen); }
 	void scan(size_t i, size_t rlen, CallBackContext cb, void* context) const { assert(i + rlen <= len); cb(context, ptr + i, rlen); }
 	~LocalStaticMem() { close(); }
@@ -78,6 +78,8 @@ public:
 	void close() { sz = 0; data.clear(); }
 
 	void clear() { sz = 0; data.clear(); }
+	bool is_unique_ref() const { return true; }
+	bool is_writable() const { return true; }
 
 	void append(char c) { }
 	void append(uint64_t word) {
@@ -105,6 +107,11 @@ public:
 	
 	LocalDynamicMem() : sz(0) {}
 	LocalDynamicMem(LocalDynamicMem&& other) : sz(other.sz), data(std::move(other.data)) {}
+	LocalDynamicMem& operator=(LocalDynamicMem&& other) {
+		sz = other.sz;
+		data.clear();
+		data.swap(other.data);
+	}
 private:
 	size_t sz;
 	std::vector<uint64_t> data;
@@ -122,7 +129,8 @@ public:
 
 	StaticMemRegionPtr allocStaticMem(size_t size);
 	std::shared_ptr<LocalStaticMem> allocStaticMem2(size_t size);
-	StaticMemRegionPtr convert(const DynamicMemRegionAbstract& ptr);
+	StaticMemRegionPtr copy(const DynamicMemRegionAbstract& ptr);
+	StaticMemRegionPtr move(DynamicMemRegionAbstract& ptr);
 	DynamicMemRegionPtr allocDynMem(size_t init_sz = 0);
 	std::shared_ptr<LocalDynamicMem> allocDynMem2(size_t init_sz = 0);
 	StaticMemRegionPtr adoptMem(size_t size, std::shared_ptr<void> s);
@@ -141,10 +149,30 @@ inline std::shared_ptr<LocalStaticMem> LocalMemAllocator::allocStaticMem2(size_t
 	return ret;
 }
 
-inline StaticMemRegionPtr LocalMemAllocator::convert(const DynamicMemRegionAbstract &ptr) {
+inline StaticMemRegionPtr LocalMemAllocator::copy(const DynamicMemRegionAbstract &ptr) {
 	auto ret = allocStaticMem2(ptr.size());
 	ptr.read(0, ptr.size(), ret->ptr);
 	return StaticMemRegionPtr(ret);
+}
+
+inline StaticMemRegionPtr LocalMemAllocator::move(DynamicMemRegionAbstract& ptr) {
+	LocalDynamicMem* dt = dynamic_cast<LocalDynamicMem*>(&ptr);
+	if (dt != nullptr) {
+		auto ret = std::make_shared<LocalStaticMem>();
+		auto x = std::make_shared<std::vector<uint64_t>>();
+		ret->len = ptr.size();
+		x.get()->swap(dt->data);
+		ret->ptr = (char*) x->data();
+		ret->_s = x;
+		dt->clear();
+		return StaticMemRegionPtr(ret);
+	} else {
+		// cast failed
+		auto ret = allocStaticMem2(ptr.size());
+		ptr.read(0, ptr.size(), ret->ptr);
+		ptr.clear();
+		return StaticMemRegionPtr(ret);
+	}
 }
 
 inline DynamicMemRegionPtr LocalMemAllocator::allocDynMem(size_t init_sz) {

@@ -4,6 +4,7 @@
 #include "rrr3.h"
 
 #include <stdint.h>
+namespace tests {
 
 using namespace std;
 using namespace mscds;
@@ -123,6 +124,7 @@ TEST(rrr_word, test_rnd2) {
 	cout << endl;
 }
 
+} //namespace
 
 /*
 int main(int argc, char* argv[]) {
@@ -132,4 +134,5 @@ int main(int argc, char* argv[]) {
 	int rs = RUN_ALL_TESTS();
 	return rs;
 	return 0;
-}*/
+}
+*/

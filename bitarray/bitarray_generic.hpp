@@ -108,6 +108,7 @@ public:
     BitArrayGeneric& operator=(const BitArrayGeneric& other) = default;
     BitArrayGeneric(BitArrayGeneric&& mE): _bitlen(mE._bitlen), _data(std::move(mE._data)) {}
     BitArrayGeneric& operator=(BitArrayGeneric&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
+	BitArrayGeneric(WordAccess wa, size_t _len): _bitlen(_len), _data(wa) {}
 
     //StaticMemRegionPtr data_ptr() const { return _data; }
 

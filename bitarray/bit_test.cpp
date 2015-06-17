@@ -166,7 +166,9 @@ void test_ibitstream(int len, int idx) {
 	string s = os.to_str();
 	ASSERT_EQ(debug, s);
 	IWBitStream is(os);
-	os.build(&b);
+	b = BitArrayBuilder::create(debug.length());
+	for (unsigned i = 0; i < len; ++i) 
+		b.setbit(i, debug[i] == '1');
 
 	int bl = len;
 	int pos = 0, j = 0;

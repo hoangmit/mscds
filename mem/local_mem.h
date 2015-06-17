@@ -81,7 +81,7 @@ public:
 	bool is_unique_ref() const { return true; }
 	bool is_writable() const { return true; }
 
-	void append(char c) { }
+	void append(char c) { resize(size() + 1); setchar(size() - 1, c); }
 	void append(uint64_t word) {
 		if (sz % WORDSZ == 0) { data.push_back(word); sz += WORDSZ; }
 		else append((void*)(&word), WORDSZ);

@@ -84,7 +84,7 @@ uint64_t mscds::SDArrayTH::prefixsum(size_t i) const {
 
 uint64_t mscds::SDArrayTH::rank(uint64_t p) const {
 	assert(p <= this->sum);
-	if (p == this->sum) return this->len;
+	if (p > this->sum) return this->len;
 	if (p == 0) return 0;
 	uint64_t first, last;
 

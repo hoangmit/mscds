@@ -7,18 +7,27 @@ namespace mscds {
 using utils::FNV_hash;
 
 void FileMarker::class_start(OutArchive &out, const std::string &name, unsigned char version) {
-	uint32_t v = FNV_hash::hash24(name) | (((uint32_t)version) << 24);
-	out.save_bin((char*)&v, sizeof(v));
+	//uint32_t v = FNV_hash::hash24(name) | (((uint32_t)version) << 24);
+	//out.save_bin((char*)&v, sizeof(v));
+	uint32_t v = FNV_hash::hash32(name);
+	uint16_t h = (v >> 16) ^ (v & 0xFFFF);
+	out.save_bin((char*)&h, sizeof(h));
 }
 
 void FileMarker::class_end(OutArchive &out) {}
 
 unsigned char FileMarker::check_class_start(InpArchive &inp, const std::string &name) {
-	uint32_t hash = FNV_hash::hash24(name);
+	/*uint32_t hash = FNV_hash::hash24(name);
 	uint32_t v;
 	inp.load_bin(&v, sizeof(v));
 	if ((v & 0xFFFFFF) != hash) throw ioerror(std::string("Wrong hash tag: ") + name);
-	return v >> 24;
+	return v >> 24;*/
+	uint32_t v = FNV_hash::hash32(name);
+	uint16_t h = (v >> 16) ^ (v & 0xFFFF);
+	uint16_t x;
+	inp.load_bin(&x, sizeof(x));
+	if (x != h) throw ioerror(std::string("Wrong hash tag: ") + name);
+	return 0;
 }
 
 bool FileMarker::check_class_end(InpArchive &inp) {

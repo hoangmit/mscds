@@ -3,6 +3,7 @@
 
 #include "utils/file_utils.h"
 #include "utils/utest.h"
+#include "utils/utils.h"
 
 #include "file_archive1.h"
 #include "fmap_archive1.h"
@@ -151,6 +152,54 @@ TEST(farchive2, fmap_file) {
 	fi.open_read(filename);
 	testinp1(fi);
 	fi.close();
+}
+
+template<typename T>
+void check_num(const std::vector<T>& vals) {
+	OMemArchive out;
+	for (unsigned i = 0; i < vals.size(); ++i) {
+		out.save(vals[i]);
+	}
+	//out.close();
+	IMemArchive in(out);
+	for (unsigned i = 0; i < vals.size(); ++i) {
+		T v, exp;
+		exp = vals[i];
+		in.load(v);
+		if (v != exp) {
+			std::cout << "Wrong" << std::endl;
+		}
+		ASSERT_EQ(exp, v);
+	}
+}
+
+TEST(num_codec, test1) {
+	std::vector<uint32_t> vec_u32 = {0, 1, 2, 3};
+	
+	check_num(vec_u32);
+	vec_u32 = {16, 32, 128, 1000, 2000, 1000000, 0, 2};
+	check_num(vec_u32);
+
+	unsigned const N = 100000;
+
+	{
+		vec_u32.resize(N);
+		for (unsigned i = 0; i < N; ++i) {
+			vec_u32[i] = utils::rand32();
+		}
+		check_num(vec_u32);
+	}
+
+
+	std::vector<uint64_t> vec_u64;
+	{
+		vec_u64.resize(N);
+		for (unsigned i = 0; i < N; ++i) {
+			vec_u64[i] = utils::rand64();
+		}
+		check_num(vec_u64);
+	}
+
 }
 
 }//namespace

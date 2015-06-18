@@ -33,16 +33,22 @@ double FloatIntMapQuery::unmap_if(int64_t v) const {
 
 void FloatIntMapQuery::save(mscds::OutArchive &ar) const {
 	ar.startclass("FloatIntMap", 1);
-	ar.var("delta").save(delta);
-	ar.var("factor").save(factor);
+	uint64_t udelta = delta;
+	ar.var("delta").save(udelta);
+	uint64_t ufactor = factor;
+	ar.var("factor").save(ufactor);
 	rankval.save(ar.var("rankval"));
 	ar.endclass();
 }
 
 void FloatIntMapQuery::load(mscds::InpArchive &ar) {
 	ar.loadclass("FloatIntMap");
-	ar.var("delta").load(delta);
-	ar.var("factor").load(factor);
+	uint64_t udelta;
+	ar.var("delta").load(udelta);
+	delta = udelta;
+	uint64_t ufactor = factor;
+	ar.var("factor").load(ufactor);
+	factor = ufactor;
 	rankval.load(ar.var("rankval"));
 	ar.endclass();
 }

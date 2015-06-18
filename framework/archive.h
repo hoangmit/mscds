@@ -53,11 +53,10 @@ public:
 	virtual OutArchive& endclass() { return *this; };
 	
 	/// saves a primitive variable
-	virtual OutArchive& save(uint32_t v) { v = to_le32(v); return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(int32_t v)  { v = to_le32(v); return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(uint64_t v) { v = to_le64(v); return save_bin(&v, sizeof(v)); }
-	virtual OutArchive& save(int64_t v)  { v = to_le64(v); return save_bin(&v, sizeof(v)); }
-	//virtual OutArchive& save(size_t v) { return save_bin(&v, sizeof(v)); }
+	virtual OutArchive& save(uint32_t v) { return save_num(v); }
+	virtual OutArchive& save(uint64_t v) { return save_num(v); }
+	
+    virtual OutArchive& save_num(uint64_t v);
 	virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
 	//--------------------------------------------------------------------
@@ -96,11 +95,10 @@ public:
 	virtual InpArchive& endclass() { return *this; };
 
 	/// load primitive variable
-	virtual InpArchive& load(uint32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
-	virtual InpArchive& load(int32_t& v) { return load_bin(&v, sizeof(v)); v = read_le32(v); }
-	virtual InpArchive& load(uint64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
-	virtual InpArchive& load(int64_t& v) { return load_bin(&v, sizeof(v)); v = read_le64(v); }
+	virtual InpArchive& load(uint32_t& v) { uint64_t x; load_num(x); v = x; return *this; }
+	virtual InpArchive& load(uint64_t& v) { load_num(v); return *this; }
 	//virtual InpArchive& load(size_t& v) { return load_bin(&v, sizeof(v)); }
+    virtual InpArchive& load_num(uint64_t &v);
 	
 	/// load values
 	virtual InpArchive& load_bin(void* ptr, size_t size) = 0;
@@ -125,20 +123,64 @@ class SaveLoadInt {
 	virtual void load(InpArchive& ar) = 0;
 };
 
+inline OutArchive &OutArchive::save_num(uint64_t v) {
+    uint8_t tag = 0, len = 0;
+    if (v < 16) {
+        tag = v;
+        save_bin(&tag, 1);
+    } else {
+        uint64_t w = v;
+        if (w > 0xFFFFFFFFull) {
+            len += 4; w >>= 32; }
+        if (w > 0xFFFF) {
+            len += 2; w >>= 16; }
+        if (w > 0xFF) {
+            len += 1; w >>= 8; }
+		if (w > 0) len += 1;
+        assert(len <= 8);
+        tag = (len << 4);
+        w = v;
+        while (w>15) w = (w>>4)+(w&15); // 4bit checksum
+        tag |= w & 15;
+        v = to_le64(v);
+        save_bin(&tag, 1);
+        save_bin(&v, len);
+    }
+    return *this;
+}
+
+inline InpArchive &InpArchive::load_num(uint64_t &v) {
+    uint8_t tag = 0, len = 0;
+    load_bin(&tag, 1);
+    if (tag < 16) v = tag;
+    else {
+        len = tag >> 4;
+        uint8_t chksum = tag & 15;
+        v = 0;
+        load_bin(&v, len);
+        v = read_le64(v);
+        uint64_t w = v;
+        while (w>15) w = (w>>4)+(w&15); // 4bit checksum
+        if (chksum != w)
+			throw ioerror("integer read: checksum");
+    }
+    return *this;
+}
+
 inline OutArchive &OutArchive::save_mem_region(const void *ptr, size_t size) {
-	start_mem_region(size); add_mem_region(ptr, size); return end_mem_region(); }
+    start_mem_region(size); add_mem_region(ptr, size); return end_mem_region(); }
 
 inline OutArchive &OutArchive::save_mem(const StaticMemRegionAbstract &mem) {
-	start_mem_region(mem.size());
-	if (mem.size() > 0) {
-		if (FULL_MAPPING == mem.memory_type()) {
-			add_mem_region(mem.get_addr(), mem.size());
-		} else {
-			mem.scan(0, mem.size(), OutArchive::_copy_in, this);
-		}
-	}
-	end_mem_region();
-	return *this;
+    start_mem_region(mem.size());
+    if (mem.size() > 0) {
+        if (FULL_MAPPING == mem.memory_type()) {
+            add_mem_region(mem.get_addr(), mem.size());
+        } else {
+            mem.scan(0, mem.size(), OutArchive::_copy_in, this);
+        }
+    }
+    end_mem_region();
+    return *this;
 }
 
 }//namespace

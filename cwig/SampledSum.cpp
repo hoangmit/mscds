@@ -203,7 +203,8 @@ void SampledSumQuery::save(mscds::OutArchive& ar) const {
 	ar.startclass("sampledsum");
 	ar.var("int_method_type").save(method);
 	ar.var("rate").save(rate);
-	ar.var("delta").save(delta);
+	uint32_t udelta = delta;
+	ar.var("delta").save(udelta);
 	ar.var("factor").save(factor);
 	psum.save(ar.var("psum"));
 	psqrsum.save(ar.var("sqrsum"));
@@ -221,7 +222,9 @@ void SampledSumQuery::load(mscds::InpArchive& ar, NIntvQueryInt * posquery) {
 	ar.loadclass("sampledsum");
 	ar.var("int_method_type").load(method);
 	ar.var("rate").load(rate);
-	ar.var("delta").load(delta);
+	uint32_t udelta;
+	ar.var("delta").load(udelta);
+	delta = udelta;
 	ar.var("factor").load(factor);
 	psum.load(ar.var("psum"));
 	psqrsum.load(ar.var("sqrsum"));

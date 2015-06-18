@@ -93,7 +93,7 @@ public:
 	typedef PRValArrBuilder BuilderTp;
 	void inspect(const std::string& cmd, std::ostream& out) const;
 private:
-	int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap, 4-HuffArray
+	unsigned int storetype; // 1 - SDArray, 2-Delta, 3-DeltaWrap, 4-HuffArray
 
 	uint64_t len;
 	unsigned int rate;

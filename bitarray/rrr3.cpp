@@ -88,8 +88,13 @@ uint64_t RRR_WordAccess::offset_loc(unsigned i) const {
     size_t ip = i - id;
     unsigned px = 0;
     for (unsigned j = 0; j < id; ++j)
-        px += codec.offset_len(64, popcntw(ip + j));
+        px += offset_len(ip+j);
     return px + _ops;
+}
+
+uint8_t RRR_WordAccess::offset_len(unsigned i) const {
+    // 0 and 64 have the same code length
+    return codec.offset_len(64, bitcnt.bits(i*6, 6));
 }
 
 void mscds::RRR_WordAccess::load(mscds::InpArchive &ar) {

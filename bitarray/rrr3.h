@@ -25,6 +25,7 @@ public:
 	typedef RRR_WordAccessBuilder BuilderTp;
 private:
     uint64_t offset_loc(unsigned i) const;
+	uint8_t offset_len(unsigned i) const;
 
 	friend class RRR_WordAccessBuilder;
 private:

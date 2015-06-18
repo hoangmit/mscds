@@ -44,7 +44,7 @@ private:
 class WordCache {
 public:
 	WordCache() { clear(); }
-	static const unsigned CACHE_SIZE = 4;
+	static const unsigned CACHE_SIZE = 8;
 	void clear() {
 		for (unsigned i = 0; i < CACHE_SIZE; ++i) cache[i].first = ~0ull;
 	}
@@ -139,6 +139,7 @@ class RRR_BitArrayBuilder {
 public:
 	static void build_array(const BitArray& ba, RRR_BitArray* out) {
 		AdaptiveWordAccesssBuilder::build_array(ba, &(out->_data));
+		out->_bitlen = ba.length();
 	}
 private:
 };

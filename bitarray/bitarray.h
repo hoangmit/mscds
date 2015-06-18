@@ -30,6 +30,7 @@ Implemented by Hoang
 #include <cstdio>
 #include <cassert>
 #include <memory>
+#include <deque>
 
 
 namespace mscds {
@@ -154,7 +155,7 @@ public:
 		vals.clear();
 	}
 private:
-	std::vector<uint64_t> vals;
+	std::deque<uint64_t> vals;
 };
 
 

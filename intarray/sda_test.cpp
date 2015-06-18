@@ -1,11 +1,15 @@
 
 #include "sdarray.h"
+#include "sdarray_sml.h"
+#include "sdarray_c.h"
+#include "sdarray_zero.h"
+
 #include "mem/file_archive2.h"
 #include "mem/info_archive.h"
-#include "utils/utest.h"
+
 #include "utils/file_utils.h"
 #include "utils/utest.h"
-#include "sdarray_sml.h"
+
 
 #include <vector>
 #include <cassert>
@@ -23,6 +27,58 @@ using namespace mscds;
 string get_tempdir() {
 	return utils::get_temp_path();
 };
+
+template<typename SDArray>
+static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
+	typedef typename SDArray::BuilderTp BuilderTp;
+	BuilderTp bd;
+	unsigned int N = vals.size();
+	SDArrayZero zero;
+	for (unsigned int v : vals) {
+		bd.add(v);
+		zero.add(v);
+	}
+
+	SDArray sda;
+	bd.build(&sda);
+
+	ASSERT_EQ(N, sda.length());
+	for (int i = 0; i < N; ++i) {
+		unsigned exp, val;
+		exp = zero.prefixsum(i);
+		val = sda.prefixsum(i);
+		if (exp != val) {
+			sda.prefixsum(i);
+		}
+		ASSERT_EQ(exp, val);
+
+		exp = zero.lookup(i);
+		val = sda.lookup(i);
+		if (exp != val) {
+			sda.lookup(i);
+		}
+		ASSERT_EQ(exp, val);
+
+	}
+}
+
+static std::vector<unsigned int> gen_zeros(unsigned int N = 10000) {
+	std::vector<unsigned int> ret(N);
+	for (int i = 0; i < N; ++i) ret[i] = 0;
+	return ret;
+}
+
+static std::vector<unsigned int> gen_ones(unsigned int N = 10000) {
+	std::vector<unsigned int> ret(N);
+	for (int i = 0; i < N; ++i) ret[i] = 1;
+	return ret;
+}
+
+static std::vector<unsigned int> gen_increasing(unsigned int N = 10000) {
+	std::vector<unsigned int> ret(N);
+	for (int i = 0; i < N; ++i) ret[i] = i;
+	return ret;
+}
 
 TEST(sdatest, sdarray_zeros) {
 	SDArrayBuilder bd;
@@ -395,7 +451,7 @@ void test_sda2_rand2() {
 }
 
 
-TEST(sdatest, sda2_inc) {
+TEST(sdatest_sml, sda2_inc) {
 	SDArraySmlBuilder bd;
 	uint64_t N = 1000;
 	vector<uint64_t> vals(N);
@@ -432,7 +488,7 @@ TEST(sdatest, sda2_inc) {
 }
 
 
-TEST(sdatest, sda2_ones) {
+TEST(sdatest_sml, sda2_ones) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -457,7 +513,7 @@ TEST(sdatest, sda2_ones) {
 
 }
 
-TEST(sdatest, sda2_zeros) {
+TEST(sdatest_sml, sda2_zeros) {
 	SDArraySmlBuilder bd;
 	int N = 10000;
 	for (int i = 0; i < N; ++i)
@@ -471,7 +527,6 @@ TEST(sdatest, sda2_zeros) {
 		ASSERT_EQ(0, v);
 		ASSERT_EQ(0, sda.lookup(i));
 	}
-
 }
 
 
@@ -547,7 +602,7 @@ void test_rank3(int len) {
 			ASSERT_EQ(i, r.select(r.rank(i)));
 }
 
-TEST(sdatest, rank4) {
+TEST(sdatest_sml, rank4) {
 	const size_t len = 160;
 	int inp[len] = {1, 18, 25, 32, 56, 63, 70, 105, 108, 139, 147, 151, 153, 156, 163, 177, 184, 195, 196, 200, 202, 225, 256, 272, 274, 303, 311, 326, 338, 345, 348,
 		358, 361, 374, 380, 387, 420, 421, 433, 467, 489, 492, 526, 532, 550, 559, 561, 571, 579, 594, 600, 615, 624, 685, 710, 715, 729, 744, 747, 796,
@@ -581,7 +636,7 @@ TEST(sdatest, rank4) {
 		}
 }
 
-TEST(sdatest, bug2) {
+TEST(sdatest_sml, bug2) {
 	const int len = 495;
 	int inp[len] = {0, 1, 6, 8, 9, 12, 14, 15, 17, 18, 19, 20, 24, 25, 28, 31, 32, 35, 36, 37, 38, 39, 41, 46, 49, 50,
 		51, 52, 53, 54, 58, 59, 60, 61, 62, 64, 68, 70, 71, 72, 73, 76, 79, 80, 81, 82, 84, 85, 86, 87, 89, 91,
@@ -633,7 +688,7 @@ TEST(sdatest, bug2) {
 		}
 }
 
-TEST(sdatest, test_sda2_rnd_all) {
+TEST(sdatest_sml, test_sda2_rnd_all) {
 	for (int i = 0; i < 500; i++) {
 		test_rank3(1020 + rand() % 8);
 		if (i % 10 == 0) cout << '.';
@@ -649,6 +704,17 @@ TEST(sdatest, test_sda2_rnd_all) {
 	}
 	cout << endl;
 
+}
+
+
+TEST(sda_compress, test1) {
+	std::vector<unsigned> vec;
+	vec = gen_increasing();
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_zeros();
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_ones();
+	check_prefixsum_lookup<SDArrayCompress>(vec);
 }
 
 }//namespace

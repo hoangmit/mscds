@@ -140,7 +140,7 @@ public:
 			++i;
 		}
 	}
-	void build_s(const std::vector<unsigned int>& values, FixedWArray* out);
+	static void build_s(const std::vector<unsigned int>& values, FixedWArray* out);
 
 	static FixedWArray create(size_t len, unsigned int width) {
 		return FixedWArray(BitArrayBuilder::create(len*width), width);

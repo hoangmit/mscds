@@ -150,8 +150,7 @@ namespace mscds {
 	template<typename RankSelect>
 	void WatQueryGen<RankSelect>::load(InpArchive& ar) {
 		clear();
-		unsigned char ver = ar.loadclass("wavelet_tree");
-		if (ver < 2) throw std::runtime_error("incompatible with version < 2");
+		ar.loadclass("wavelet_tree");
 		ar.var("length").load(slength);
 		ar.var("bitwidth").load(bitwidth);
 		ar.var("max_value").load(max_val);
@@ -162,7 +161,7 @@ namespace mscds {
 
 	template<typename RankSelect>
 	void WatQueryGen<RankSelect>::save(OutArchive& ar) const {
-		ar.startclass("wavelet_tree", 2);
+		ar.startclass("wavelet_tree");
 		ar.var("length").save(slength);
 		ar.var("bitwidth").save(bitwidth);
 		ar.var("max_value").save(max_val);

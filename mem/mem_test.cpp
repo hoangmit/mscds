@@ -24,7 +24,7 @@ namespace tests {
 
 
 void testout1(OutArchive& out) {
-	out.startclass("test", 1);
+	out.startclass("test");
 	uint32_t v32 = 13221;
 	out.save(v32);
 	uint64_t v64 = 38272622;
@@ -36,8 +36,8 @@ void testout1(OutArchive& out) {
 void testinp1(InpArchive& inp) {
 	uint32_t v32;
 	uint64_t v64;
-	auto version = inp.loadclass("test");
-	ASSERT_EQ(1, version);
+	inp.loadclass("test");
+	//ASSERT_EQ(1, version);
 
 	inp.load(v32);
 	ASSERT_EQ(13221, v32);

@@ -709,11 +709,11 @@ TEST(sdatest_sml, test_sda2_rnd_all) {
 
 TEST(sda_compress, test1) {
 	std::vector<unsigned> vec;
-	vec = gen_increasing();
-	check_prefixsum_lookup<SDArrayCompress>(vec);
 	vec = gen_zeros();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 	vec = gen_ones();
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_increasing();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 }
 

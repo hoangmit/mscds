@@ -236,6 +236,8 @@ inline void OBitStream::build(BitArray* out) {
 	close();
 	LocalMemAllocator alloc;
 	*out = BitArrayBuilder::adopt(bitlen, alloc.move(os));
+	os.clear();
+	bitlen = 0;
 }
 
 inline StaticMemRegionPtr OBitStream::build() {

@@ -21,21 +21,24 @@ public:
 	ValueType lookup(unsigned int p, ValueType& prev_sum) const;
 	unsigned int rank(ValueType val) const;
 
-	void clear() { lastpt = ~0ULL; vals.clear(); bits = nullptr; width = 0; select_hints = 0; blkptr = 0; }
+	void clear() { lastpt = ~0ULL; vals.clear(); bits = nullptr; width = 0; blkptr = 0; }
     SDArrayBlock2() { clear(); }
-    static const unsigned int BLKSIZE = 511;
+    
 private:
-	unsigned int select_hi(uint64_t hints, uint64_t start, uint32_t off) const;
-	static uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num);
-	unsigned int select_zerohi(uint64_t hints, uint64_t start, uint32_t off) const;
+	unsigned int select_hi(const uint16_t* hints, uint64_t start, uint32_t off) const;
+	unsigned int select_zerohi(const uint16_t * hints, uint64_t start, uint32_t off) const;
 private:
-	static const unsigned int SUBB_PER_BLK = 7;
-    static const unsigned int SUBB_SIZE = 73;
+	static const unsigned int BLKSIZE = 1023;
+	static const unsigned int SUBB_PER_BLK = 6;
+    static const unsigned int SUBB_SIZE = 147; // BLKSIZE / (SUBB_PER_BLK + 1)
+	static const unsigned int H_WIDTH = 11;    // log(BLKSIZE * 2)
+	// BLKSIZE=511, 6, 73, 10
+
+	uint16_t hints[SUBB_PER_BLK];
 
 	std::vector<ValueType> vals;
 
 	uint16_t width;
-	uint64_t select_hints;
 
 	size_t lastpt;
 

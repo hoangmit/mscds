@@ -24,7 +24,7 @@ public:
 
 	uint64_t total_sum() const { return sum; }
 
-	static const unsigned BLKSIZE = 512;
+	static const unsigned BLKSIZE = 1024;
 private:
 	ValueTp _getBlkSum(unsigned blk) const;
     ValueTp _getBlkStartPos(unsigned blk) const;

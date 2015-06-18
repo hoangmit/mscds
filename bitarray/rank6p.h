@@ -83,7 +83,7 @@ public:
 	//static void build(const BitArray& b, OutArchive& ar);
 	typedef Rank6p QueryTp;
 private:
-	static uint64_t getwordz(const BitArray& v, size_t idx);
+	static uint64_t popcntwz(const BitArray& v, size_t idx);
 };
 
 /// Rank6p adds select hints

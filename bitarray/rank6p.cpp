@@ -6,8 +6,8 @@
 
 namespace mscds {
 
-uint64_t Rank6pBuilder::getwordz(const BitArray& v, size_t idx) {
-	if (idx < v.word_count()) return v.word(idx);
+uint64_t Rank6pBuilder::popcntwz(const BitArray& v, size_t idx) {
+	if (idx < v.word_count()) return v.popcntw(idx);
 	else return 0;
 }
 
@@ -24,7 +24,7 @@ void Rank6pBuilder::build(const BitArray& b, Rank6p * o) {
 	while (i < o->bits.word_count()) {
 		o->inv.setword(pos, cnt);
 		for (unsigned int k = 0; k < 4; k++)
-			cnt += popcnt(getwordz(o->bits, i+k));
+			cnt += popcntwz(o->bits, i+k);
 
 		uint64_t overflow = 0;
 		for(unsigned int j = 1;  j < 8; j++) {
@@ -34,7 +34,7 @@ void Rank6pBuilder::build(const BitArray& b, Rank6p * o) {
 			o->inv.setword(pos + 1, v2);
 			overflow |= ((val >> 9) & 3) << 2 * (j - 1);
 			for (unsigned int k = 0; k < 4; k++)
-				cnt += popcnt(getwordz(o->bits, i + j * 4 + k));
+				cnt += popcntwz(o->bits, i + j * 4 + k);
 		}
 		uint64_t v = o->inv.word(pos);
 		v |= overflow << 50;

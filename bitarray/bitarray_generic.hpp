@@ -147,8 +147,8 @@ inline uint8_t BitArrayGeneric<WordAccess>::popcntw(size_t pos) const { return _
 template<typename WordAccess>
 inline uint32_t BitArrayGeneric<WordAccess>::get_uint32(size_t pos) const {
 	assert((pos+1)*32 <= length());
-    if (pos % 2 == 0) return _data.getword(pos / 2) & 0xFFFFFFFFu;
-    else return _data.getword(pos / 2) >> 32;
+    if (pos % 2 == 0) return word(pos / 2) & 0xFFFFFFFFu;
+    else return word(pos / 2) >> 32;
 }
 template<typename WordAccess>
 inline size_t BitArrayGeneric<WordAccess>::word_count() const { return ceildiv(_bitlen, WORDLEN); }

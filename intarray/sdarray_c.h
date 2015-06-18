@@ -12,15 +12,14 @@ class SDArrayCompress {
 public:
 	typedef uint64_t ValueTp;
 	typedef SDArrayCompressBuilder BuilderTp;
-	ValueTp prefixsum(unsigned int  p) const;
+	ValueTp prefixsum(unsigned int p) const;
 	ValueTp lookup(unsigned int p) const;
 	ValueTp lookup(unsigned int p, ValueTp& prev_sum) const;
-	unsigned int rank(ValueTp val) const;
+	ValueTp rank(ValueTp val) const;
+    ValueTp rank2(ValueTp p, ValueTp& select) const;
 	uint64_t length() const { return len; }
 
 	void clear();
-
-	uint64_t getBlkSum(size_t blk) const;
 
 	uint64_t total_sum() const { return sum; }
 

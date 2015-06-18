@@ -35,7 +35,7 @@ static void test_cmp(const std::vector<unsigned int>& vals) {
 	}
 	ASSERT_EQ(zero.prefixsum(len), arr.prefixsum(len));
 	auto last = zero.prefixsum(len);
-	for (unsigned int p = 0; p < last; ++p) {
+	for (unsigned int p = 0; p <= last; ++p) {
 		auto v1 = zero.rank(p);
 		auto v2 = arr.rank(p);
 		ASSERT_EQ(v1, v2);

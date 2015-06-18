@@ -107,6 +107,7 @@ unsigned int SDArrayBlock2::rank(ValueType val) const {
 		//assert(scan_zerohi_bitslow(blkptr + width*BLKSIZE, vhi-1) + 1 == hipos);
 		rank = hipos - vhi;
 	}
+	if (rank > BLKSIZE) return BLKSIZE+1;
 	ValueType curlo = 0;
 	while (rank < BLKSIZE && bits->bit(blkptr + width*BLKSIZE + hipos)) {
 		curlo = bits->bits(blkptr + width * rank, width);
@@ -115,7 +116,8 @@ unsigned int SDArrayBlock2::rank(ValueType val) const {
 		++rank;
 		++hipos;
 	}
-	return rank + 1;
+	if (rank > BLKSIZE) return BLKSIZE+1;
+	else return rank + 1;
 }
 
 unsigned int SDArrayBlock2::select_hi(const uint16_t* hints, uint64_t start, uint32_t off) const {

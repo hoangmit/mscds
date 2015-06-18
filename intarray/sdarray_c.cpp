@@ -6,14 +6,17 @@ namespace mscds {
 
 SDArrayCompressBuilder::SDArrayCompressBuilder() { init(); }
 
-void SDArrayCompressBuilder::init() { i = 0; sum = 0; }
+void SDArrayCompressBuilder::init() {
+	i = 0; sum = 0;
+	static_assert(BLKSIZE == SDArrayBlock2::BLKSIZE + 1, "mismatch BLKSIZE");
+}
 
 void SDArrayCompressBuilder::add(unsigned int v) {
     sum += v;
     ++i;
     if (i % BLKSIZE == 0) {
         // skip the BLKSIZE-th value in the block
-        //each block has (BLKSIZE-1) = 511 values
+        //each block has (BLKSIZE-1) = 1023 values
         _build_blk();
     } else {
         blk.add(v);
@@ -115,6 +118,67 @@ SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p) const {
         _loadBlk(bpos);
 		return sum1 - sum0 - blk.prefixsum(BLKSIZE-1);
     }
+}
+
+SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p, SDArrayCompress::ValueTp &prev_sum) const {
+    uint64_t bpos = p / BLKSIZE;
+    uint32_t off = p % BLKSIZE;
+    if (off + 1 < BLKSIZE) {
+        _loadBlk(bpos);
+        auto ret = blk.lookup(off, prev_sum);
+        prev_sum += _getBlkSum(bpos);
+        return ret;
+    } else {
+        auto sum0 = _getBlkSum(bpos);
+        auto sum1 = _getBlkSum(bpos + 1);
+        _loadBlk(bpos);
+		auto vz = sum0 + blk.prefixsum(BLKSIZE-1);
+        auto ret = sum1 - vz;
+        prev_sum = vz;
+        return ret;
+    }
+}
+
+SDArrayCompress::ValueTp SDArrayCompress::rank(ValueTp val) const {
+    if (val > total_sum()) return length();
+	size_t maxl = header.length() / w2;
+    uint64_t lo = 0;
+	uint64_t hi = maxl;
+    while (lo < hi) {
+        uint64_t mid = lo + (hi - lo) / 2;
+		if (_getBlkSum(mid) < val) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo == 0) return 0;
+	else { 
+	}
+    lo--;
+	auto lsum = _getBlkSum(lo);
+	assert(val > lsum);
+	assert(lo + 1 < maxl || val <= _getBlkSum(lo + 1));
+	if (val == _getBlkSum(lo + 1) && lo + 1 < maxl) {
+		return (lo + 1) * BLKSIZE;
+	} else {
+		_loadBlk(lo);
+		ValueTp ret = lo * BLKSIZE + blk.rank(val - lsum);
+		return ret;
+    }
+}
+
+SDArrayCompress::ValueTp SDArrayCompress::rank2(ValueTp p, ValueTp &select) const {
+    uint64_t v = rank(p);
+    //TODO: optimize this
+    select = prefixsum(v);
+    return v;
+}
+
+void SDArrayCompress::clear() {
+    blk.clear();
+    header.clear();
+    bits.clear();
+    w1 = w2 = 0;
+    sum = 0;
+    len = 0;
 }
 
 

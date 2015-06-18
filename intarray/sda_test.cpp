@@ -43,22 +43,44 @@ static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
 	bd.build(&sda);
 
 	ASSERT_EQ(N, sda.length());
+	// prefixsum
+	unsigned exp, val;
 	for (int i = 0; i < N; ++i) {
-		unsigned exp, val;
 		exp = zero.prefixsum(i);
 		val = sda.prefixsum(i);
 		if (exp != val) {
 			sda.prefixsum(i);
 		}
 		ASSERT_EQ(exp, val);
-
+	}
+	// lookup
+	for (int i = 0; i < N; ++i) {
 		exp = zero.lookup(i);
 		val = sda.lookup(i);
 		if (exp != val) {
 			sda.lookup(i);
 		}
 		ASSERT_EQ(exp, val);
+		uint64_t ps0, ps1;
+		ASSERT_EQ(exp, sda.lookup(i, ps0));
+		zero.lookup(i, ps1);
+		ASSERT_EQ(ps0, ps1);
+	}
 
+	//rank
+	auto last = zero.prefixsum(N);
+	if (last <= 100000) {
+		for (unsigned i = 0; i <= last; ++i) {
+			exp = zero.rank(i);
+			val = sda.rank(i);
+			ASSERT_EQ(exp, val);
+		}
+	} else {
+		for (unsigned i = 0; i <= last; i+=19) {
+			exp = zero.rank(i);
+			val = sda.rank(i);
+			ASSERT_EQ(exp, val);
+		}
 	}
 }
 
@@ -77,6 +99,12 @@ static std::vector<unsigned int> gen_ones(unsigned int N = 10000) {
 static std::vector<unsigned int> gen_increasing(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
 	for (int i = 0; i < N; ++i) ret[i] = i;
+	return ret;
+}
+
+static std::vector<unsigned int> gen_rand(unsigned int N = 10000, unsigned range = 1000) {
+	std::vector<unsigned int> ret(N);
+	for (int i = 0; i < N; ++i) ret[i] = rand() % range;
 	return ret;
 }
 
@@ -714,6 +742,8 @@ TEST(sda_compress, test1) {
 	vec = gen_ones();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 	vec = gen_increasing();
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_rand();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 }
 

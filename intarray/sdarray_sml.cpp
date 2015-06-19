@@ -162,7 +162,7 @@ uint64_t SDArraySml::select_hi(uint64_t hints, uint64_t start, uint32_t off) con
 	return bits.scan_bits(start + gb, res) + gb;
 }
 
-uint64_t SDArraySml::lookup(const uint64_t p) const {
+uint64_t SDArraySml::lookup(uint64_t p) const {
 	assert(p < length());
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;
@@ -184,7 +184,7 @@ uint64_t SDArraySml::lookup(const uint64_t p) const {
 	//return sum + prev;
 }
 
-uint64_t SDArraySml::lookup(const uint64_t p, uint64_t& prev_sum) const {
+uint64_t SDArraySml::lookup(uint64_t p, uint64_t& prev_sum) const {
 	assert(p < length());
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off  = p % BLKSIZE;

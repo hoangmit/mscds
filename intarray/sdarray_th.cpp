@@ -5,26 +5,28 @@
 #include <cassert>
 #include <iostream>
 
-mscds::SDArrayTHBuilder::SDArrayTHBuilder() {
+namespace mscds {
+
+SDArrayTHBuilder::SDArrayTHBuilder() {
 	last = 0;
 }
 
-void mscds::SDArrayTHBuilder::add(uint64_t val) {
+void SDArrayTHBuilder::add(uint64_t val) {
 	last += val;
 	vals.push_back(last);
 }
 
-uint64_t mscds::SDArrayTHBuilder::current_sum() {
+uint64_t SDArrayTHBuilder::current_sum() {
 	return last;
 }
 
-void mscds::SDArrayTHBuilder::add_inc(uint64_t pos) {
+void SDArrayTHBuilder::add_inc(uint64_t pos) {
 	assert(pos >= last);
 	vals.push_back(pos);
 	last = pos;
 }
 
-void mscds::SDArrayTHBuilder::build(mscds::SDArrayTH *out) {
+void SDArrayTHBuilder::build(SDArrayTH *out) {
 	if (vals.size() == 0) return ;
 	uint64_t n = vals.back();
 	uint64_t m = vals.size();
@@ -45,12 +47,12 @@ void mscds::SDArrayTHBuilder::build(mscds::SDArrayTH *out) {
 }
 
 
-uint64_t mscds::SDArrayTH::lookup(const uint64_t i) const {
+uint64_t SDArrayTH::lookup(const uint64_t i) const {
 	uint64_t prev_sum;
 	return lookup(i, prev_sum);
 }
 
-uint64_t mscds::SDArrayTH::lookup(const uint64_t i, uint64_t &prev_sum) const {
+uint64_t SDArrayTH::lookup(const uint64_t i, uint64_t &prev_sum) const {
 	//prev_sum = prefixsum(i);
 	//auto next = prefixsum(i + 1);
 	//return next - prev_sum;
@@ -72,7 +74,7 @@ uint64_t mscds::SDArrayTH::lookup(const uint64_t i, uint64_t &prev_sum) const {
 	return s2 - prev_sum;
 }
 
-uint64_t mscds::SDArrayTH::prefixsum(size_t i) const {
+uint64_t SDArrayTH::prefixsum(size_t i) const {
 	assert(i <= len);
 	if (i == 0) return 0;
 	if (i == len) return sum;
@@ -82,7 +84,16 @@ uint64_t mscds::SDArrayTH::prefixsum(size_t i) const {
 	return (h << width) | l;
 }
 
-uint64_t mscds::SDArrayTH::rank(uint64_t p) const {
+uint64_t  SDArrayTH::total() const {
+	return this->sum;
+}
+
+
+uint64_t  SDArrayTH::length() const {
+	return this->len;
+}
+
+uint64_t SDArrayTH::rank(uint64_t p) const {
 	assert(p <= this->sum);
 	if (p > this->sum) return this->len;
 	if (p == 0) return 0;
@@ -125,12 +136,12 @@ uint64_t mscds::SDArrayTH::rank(uint64_t p) const {
 	return last + 1;
 }
 
-uint64_t mscds::SDArrayTH::select_hi(uint64_t r) const {
+uint64_t SDArrayTH::select_hi(uint64_t r) const {
 	auto p = saux1.pre_select(r);
 	return p.first + upper.scan_bits(p.first, p.second);
 }
 
-void mscds::SDArrayTH::clear() {
+void SDArrayTH::clear() {
 	len = 0;
 	sum = 0;
 	upper.clear();
@@ -139,7 +150,7 @@ void mscds::SDArrayTH::clear() {
 	saux1.clear();
 }
 
-void mscds::SDArrayTH::save(OutArchive& ar) const {
+void SDArrayTH::save(OutArchive& ar) const {
 	ar.startclass("sdarray_th", 0);
 	ar.var("len").save(len);
 	ar.var("sum").save(sum);
@@ -150,7 +161,7 @@ void mscds::SDArrayTH::save(OutArchive& ar) const {
 	ar.close();
 }
 
-void mscds::SDArrayTH::load(InpArchive& ar) {
+void SDArrayTH::load(InpArchive& ar) {
 	ar.loadclass("sdarray_th");
 	ar.var("len").load(len);
 	ar.var("sum").load(sum);
@@ -161,7 +172,7 @@ void mscds::SDArrayTH::load(InpArchive& ar) {
 	ar.close();
 }
 
-void mscds::SDArrayTH::inspect(const std::string& cmd, std::ostream& out) const {
+void SDArrayTH::inspect(const std::string& cmd, std::ostream& out) const {
 	if (cmd == "comp_size") {
 		out << "sdarray_th" << std::endl;
 		out << "length: " << len << std::endl;
@@ -173,3 +184,5 @@ void mscds::SDArrayTH::inspect(const std::string& cmd, std::ostream& out) const 
 		out << "select1_aux_size: " << mscds::estimate_aux_size(saux1) << std::endl;
 	}
 }
+
+}//namespace

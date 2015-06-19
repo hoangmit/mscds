@@ -5,6 +5,7 @@
 Implement SDArray without block
 
 */
+#include "sdarray_interface.h"
 #include "bitarray/bitarray.h"
 #include "bitarray/select_dense.h"
 
@@ -28,13 +29,13 @@ private:
 
 
 /// SDArray with more linear structures
-class SDArrayTH {
+class SDArrayTH: public SDArrayInterface  {
 public:
 	/** returns the value of A[i] */
-	uint64_t lookup(const uint64_t i) const;
+	uint64_t lookup(uint64_t i) const;
 
 	/** returns the value of A[i] and  prev_sum=prefix_sum(i) */
-	uint64_t lookup(const uint64_t i, uint64_t& prev_sum) const;
+	uint64_t lookup(uint64_t i, uint64_t& prev_sum) const;
 
 	/** return the value of prefix_sum(i) */
 	uint64_t prefixsum(size_t i) const;

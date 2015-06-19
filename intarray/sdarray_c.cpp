@@ -94,7 +94,7 @@ void SDArrayCompress::_loadBlk(unsigned bp) const {
 }
 
 
-SDArrayCompress::ValueTp SDArrayCompress::prefixsum(unsigned int p) const {
+SDArrayCompress::ValueTp SDArrayCompress::prefixsum(ValueTp p) const {
     if (p == this->len) return this->sum;
     uint64_t bpos = p / BLKSIZE;
     uint32_t off = p % BLKSIZE;
@@ -106,7 +106,7 @@ SDArrayCompress::ValueTp SDArrayCompress::prefixsum(unsigned int p) const {
     }
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p) const {
+SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p) const {
     uint64_t bpos = p / BLKSIZE;
     uint32_t off = p % BLKSIZE;
     if (off + 1 < BLKSIZE) {
@@ -120,7 +120,7 @@ SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p) const {
     }
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p, SDArrayCompress::ValueTp &prev_sum) const {
+SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p, SDArrayCompress::ValueTp &prev_sum) const {
     uint64_t bpos = p / BLKSIZE;
     uint32_t off = p % BLKSIZE;
     if (off + 1 < BLKSIZE) {

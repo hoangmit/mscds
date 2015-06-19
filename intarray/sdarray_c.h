@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sdarray_interface.h"
 #include "bitarray/rrr3.h"
 #include "bitarray/bitarray.h"
 #include "intarray/_experiment/sdarray_blk2.h"
@@ -8,13 +9,13 @@ namespace mscds {
 
 class SDArrayCompressBuilder;
 
-class SDArrayCompress {
+class SDArrayCompress: public SDArrayInterface {
 public:
 	typedef uint64_t ValueTp;
 	typedef SDArrayCompressBuilder BuilderTp;
-	ValueTp prefixsum(unsigned int p) const;
-	ValueTp lookup(unsigned int p) const;
-	ValueTp lookup(unsigned int p, ValueTp& prev_sum) const;
+	ValueTp prefixsum(ValueTp p) const;
+	ValueTp lookup(ValueTp p) const;
+	ValueTp lookup(ValueTp p, ValueTp& prev_sum) const;
 	ValueTp rank(ValueTp val) const;
     ValueTp rank2(ValueTp p, ValueTp& select) const;
 	uint64_t length() const { return len; }

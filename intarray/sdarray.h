@@ -25,6 +25,8 @@
 #include "framework/archive.h"
 #include "bitarray/bitarray.h"
 
+#include "sdarray_interface.h"
+
 #include <vector>
 #include <sstream>
 #include <stdint.h>
@@ -76,7 +78,7 @@ private:
 };
 
 /// Sadasan's SDArray
-class SDArrayQuery {
+class SDArrayQuery: public SDArrayInterface {
 	static const uint64_t BLOCK_SIZE;
 public:
 	const static uint64_t NOTFOUND = 0xFFFFFFFFFFFFFFFFULL;

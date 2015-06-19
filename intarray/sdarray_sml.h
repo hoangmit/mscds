@@ -10,7 +10,11 @@ Alternative implementation of sdarray with bigger block.
 #include "bitarray/bitstream.h"
 #include "intarray.h"
 #include "bitarray/rankselect.h"
+
+#include "sdarray_interface.h"
+
 #include <iostream>
+
 
 namespace mscds {
 
@@ -56,15 +60,15 @@ It provides the following operations:
 Let <math>n=\sum_{k=1}^{m}A[i]</math>. The SDArray should uses about <math>m \log_2 (n/m) + 2m + o(n)</math> bits.
 */
 
-class SDArraySml {
+class SDArraySml : public SDArrayInterface {
 public:
 	SDArraySml() { clear(); }
 	~SDArraySml() { clear();  }
 	/** returns the value of A[i] */
-	uint64_t lookup(const uint64_t i) const;
+	uint64_t lookup(uint64_t i) const;
 
 	/** returns the value of A[i] and  prev_sum=prefix_sum(i) */
-	uint64_t lookup(const uint64_t i, uint64_t& prev_sum) const;
+	uint64_t lookup(uint64_t i, uint64_t& prev_sum) const;
 
 	/** return the value of prefix_sum(i) */
 	uint64_t prefixsum(size_t i) const;

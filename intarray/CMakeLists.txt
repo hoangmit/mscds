@@ -23,6 +23,7 @@ sdarray_zero.h
 sdarray_blk.h
 _experiment/sdarray_blk2.h
 sdarray_c.h
+sdarray_interface.h
 runlen.h
 vlen_array.h
 )

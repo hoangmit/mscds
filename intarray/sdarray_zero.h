@@ -1,3 +1,6 @@
+#pragma once
+
+#include "sdarray_interface.h"
 
 #include <vector>
 #include <algorithm>
@@ -14,7 +17,7 @@ namespace mscds {
 /// sdarray without compression, 
 /// implement using vector
 /// for testing the correctness of other implementations
-struct SDArrayZero {
+struct SDArrayZero: public SDArrayInterface{
 	SDArrayZero() { cums.push_back(0); }
 
 	template<typename List>
@@ -31,12 +34,12 @@ struct SDArrayZero {
 	void add(uint64_t val) { cums.push_back(cums.back() + val); }
 
 	/** returns the value of A[i] */
-	uint64_t lookup(const uint64_t i) const {
+	uint64_t lookup(uint64_t i) const {
 		return cums[i + 1] - cums[i];
 	}
 
 	/** returns the value of A[i] and  prev_sum=prefix_sum(i) */
-	uint64_t lookup(const uint64_t i, uint64_t& prev_sum) const {
+	uint64_t lookup(uint64_t i, uint64_t& prev_sum) const {
 		prev_sum = cums[i];
 		return cums[i + 1] - cums[i];
 	}
@@ -55,6 +58,12 @@ struct SDArrayZero {
 			assert(p <= cums[ind]);
 		return ind;
 	}
+
+	uint64_t length() const {
+		return cums.size() - 1;
+	}
+
+	uint64_t total() const {return cums.back(); }
 
 	/** clear the array (length becomes 0) */
 	void clear() {

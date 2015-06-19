@@ -66,8 +66,11 @@ void BitArraySeqBuilder::done() {
 
 void FixedWArrayBuilder::build_s(const std::vector<unsigned int> &values, FixedWArray* out) {
 	out->clear();
-	unsigned int max_val = *max_element(values.begin(), values.end());
-	unsigned int width = ceillog2(max_val + 1);
+    unsigned int max_val = 0;
+    for (unsigned int i = 0; i < values.size(); ++i) {
+       max_val = std::max<unsigned>(max_val, values[i]);
+    }
+    unsigned int width = val_bit_len(max_val);
 	*out = create(values.size(), width);
 	for (unsigned int i = 0; i < values.size(); ++i)
 		out->set(i, values[i]);

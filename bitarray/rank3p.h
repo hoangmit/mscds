@@ -43,7 +43,7 @@ public:
 
 	const BitArrayInterface* getBitArray() const { return bits; }
 	typedef Rank3pBuilder BuilderTp;
-private:
+protected:
 	const BitArrayInterface* bits;
 	BitArray l0, l1_l2, sampling;
 	uint64_t onecnt;

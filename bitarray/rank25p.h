@@ -35,7 +35,7 @@ public:
 private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
 	friend class Rank25pBuilder;
-private:
+protected:
     BitArray inv;
     const BitArrayInterface * bits;
     uint64_t onecnt;

@@ -4,6 +4,7 @@
 #include "rank3p.h"
 #include "rrr.h"
 #include "rrr2.h"
+#include "rrr3.h"
 #include "utils/utils.h"
 
 #include "bitstream.h"
@@ -41,6 +42,9 @@ struct RankBMFix: public SharedFixtureItf {
 
 			RRR2Builder brrr2;
 			brrr2.build(ba, &rr2);
+			
+			RRR3_RankBuilder brrr3;
+			brrr3.build(ba, &rr3);
 	}
 
 	void TearDown() {
@@ -50,6 +54,8 @@ struct RankBMFix: public SharedFixtureItf {
 		r6.clear();
 		r3.clear();
 		rr.clear();
+		rr3.clear();
+		rr3.clear();
 	}
 
 	BitArray ba;
@@ -59,6 +65,7 @@ struct RankBMFix: public SharedFixtureItf {
 	Rank3p r3;
 	RRR rr;
 	RRR2 rr2;
+	RRR3_Rank rr3;
 };
 
 void rankbm_null(RankBMFix * fix) {
@@ -104,6 +111,13 @@ void rankbm_rankrr2(RankBMFix * fix) {
 	}
 }
 
+void rankbm_rankrr3(RankBMFix * fix) {
+	unsigned int t = 0;
+	for (auto p : fix->queries) {
+		t ^= fix->rr3.rank(p);
+	}
+}
+
 
 BENCHMARK_SET(rank_benchmark) {
 	Benchmarker<RankBMFix> bm;
@@ -113,6 +127,7 @@ BENCHMARK_SET(rank_benchmark) {
 	bm.add("rank3", rankbm_rank3, 15);
 	bm.add("rankrrr", rankbm_rankrr, 15);
 	bm.add("rankrrr2", rankbm_rankrr2, 15);
+	bm.add("rankrrr3", rankbm_rankrr2, 15);
 	bm.run_all();
 	bm.report(0);
 }

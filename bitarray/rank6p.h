@@ -54,7 +54,7 @@ public:
 
 	const BitArrayInterface* getBitArray() const { return bits; }
 	typedef Rank6pBuilder BuilderTp;
-private:
+protected:
 	const BitArrayInterface* bits;
 	BitArray inv;
 	uint64_t onecnt;

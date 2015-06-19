@@ -46,11 +46,11 @@ public:
 		return p.first + bits->scan_zeros(p.first, p.second);
 	}
 protected:
+	const BitArrayInterface * bits;
 	size_t cnt, len;
 	bool is_one_select;
 private:
 	BitArray ptrs, overflow;
-	const BitArrayInterface * bits;
 	friend class SelectDenseBuilder;
 };
 

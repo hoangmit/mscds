@@ -4,7 +4,7 @@
 #include "codec/rrr_codec.h"
 #include "bitarray.h"
 #include "rank25p.h"
-#include "rank3p.h"
+#include "rank6p.h"
 
 #include "bitstream.h"
 
@@ -149,10 +149,10 @@ public:
 private:
 };
 
-class RRR3_Rank: public Rank3pAux {
+class RRR3_Rank: public Rank6pAux {
 public:
 	void clear() {
-		Rank3pAux::clear();
+		Rank6pAux::clear();
 		rrr_bits.clear();
 	}
 protected:

@@ -127,7 +127,7 @@ BENCHMARK_SET(rank_benchmark) {
 	bm.add("rank3", rankbm_rank3, 15);
 	bm.add("rankrrr", rankbm_rankrr, 15);
 	bm.add("rankrrr2", rankbm_rankrr2, 15);
-	bm.add("rankrrr3", rankbm_rankrr2, 15);
+	bm.add("rankrrr3", rankbm_rankrr3, 15);
 	bm.run_all();
 	bm.report(0);
 }

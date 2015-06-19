@@ -181,6 +181,30 @@ void SDArrayCompress::clear() {
     len = 0;
 }
 
+void SDArrayCompress::load(InpArchive &ar) {
+    ar.loadclass("SDArray_compress");
+    ar.var("length").load(len);
+    ar.var("sum").load(sum);
+    ar.var("w1").load(w1);
+    ar.var("w2").load(w2);
+    header.load(ar.var("header"));
+    bits.load(ar.var("bits"));
+    ar.endclass();
+    blk.clear();
+}
+
+void SDArrayCompress::save(OutArchive &ar) const {
+    ar.startclass("SDArray_compress");
+    ar.var("length").save(len);
+    ar.var("sum").save(sum);
+    ar.var("w1").save(w1);
+    ar.var("w2").save(w2);
+    header.save(ar.var("header"));
+    bits.save(ar.var("bits"));
+    ar.endclass();
+    //blk.clear();
+}
+
 
 
 }//namespace 

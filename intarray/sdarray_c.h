@@ -22,6 +22,8 @@ public:
 	void clear();
 
 	uint64_t total_sum() const { return sum; }
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
 	static const unsigned BLKSIZE = 1024;
 private:

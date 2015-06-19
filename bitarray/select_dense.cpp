@@ -196,6 +196,7 @@ void SelectDenseBuilder::build0_aux(const BitArrayInterface *b, SelectDenseAux *
 	overflow.build(&(o->overflow));
 	o->cnt = cnt;
 	o->len = b->length();
+	o->bits = b;
 	o->is_one_select = false;
 }
 

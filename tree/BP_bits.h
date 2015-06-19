@@ -32,16 +32,6 @@ public:
 
 	void init(const BitArrayInterface* _bp, unsigned int _blksize);
 
-private:
-	const BitArrayInterface* bp;
-	unsigned int blksize;
-	static int8_t min_excess8_t[256], excess8_t[256], min_op_ex_pos8_t[256], min_op_ex8_t[256];
-
-	static uint8_t revbits(uint8_t c) {
-		return (uint8_t)((c * 0x0202020202ULL & 0x010884422010ULL) % 1023);
-	}
-	friend class BP_superblock;
-
 public:
 	static int8_t min_excess8_c(uint8_t c);
 	static int8_t min_revex8_c(uint8_t c);
@@ -63,9 +53,15 @@ public:
 	uint64_t min_excess_pos_slow(uint64_t l, uint64_t r) const;
 
 	void clear();
-	OutArchive& save(OutArchive& ar) const { return ar;}
-	InpArchive& load(InpArchive& ar) { return ar;}
+private:
+	const BitArrayInterface* bp;
+	unsigned int blksize;
+	static int8_t min_excess8_t[256], excess8_t[256], min_op_ex_pos8_t[256], min_op_ex8_t[256];
 
+	static uint8_t revbits(uint8_t c) {
+		return (uint8_t)((c * 0x0202020202ULL & 0x010884422010ULL) % 1023);
+	}
+	friend class BP_superblock;
 };
 
 class BP_aux;
@@ -88,14 +84,6 @@ public:
 	~BP_aux() {clear();}
 	unsigned int build(const BitArray &bp, unsigned int blksize = 256);
 	void clear();
-private:
-	BP_block blk;
-	//BitArray bp_bits;
-	Rank6p bprank;
-	std::shared_ptr<BP_aux> lowerlvl;
-	SDRankSelectSml pioneer_map;
-
-	unsigned int blksize;
 public:
 	uint64_t rank(uint64_t i) const { return bprank.rank(i); }
 	uint64_t select(uint64_t i) const { return bprank.select(i); }
@@ -115,9 +103,15 @@ public:
 
 	OutArchive& save(OutArchive& ar) const;
 	InpArchive& load(InpArchive& ar);
+private:
+	BitArray bp_bits;
+	BP_block blk;
+	Rank6pAux bprank;
+	std::shared_ptr<BP_aux> lowerlvl;
+	SDRankSelectSml pioneer_map;
+
+	unsigned int blksize;
 };
-
-
 
 
 } //namespace

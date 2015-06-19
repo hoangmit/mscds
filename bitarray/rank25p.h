@@ -47,6 +47,7 @@ class Rank25p: public Rank25pAux {
 public:
     void load(InpArchive& ar);
     void save(OutArchive& ar) const;
+    void clear();
 private:
 	BitArray _own_bits;
 	friend class Rank25pBuilder;

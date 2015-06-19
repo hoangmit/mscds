@@ -46,7 +46,7 @@ void Rank6pBuilder::build_aux(const BitArrayInterface *b, Rank6pAux * o) {
 
 void Rank6pBuilder::build(const BitArray &b, Rank6p *o) {
     o->own_bits = b;
-    build_aux(&b, o);
+	build_aux(&o->own_bits, o);
 }
 
 /*
@@ -124,9 +124,14 @@ void Rank6p::save(OutArchive &ar) const {
 	ar.endclass();
 }
 
+void Rank6p::clear() {
+    own_bits.clear();
+    Rank6pAux::clear();
+}
+
 void Rank6p::load(InpArchive &ar) {
-	/*ar.loadclass("Rank6p");
-	size_t blen;
+    /*ar.loadclass("Rank6p");
+    size_t blen;
 	ar.var("bit_len").load(blen);
 	inv.load(ar);
 	ar.var("onecnt").load(onecnt);

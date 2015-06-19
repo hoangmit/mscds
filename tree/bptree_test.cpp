@@ -193,15 +193,15 @@ void test_bp(const BitArray& b, int blksize) {
 	vector<int> enclose(b.length());
 	for (unsigned i = 0; i < b.length(); i++)
 		if (b[i]) {
-		if (!pos.empty()) enclose[i] = pos.top();
-		else enclose[i] = -1;
-		pos.push(i);
+			if (!pos.empty()) enclose[i] = pos.top();
+			else enclose[i] = -1;
+			pos.push(i);
 		} else {
-		int t = pos.top();
-		pos.pop();
-		match[i] = t;
-		match[t] = i;
-		enclose[i] = t;
+			int t = pos.top();
+			pos.pop();
+			match[i] = t;
+			match[t] = i;
+			enclose[i] = t;
 		}
 	BP_aux bps;
 	bps.build(b, blksize);
@@ -225,15 +225,15 @@ void test_bp2(const BitArray& b, int blksize) {
 	vector<int> enclose(b.length());
 	for (unsigned i = 0; i < b.length(); i++)
 		if (b[i]) {
-		if (!pos.empty()) enclose[i] = pos.top();
-		else enclose[i] = -1;
-		pos.push(i);
+			if (!pos.empty()) enclose[i] = pos.top();
+			else enclose[i] = -1;
+			pos.push(i);
 		} else {
-		int t = pos.top();
-		pos.pop();
-		match[i] = t;
-		match[t] = i;
-		enclose[i] = t;
+			int t = pos.top();
+			pos.pop();
+			match[i] = t;
+			match[t] = i;
+			enclose[i] = t;
 		}
 	BP_aux bps;
 	bps.build(b, blksize);

@@ -348,9 +348,9 @@ uint64_t BP_block::min_excess_pos_slow(uint64_t l, uint64_t r) const {
 unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 	assert(blksize >= 4);
 	this->blksize = blksize;
-	//bp_bits = bp;
-	blk.init(&bp, blksize);
-	Rank6pBuilder::build(bp, &bprank);
+	bp_bits = bp;
+	blk.init(&bp_bits, blksize);
+	Rank6pBuilder::build_aux(&bp_bits, &bprank);
 	if (bp.length() > blksize) {
 		std::vector<uint64_t> pio = find_pioneers_v(&bp, blksize);
 		//pioneer_map
@@ -496,9 +496,9 @@ std::string BP_aux::to_str() const {
 OutArchive &BP_aux::save(OutArchive &ar) const {
 	ar.startclass("BP_aux", 1);
 	ar.var("blksize").save(blksize);
-	bprank.save(ar.var("bps"));
+	bp_bits.save(ar.var("bp_bits"));
+	bprank.save_aux(ar.var("bps"));
 	pioneer_map.save(ar.var("pioneers"));
-	blk.save(ar);
 	if (lowerlvl != NULL) {
 		uint32_t nextlvl = 1;
 		ar.var("nextlvl").save(nextlvl);
@@ -514,9 +514,9 @@ OutArchive &BP_aux::save(OutArchive &ar) const {
 InpArchive &BP_aux::load(InpArchive &ar) {
 	ar.loadclass("BP_aux");
 	ar.var("blksize").load(blksize);
-	bprank.load(ar.var("bps"));
+	bp_bits.load(ar.var("bp_bits"));
+	bprank.load_aux(ar.var("bps"), &bp_bits);
 	pioneer_map.load(ar.var("pioneers"));
-	blk.load(ar);
 	blk.init(bprank.getBitArray(), blksize);
 	uint32_t nextlvl;
 	ar.var("nextlvl").load(nextlvl);

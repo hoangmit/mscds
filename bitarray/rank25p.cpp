@@ -28,7 +28,7 @@ void Rank25pBuilder::build_aux(const BitArrayInterface * b, Rank25pAux *o) {
 
 void Rank25pBuilder::build(const BitArray &b, Rank25p *o) {
 	o->_own_bits = b;
-	build_aux(&b, o);
+	build_aux(&o->_own_bits, o);
 }
 
 
@@ -104,6 +104,11 @@ void Rank25p::save(OutArchive &ar) const {
 	_own_bits.save(ar.var("bits"));
 	save_aux(ar);
 	ar.endclass();
+}
+
+void mscds::Rank25p::clear() {
+    _own_bits.clear();
+    Rank25pAux::clear();
 }
 
 }//namespace

@@ -79,6 +79,7 @@ class Rank6p : public Rank6pAux {
 public:
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
+    void clear();
 private:
 	friend class Rank6pBuilder;
 	BitArray own_bits;

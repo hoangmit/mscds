@@ -108,7 +108,7 @@ void Rank3pBuilder::build_aux(const BitArrayInterface* b, Rank3pAux * o) {
 
 void Rank3pBuilder::build(const BitArray &b, Rank3p *o) {
 	o->_own_bits = b;
-	build_aux(&b, o);
+	build_aux(&o->_own_bits, o);
 }
 
 void Rank3pAux::save_aux(OutArchive &ar) const {
@@ -405,6 +405,11 @@ uint64_t Rank3pHintSel::select(uint64_t r) const {
 void Rank3pHintSel::clear() {
 	hints.clear();
 	rankst.clear();
+}
+
+void mscds::Rank3p::clear() {
+    _own_bits.clear();
+    Rank3pAux::clear();
 }
 
 }//namespace_

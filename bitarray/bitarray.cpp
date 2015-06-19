@@ -88,6 +88,8 @@ BitArray::BitArray(const MemRegionWordAccess &mem, size_t bitlen) {
     _bitlen = bitlen;
 }
 
+BitArray::BitArray(const BitArray &other) { this->_bitlen = other._bitlen; this->_data = other._data; }
+
 BitArray BitArrayBuilder::create(size_t bitlen) {
     BitArray v;
     if (bitlen == 0) return v;
@@ -136,6 +138,12 @@ void BitArray::save(OutArchive &ar) const {
     ar.startclass("Bitvector", 1);
     save_nocls(ar);
     ar.endclass();
+}
+
+mscds::BitArray &mscds::BitArray::operator=(const mscds::BitArray &other) {
+    this->_bitlen = other._bitlen;
+    this->_data = other._data;
+    return *this;
 }
 
 

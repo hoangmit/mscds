@@ -64,6 +64,7 @@ class Rank3p: public Rank3pAux {
 public:
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
+    void clear();
 private:
 	friend class Rank3pBuilder;
 	BitArray _own_bits;

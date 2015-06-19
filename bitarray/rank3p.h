@@ -36,7 +36,7 @@ public:
 	void clear();
 	
 	bool bit(uint64_t p) const;
-	std::string to_str() const { return ""; /* bits.to_str(); */ }
+    std::string to_str() const { return bits->to_str(); }
 
 	void load_aux(InpArchive& ar, const BitArrayInterface* b);
 	void save_aux(OutArchive& ar) const;

@@ -149,7 +149,7 @@ std::pair<int8_t, uint8_t> max_excess_word(uint64_t x, uint8_t st, uint8_t ed) {
 	return ret;
 }
 
-void RMQ_pm1::build(BitArray b, unsigned int blksize, bool _min_struct, RMQ_pm1 *out) {
+void RMQ_pm1::build(const BitArray& b, unsigned int blksize, bool _min_struct, RMQ_pm1 *out) {
 	Rank6pBuilder::build(b, &(out->bits));
 	out->_min_struct = _min_struct;
 	auto nc = b.word_count();
@@ -177,21 +177,22 @@ void RMQ_pm1::build(BitArray b, unsigned int blksize, bool _min_struct, RMQ_pm1 
 
 void RMQ_pm1::save_aux(OutArchive &ar) const {
 	ar.startclass("RMQ_pm1_auxiliary");
-	uint32_t v = _min_struct ? 1 : 0;
+	uint32_t v = _min_struct ? 1 : 2;
 	ar.var("is_min_structure").save(v);
 	blks.save(ar.var("word_rmq"));
-	//bits.save_aux(ar.var("rank_aux"));
+	bits.save_aux(ar.var("rank_aux"));
 	ar.endclass();
 }
 
-void RMQ_pm1::load_aux(InpArchive &ar, Rank6p& rs) {
+void RMQ_pm1::load_aux(InpArchive &ar, const BitArrayInterface* barr) {
 	ar.loadclass("RMQ_pm1_auxiliary");
 	uint32_t v = 0;
 	ar.var("is_min_structure").load(v);
-	_min_struct = v != 0 ? true : false;
+	if (v == 1) _min_struct= true;
+	else if (v == 2) _min_struct = false;
+	else throw ioerror("unknown number");
 	blks.load(ar.var("word_rmq"));
-	bits = rs;
-	//bits.load_aux(ar.var("rank_aux"), b);
+	bits.load_aux(ar.var("rank_aux"), barr);
 	ar.endclass();
 }
 
@@ -207,7 +208,7 @@ void RMQ_pm1_minmax::save_aux(OutArchive &ar) const {
 	ar.endclass();
 }
 
-void RMQ_pm1_minmax::load_aux(InpArchive &ar, Rank6p& rs) {
+void RMQ_pm1_minmax::load_aux(InpArchive &ar, const BitArrayInterface* rs) {
 	ar.loadclass("minmax");
 	minidx.load_aux(ar.var("minidx"), rs);
 	maxidx.load_aux(ar.var("maxidx"), rs);

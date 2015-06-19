@@ -68,8 +68,7 @@ void RRR_WordAccessBuilder::build_array(const BitArray &ba, RRR_WordAccess *out)
 uint64_t RRR_WordAccess::word(size_t i) const {
     uint8_t k = popcntw(i);
     unsigned len = codec.offset_len(64, k);
-    uint64_t start = offset_loc(i);
-    uint64_t codev = offset.bits(start, len);
+    uint64_t codev = offset.bits(offset_loc(i), len);
     return codec.decode(64, k, codev);
 }
 
@@ -204,6 +203,20 @@ void AdaptiveWordAccesssBuilder::build_array(const BitArray &ba, AdaptiveWordAcc
         bd.add(ba.word(i));
     }
     bd.build(out);
+}
+
+void mscds::RRR_BitArray::load(mscds::InpArchive &ar) {
+    ar.loadclass("RRR_BitArray");
+    ar.var("length").load(_bitlen);
+    _data.load(ar.var("bit_data"));
+    ar.endclass();
+}
+
+void RRR_BitArray::save(OutArchive &ar) const {
+    ar.startclass("RRR_BitArray");
+    ar.var("length").save(_bitlen);
+    _data.save(ar.var("bit_data"));
+    ar.endclass();
 }
 
 }//namespace

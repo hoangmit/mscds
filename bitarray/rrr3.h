@@ -133,6 +133,8 @@ class RRR_BitArrayBuilder;
 struct RRR_BitArray: public BitArrayGeneric<AdaptiveWordAccesss> {
 	typedef RRR_BitArrayBuilder BuilderTp;
 	friend class RRR_BitArrayBuilder;
+    void load(InpArchive& ar);
+    void save(OutArchive& ar) const;
 };
 
 

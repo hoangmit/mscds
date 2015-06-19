@@ -133,7 +133,6 @@ inline std::string extract_data_info(const T& a) {
 	return ar.printxml();
 }
 
-
 /// short-cut for saving a string
 void save_str(OutArchive& ar, const std::string& st);
 /// short-cut for loading a string

@@ -140,7 +140,7 @@ SDArrayCompress::ValueTp SDArrayCompress::lookup(unsigned int p, SDArrayCompress
 }
 
 SDArrayCompress::ValueTp SDArrayCompress::rank(ValueTp val) const {
-    if (val > total_sum()) return length();
+    if (val > total()) return length();
 	size_t maxl = header.length() / w2;
     uint64_t lo = 0;
 	uint64_t hi = maxl;

@@ -44,6 +44,9 @@ struct BitArrayInterface: public WordAccessInterface {
 
 	/// scans for 0-bit
 	virtual int64_t scan_zeros(uint64_t start, uint32_t res) const = 0;
+
+	/** convert to string for debug or display */
+	virtual std::string to_str() const;
 };
 
 /// BitArray
@@ -117,9 +120,6 @@ public:
 	bool is_frozen() const { return false; }
 
 	~BitArrayGeneric() {}
-
-	/** convert to string for debug or display */
-	std::string to_str() const;
 
 	inline static uint64_t ceildiv(uint64_t a, uint64_t b) {
 		/* return (a != 0 ? ((a - 1) / b) + 1 : 0); // overflow free version */
@@ -341,11 +341,10 @@ inline int64_t BitArrayGeneric<WordAccess>::scan_zeros_slow(uint64_t start, uint
 }
 
 
-template<typename WordAccess>
-inline std::string BitArrayGeneric<WordAccess>::to_str() const {
+inline std::string BitArrayInterface::to_str() const {
 	assert(length() < (1UL << 16));
 	std::string s;
-    for (unsigned int i = 0; i < _bitlen; ++i)
+    for (unsigned int i = 0; i < length(); ++i)
 		if (bit(i)) s += '1';
 		else s += '0';
 		return s;

@@ -106,7 +106,7 @@ inline size_t RMQ_pm1::m_idx(size_t st, size_t ed) const {
 inline int RMQ_pm1::excess(size_t i) const { return int(2 * bits.rank(i + 1)) - (int)(i + 1); }
 
 inline size_t RMQ_pm1::getpos(unsigned int wpos, uint8_t st, uint8_t ed) const {
-	uint64_t w = bits.getBitArray().word(wpos);
+	uint64_t w = bits.getBitArray()->word(wpos);
 	if (_min_struct)
 		return min_excess_word(w, st, ed).second;
 	else
@@ -116,10 +116,10 @@ inline size_t RMQ_pm1::getpos(unsigned int wpos, uint8_t st, uint8_t ed) const {
 inline void RMQ_pm1::checkpos(const std::vector<unsigned int> &blkpos, std::vector<unsigned int> *out) const {
 	if (_min_struct) {
 		for (auto blkp : blkpos)
-			out->push_back(blkp * WORDSIZE + min_excess_word(bits.getBitArray().word(blkp)).second);
+			out->push_back(blkp * WORDSIZE + min_excess_word(bits.getBitArray()->word(blkp)).second);
 	} else {
 		for (auto blkp : blkpos)
-			out->push_back(blkp * WORDSIZE + max_excess_word(bits.getBitArray().word(blkp)).second);
+			out->push_back(blkp * WORDSIZE + max_excess_word(bits.getBitArray()->word(blkp)).second);
 	}
 }
 

@@ -27,13 +27,13 @@ namespace mscds {
 class BP_superblock;
 class BP_block {
 public:
-	BP_block(): blksize(0) {}
-	BP_block(BitArray _bp, unsigned int _blksize): bp(_bp), blksize(_blksize) {}
+	BP_block(): blksize(0), bp(nullptr) {}
+	BP_block(BitArray& _bp, unsigned int _blksize): bp(&_bp), blksize(_blksize) {}
 
-	void init(const BitArray& _bp, unsigned int _blksize);
+	void init(const BitArrayInterface* _bp, unsigned int _blksize);
 
 private:
-	BitArray bp;
+	const BitArrayInterface* bp;
 	unsigned int blksize;
 	static int8_t min_excess8_t[256], excess8_t[256], min_op_ex_pos8_t[256], min_op_ex8_t[256];
 
@@ -70,8 +70,8 @@ public:
 
 class BP_aux;
 
-BitArray find_pioneers(const BitArray& bp, size_t blksize);
-std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize);
+BitArray find_pioneers(const BitArrayInterface* bp, size_t blksize);
+std::vector<uint64_t> find_pioneers_v(const BitArrayInterface* bp, size_t blksize);
 
 
 /// auxiliary data structure of balanced parathesis bit vector

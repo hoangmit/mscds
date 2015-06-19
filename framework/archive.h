@@ -118,9 +118,18 @@ public:
 	virtual void inspect(const std::string& param, std::ostream& out) const {}
 };
 
-class SaveLoadInt {
+struct SaveLoadInt {
+	virtual ~SaveLoadInt() {}
 	virtual void save(OutArchive& ar) const = 0;
 	virtual void load(InpArchive& ar) = 0;
+};
+
+template<typename T>
+struct SaveLoadAuxInt {
+	virtual ~SaveLoadAuxInt() {}
+	virtual void save_aux(OutArchive& ar) const = 0;
+	virtual void load_aux(InpArchive& ar, T t) = 0;
+
 };
 
 inline OutArchive &OutArchive::save_num(uint64_t v) {

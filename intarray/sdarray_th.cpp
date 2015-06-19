@@ -42,8 +42,8 @@ void SDArrayTHBuilder::build(SDArrayTH *out) {
 	}
 	out->len = m;
 	out->sum = n;
-	SelectDenseBuilder::build_aux(out->upper, &out->saux1);
-	SelectDenseBuilder::build0_aux(out->upper, &out->saux0);
+	SelectDenseBuilder::build_aux(&out->upper, &out->saux1);
+	SelectDenseBuilder::build0_aux(&out->upper, &out->saux0);
 }
 
 
@@ -107,8 +107,9 @@ uint64_t SDArrayTH::rank(uint64_t p) const {
 		first = select_hi(0);
 		pf0 = -1;
 	} else {
-		auto px = saux0.pre_select(uv - 1);
-		pf0 = px.first + upper.scan_zeros(px.first, px.second);
+		pf0 = saux0.select0(uv - 1);
+		/*auto px = saux0.pre_select(uv - 1);
+		pf0 = px.first + upper.scan_zeros(px.first, px.second);*/
 		first = pf0 - uv + 1;
 	}
 	
@@ -137,8 +138,9 @@ uint64_t SDArrayTH::rank(uint64_t p) const {
 }
 
 uint64_t SDArrayTH::select_hi(uint64_t r) const {
-	auto p = saux1.pre_select(r);
-	return p.first + upper.scan_bits(p.first, p.second);
+	return saux1.select(r);
+	/*auto p = saux1.pre_select(r);
+	return p.first + upper.scan_bits(p.first, p.second);*/
 }
 
 void SDArrayTH::clear() {
@@ -167,8 +169,8 @@ void SDArrayTH::load(InpArchive& ar) {
 	ar.var("sum").load(sum);
 	upper.load(ar.var("upper"));
 	lower.load(ar.var("lower"));
-	saux0.load_aux(ar.var("aux0"), upper);
-	saux1.load_aux(ar.var("aux1"), upper);
+	saux0.load_aux(ar.var("aux0"), &upper);
+	saux1.load_aux(ar.var("aux1"), &upper);
 	ar.close();
 }
 

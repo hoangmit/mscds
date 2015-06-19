@@ -64,7 +64,7 @@ TEST(BP_tree, find_pioneer1) {
 	string exp = "1000100000000111000000000000100100110001";
 	BitArray inp = str2bits(bps);
 
-	BitArray out = find_pioneers(inp, 8);
+	BitArray out = find_pioneers(&inp, 8);
 	for (int i = 0; i< bps.length(); ++i) {
 		ASSERT_EQ((exp[i] == '1'), out[i]);
 	}
@@ -76,7 +76,7 @@ TEST(BP_tree, test_find_pioneer2) {
 	string exp = "0000000000000000";
 	BitArray inp = str2bits(bps);
 
-	BitArray out = find_pioneers(inp, 8);
+	BitArray out = find_pioneers(&inp, 8);
 	for (int i = 0; i< bps.length(); ++i) {
 		ASSERT_EQ((exp[i] == '1'), out[i]);
 	}

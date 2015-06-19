@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(bitarray)
 
-set(SRCS rank6p.cpp rank3p.cpp bitop.cpp bitarray.cpp bitstream.cpp
+set(SRCS rank6p.cpp rank25p.cpp rank3p.cpp bitop.cpp bitarray.cpp bitstream.cpp
 rrr.cpp rrr2.cpp rrr3.cpp
 select_dense.cpp
 )

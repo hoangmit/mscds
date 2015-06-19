@@ -26,7 +26,7 @@ class Rank6pBuilder;
 class Rank6pHintSel;
 
 /// Rank Auxiliary data structure that uses additional 6.25% of the the original input
-class Rank6p: public RankSelectInterface {
+class Rank6pAux: public RankSelectInterface {
 public:
 	/** counts the number of 1 in the range from 1 to (p-1) */
 	uint64_t rank(uint64_t p) const;
@@ -39,27 +39,26 @@ public:
 	/** returns the number of 1 in the whole array */
 	uint64_t one_count() const { return onecnt; }
 	/** returns the length of the array */
-	uint64_t length() const { return bits.length(); }
+	uint64_t length() const { return bits->length(); }
 	
 	/** returns the value p-th bit in the bit array */
-	bool access(uint64_t pos) const { return bits[pos]; }
+	bool access(uint64_t pos) const { return bits->bit(pos); }
 	bool bit(uint64_t p) const;
 
 	void clear();
 	
-	std::string to_str() const { return bits.to_str(); }
+	std::string to_str() const { return bits->to_str(); }
 
-	void load_aux(InpArchive& ar, BitArray& b);
+	void load_aux(InpArchive& ar, const BitArrayInterface* b);
 	void save_aux(OutArchive& ar) const;
 
-	void load(InpArchive& ar);
-	void save(OutArchive& ar) const;
-	const BitArray& getBitArray() const { return bits; }
+	const BitArrayInterface* getBitArray() const { return bits; }
 	typedef Rank6pBuilder BuilderTp;
 private:
-	BitArray bits;
+	const BitArrayInterface* bits;
 	BitArray inv;
 	uint64_t onecnt;
+
 private:
 	uint64_t blkrank(size_t blk) const;
 	uint64_t subblkrank(size_t blk, unsigned int off) const;
@@ -75,21 +74,31 @@ private:
 	friend struct BlockIntIterator;
 };
 
+/// Both bit vector and Auxiliary data structure
+class Rank6p : public Rank6pAux {
+public:
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+private:
+	friend class Rank6pBuilder;
+	BitArray own_bits;
+};
+
 
 /// Builder class for Rank6p
 class Rank6pBuilder {
 public:
-	static void build(const BitArray& b, Rank6p * o);
-	//static void build(const BitArray& b, OutArchive& ar);
-	typedef Rank6p QueryTp;
+    static void build_aux(const BitArrayInterface* b, Rank6pAux * o);
+    static void build(const BitArray& b, Rank6p * o);
+    typedef Rank6pAux QueryTp;
 private:
-	static uint64_t popcntwz(const BitArray& v, size_t idx);
+	static uint64_t popcntwz(const BitArrayInterface* v, size_t idx);
 };
 
 /// Rank6p adds select hints
 class Rank6pHintSel {
 public:
-	void init(Rank6p& r);
+    void init(Rank6p& r);
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;
@@ -98,7 +107,7 @@ public:
 	}
 	void clear();
 private:
-	Rank6p rankst;
+    Rank6p rankst;
 	FixedWArray hints;
 private:
 	void init();

@@ -70,7 +70,10 @@ struct MemRegionWordAccess: public WordAccessInterface {
 	StaticMemRegionPtr _data;
 };
 
-class BitArray: public BitArrayGeneric<MemRegionWordAccess> {
+
+struct BitArrayExtInterface: public BitArrayInterface, public SaveLoadInt { };
+
+class BitArray: public BitArrayGeneric<MemRegionWordAccess>, public SaveLoadInt {
 public:
 	BitArray();
 	BitArray(size_t bitlen);
@@ -81,12 +84,12 @@ public:
 	BitArray& operator=(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
 
 	/** load the BitArray from InpArchive */
-    InpArchive& load(InpArchive& ar);
-    InpArchive& load_nocls(InpArchive& ar);
+    void load(InpArchive& ar);
+    void load_nocls(InpArchive& ar);
 
     /** save the BitArray to OutArchive */
-    OutArchive& save(OutArchive& ar) const;
-    OutArchive& save_nocls(OutArchive& ar) const;
+    void save(OutArchive& ar) const;
+    void save_nocls(OutArchive& ar) const;
 
 	StaticMemRegionPtr data_ptr() const { return _data._data; }
 	friend class BitArrayBuilder;

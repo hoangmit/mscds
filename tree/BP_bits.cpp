@@ -9,15 +9,15 @@
 
 namespace mscds {
 
-std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
+std::vector<uint64_t> find_pioneers_v(const BitArrayInterface *bp, size_t blksize) {
 	std::stack<size_t> opens;
 	std::pair<size_t, size_t> lastfar;
 	bool haslast = false;
 	std::vector<uint64_t> ret;
 
 	size_t pioneer_cnt = 0;
-	for (size_t i = 0; i < bp.length(); ++i) {
-		if (bp[i]) {
+	for (size_t i = 0; i < bp->length(); ++i) {
+		if (bp->bit(i)) {
 			opens.push(i);
 		} else {
 			size_t op = opens.top();
@@ -50,15 +50,15 @@ std::vector<uint64_t> find_pioneers_v(const BitArray& bp, size_t blksize) {
 		ret.push_back(lastfar.second);
 		pioneer_cnt++;
 	}
-	assert(pioneer_cnt <= 4 * ((bp.length() + blksize - 1)/blksize) - 6);
+	assert(pioneer_cnt <= 4 * ((bp->length() + blksize - 1)/blksize) - 6);
 	std::sort(ret.begin(), ret.end());
 	return ret;
 
 }
 
-BitArray find_pioneers(const BitArray& bp, size_t blksize) {
+BitArray find_pioneers(const BitArrayInterface* bp, size_t blksize) {
 	std::vector<uint64_t> v = find_pioneers_v(bp, blksize);
-	BitArray ret = BitArrayBuilder::create(bp.length());
+	BitArray ret = BitArrayBuilder::create(bp->length());
 	ret.fillzero();
 	for (int i = 0; i < v.size(); i++)
 		ret.setbit(v[i], true);
@@ -67,14 +67,14 @@ BitArray find_pioneers(const BitArray& bp, size_t blksize) {
 
 //---------------------------------------------------------------------------------------
 
-void BP_block::init(const BitArray& _bp, unsigned int _blksize) {
+void BP_block::init(const BitArrayInterface* _bp, unsigned int _blksize) {
 	this->bp = _bp;
 	blksize = _blksize;
 }
 
 void BP_block::clear() {
 	blksize = 0;
-	bp.clear();
+	bp = nullptr;
 }
 
 int8_t BP_block::min_excess8_c(uint8_t c)  {
@@ -196,10 +196,10 @@ int8_t BP_block::min_op_ex8_t[256] = {
 
 uint64_t BP_block::forward_scan(uint64_t pos, int64_t excess) const {
 	assert(excess <= 0);
-	assert(excess != 0 || bp.bit(pos));
-	uint64_t endp = std::min<uint64_t>(bp.length(), (pos / blksize + 1) * blksize);
+	assert(excess != 0 || bp->bit(pos));
+	uint64_t endp = std::min<uint64_t>(bp->length(), (pos / blksize + 1) * blksize);
 	if ((pos & 7) != 0) {
-		uint8_t cbyte = bp.byte(pos >> 3) >> (pos & 7);
+		uint8_t cbyte = bp->byte(pos >> 3) >> (pos & 7);
 		uint64_t ed1 = std::min<uint64_t>(endp, ((pos >> 3) + 1) << 3);
 		for (; pos < ed1; pos++) {
 			if (cbyte & 1) excess--;
@@ -209,13 +209,13 @@ uint64_t BP_block::forward_scan(uint64_t pos, int64_t excess) const {
 		}
 	}
 	for (; pos + 8 <= endp; pos += 8) {
-		uint8_t cbyte = bp.byte(pos >> 3);
+		uint8_t cbyte = bp->byte(pos >> 3);
 		if (excess - min_excess8_t[cbyte] < 0)
 			excess -= excess8_t[cbyte];
 		else break;
 	} 
 	if (pos < endp) {
-		uint8_t cbyte = bp.byte(pos >> 3);
+		uint8_t cbyte = bp->byte(pos >> 3);
 		for (; pos < endp; pos++) {
 			if (cbyte & 1) excess--;
 			else excess++;
@@ -228,10 +228,10 @@ uint64_t BP_block::forward_scan(uint64_t pos, int64_t excess) const {
 
 uint64_t BP_block::backward_scan(uint64_t pos, int64_t excess) const {
 	assert(excess >= 0);
-	assert(excess != 0 || (!bp.bit(pos)));
+	assert(excess != 0 || (!bp->bit(pos)));
 	uint64_t endp = (pos / blksize) * blksize;
 	if (((pos + 1) & 7) != 0) {
-		uint8_t cbyte = bp.byte(pos >> 3) << (7 - (pos & 7));
+		uint8_t cbyte = bp->byte(pos >> 3) << (7 - (pos & 7));
 		for (size_t i = 0; i <= (pos & 7); i++) {
 			if (cbyte & 128) excess--;
 			else excess++;
@@ -242,13 +242,13 @@ uint64_t BP_block::backward_scan(uint64_t pos, int64_t excess) const {
 	}else pos += 1;
 	assert((pos & 7) == 0);
 	for (; pos > endp; pos -= 8) {
-		uint8_t cbyte = ~revbits(bp.byte((pos >> 3) - 1));
+		uint8_t cbyte = ~revbits(bp->byte((pos >> 3) - 1));
 		if (excess + min_excess8_t[cbyte] > 0)
 			excess += excess8_t[cbyte];
 		else break;
 	}
 	if (pos > endp) {
-		uint8_t cbyte = bp.byte((pos >> 3) - 1);
+		uint8_t cbyte = bp->byte((pos >> 3) - 1);
 		for (; pos > endp; pos--) {
 			if (cbyte & 128) excess--;
 			else excess++;
@@ -260,14 +260,14 @@ uint64_t BP_block::backward_scan(uint64_t pos, int64_t excess) const {
 }
 
 uint64_t BP_block::min_excess_pos(uint64_t pos, uint64_t endp) const {
-	assert(endp <= bp.length());
+	assert(endp <= bp->length());
 	if (pos >= endp) return BP_block::NOTFOUND;
 	assert(pos/blksize == (endp - 1)/blksize);
 	bool flag = false;
 	uint8_t sc = 0;
 	int64_t excess = 0, minex = endp - pos + 2, minpos = BP_block::NOTFOUND;
 	if ((pos & 7) != 0) {
-		uint8_t cbyte = bp.byte(pos >> 3) >> (pos & 7);
+		uint8_t cbyte = bp->byte(pos >> 3) >> (pos & 7);
 		uint64_t ed1 = std::min(endp, ((pos >> 3) + 1) << 3);
 		for (; pos < ed1; pos++) {
 			if (cbyte & 1) {
@@ -278,7 +278,7 @@ uint64_t BP_block::min_excess_pos(uint64_t pos, uint64_t endp) const {
 		}
 	}
 	for (; pos + 8 <= endp; pos += 8) {
-		uint8_t cbyte = bp.byte(pos >> 3);
+		uint8_t cbyte = bp->byte(pos >> 3);
 		if (cbyte != 0) {
 			int8_t mv = min_op_ex8_t[cbyte];
 			if (excess + mv <= minex) {
@@ -288,7 +288,7 @@ uint64_t BP_block::min_excess_pos(uint64_t pos, uint64_t endp) const {
 		excess += excess8_t[cbyte];
 	}
 	if (pos < endp) {
-		uint8_t cbyte = bp.byte(pos >> 3);
+		uint8_t cbyte = bp->byte(pos >> 3);
 		for (; pos < endp; pos++) {
 			if (cbyte & 1){
 				excess++;
@@ -306,11 +306,11 @@ uint64_t BP_block::min_excess_pos(uint64_t pos, uint64_t endp) const {
 
 uint64_t BP_block::forward_scan_slow(uint64_t pos, int64_t excess) const {
 	assert(excess <= 0);
-	if (excess == 0 && (!bp.bit(pos))) return NOTFOUND;
-	uint64_t endp = std::min<uint64_t>(bp.length(), (pos / blksize + 1) * blksize);
+	if (excess == 0 && (!bp->bit(pos))) return NOTFOUND;
+	uint64_t endp = std::min<uint64_t>(bp->length(), (pos / blksize + 1) * blksize);
 	int64_t e = 0;
 	for (size_t i = pos; i < endp; i++) {
-		if (bp.bit(i)) e += 1;
+		if (bp->bit(i)) e += 1;
 		else e -= 1;
 		if (e == excess) return i;
 	}
@@ -319,11 +319,11 @@ uint64_t BP_block::forward_scan_slow(uint64_t pos, int64_t excess) const {
 
 uint64_t BP_block::backward_scan_slow(uint64_t pos, int64_t excess) const {
 	assert(excess >= 0);
-	if (excess == 0 && (bp.bit(pos))) return NOTFOUND;
+	if (excess == 0 && (bp->bit(pos))) return NOTFOUND;
 	int64_t endp = (pos / blksize) * blksize;
 	int64_t e = 0;
 	for (int64_t i = pos; i >= endp; i--) {
-		if (bp.bit(i)) e += 1;
+		if (bp->bit(i)) e += 1;
 		else e -= 1;
 		if (e == excess) return i;
 	}
@@ -333,7 +333,7 @@ uint64_t BP_block::backward_scan_slow(uint64_t pos, int64_t excess) const {
 uint64_t BP_block::min_excess_pos_slow(uint64_t l, uint64_t r) const {
 	int64_t excess = 0, minex = r - l + 1, minpos = BP_block::NOTFOUND;
 	for (uint64_t i = l; i < r; i++) {
-		if (bp[i]) {
+		if (bp->bit(i)) {
 			excess++;
 			if (excess <= minex) { minex = excess; minpos = i; }
 		} else excess--;
@@ -349,10 +349,10 @@ unsigned int BP_aux::build(const BitArray& bp, unsigned int blksize) {
 	assert(blksize >= 4);
 	this->blksize = blksize;
 	//bp_bits = bp;
-	blk.init(bp, blksize);
+	blk.init(&bp, blksize);
 	Rank6pBuilder::build(bp, &bprank);
 	if (bp.length() > blksize) {
-		std::vector<uint64_t> pio = find_pioneers_v(bp, blksize);
+		std::vector<uint64_t> pio = find_pioneers_v(&bp, blksize);
 		//pioneer_map
 		pioneer_map.build(pio);
 		//nextlvl

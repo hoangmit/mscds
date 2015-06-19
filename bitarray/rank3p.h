@@ -24,29 +24,27 @@ class Rank3pBuilder;
 class Rank3pHintSel;
 
 /// Rank Auxiliary data structure that uses additional 3% of the the original input
-class Rank3p: public RankSelectInterface {
+class Rank3pAux: public RankSelectInterface {
 public:
 	uint64_t rank(uint64_t p) const;
 	uint64_t rankzero(uint64_t p) const;
 	uint64_t select(uint64_t r) const;
 	uint64_t selectzero(uint64_t r) const;
 	uint64_t one_count() const { return onecnt; }
-	uint64_t length() const { return bits.length(); }
-	bool access(uint64_t pos) const { return bits[pos]; }
+	uint64_t length() const { return bits->length(); }
+	bool access(uint64_t pos) const { return bits->bit(pos); }
 	void clear();
 	
 	bool bit(uint64_t p) const;
-	std::string to_str() const { return bits.to_str(); }
+	std::string to_str() const { return ""; /* bits.to_str(); */ }
 
-	void loadp(InpArchive& ar, BitArray& b);
-	void savep(OutArchive& ar) const;
+	void load_aux(InpArchive& ar, const BitArrayInterface* b);
+	void save_aux(OutArchive& ar) const;
 
-	void load(InpArchive& ar);
-	void save(OutArchive& ar) const;
-	const BitArray& getBitArray() const { return bits; }
+	const BitArrayInterface* getBitArray() const { return bits; }
 	typedef Rank3pBuilder BuilderTp;
 private:
-	BitArray bits;
+	const BitArrayInterface* bits;
 	BitArray l0, l1_l2, sampling;
 	uint64_t onecnt;
 private:
@@ -62,23 +60,32 @@ private:
 	friend struct BlockIntIterator;
 };
 
+class Rank3p: public Rank3pAux {
+public:
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+private:
+	friend class Rank3pBuilder;
+	BitArray _own_bits;
+};
+
 /// Builder class for Rank3p
 class Rank3pBuilder {
 public:
+    static void build_aux(const BitArrayInterface* b, Rank3pAux * o);
 	static void build(const BitArray& b, Rank3p * o);
-	static void build(const BitArray& b, OutArchive& ar);
-	typedef Rank3p QueryTp;
+    typedef Rank3pAux QueryTp;
 private:
-	static uint64_t getwordz(const BitArray& v, size_t idx);
+	static uint64_t getwordz(const BitArrayInterface* v, size_t idx);
 };
 
 
 /// Rank3p with select hints
 class Rank3pHintSel {
-	Rank3p rankst;
+    Rank3p rankst;
 	FixedWArray hints;
 public:
-	void init(Rank3p& r);
+    void init(Rank3p& r);
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;

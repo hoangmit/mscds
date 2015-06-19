@@ -6,22 +6,22 @@
 
 namespace mscds {
 
-uint64_t Rank6pBuilder::popcntwz(const BitArray& v, size_t idx) {
-	if (idx < v.word_count()) return v.popcntw(idx);
+uint64_t Rank6pBuilder::popcntwz(const BitArrayInterface* v, size_t idx) {
+	if (idx < v->word_count()) return v->popcntw(idx);
 	else return 0;
 }
 
-void Rank6pBuilder::build(const BitArray& b, Rank6p * o) {
-	assert(b.length() <= (1ULL << 50));
+void Rank6pBuilder::build_aux(const BitArrayInterface *b, Rank6pAux * o) {
+	assert(b->length() <= (1ULL << 50));
 	o->bits = b;
-	uint64_t nc = ((o->bits.length() + 2047) / 2048) * 2;
+	uint64_t nc = ((o->bits->length() + 2047) / 2048) * 2;
 	o->inv = BitArrayBuilder::create(nc*64);
 	o->inv.fillzero();
 
 	uint64_t cnt = 0;
 	uint64_t pos = 0;
 	uint64_t i = 0;
-	while (i < o->bits.word_count()) {
+	while (i < o->bits->word_count()) {
 		o->inv.setword(pos, cnt);
 		for (unsigned int k = 0; k < 4; k++)
 			cnt += popcntwz(o->bits, i+k);
@@ -41,14 +41,19 @@ void Rank6pBuilder::build(const BitArray& b, Rank6p * o) {
 		o->inv.setword(pos, v);
 		i += 8*4; pos += 2;
 	}
-	o->onecnt = cnt;
+    o->onecnt = cnt;
+}
+
+void Rank6pBuilder::build(const BitArray &b, Rank6p *o) {
+    o->own_bits = b;
+    build_aux(&b, o);
 }
 
 /*
 void Rank6pBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.startclass("Rank6p", 1);
 	assert(b.length() <= (1ULL << 50));
-	ar.var("bit_len").save(b.length());
+    ar.var("bit_len").save(b.length());
 
 	uint64_t nc = ((b.length() + 2047) / 2048) * 2; // every 2048 bits is a block
 	ar.var("inventory");
@@ -83,7 +88,7 @@ void Rank6pBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.endclass();
 }*/
 
-void Rank6p::save_aux(OutArchive &ar) const {
+void Rank6pAux::save_aux(OutArchive &ar) const {
 	ar.startclass("Rank6p_auxiliary", 1);
 	ar.var("bit_len").save(length());
 	ar.var("inventory");
@@ -92,65 +97,75 @@ void Rank6p::save_aux(OutArchive &ar) const {
 	ar.endclass();
 }
 
-void Rank6p::load_aux(InpArchive &ar, BitArray &b) {
+void Rank6pAux::load_aux(InpArchive &ar, const BitArrayInterface* b) {
 	ar.loadclass("Rank6p_auxiliary");
 	size_t blen;
 	ar.var("bit_len").load(blen);
-	if (b.length() != blen) throw std::runtime_error("length mismatch");
-	//uint64_t nc = ((blen + 2047) / 2048) * 2;
 	inv.load(ar);
-	this->bits = b;
 	ar.var("onecnt").load(onecnt);
 	ar.endclass();
+	if (b->length() != blen) throw std::runtime_error("length mismatch");
+	//if (b->count_one() != onecnt) throw std::runtime_error("count_one mismatch");
+	this->bits = b;
 }
 
 void Rank6p::save(OutArchive &ar) const {
-	ar.startclass("Rank6p", 1);       // declare a new data structure class (for error checking)
+	/*ar.startclass("Rank6p", 1);       // declare a new data structure class (for error checking)
 	ar.var("bit_len").save(length()); // save integer variable
 	ar.var("inventory");              // declare the name of a sub-data-structure
 	inv.save(ar);                     // save the sub-data-structure. The sub-data-structure needs to implement "save"
 	ar.var("onecnt").save(onecnt);    // another way of saving a integer variable
-	bits.save(ar.var("bits"));        // another way of saving a sub-data-structure
+    bits.save(ar.var("bits"));   // another way of saving a sub-data-structure
 	ar.endclass();                    // end data structure class (for error checking)
+	*/
+	ar.startclass("Rank6p");
+	own_bits.save(ar.var("bits"));
+	save_aux(ar);
+	ar.endclass();
 }
 
 void Rank6p::load(InpArchive &ar) {
-	ar.loadclass("Rank6p");
+	/*ar.loadclass("Rank6p");
 	size_t blen;
 	ar.var("bit_len").load(blen);
 	inv.load(ar);
 	ar.var("onecnt").load(onecnt);
-	bits.load(ar.var("bits"));
+	own_bits.load(ar.var("bits"));
 	ar.endclass();
-	if (bits.length() != blen)
-		throw std::runtime_error("length mismatch");
+	bits = &own_bits;
+	if (bits->length() != blen)
+		throw std::runtime_error("length mismatch");*/
+	ar.loadclass("Rank6p");
+	own_bits.load(ar.var("bits"));
+	load_aux(ar, &own_bits);
+	ar.endclass();
 }
 
-bool Rank6p::bit(uint64_t p) const {
-	return bits.bit(p);
+bool Rank6pAux::bit(uint64_t p) const {
+	return bits->bit(p);
 }
 
-uint64_t Rank6p::rank(const uint64_t p) const {
-	assert(p <= bits.length());
-	if (p == bits.length()) return onecnt;
+uint64_t Rank6pAux::rank(const uint64_t p) const {
+	assert(p <= bits->length());
+	if (p == bits->length()) return onecnt;
 	const uint64_t wpos = p >> 6; // div 64
 	const uint64_t blk = (p >> 10) & ~1ull;
 
 	uint64_t val = (inv.word(blk) & 0x3FFFFFFFFFFFFULL) + subblkrank(blk, ((p >> 8) & 7ULL));
 	for (unsigned int i = 0; i < (unsigned int) (wpos & 3ULL); ++i)
-		val += bits.popcntw(i + (wpos & ~3ULL));
+		val += bits->popcntw(i + (wpos & ~3ULL));
 	return val + word_rank(wpos, p & 63ULL);
 }
 
-uint64_t Rank6p::rankzero(uint64_t p) const {
+uint64_t Rank6pAux::rankzero(uint64_t p) const {
 	return p - rank(p);
 }
 
-uint64_t Rank6p::blkrank(size_t blk) const {
+uint64_t Rank6pAux::blkrank(size_t blk) const {
 	return inv.word(2*blk) & 0x3FFFFFFFFFFFFULL;
 }
 
-uint64_t Rank6p::subblkrank(size_t blk, unsigned int off) const {
+uint64_t Rank6pAux::subblkrank(size_t blk, unsigned int off) const {
 	// off = [0..7]
 	const unsigned int hi = inv.word(blk) >> 50;
 	off = (off - 1) & 7;
@@ -159,7 +174,7 @@ uint64_t Rank6p::subblkrank(size_t blk, unsigned int off) const {
 	return subblk_rank;
 }
 
-uint64_t Rank6p::select(const uint64_t r) const {
+uint64_t Rank6pAux::select(const uint64_t r) const {
 	assert(r < onecnt);
 	//TODO: change to use upper_bound
 	uint64_t end = inv.word_count() / 2;
@@ -181,7 +196,7 @@ uint64_t Rank6p::select(const uint64_t r) const {
 	return selectblock(lo, r - blkrank(lo));
 }
 
-uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
+uint64_t Rank6pAux::selectblock(uint64_t blk, uint64_t d) const {
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < 8; i++)
 		if (subblkrank(blk*2, i) <= d) j = i;
@@ -189,9 +204,9 @@ uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 	d = d - subblkrank(blk*2, j);
 	uint64_t widx = blk * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr = bits.popcntw(widx);
+		unsigned int wr = bits->popcntw(widx);
 		if (d < wr)
-			return blk * 2048 + 256* j + 64 * k + selectword(bits.word(widx), d);
+			return blk * 2048 + 256* j + 64 * k + selectword(bits->word(widx), d);
 		else
 			d -= wr;
 		widx += 1;
@@ -200,16 +215,16 @@ uint64_t Rank6p::selectblock(uint64_t blk, uint64_t d) const {
 	return ~0ull;
 }
 
-uint64_t Rank6p::blkrank0(size_t blk) const {
+uint64_t Rank6pAux::blkrank0(size_t blk) const {
 	return blk * 2048 - (inv.word(blk*2) & 0x3FFFFFFFFFFFFULL);
 }
 
-uint64_t Rank6p::subblkrank0(size_t blk, unsigned int off) const {
+uint64_t Rank6pAux::subblkrank0(size_t blk, unsigned int off) const {
 	return off*4*64 - subblkrank(blk, off);
 }
 
-uint64_t Rank6p::selectzero(const uint64_t r) const {
-	assert(r < bits.length() - onecnt);
+uint64_t Rank6pAux::selectzero(const uint64_t r) const {
+	assert(r < bits->length() - onecnt);
 	//TODO: change to use upper_bound
 	uint64_t end = inv.word_count() / 2;
 	uint64_t lo = 0, len = end;
@@ -228,7 +243,7 @@ uint64_t Rank6p::selectzero(const uint64_t r) const {
 	return selectblock0(lo, r - blkrank0(lo));
 }
 
-uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
+uint64_t Rank6pAux::selectblock0(uint64_t lo, uint64_t d) const {
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < 8; i++)
 		if (subblkrank0(lo*2, i) <= d) j = i;
@@ -236,9 +251,9 @@ uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 	d = d - subblkrank0(lo*2, j);
 	uint64_t widx = lo * 32 + j * 4;
 	for (unsigned int k = 0; k < 4; k++)  {
-		unsigned int wr = 64-bits.popcntw(widx);
+		unsigned int wr = 64-bits->popcntw(widx);
 		if (d < wr)
-			return lo * 2048 + 256* j + 64 * k + selectword(~bits.word(widx), d);
+			return lo * 2048 + 256* j + 64 * k + selectword(~bits->word(widx), d);
 		else
 			d -= wr;
 		widx += 1;
@@ -247,22 +262,22 @@ uint64_t Rank6p::selectblock0(uint64_t lo, uint64_t d) const {
 	return ~0ull;
 }
 
-void Rank6p::clear() {
+void Rank6pAux::clear() {
 	inv.clear();
-	bits.clear();
+	bits = nullptr;
 	onecnt = 0;
 }
 
-unsigned int Rank6p::word_rank(size_t idx, unsigned int i) const {
-	return (i > 0) ? popcnt(bits.word(idx) & ((1ULL << i) - 1)) : 0;
+unsigned int Rank6pAux::word_rank(size_t idx, unsigned int i) const {
+	return (i > 0) ? popcnt(bits->word(idx) & ((1ULL << i) - 1)) : 0;
 }
 
 //------------------------------------------------------------------------
 
 struct BlockIntIterator {
-	const Rank6p& r;
+    const Rank6pAux& r;
 	uint64_t p;
-	BlockIntIterator(const Rank6p& _r): r(_r), p(0) {}
+    BlockIntIterator(const Rank6pAux& _r): r(_r), p(0) {}
 	void operator++() { ++p; }
 	uint64_t operator*() const { return r.blkrank(p); }
 };

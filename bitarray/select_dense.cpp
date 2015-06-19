@@ -146,14 +146,14 @@ unsigned int DenseSelectBlock::get_casex(unsigned int pos, const BitArray &v, un
 //---------------------------------------------------------------------------------
 
 template<typename F>
-size_t __SelectDenseBuilder_build(const BitArray &b, SelectDenseAux *o, F f,
+size_t __SelectDenseBuilder_build(const BitArrayInterface * b, SelectDenseAux *o, F f,
 		OBitStream& header, OBitStream& overflow) {
     std::vector<unsigned int> v(DenseSelectBlock::BLK_COUNT);
 	unsigned p = 0;
 	size_t cnt = 0;
     DenseSelectBlock bx;
-	for (unsigned int i = 0; i < b.length(); ++i) {
-		if (f(b[i])) {
+	for (unsigned int i = 0; i < b->length(); ++i) {
+		if (f(b->bit(i))) {
 			v[p++] = i;
 			cnt++;
 		}
@@ -175,35 +175,36 @@ size_t __SelectDenseBuilder_build(const BitArray &b, SelectDenseAux *o, F f,
 	return cnt;
 }
 
-void SelectDenseBuilder::build_aux(const BitArray &b, SelectDenseAux *o) {
+void SelectDenseBuilder::build_aux(const BitArrayInterface *b, SelectDenseAux *o) {
 	OBitStream header;
 	OBitStream overflow;
 	auto cnt = __SelectDenseBuilder_build(b, o, [](bool v) { return v; }, header, overflow);
 	header.build(&(o->ptrs));
 	overflow.build(&(o->overflow));
 	o->cnt = cnt;
-	o->len = b.length();
+	o->len = b->length();
+	o->bits = b;
+	o->is_one_select = true;
 }
 
 // clone from build(), only change !b[i]
-void SelectDenseBuilder::build0_aux(const BitArray &b, SelectDenseAux *o) {
+void SelectDenseBuilder::build0_aux(const BitArrayInterface *b, SelectDenseAux *o) {
 	OBitStream header;
 	OBitStream overflow;
 	auto cnt = __SelectDenseBuilder_build(b, o, [](bool v) { return !v; }, header, overflow);
 	header.build(&(o->ptrs));
 	overflow.build(&(o->overflow));
 	o->cnt = cnt;
-	o->len = b.length();
+	o->len = b->length();
+	o->is_one_select = false;
 }
 
 void SelectDenseBuilder::build(const BitArray &b, SelectDense *o) {
-	build_aux(b, &(o->aux));
-	o->bits = b;
+	build_aux(&b, o);
 }
 
-void SelectDenseBuilder::build0(const BitArray &b, Select0Dense *o) {
-	build0_aux(b, &(o->aux));
-	o->bits = b;
+void SelectDenseBuilder::build0(const BitArray &b, SelectDense *o) {
+	build0_aux(&b, o);
 }
 
 std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
@@ -226,11 +227,16 @@ std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
 	//return sloc + stx + px;
 }
 
-void SelectDenseAux::load_aux(InpArchive &ar, const BitArray &b) {
+void SelectDenseAux::load_aux(InpArchive &ar, const BitArrayInterface* b) {
 	ar.loadclass("select_dense_aux");
 	ar.var("cnt").load(cnt);
 	ar.var("bitlen").load(len);
-	if (len != b.length()) throw ioerror("not match length");
+	unsigned int type;
+	ar.var("select_type").load(type);
+	if (type == 1) is_one_select = true;
+	else if (type == 2) is_one_select = false;
+	else throw ioerror("wrong value");
+	if (len != b->length()) throw ioerror("not match length");
 	ptrs.load(ar.var("pointers"));
 	overflow.load(ar.var("overflow"));
 	ar.close();
@@ -240,6 +246,8 @@ void SelectDenseAux::save_aux(OutArchive &ar) const {
 	ar.startclass("select_dense_aux", 0);
 	ar.var("cnt").save(cnt);
 	ar.var("bitlen").save(len);
+	unsigned int type = is_one_select ? 1 : 2;
+	ar.var("select_type").save(type);
 	ptrs.save(ar.var("pointers"));
 	overflow.save(ar.var("overflow"));
 	ar.close();
@@ -253,36 +261,24 @@ void SelectDenseAux::clear() {
 }
 
 void SelectDense::load(InpArchive &ar) {
-	ar.loadclass("select_1_dense");
-	bits.load(ar.var("bits"));
-	aux.load_aux(ar.var("aux"), bits);
+	ar.loadclass("select_dense");
+	_own_bits.load(ar.var("bits"));
+	load_aux(ar.var("aux"), &_own_bits);
 	ar.close();
-	if (bits.count_one() != aux.cnt)
-		throw ioerror("not match");
+	if (is_one_select) {
+		if (_own_bits.count_one() != cnt)
+			throw ioerror("not match 1");
+	} else {
+		if (_own_bits.length() - _own_bits.count_one() != cnt)
+			throw ioerror("not match 0");
+	}
 }
 
 void SelectDense::save(OutArchive &ar) const {
-	ar.startclass("select_1_dense");
-	bits.save(ar.var("bits"));
-	aux.save_aux(ar.var("aux"));
+	ar.startclass("select_dense");
+	_own_bits.save(ar.var("bits"));
+	save_aux(ar.var("aux"));
 	ar.close();
 }
-
-void Select0Dense::load(InpArchive &ar) {
-	ar.loadclass("select_0_dense");
-	bits.load(ar.var("bits"));
-	aux.load_aux(ar.var("aux"), bits);
-	ar.close();
-	if (bits.length() - bits.count_one() != aux.cnt)
-		throw ioerror("not match");
-}
-
-void Select0Dense::save(OutArchive &ar) const {
-	ar.startclass("select_0_dense");
-	bits.save(ar.var("bits"));
-	aux.save_aux(ar.var("aux"));
-	ar.close();
-}
-
 
 }//namespace

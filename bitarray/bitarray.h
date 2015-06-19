@@ -124,14 +124,13 @@ class FixedWArrayBuilder {
 public:
 	template<typename Itr>
 	static void build_s(Itr bg, Itr ed, FixedWArray* out) {
-		unsigned width = 0;
-		uint64_t len = 0;
+		uint64_t len = 0, maxv = 0;
 		for (Itr it = bg; it != ed; ++it) {
 			uint64_t v = *it;
-			unsigned l = val_bit_len(v);
-			if (width < l) width = l;
+			if (maxv < v) maxv = v;
 			++len;
 		}
+		unsigned width = val_bit_len(maxv);
 		out->b = BitArrayBuilder::create(len*width);
 		out->width = width;
 		uint64_t i = 0;

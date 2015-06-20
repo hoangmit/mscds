@@ -89,6 +89,7 @@ void Rank25pAux::load_aux(InpArchive &ar, const BitArrayInterface * bits) {
 	inv.load(ar);
 	ar.var("onecnt").load(onecnt);
 	ar.endclass();
+	this->bits = bits;
 	if (bits->length() != blen) throw std::runtime_error("length mismatch");
 }
 

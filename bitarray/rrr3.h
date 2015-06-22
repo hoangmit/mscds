@@ -153,22 +153,9 @@ class RRR3_RankBuilder;
 
 class RRR3_Rank: public Rank6pAux {
 public:
-	void clear() {
-		Rank6pAux::clear();
-		rrr_bits.clear();
-	}
-	void load(InpArchive& ar) {
-		ar.loadclass("RRR3_Rank6p");
-		rrr_bits.load(ar.var("bits"));
-		Rank6pAux::load_aux(ar.var("rank"), &rrr_bits);
-		ar.endclass();
-	}
-	void save(OutArchive& ar) const {
-		ar.startclass("RRR3_Rank6p");
-		rrr_bits.save(ar.var("bits"));
-		Rank6pAux::save_aux(ar.var("rank"));
-		ar.endclass();
-	}
+    void clear();
+    void load(InpArchive& ar);
+    void save(OutArchive& ar) const;
 
 	typedef RRR3_RankBuilder BuilderTp;
 protected:

@@ -219,5 +219,24 @@ void RRR_BitArray::save(OutArchive &ar) const {
     ar.endclass();
 }
 
+void mscds::RRR3_Rank::clear() {
+    Rank6pAux::clear();
+    rrr_bits.clear();
+}
+
+void mscds::RRR3_Rank::load(mscds::InpArchive &ar) {
+    ar.loadclass("RRR3_Rank6p");
+    rrr_bits.load(ar.var("bits"));
+    Rank6pAux::load_aux(ar.var("rank"), &rrr_bits);
+    ar.endclass();
+}
+
+void mscds::RRR3_Rank::save(mscds::OutArchive &ar) const {
+    ar.startclass("RRR3_Rank6p");
+    rrr_bits.save(ar.var("bits"));
+    Rank6pAux::save_aux(ar.var("rank"));
+    ar.endclass();
+}
+
 }//namespace
 

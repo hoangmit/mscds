@@ -4,7 +4,7 @@
 #include "codec/rrr_codec.h"
 #include "bitarray.h"
 #include "rank25p.h"
-#include "rank3p.h"
+#include "rank6p.h"
 
 #include "bitstream.h"
 
@@ -149,12 +149,15 @@ public:
 private:
 };
 
-class RRR3_Rank: public Rank3pAux {
+class RRR3_RankBuilder;
+
+class RRR3_Rank: public Rank6pAux {
 public:
 	void clear() {
-		Rank3pAux::clear();
+		Rank6pAux::clear();
 		rrr_bits.clear();
 	}
+	typedef RRR3_RankBuilder BuilderTp;
 protected:
 	friend class RRR3_RankBuilder;
 	RRR_BitArray rrr_bits;
@@ -165,7 +168,7 @@ class RRR3_RankBuilder {
 public:
 	static void build(const BitArray& b, RRR3_Rank * o) {
 		RRR_BitArrayBuilder::build_array(b, &o->rrr_bits);
-		Rank3pBuilder::build_aux(&o->rrr_bits, o);
+		Rank6pBuilder::build_aux(&o->rrr_bits, o);
 	}
 };
 

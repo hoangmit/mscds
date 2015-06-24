@@ -34,6 +34,8 @@ private:
 	unsigned int select_hi(const uint16_t* hints, uint64_t start, uint32_t off) const;
 	unsigned int select_zerohi(const uint16_t * hints, uint64_t start, uint32_t off) const;
 private:
+	bool same_value;
+	uint64_t svalue;
 	uint16_t hints[SUBB_PER_BLK];
 	uint16_t width;
 	size_t lastpt, blkptr;

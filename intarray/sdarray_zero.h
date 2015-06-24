@@ -71,6 +71,9 @@ struct SDArrayZero: public SDArrayInterface{
 		cums.push_back(0);
 	}
 
+	void load(InpArchive& ar) {}
+	void save(OutArchive& ar) const {}
+
 	std::vector<uint64_t> cums;
 };
 

@@ -11,11 +11,26 @@ void SDArrayBlock2::saveBlock(OBitStream *bits) {
 	assert(vals.size() <= BLKSIZE);
 	if (vals.size() == 0) return;
 	while (vals.size() < BLKSIZE) vals.push_back(0);
+	bool same_value = true;
+	for (size_t p = 1; p < vals.size(); ++p)
+		if (vals[p] != vals[0]) { same_value = false; break; }
+
+	if (same_value) {
+		bits->put1();
+		uint16_t width = val_bit_len(vals[0]);
+		assert(width < 128);
+		bits->puts(width, 7);
+		bits->puts(vals[0], width);
+		vals.clear();
+		return ;
+	} else {
+		bits->put0();
+	}
 
 	for (size_t p = 1; p < vals.size(); ++p)
 		vals[p] += vals[p - 1];
 	uint64_t width = ceillog2(1 + vals.back() / vals.size());
-	assert(width < (1ULL << 7));
+	assert(width < 128);
 	bits->puts(width, 7);
 
 	//higher bits' hints
@@ -49,24 +64,36 @@ void SDArrayBlock2::loadBlock(const BitRange& br) {
 }
 
 void SDArrayBlock2::loadBlock(const BitArrayInterface *ba, size_t pt, size_t len) {
-	if (pt != lastpt) {
+	if (pt != lastpt || ba != this->bits) {
 		this->bits = ba;
-		width = ba->bits(pt, 7);
-		for (unsigned i = 0; i < SUBB_PER_BLK; ++i)
-			hints[i] = ba->bits(pt + 7 + H_WIDTH * i, H_WIDTH);
-		blkptr = pt + 7 + H_WIDTH * SUBB_PER_BLK;
-		lastpt = pt;
+		same_value = ba->bit(pt);
+		width = ba->bits(pt+1, 7);
+		if (same_value) {
+			svalue = ba->bits(pt+8, width);
+		} else {
+			for (unsigned i = 0; i < SUBB_PER_BLK; ++i)
+				hints[i] = ba->bits(pt + 8 + H_WIDTH * i, H_WIDTH);
+			blkptr = pt + 8 + H_WIDTH * SUBB_PER_BLK;
+			lastpt = pt;
+		}
 	}
 }
 
 SDArrayBlock2::ValueType SDArrayBlock2::prefixsum(unsigned int p) const {
 	if (p == 0) return 0;
-	ValueType lo = (width > 0) ? bits->bits(blkptr + width * (p - 1), width) : 0;
-	ValueType hi = select_hi(hints, blkptr + width*BLKSIZE, p - 1) + 1 - p;
-	return ((hi << width) | lo);
+	if (!same_value) {
+		ValueType lo = (width > 0) ? bits->bits(blkptr + width * (p - 1), width) : 0;
+		ValueType hi = select_hi(hints, blkptr + width*BLKSIZE, p - 1) + 1 - p;
+		return ((hi << width) | lo);
+	} else {
+		return svalue * p;
+	}
 }
 
 SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off) const {
+	if (same_value) {
+		return svalue;
+	}
 	uint64_t prev = 0;
 	int64_t prehi = 0;
 	if (off > 0) {
@@ -83,6 +110,10 @@ SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off) const {
 }
 
 SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off, ValueType &prev_sum) const {
+	if (same_value) {
+		prev_sum = off * svalue;
+		return svalue;
+	}
 	ValueType prev = 0;
 	ValueType prehi = 0;
 	if (off > 0) {
@@ -99,6 +130,7 @@ SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off, ValueType &prev
 }
 
 unsigned int SDArrayBlock2::rank(ValueType val) const {
+	if (same_value) { return val / svalue; }
 	ValueType vlo = val & ((1ull << width) - 1);
 	ValueType vhi = val >> width;
 	uint32_t hipos = 0, rank = 0;

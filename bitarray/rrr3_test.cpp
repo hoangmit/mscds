@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "utils/utest.h"
 #include "mem/info_archive.h"
 #include "rrr3.h"
@@ -25,6 +26,21 @@ static uint64_t randword2(unsigned chance=500) {
 		if (rand() % 1000 < chance) {
 			w |= 1;
 		}
+	}
+	return w;
+}
+
+static uint64_t randword3() {
+	unsigned k = rand() % 65;
+	std::vector<uint8_t> p1(64, 0);
+	for (unsigned i = 0; i < k; ++i) {
+		p1[i] = 1;
+	}
+	std::random_shuffle(p1.begin(), p1.end());
+	uint64_t w = 0;
+	for (unsigned i = 0; i < 64; ++i) {
+		w <<= 1;
+		if (p1[i] == 1) w |= 1;
 	}
 	return w;
 }
@@ -59,6 +75,12 @@ static std::vector<uint64_t> gen_rnd(unsigned len) {
 static std::vector<uint64_t> gen_rnd2(unsigned len, unsigned chance) {
 	std::vector<uint64_t> ret;
 	for (unsigned i = 0; i < len; ++i) ret.push_back(randword2(chance));
+	return ret;
+}
+
+static std::vector<uint64_t> gen_rnd3(unsigned len) {
+	std::vector<uint64_t> ret;
+	for (unsigned i = 0; i < len; ++i) ret.push_back(randword3());
 	return ret;
 }
 
@@ -102,6 +124,7 @@ TEST(rrr_word, test_rnd1) {
 		check<RRR_WordAccess>(gen_rnd(2000 + rand() % 100));
 		check<RRR_WordAccess>(gen_rnd2(2000 + rand() % 100, 50));
 		check<RRR_WordAccess>(gen_rnd2(2000 + rand() % 100, 950));
+		check<RRR_WordAccess>(gen_rnd3(2000 + rand() % 100));
 		if (i % 20 == 0) cout << '.';
 	}
 	cout << endl;
@@ -119,6 +142,25 @@ TEST(rrr_word, test_rnd2) {
 		check<AdaptiveWordAccesss>(gen_rnd(2000 + rand() % 100));
 		check<AdaptiveWordAccesss>(gen_rnd2(2000 + rand() % 100, 50));
 		check<AdaptiveWordAccesss>(gen_rnd2(2000 + rand() % 100, 950));
+		check<AdaptiveWordAccesss>(gen_rnd3(2000 + rand() % 100));
+		if (i % 20 == 0) cout << '.';
+	}
+	cout << endl;
+}
+
+TEST(rrr_word, test3) {
+	check<AdaptiveExtWordAccesss>(gen1(2001, 5));
+	check<AdaptiveExtWordAccesss>(gen1(2001));
+	check<AdaptiveExtWordAccesss>(gen0(2001));
+	check<AdaptiveExtWordAccesss>(gen0(2001, 5));
+}
+
+TEST(rrr_word, test_rnd3) {
+	for (unsigned i = 0; i < 200; ++i) {
+		check<AdaptiveExtWordAccesss>(gen_rnd(2000 + rand() % 100));
+		check<AdaptiveExtWordAccesss>(gen_rnd2(2000 + rand() % 100, 50));
+		check<AdaptiveExtWordAccesss>(gen_rnd2(2000 + rand() % 100, 950));
+		check<AdaptiveExtWordAccesss>(gen_rnd3(2000 + rand() % 100));
 		if (i % 20 == 0) cout << '.';
 	}
 	cout << endl;

@@ -134,7 +134,7 @@ unsigned int SDArrayBlock2::rank(ValueType val) const {
 		if (svalue != 0) return val / svalue;
 		else
 			if (val == 0) return 0;
-			else return BLKSIZE;
+			else return BLKSIZE+1;
 	}
 	ValueType vlo = val & ((1ull << width) - 1);
 	ValueType vhi = val >> width;

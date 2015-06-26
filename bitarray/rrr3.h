@@ -182,20 +182,21 @@ template<typename WordAccess>
 struct Word_BitArray: public BitArrayGeneric<WordAccess> {
     typedef Word_BitArrayBuilder<WordAccess> BuilderTp;
     friend class Word_BitArrayBuilder<WordAccess>;
+	typedef BitArrayGeneric<WordAccess> ParentTp;
     void clear() {
-        _bitlen = 0;
-        _data.clear();
+		ParentTp::_bitlen = 0;
+		ParentTp::_data.clear();
     }
     void load(InpArchive& ar) {
         ar.loadclass("Generic_Word_BitArray");
-        ar.var("length").load(_bitlen);
-        _data.load(ar.var("bit_data"));
+		ar.var("length").load(ParentTp::_bitlen);
+		ParentTp::_data.load(ar.var("bit_data"));
         ar.endclass();
     }
     void save(OutArchive& ar) const {
         ar.startclass("Generic_Word_BitArray");
-        ar.var("length").save(_bitlen);
-        _data.save(ar.var("bit_data"));
+		ar.var("length").save(ParentTp::_bitlen);
+		ParentTp::_data.save(ar.var("bit_data"));
         ar.endclass();
     }
 };

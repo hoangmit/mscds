@@ -28,21 +28,11 @@ string get_tempdir() {
 	return utils::get_temp_path();
 };
 
+
 template<typename SDArray>
-static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
-	typedef typename SDArray::BuilderTp BuilderTp;
-	BuilderTp bd;
-	unsigned int N = vals.size();
-	SDArrayZero zero;
-	for (unsigned int v : vals) {
-		bd.add(v);
-		zero.add(v);
-	}
-
-	SDArray sda;
-	bd.build(&sda);
-
-	ASSERT_EQ(N, sda.length());
+static void check_all(const SDArray& sda, const SDArrayZero& zero) {
+	ASSERT_EQ(zero.length(), sda.length());
+	unsigned N = zero.length();
 	// prefixsum
 	unsigned exp, val;
 	for (int i = 0; i < N; ++i) {
@@ -76,13 +66,29 @@ static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
 			ASSERT_EQ(exp, val);
 		}
 	} else {
-		for (unsigned i = 0; i <= last; i+=19) {
+		for (unsigned i = 0; i <= last; i += 19) {
 			exp = zero.rank(i);
 			val = sda.rank(i);
 			ASSERT_EQ(exp, val);
 		}
 	}
 }
+template<typename SDArray>
+static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
+	typedef typename SDArray::BuilderTp BuilderTp;
+	BuilderTp bd;
+	unsigned int N = vals.size();
+	SDArrayZero zero;
+	for (unsigned int v : vals) {
+		bd.add(v);
+		zero.add(v);
+	}
+	SDArray sda;
+	bd.build(&sda);
+	ASSERT_EQ(N, zero.length());
+	check_all<SDArray>(sda, zero);
+}
+
 
 static std::vector<unsigned int> gen_zeros(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
@@ -95,6 +101,14 @@ static std::vector<unsigned int> gen_ones(unsigned int N = 10000) {
 	for (int i = 0; i < N; ++i) ret[i] = 1;
 	return ret;
 }
+
+static std::vector<unsigned int> gen_same(unsigned val, unsigned int N = 10000) {
+	std::vector<unsigned int> ret(N);
+	for (int i = 0; i < N; ++i) ret[i] = val;
+	return ret;
+}
+
+
 
 static std::vector<unsigned int> gen_increasing(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
@@ -731,9 +745,24 @@ TEST(sdatest_sml, test_sda2_rnd_all) {
 		if (i % 10 == 0) cout << '.';
 	}
 	cout << endl;
-
 }
 
+TEST(sdatest_sml, testrnd2) {
+	std::vector<unsigned> vec;
+	vec = gen_zeros();
+	check_prefixsum_lookup<SDArraySml>(vec);
+	vec = gen_ones();
+	check_prefixsum_lookup<SDArraySml>(vec);
+	vec = gen_same(2);
+	check_prefixsum_lookup<SDArraySml>(vec);
+	vec = gen_same(3);
+	check_prefixsum_lookup<SDArraySml>(vec);
+
+	vec = gen_increasing();
+	check_prefixsum_lookup<SDArraySml>(vec);
+	vec = gen_rand();
+	check_prefixsum_lookup<SDArraySml>(vec);
+}
 
 TEST(sda_compress, test1) {
 	std::vector<unsigned> vec;
@@ -741,10 +770,16 @@ TEST(sda_compress, test1) {
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 	vec = gen_ones();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_same(2);
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+	vec = gen_same(3);
+	check_prefixsum_lookup<SDArrayCompress>(vec);
+
 	vec = gen_increasing();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 	vec = gen_rand();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
 }
+
 
 }//namespace

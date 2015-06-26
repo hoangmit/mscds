@@ -11,16 +11,17 @@ void SDArrayBlock2::saveBlock(OBitStream *bits) {
 	assert(vals.size() <= BLKSIZE);
 	if (vals.size() == 0) return;
 	while (vals.size() < BLKSIZE) vals.push_back(0);
-	bool same_value = true;
+	same_value = true;
 	for (size_t p = 1; p < vals.size(); ++p)
 		if (vals[p] != vals[0]) { same_value = false; break; }
 
 	if (same_value) {
 		bits->put1();
-		uint16_t width = val_bit_len(vals[0]);
+		svalue = vals[0];
+		uint16_t width = val_bit_len(svalue);
 		assert(width < 128);
 		bits->puts(width, 7);
-		bits->puts(vals[0], width);
+		bits->puts(svalue, width);
 		vals.clear();
 		return ;
 	} else {
@@ -131,7 +132,7 @@ SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off, ValueType &prev
 
 unsigned int SDArrayBlock2::rank(ValueType val) const {
     if (same_value) {
-		if (svalue != 0) return val / svalue;
+		if (svalue != 0) return (val + svalue - 1) / svalue;
 		else
 			if (val == 0) return 0;
 			else return BLKSIZE+1;

@@ -130,7 +130,7 @@ SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off, ValueType &prev
 }
 
 unsigned int SDArrayBlock2::rank(ValueType val) const {
-	if (same_value) { return val / svalue; }
+    if (same_value) { if (svalue != 0) return val / svalue; else return 0; }
 	ValueType vlo = val & ((1ull << width) - 1);
 	ValueType vhi = val >> width;
 	uint32_t hipos = 0, rank = 0;

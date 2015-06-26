@@ -75,8 +75,8 @@ void SDArrayBlock2::loadBlock(const BitArrayInterface *ba, size_t pt, size_t len
 			for (unsigned i = 0; i < SUBB_PER_BLK; ++i)
 				hints[i] = ba->bits(pt + 8 + H_WIDTH * i, H_WIDTH);
 			blkptr = pt + 8 + H_WIDTH * SUBB_PER_BLK;
-			lastpt = pt;
 		}
+		lastpt = pt;
 	}
 }
 

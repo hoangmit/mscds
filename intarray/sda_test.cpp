@@ -57,6 +57,16 @@ static void check_all(const SDArray& sda, const SDArrayZero& zero) {
 		ASSERT_EQ(ps0, ps1);
 	}
 
+	// lookup different order
+	for (int i = 0; i < N; ++i) {
+		unsigned j;
+		if (i % 2 == 0) j = i; 
+		else j = N - 1 - i;
+		exp = zero.lookup(j);
+		val = sda.lookup(j);
+		ASSERT_EQ(exp, val);
+	}
+
 	//rank
 	auto last = zero.prefixsum(N);
 	if (last <= 100000) {

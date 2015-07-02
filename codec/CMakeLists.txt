@@ -9,6 +9,8 @@ golomb_coder.cpp
 huffman_code.cpp
 vbyte.cpp
 rrr_codec.cpp
+sym_table.cpp
+sym_table_alias.cpp
 )
 
 set(HEADER
@@ -25,6 +27,9 @@ vbyte.h
 utf8.h
 stream/codec_adapter.h
 rrr_codec.h
+rans_byte.hpp
+sym_table.h
+sym_table_alias.h
 )
 
 
@@ -51,4 +56,4 @@ add_test_files(test_compression_framework.cpp test_rrr_code.cpp test_arithmetic_
 #target_link_libraries(codec_stream codec bitarray)
 
 
-#add_test_exec(t_rrr_code FILES test_rrr_code.cpp LIBS utils codec)
+add_test_exec(t_rans FILES test_rans.cpp LIBS utils codec)

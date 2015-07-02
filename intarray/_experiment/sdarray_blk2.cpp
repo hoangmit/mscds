@@ -67,6 +67,7 @@ void SDArrayBlock2::loadBlock(const BitRange& br) {
 void SDArrayBlock2::loadBlock(const BitArrayInterface *ba, size_t pt, size_t len) {
 	if (pt != lastpt || ba != this->bits) {
 		this->bits = ba;
+		lastpt = pt;
 		same_value = ba->bit(pt);
 		width = ba->bits(pt+1, 7);
 		if (same_value) {
@@ -76,7 +77,6 @@ void SDArrayBlock2::loadBlock(const BitArrayInterface *ba, size_t pt, size_t len
 				hints[i] = ba->bits(pt + 8 + H_WIDTH * i, H_WIDTH);
 			blkptr = pt + 8 + H_WIDTH * SUBB_PER_BLK;
 		}
-		lastpt = pt;
 	}
 }
 

@@ -47,7 +47,7 @@
 // Windows does not define ssize_t by default.  This is a workaround.
 #if defined(_WIN32)
 #include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
+//typedef SSIZE_T int
 #endif
 
 namespace snappy {

@@ -1,9 +1,11 @@
 
+/** \file
+More precise algorithms for computing summation and variance
+*/
 namespace utils {
 
-// more precise algorithms for computing summation and variance from wiki
 
-// Kahan summation algorithm (a.k.a.) Compensated Summation
+/// Kahan summation algorithm (a.k.a.) Compensated Summation
 template<typename F=double>
 class CSummation {
 public:
@@ -20,6 +22,7 @@ private:
 	F c;
 };
 
+/// numerically stable variance algorithm
 template<typename F=double>
 class IncVariance {
 public:

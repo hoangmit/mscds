@@ -3,3 +3,4 @@ build
 gntf/old
 *.cpp.orig
 *.h.orig
+.git/*

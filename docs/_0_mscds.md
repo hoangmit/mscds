@@ -48,5 +48,27 @@ We aim to support the following memory models for Query data structures:
    * HTTP remote file
    * FTP remote file
 
+## Getting started ##
+
+[C++ knowledge prerequisite](_1_cpp_guide.md)
+
+[Install MSCDS](_0a_install_mscds.md)
+
+## Data structure documentations ##
+[Save data strucure to file](_1_save_to_file.md)
+Data structures for array of bits:
+* [BitArray](_2_bitarray.md)
+* [RankSelect](_3_rankselect.md)
+
+Data structure for array of integers
+* [SDArray](_4_sdarray.md)
+* [Wavelet array](_5_wavelet_array.md)
+
+Design
+* [Low level memory management](low_lvl_mem.md)
+
+Application 
+* [CWig](cwig.md)
+* CBed
 
 

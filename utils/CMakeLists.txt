@@ -25,12 +25,14 @@ utils.h
 debug.h
 utest.h
 param.h
+prec_summation.h
 modp_numtoa.h
 cache_table.h
 rand_data.h
 benchmark.h
 md5.h
 hash_utils.h
+mix_ptr.h
 endian.h
 version.h
 )

@@ -76,14 +76,6 @@ make
 
 ## Use mscds
 
-For GCC, use ["-I" option](http://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html) to specify the include directory; use ["-L", "-l" options](http://gcc.gnu.org/onlinedocs/gcc/Link-Options.html) to specify the library path and library name.
-
-For example:
-~~~~~~~~~~~~~~~bash
-g++
-~~~~~~~~~~~~~~~
-
-### Makefile
 
 ### CMake
 
@@ -126,4 +118,13 @@ add_executable(your_program_name ${SRCS} ${HEADERS})
 target_link_libraries(your_program_name ${MSCDS_LIB})
 ~~~~~~~~~~~~~~~
 
+### Makefile
+
+
+For GCC, use ["-I" option](http://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html) to specify the include directory; use ["-L", "-l" options](http://gcc.gnu.org/onlinedocs/gcc/Link-Options.html) to specify the library path and library name.
+
+For example:
+~~~~~~~~~~~~~~~bash
+g++
+~~~~~~~~~~~~~~~
 

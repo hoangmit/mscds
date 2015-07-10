@@ -1,0 +1,5 @@
+/.hg/*
+*/.hg/*
+*.cpp.orig
+*.h.orig
+/build/*

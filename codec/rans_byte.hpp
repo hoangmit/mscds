@@ -49,7 +49,7 @@ struct RansEncOp {
 	template<typename OStream>
 	static RansState put(RansState r, OStream* pptr, uint32_t start, uint32_t freq, uint32_t scale_bits) {
 		// renormalize
-		RansState x = _renorm(_r, pptr, freq, scale_bits);
+		RansState x = _renorm(r, pptr, freq, scale_bits);
 		// x = C(s,x)
         return _update(x,  start, freq, scale_bits);
 	}

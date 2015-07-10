@@ -1,6 +1,7 @@
 
 
 #include "rans_byte.hpp"
+#include <stdlib.h>
 
 namespace coder {
 
@@ -29,7 +30,7 @@ struct RansEncSymbolOp {
 
 		// renormalize
 		uint32_t x = r;
-		while (x >= x_max) {
+		while (x >= s->x_max) {
             pptr->put((uint8_t) (x & 0xff));
 			x >>= 8;
 		}
@@ -69,7 +70,7 @@ struct RansDecSymbolOp {
 	// Equivalent to advanceStep that takes a symbol.
 	template<typename IStream>
 	static RansState advanceSymbolStep(RansDecSymbol const* sym, RansState r, uint32_t scale_bits) {
-		return _advanceStep(r, sym->start, sym->freq, scale_bits);
+		return _advanceStep<IStream>(r, sym->start, sym->freq, scale_bits);
 	}
 	
 };

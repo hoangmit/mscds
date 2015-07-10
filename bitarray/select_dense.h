@@ -7,7 +7,9 @@
 #include "bitstream.h"
 #include "bitop.h"
 
-/** \file: suitable for bitarray with high density of 1-bit (e.g. 100% -- 25% density) */
+/** \file
+suitable for bitarray with high density of 1-bit (e.g. 100% -- 25% density)
+*/
 
 namespace mscds {
 

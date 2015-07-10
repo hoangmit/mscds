@@ -1,7 +1,8 @@
 #pragma once
 
 /** 
-\file Compressed SDArray (using RRR bitvector)
+\file
+Compressed SDArray (using RRR bitvector)
 */
 
 #include "sdarray_interface.h"

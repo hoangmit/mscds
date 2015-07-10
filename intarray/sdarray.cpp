@@ -33,13 +33,13 @@ namespace mscds {
 const uint64_t SDArrayBuilder::BLOCK_SIZE = 64;
 const uint64_t SDArrayQuery::BLOCK_SIZE = 64;
 
-uint64_t SDArrayQuery::selectWord(uint64_t x, uint64_t r){
+uint64_t SDArrayQuery::selectWord(uint64_t x, uint64_t r) {
 	assert(r > 0);
 	return selectword(x,r-1);
 }
 
 
-uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num){
+static uint64_t getBits(uint64_t x, uint64_t beg, uint64_t num) {
 	return (x >> beg) & ((1ULL << num) - 1);
 }
 

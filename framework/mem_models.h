@@ -39,6 +39,7 @@ enum EndiannessType {
 	BIG_ENDIAN_ACCESS
 };
 
+/// MemoryAlignmentType to alignment length
 inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	switch (t) {
 	case DEFAULT: return 1;
@@ -51,6 +52,7 @@ inline unsigned int memory_alignment_value(MemoryAlignmentType t) {
 	return 0;
 }
 
+/// Type of memory access
 enum MemoryAccessType {
 	/// there is no cache, cannot use "get_addr()"
 	API_ACCESS = 0,

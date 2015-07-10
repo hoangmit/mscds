@@ -34,6 +34,7 @@ public:
 	void add(const std::string& bed_line);
 	void build(GenomeNumData* data);
 	void build(mscds::OutArchive& ar);
+	/// build from BedGraph file
 	void build_bedgraph(std::istream& fi, mscds::OutArchive& ar,
 		 bool minmax_query = true, bool annotation = false);
 	/**

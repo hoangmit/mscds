@@ -3,7 +3,9 @@
 #ifndef __ARCHIVE_H_
 #define __ARCHIVE_H_
 
-/** \file This file defines interfaces for Archive classes */
+/** \file
+This file defines interfaces for Archive classes
+*/
 
 #include "mem_models.h"
 #include "utils/endian.h"

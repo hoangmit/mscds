@@ -1,6 +1,8 @@
 #pragma once
 
-
+/**  \file
+Variable length array
+*/
 
 #include "framework/archive.h"
 #include "sdarray_sml.h"
@@ -12,6 +14,7 @@ namespace mscds {
 
 class VLenArrayBuilder;
 
+/// Code length is stored using SDArray
 class VLenArray {
 public:
 	void load(InpArchive& ar);

@@ -1,7 +1,7 @@
 # Low level memory management #
 
 
-# Introduction #
+## Introduction ##
 
 This memory manager provides a simple set of APIs to access multiple types of memory namely: local RAM memory, local file, and remote file. 
 The memory manager handles file access, address mapping, data caching and network communication to simplify and unify the process. Different memory types can be read/written through a basic API which handle the detailed operations. The manager also provide advanced API with more type details for user who prefer optimizations. 
@@ -24,7 +24,7 @@ file caching schemes,
 file location and access mode,
 e.g. remote or local file.
 
-## Examples ##
+### Examples ###
 
 <div style="text-align:center;">
 <img src="./mem_images/Picture1.png" alt="Drawing" style="width: 420px;"/>
@@ -42,7 +42,7 @@ e.g. remote or local file.
 
 
 
-## Data structure ##
+### Data structure ###
 
 
 The convention in the MSCDS library is each data structure is implemented in two classes: `Builder` class and `Query` class. The builder implements the data structure creation algorithms. It also serves as the container for temporary data. Query class implements query algorithms from compacted data.
@@ -55,7 +55,7 @@ Below is an example of a simple data structure that only store a string and allo
 
 There are two classes the Builder class construct the string. The Query class allows user to read from the string. The `example()` function is how the functions are used. There are a few classes that were not introduced namely `DynamicMemRegionPtr`, `StaticMemRegionPtr`, `IFileArchive2` and `OFileArchive2`. They are different implementations of Memory Region and Archive. They will be mentioned in the subsequence sub-sections. In this example, we want to highlight the conventional flow of  interactions of data structure classes in the `example()` function.
 
-~~~~~~~~~ cpp
+~~~~~~~~~cpp
 #include "framework/mem_models.h"
 #include "framework/archive.h"
 #include "mem/local_mem.h"
@@ -119,7 +119,7 @@ void example() {
 ~~~~~~~~~
 
 
-# Allocator #
+## Allocator ##
 
 Purposes:
 * Allocate memory and return a Static/DynamicMemRegion
@@ -139,7 +139,7 @@ Currently only memory is implemented in `mem/local_mem.h`.
 
 
 
-# Memory Region #
+## Memory Region ##
 
 Types:
 
@@ -220,7 +220,7 @@ void append(StaticMemRegionAbstract& other);
 ~~~~~~~~~
 
 
-# Archive #
+## Archive ##
 
 
 Archive stores:
@@ -266,7 +266,7 @@ All files with same layout version are compatible.
 ~~~~~~~~~cpp
 class SString;
 class SStringBuilder;
-
+using namespace mscds;
 
 /// Example: Builder class for SString
 class SStringBuilder {

@@ -14,9 +14,8 @@ Classes to store program configuration and parameters
 #include <map>
 #include <unordered_map>
 
-
-class Config
-{
+/// Store program configurations and parameters
+class Config {
 public:
 	bool extractVar(const std::string& line);
 	void parse(int argc, const char* argv[]);

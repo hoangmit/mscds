@@ -1,5 +1,9 @@
 #pragma once
 
+/** 
+\file Compressed SDArray (using RRR bitvector)
+*/
+
 #include "sdarray_interface.h"
 #include "bitarray/rrr3.h"
 #include "bitarray/bitarray.h"
@@ -9,6 +13,7 @@ namespace mscds {
 
 class SDArrayCompressBuilder;
 
+/// Compressed SDArray
 class SDArrayCompress: public SDArrayInterface {
 public:
 	typedef uint64_t ValueTp;

@@ -37,12 +37,12 @@ struct BitArrayInterface: public WordAccessInterface {
 
 	/** returns the number of 1-bit in the word at `p` */
 	virtual uint8_t popcntw(size_t pos) const = 0;
-	/// scans the BitArray for the next 1-bit, returns -1 if cannot find
+	/** scans the BitArray for the next 1-bit, returns -1 if cannot find */
 	virtual int64_t scan_bits(uint64_t start, uint32_t res) const = 0;
-	///optimized version of scan_bits with p=0
+	/** optimized version of scan_bits with p=0 */
 	virtual int64_t scan_next(uint64_t start) const = 0;
 
-	/// scans for 0-bit
+	/** scans for 0-bit */
 	virtual int64_t scan_zeros(uint64_t start, uint32_t res) const = 0;
 
 	/** convert to string for debug or display */
@@ -95,13 +95,13 @@ public:
 	uint64_t bits64(size_t bitindex) const;
 
 	//--------------------------------------------------
-	/// scans the BitArray for the next 1-bit, returns -1 if cannot find
+	/** scans the BitArray for the next 1-bit, returns -1 if cannot find */
 	int64_t scan_bits(uint64_t start, uint32_t res) const;
-	///optimized version of scan_bits with p=0
+	/** optimized version of scan_bits with p=0 */
 	int64_t scan_next(uint64_t start) const;
 	int64_t scan_bits_slow(uint64_t start, uint32_t res) const;
 
-	/// scans for 0-bit
+	/** scans for 0-bit */
 	int64_t scan_zeros(uint64_t start, uint32_t res) const;
 	int64_t scan_zeros_slow(uint64_t start, uint32_t res) const;
 

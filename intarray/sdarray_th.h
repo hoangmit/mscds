@@ -28,7 +28,7 @@ private:
 };
 
 
-/// SDArray with more linear structures
+/// SDArray using two linear structures
 class SDArrayTH: public SDArrayInterface  {
 public:
 	/** returns the value of A[i] */

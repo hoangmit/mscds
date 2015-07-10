@@ -10,6 +10,9 @@ Common random generator for string, vector and bits
 #include <vector>
 #include <cstdlib>
 
+namespace tests {
+
+/// generates random string
 inline std::string generate_str(size_t len, const std::string& alph = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
 	std::string out;
 	for (size_t i = 0; i < len; ++i) {
@@ -19,6 +22,7 @@ inline std::string generate_str(size_t len, const std::string& alph = "012345678
 	return out;
 }
 
+/// generate random vector
 template<typename T = unsigned int>
 inline std::vector<T> rand_vec(unsigned int len, int range = 1000) {
 	std::vector<T> out(len);
@@ -27,6 +31,7 @@ inline std::vector<T> rand_vec(unsigned int len, int range = 1000) {
 	return out;
 }
 
+/// generate random bit vector
 inline std::vector<bool> rand_bitvec(unsigned int len, double true_percentage = 50) {
 	// this implementation is only accurate up to 0.01%
 	std::vector<bool> bv(len);
@@ -37,3 +42,4 @@ inline std::vector<bool> rand_bitvec(unsigned int len, double true_percentage = 
 	return bv;
 }
 
+}//namespace

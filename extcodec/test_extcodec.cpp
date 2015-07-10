@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace mscds;
+using namespace tests;
 
 template<typename Codec>
 void testcd(const string& inp) {

@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace mscds;
+using namespace tests;
 
 TEST(compressblk, test1) {
 	vector<string> inp = { "abc", "def" };

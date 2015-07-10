@@ -47,13 +47,13 @@ target_link_libraries(codec ${LIBS})
 add_test_files(test_coder.cpp test_bstreamg.cpp test_huffman.cpp test_aux_stream.cpp)
 
 
-add_test_files(test_compression_framework.cpp test_rrr_code.cpp test_arithmetic_code.cpp)
+add_test_files(test_compression_framework.cpp test_rrr_code.cpp test_arithmetic_code.cpp test_rans.cpp)
 
 
 
-#add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils codec)
 #add_library(codec_stream codec_adapter.h)
 #target_link_libraries(codec_stream codec bitarray)
 
 
-add_test_exec(t_rans FILES test_rans.cpp LIBS utils codec)
+#add_test_exec(t_arithmetic_code FILES test_arithmetic_code.cpp LIBS utils codec)
+#add_test_exec(t_rans FILES test_rans.cpp LIBS utils codec)

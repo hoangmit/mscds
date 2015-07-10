@@ -13,7 +13,7 @@
 
 using namespace std;
 using namespace app_ds;
-
+using namespace tests;
 
 template<typename StructTp>
 void test_intervals(const std::vector<std::pair<unsigned int, unsigned int> >& rng, int testid = 0) {

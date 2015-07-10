@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 namespace utils {
+/// measure cache line size
 size_t cache_line_size();
 }
 

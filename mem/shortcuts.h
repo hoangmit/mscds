@@ -15,7 +15,7 @@ inline void save_to_file(const T& a, const std::string& name) {
 	ar.close();
 }
 
-// lazy load from file
+/// load data structure from file (only necessary data to memory)
 template<typename T>
 inline void load_from_file(T& a, const std::string& name) {
 	IFileMapArchive2 fi;
@@ -24,6 +24,7 @@ inline void load_from_file(T& a, const std::string& name) {
 	fi.close();
 }
 
+/// load data structure from file (everything to memory)
 template<typename T>
 inline void force_load_from_file(T& a, const std::string& name) {
 	IFileArchive2 fi;

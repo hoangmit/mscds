@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+\file
+Another variant of RRR Compressed Rank/Select data structure.
+*/
 
 #include "codec/rrr_codec.h"
 #include "bitarray.h"
@@ -7,6 +11,7 @@
 #include "rank6p.h"
 
 #include "bitstream.h"
+
 
 namespace mscds {
 class RRR_WordAccessBuilder;
@@ -217,6 +222,7 @@ typedef Word_BitArrayBuilder<AdaptiveWordAccesss> RRR_BitArrayBuilder;
 
 class RRR3_RankBuilder;
 
+/// Rank for RRR3
 class RRR3_Rank: public Rank6pAux {
 public:
     void clear();

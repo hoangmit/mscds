@@ -41,6 +41,7 @@ namespace mscds {
 
 #define ZCOMPARE_STEP_8(x) ( ( ( x | ( ( x | MSBS_STEP_8 ) - ONES_STEP_8 ) ) & MSBS_STEP_8 ) >> 7 )
 
+/// returns the position of the r-th 1-bit
 // from "Sebastiano Vigna"  at http://vigna.di.unimi.it/
 inline uint64_t selectword_v2(uint64_t x, uint64_t r) {
 	uint64_t byte_sums = x - ( ( x & 0xa * ONES_STEP_4 ) >> 1 );
@@ -106,6 +107,7 @@ inline uint64_t selectword(uint64_t x, uint64_t r){
 
 namespace mscds{
 #if defined (_WIN64)
+	/// returns the position of the most significant bit (using CPU instruction)
 	#pragma intrinsic(_BitScanReverse64)
 	inline unsigned int msb_intr(unsigned long long int number) {
 		unsigned long index;
@@ -113,6 +115,7 @@ namespace mscds{
 		return index;
 	}
 
+	/// returns the position of the least significant bit (using CPU instruction)
 	#pragma intrinsic(_BitScanForward64)
 	inline unsigned int lsb_intr(unsigned long long int number) {
 		unsigned long index;
@@ -120,6 +123,7 @@ namespace mscds{
 		return index;
 	}
 
+	/// counts the number of 1-bit
 	#pragma intrinsic(__popcnt64)
 	inline unsigned int popcnt(unsigned long long int number) {
 		return (unsigned int) __popcnt64(number);
@@ -211,14 +215,17 @@ namespace mscds{
 #if defined(__GNUC__)
 
 namespace mscds {
+	/// returns the position of the most significant bit (using CPU instruction)
 	inline unsigned int msb_intr(unsigned long long int number) {
 		return sizeof(number) * 8 -  __builtin_clzll(number) - 1;
 	}
 
+	/// returns the position of the least significant bit (using CPU instruction)
 	inline unsigned int lsb_intr(unsigned long long int number) {
 		return __builtin_ctzll(number);
 	}
 
+	/// counts the number of 1-bit
 	inline unsigned int popcnt(unsigned long long int number) {
 		return __builtin_popcountll(number);
 	}
@@ -242,12 +249,14 @@ namespace mscds {
 		return (uint8_t)((b * 0x0202020202ULL & 0x010884422010ULL) % 1023);
 	}
 
+	/// reverses bit order (using  multiplication and other bit operations)
 	inline uint8_t revbits_comp8(uint8_t b) {
 		return ((b * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 	}
 
 	uint8_t revbits_table8(uint8_t b);
 
+	/// reverses bit order
 	inline uint32_t revbits(uint32_t v) {
 		uint32_t c;
 		unsigned char * p = (unsigned char *) &v;
@@ -259,6 +268,7 @@ namespace mscds {
 		return c;
 	}
 
+	/// counts the number of 1-bit in a word (using sideways addition method)
 	inline unsigned int popcnt_comp(uint64_t x) {
 		x = x - ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
 		x = (x & 0x3333333333333333ULL) + ((x >> 2) & 0x3333333333333333ULL);
@@ -278,11 +288,14 @@ namespace mscds {
 		x = (x & 0x33333333u) + ((x >> 2) & 0x33333333u);
 		return (((x + (x >> 4)) & 0x0F0F0F0Fu) * 0x01010101u) >> 24;
 	}
+	/// returns the position of the least significant bit (using table lookup method)
 	unsigned int lsb_table(uint64_t number);
+	/// returns the position of the most significant bit (using table lookup method)
 	unsigned int msb_table(uint64_t number);
 	unsigned int lsb_table32(uint32_t number);
 	unsigned int msb_table32(uint32_t number);
 
+	/// returns the position of the most significant bit (using dbruijn method)
 	unsigned int msb_debruijn32(uint32_t v);
 	unsigned int lsb_debruijn32(uint32_t v);
 	
@@ -291,7 +304,7 @@ namespace mscds {
 
 namespace mscds {
 
-	/** \brief returns the value of ceiling of log_2(n) */
+	/// returns the value of ceiling of log_2(n)
 	inline unsigned int ceillog2(uint64_t n) {
 		if (n == 0) return 0;
 		return msb_intr(n) + (n&(n-1) ? 1 : 0);
@@ -313,6 +326,7 @@ namespace mscds {
 		return msb_intr32(n);
 	}
 
+	/// returns the numbers of bits need to store value n
 	inline unsigned int val_bit_len(uint64_t n) {
 		if (n == 0) return 0;
 		else return msb_intr(n) + 1;

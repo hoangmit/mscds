@@ -5,6 +5,8 @@
 
 #include "utils/str_utils.h"
 
+using namespace tests;
+
 /*
 struct StmFix : public SharedFixtureItf {
 	void SetUp(int size) {

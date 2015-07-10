@@ -18,7 +18,7 @@ using namespace std;
 using namespace boost::network;
 using namespace boost::network::http;
 
-
+namespace {
 struct HttpObject {
 	HttpObject() {}
 
@@ -65,8 +65,9 @@ struct HttpObject {
 
 	std::unordered_map<std::string, std::string> hdmap;
 };
+}//namespace
 
-void getinfo(const std::string& url) {
+static void getinfo(const std::string& url) {
 
 	http::client::options opt;
 
@@ -86,7 +87,7 @@ void getinfo(const std::string& url) {
 
 }
 
-void test1() {
+static void test1() {
 
 	/*if (argc != 2) {
 	std::cout << "Usage: " << argv[0] << " [url]" << std::endl;

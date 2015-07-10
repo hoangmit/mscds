@@ -25,15 +25,15 @@ Implementation of generic wavelet tree functions
 namespace mscds {
 
 
-	inline uint64_t _getMSB(uint64_t x, uint64_t pos, uint64_t len) {
+	static inline uint64_t _getMSB(uint64_t x, uint64_t pos, uint64_t len) {
 		return (x >> (len - (pos + 1))) & 1ULL;
 	}
 
-	inline uint64_t _prefixCode(uint64_t x, unsigned int len, unsigned int bit_num) {
+	static inline uint64_t _prefixCode(uint64_t x, unsigned int len, unsigned int bit_num) {
 		return x >> (bit_num - len);
 	}
 
-	inline void _sortrun(unsigned int d, unsigned int bit_num, std::vector<uint64_t>& pos, std::vector<uint64_t>& runlen) {
+	static inline void _sortrun(unsigned int d, unsigned int bit_num, std::vector<uint64_t>& pos, std::vector<uint64_t>& runlen) {
 		std::vector<uint64_t> nextrunlen, r0, r1;
 		uint64_t i = 0;
 		for (uint64_t r = 0; r < runlen.size(); ++r) {

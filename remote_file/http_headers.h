@@ -20,7 +20,10 @@ namespace mscds {
 
 //typedef boost::network::http::basic_client<boost::network::http::tags::http_async_8bit_udp_resolve, 1, 1> client_t;
 
+/// Encode string using URI scheme
 std::string uri_encode(const std::string & sSrc);
+
+/// Decode string from URI scheme
 std::string uri_decode(const std::string & sSrc);
 
 struct ContentRangeTp {

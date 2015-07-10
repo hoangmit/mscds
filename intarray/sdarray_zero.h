@@ -1,15 +1,15 @@
 #pragma once
 
+/**  \file
+Mock SDArray for testing
+*/
+
 #include "sdarray_interface.h"
 
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
 #include <cassert>
-
-/**  \file
-Mock SDArray
-*/
 
 namespace mscds {
 

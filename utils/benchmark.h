@@ -17,6 +17,10 @@ Function and classes for speed benchmarking.
 
 #include "utils/str_utils.h"
 
+
+namespace tests {
+
+/// Class to add and run benchmark
 class BenchmarkRegister {
 public:
 	typedef std::function<void()> VoidFunc;
@@ -33,7 +37,7 @@ private:
 
 #define BENCHMARK_SET(name) \
 	void name(); \
-	void * _ ## name ## _reg = ::BenchmarkRegister::getInst()->add(#name, name); \
+	void * _ ## name ## _reg = ::tests::BenchmarkRegister::getInst()->add(#name, name); \
 	void name()
 
 #define BENCHMARK_SET_DISABLE(name) \
@@ -47,6 +51,7 @@ public:
 	virtual ~SharedFixtureItf(){}
 };
 
+/// Class for one benchmark set
 template<typename SharedFixture>
 class Benchmarker {
 public:
@@ -90,6 +95,7 @@ void Benchmarker<SharedFixture>::add(const std::string &name, typename Benchmark
 	lst.emplace_back(name, fc, nrun);
 }
 
+/// Timer using ctime
 struct CTimer {
 	CTimer() { reset(); }
 	void start() { start_time = clock(); }
@@ -101,6 +107,7 @@ struct CTimer {
 	clock_t start_time;
 };
 
+/// high resolution timer
 struct HiResTimer {
 	HiResTimer() { reset(); }
 	void start() { start_time = Clock::now(); }
@@ -194,3 +201,5 @@ void Benchmarker<SharedFixture>::_report_methods(const typename Benchmarker<Shar
 		}
 	}
 }
+
+}//namespace

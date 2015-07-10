@@ -4,9 +4,15 @@
 #include <string>
 #include <functional>
 
+/**  \file
+
+Collection of hash functions
+
+*/
+
 namespace utils {
 
-/* Fowler / Noll / Vo (FNV) Hash */
+/** Fowler / Noll / Vo (FNV) Hash */
 struct FNV_hash {
 
 	/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
@@ -32,6 +38,7 @@ template<typename T> inline void hash_combine(size_t & seed, T const& v) {
 	seed ^= std::hash<T>(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
+/// Pearson hash
 class PearsonHash {
 public:
 	template<typename T = uint32_t>

@@ -118,12 +118,15 @@ public:
 	virtual void inspect(const std::string& param, std::ostream& out) const {}
 };
 
+
+/// Interface for data structure to save/load from archive
 struct SaveLoadInt {
 	virtual ~SaveLoadInt() {}
 	virtual void save(OutArchive& ar) const = 0;
 	virtual void load(InpArchive& ar) = 0;
 };
 
+/// Interface for auxiliary data structure
 template<typename T>
 struct SaveLoadAuxInt {
 	virtual ~SaveLoadAuxInt() {}
@@ -132,6 +135,7 @@ struct SaveLoadAuxInt {
 
 };
 
+/// save a number to archive (with one byte for byte length and check sum)
 inline OutArchive &OutArchive::save_num(uint64_t v) {
     uint8_t tag = 0, len = 0;
     if (v < 16) {

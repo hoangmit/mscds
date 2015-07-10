@@ -205,7 +205,7 @@ TEST(num_codec, test1) {
 }//namespace
 
 
-namespace example {
+namespace  {
 
 class SString;
 class SStringBuilder;

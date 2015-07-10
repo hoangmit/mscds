@@ -64,7 +64,7 @@ public:
 };
 
 
-// sub-range of a BitArray
+/// slice of a BitArray
 struct BitRange {
 	BitRange() : ba(nullptr), start(0), len(0) {}
 	BitRange(const BitRange& other) : ba(other.ba), start(other.start), len(other.len) {}

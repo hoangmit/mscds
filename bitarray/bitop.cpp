@@ -1,8 +1,8 @@
 #include "bitop.h"
 
 namespace mscds {
-	bool lmsb_init_flag = false;
-	unsigned int _msb_table[256], _lsb_table[256];
+	static bool lmsb_init_flag = false;
+	static unsigned int _msb_table[256], _lsb_table[256];
 	
 
 	void lmsb_init_tables(void)

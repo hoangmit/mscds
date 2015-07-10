@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <vector>
+#include <deque>
 #include <stdint.h>
 
 #include "utils/utest.h"
@@ -10,9 +11,8 @@
 using namespace std;
 using namespace coder;
 
-std::vector<uint8_t> gen_rnd1(unsigned len = 50000, unsigned fhp = 70) {
-	std::vector<uint8_t> ret;
-	ret.reserve(len);
+std::deque<uint8_t> gen_rnd1(unsigned len = 50000, unsigned fhp = 70) {
+	std::deque<uint8_t> ret;
 	for (unsigned i = 0; i < len; ++i) {
 		if (rand() % 100 < 80)
 			ret.push_back(rand() % 128);
@@ -22,34 +22,38 @@ std::vector<uint8_t> gen_rnd1(unsigned len = 50000, unsigned fhp = 70) {
 	return ret;
 }
 
+namespace {
 struct BOStream {
 	BOStream(): data(nullptr) {}
 
-	std::vector<uint8_t> * data;
+	std::deque<uint8_t> * data;
 	void put(uint8_t c) {
-		data->push_back(c);
+		data->push_front(c);
 	}
 };
+
 
 struct IStream {
 	IStream(): i(0), data(nullptr){}
 
-	void bind(std::vector<uint8_t> * _data) {
+	void bind(std::deque<uint8_t> * _data) {
 		i = 0;
 		this->data = _data;
 	}
 	unsigned i;
-	std::vector<uint8_t> * data;
+	std::deque<uint8_t> * data;
 	bool hasNext() const { return i < data->size(); }
 	uint8_t get() { return data->at(i++); }
 };
+
+}//anonymous namespace
 
 static void check(unsigned len) {
 	auto vec = gen_rnd1(len);
 	static const uint32_t prob_bits = 16;
 	static const uint32_t prob_scale = 1 << prob_bits;
 
-	std::vector<uint8_t> encode;
+	std::deque<uint8_t> encode;
 
 	BOStream outstream;
 	outstream.data = &encode;
@@ -69,7 +73,6 @@ static void check(unsigned len) {
 	}
 	RansEncOp::flush(rans, &outstream);
 
-	std::reverse(encode.begin(), encode.end());
 	inpstream.bind(&encode);
 
 	rans = RansDecOp::init(&inpstream);
@@ -88,14 +91,14 @@ static void check(unsigned len) {
 }
 
 TEST(rans, rnd1) {
-	for (unsigned i = 0; i < 100; ++i) {
+	for (unsigned i = 0; i < 200; ++i) {
 		check(50000);
 		if (i % 10 == 0) cout << '.' << flush;
 	}
 	cout << endl;
 }
 
-
+/*
 int main(int argc, char* argv[]) {
 	::testing::GTEST_FLAG(catch_exceptions) = "0";
 	::testing::GTEST_FLAG(break_on_failure) = "1";
@@ -104,3 +107,4 @@ int main(int argc, char* argv[]) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
+*/

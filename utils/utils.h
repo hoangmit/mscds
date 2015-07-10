@@ -58,6 +58,7 @@ namespace utils {
 #if defined(_MSC_VER)
 
 	/* MS VC's RAND_MAX is only 32767 */
+	/** returns random unsigned 32-bit integer */
 	inline uint32_t rand32() {
 		return (((((uint32_t)rand()) << 15) ^ ((uint32_t)rand())) << 2) | (rand() & 3);
 	}
@@ -66,7 +67,7 @@ namespace utils {
 		return (uint32_t) mrand48();
 	}
 #endif
-	/// generate a random 64-bit integer
+	/// generates a random 64-bit integer
 	inline uint64_t rand64() {
 		return 
 			(((uint64_t) rand32() <<  0) & 0x00000000FFFFFFFFull) | 
@@ -78,6 +79,7 @@ namespace utils {
 	// http://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c/
 	// http://www.codeproject.com/Articles/9187/A-fast-equivalent-for-System-Random
 	// by George Marsaglia
+	/// Fast XorShift Random generator
 	struct XorShiftRng {
 		XorShiftRng() {
 			init();

@@ -190,4 +190,4 @@ BENCHMARK_SET(bitaccess_benchmark) {
 	bm.report(0);
 }
 
-}
+}//namespace

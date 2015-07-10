@@ -4,6 +4,7 @@
 #include <string>
 using namespace std;
 
+namespace tests {
 
 BenchmarkRegister* BenchmarkRegister::_inst = NULL;
 
@@ -38,3 +39,4 @@ void BenchmarkRegister::run_all_bm()  {
 }
 
 
+}//namespace

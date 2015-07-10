@@ -20,7 +20,7 @@
 using namespace std;
 using namespace mscds;
 
-namespace Example2 {
+namespace {
 /// Example: a class use StaticMemRegion, save and load from Archive
 class SString {
 public:
@@ -340,7 +340,7 @@ struct Remote_cwig2 {
 using namespace tests;
 
 int main() {
-	Example2::example_str1();
+	example_str1();
 	std::cout << utils::MD5::hex("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") << endl;
 
 	//example1();

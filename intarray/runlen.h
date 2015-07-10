@@ -1,11 +1,17 @@
 #pragma once
 
+/** \file
+
+Run Len compressed integer array
+*/
+
 #include "sdarray_sml.h"
 #include "huffarray.h"
 namespace mscds {
 
 class RunLenBuilder;
 
+/// Run Len compressed integer array
 class RunLenArr {
 public:
 	RunLenArr(): rcnt(0) {}

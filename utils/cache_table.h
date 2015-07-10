@@ -15,7 +15,7 @@ Least Recent Used cache table
 #include <stdint.h>
 
 namespace utils {
-/*
+/**
 cache table model: a set of keys map to a limited size table. 
 The table is cache_table[0..capacity-1],
 
@@ -37,17 +37,17 @@ public:
 		EntryResultTp type;
 	};
 
-	/* check if table contains a key
+	/** check if table contains a key
 	NOT_FOUND or FOUND_ENTRY
 	*/
 	virtual OpResultTp check(const KeyTp& key) = 0;
 		
-	/* find existing key, find a place to update,
+	/** find existing key, find a place to update,
 	FOUND_ENTRY or REPLACED_ENTRY/NEW_ENTRY
 	*/
 	virtual OpResultTp access(const KeyTp& key) = 0;
 	
-	/* remove existing key 
+	/** remove existing key 
 	NOT_FOUND or FOUND_ENTRY
 	*/
 	virtual OpResultTp remove(const KeyTp& key) = 0;
@@ -71,7 +71,7 @@ public:
 	virtual void clear() = 0;
 };
 
-
+/// Least Recent Use cache policy
 class LRU_Policy : public CacheTablePolicyInterface {
 public:
 	LRU_Policy() :_capacity(0) {}
@@ -101,6 +101,7 @@ private:
 	size_t _capacity;
 };
 
+/// Tree LRU policy
 class TreePLRU_Policy : public CacheTablePolicyInterface {
 public:
 	TreePLRU_Policy();

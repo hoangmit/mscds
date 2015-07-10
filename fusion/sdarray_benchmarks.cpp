@@ -13,6 +13,7 @@
 #include "utils/benchmark.h"
 
 using namespace mscds;
+using namespace tests;
 
 //--------------------------------------------------------------------------
 // Benchmark

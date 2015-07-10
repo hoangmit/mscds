@@ -17,7 +17,7 @@ namespace mscds {
 
 class StringArr;
 
-/// data structure may pad 0 at the end of each string for safety
+
 class StringArrBuilder {
 public:
 	void add(const std::string& s);
@@ -40,6 +40,7 @@ public:
 
 typedef std::shared_ptr<StringInt> StringPtr;
 
+/// data structure pad 0 at the end of each string for cstring functions
 class StringArr {
 public:
 	StringArr();

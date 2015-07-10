@@ -19,7 +19,7 @@ Implement archive for remote file.
 namespace mscds {
 class RemoteArchive2;
 
-/// remote archive (version 2)
+/// remote archive (for file format version 2)
 class RemoteArchive2 : public InpArchive {
 public:
 	RemoteArchive2();

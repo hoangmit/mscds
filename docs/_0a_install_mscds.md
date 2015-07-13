@@ -8,6 +8,7 @@ MSCDS requires the following components:
 * [Boost library](http://www.boost.org/) to compile
 * [CMake](http://www.cmake.org/) to create makefile
 * [Optional] [Mercurial version control](https://mercurial.selenic.com/) to mange the changes
+* [Optional]  [Doxygen](www.doxygen.org) to compile documentation
 
 
 
@@ -19,7 +20,8 @@ sudo yum install \
   gcc-c++ \
   boost-devel boost-static \
   cmake \
-  mercurial
+  mercurial \
+  doxygen
 ~~~~~~~~
 
 On ubuntu system:
@@ -28,7 +30,8 @@ sudo apt-get install \
   build-essential \
   libboost-all-dev \
   cmake \
-  mercurial
+  mercurial \
+  doxygen
 ~~~~~~~~
 
 
@@ -72,6 +75,12 @@ mkdir build
 cd build
 cmake ..
 make
+~~~~~~~~
+
+To build the HTML documentation using Dogxygen
+~~~~~~~~bash
+cd mscds
+doxygen docs/Doxyfile
 ~~~~~~~~
 
 ## Use mscds

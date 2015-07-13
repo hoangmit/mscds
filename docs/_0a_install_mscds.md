@@ -113,15 +113,9 @@ include_directories(${Boost_INCLUDE_DIRS}) #library variable ${Boost_LIBRARIES}
 # find_package(Threads REQUIRED) #library variable: ${CMAKE_THREAD_LIBS_INIT}
 
 ###
-set(SRCS
-file1.cpp
-file2.cpp
-)
+set(SRCS file1.cpp file2.cpp )
 
-set(HEADERS
-file1.h
-file2.h
-)
+set(HEADERS file1.h file2.h )
 
 add_executable(your_program_name ${SRCS} ${HEADERS})
 target_link_libraries(your_program_name ${MSCDS_LIB})
@@ -134,6 +128,6 @@ For GCC, use ["-I" option](http://gcc.gnu.org/onlinedocs/gcc/Directory-Options.h
 
 For example:
 ~~~~~~~~~~~~~~~bash
-g++
+$
 ~~~~~~~~~~~~~~~
 

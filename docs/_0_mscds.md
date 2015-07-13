@@ -36,12 +36,13 @@ MSCDS focus on supporting compressed "static" data structure. Once the data stru
 
 ## Memory models ##
 
-The memory model is used to save (aka. serialize) and load the data structure. MSCDS library supports a few memory models.
+The memory model is used to save (aka. serialize) and load the data structure. MSCDS library supports a few memory models. All the memory models are sub-class of `InpArchive` or `OutArchive`.
 
-Models for Data structure builder
+Models for Data structure builder class
 * Memory
 * Disk
-Memory models for Query data structures:
+
+Memory models for Query class:
 * RAM memory:
 * Mapped memory:
 * Cached memory:

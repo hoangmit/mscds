@@ -18,7 +18,7 @@ struct SDArrayInterface {
 		select = prefixsum(ret);
 		return ret;
 	}
-	virtual ValueTp lookup(unsigned int p, ValueTp& prev_sum) const {
+	virtual ValueTp lookup(ValueTp p, ValueTp& prev_sum) const {
 		prev_sum = prefixsum(p);
 		return lookup(p);
 	}

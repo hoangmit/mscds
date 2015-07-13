@@ -1,7 +1,6 @@
 #include "sdarray_c.h"
 
 
-
 namespace mscds {
 
 SDArrayCompressBuilder::SDArrayCompressBuilder() { init(); }

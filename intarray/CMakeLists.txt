@@ -6,6 +6,7 @@ set(SRCS sdarray.cpp sdarray_sml.cpp deltaarray.cpp huffarray.cpp
 gamma_arr.cpp
 remap_dt.cpp
 sdarray_th.cpp
+sdarray_rl.cpp
 sdarray_blk.cpp
 _experiment/sdarray_blk2.cpp
 sdarray_c.cpp
@@ -21,6 +22,7 @@ contextfree_models.hpp
 sdarray_th.h
 sdarray_zero.h
 sdarray_blk.h
+sdarray_rl.h
 _experiment/sdarray_blk2.h
 sdarray_c.h
 sdarray_interface.h

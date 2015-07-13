@@ -3,6 +3,7 @@
 #include "sdarray_sml.h"
 #include "sdarray_c.h"
 #include "sdarray_zero.h"
+#include "sdarray_rl.h"
 
 #include "mem/file_archive2.h"
 #include "mem/info_archive.h"
@@ -69,7 +70,7 @@ static void check_all(const SDArray& sda, const SDArrayZero& zero) {
 
 	//rank
 	auto last = zero.prefixsum(N);
-	if (last <= 100000) {
+	if (last <= N*10) {
 		for (unsigned i = 0; i <= last; ++i) {
 			exp = zero.rank(i);
 			val = sda.rank(i);
@@ -79,6 +80,9 @@ static void check_all(const SDArray& sda, const SDArrayZero& zero) {
 		for (unsigned i = 0; i <= last; i += 19) {
 			exp = zero.rank(i);
 			val = sda.rank(i);
+			if (exp != val) {
+				sda.rank(i);
+			}
 			ASSERT_EQ(exp, val);
 		}
 	}
@@ -102,19 +106,19 @@ static void check_prefixsum_lookup(const std::vector<unsigned int>& vals) {
 
 static std::vector<unsigned int> gen_zeros(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
-	for (int i = 0; i < N; ++i) ret[i] = 0;
+	for (unsigned i = 0; i < N; ++i) ret[i] = 0;
 	return ret;
 }
 
 static std::vector<unsigned int> gen_ones(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
-	for (int i = 0; i < N; ++i) ret[i] = 1;
+	for (unsigned i = 0; i < N; ++i) ret[i] = 1;
 	return ret;
 }
 
 static std::vector<unsigned int> gen_same(unsigned val, unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
-	for (int i = 0; i < N; ++i) ret[i] = val;
+	for (unsigned i = 0; i < N; ++i) ret[i] = val;
 	return ret;
 }
 
@@ -122,13 +126,25 @@ static std::vector<unsigned int> gen_same(unsigned val, unsigned int N = 10000) 
 
 static std::vector<unsigned int> gen_increasing(unsigned int N = 10000) {
 	std::vector<unsigned int> ret(N);
-	for (int i = 0; i < N; ++i) ret[i] = i;
+	for (unsigned i = 0; i < N; ++i) ret[i] = i;
 	return ret;
 }
 
 static std::vector<unsigned int> gen_rand(unsigned int N = 10000, unsigned range = 1000) {
 	std::vector<unsigned int> ret(N);
-	for (int i = 0; i < N; ++i) ret[i] = rand() % range;
+	for (unsigned i = 0; i < N; ++i) ret[i] = rand() % range;
+	return ret;
+}
+
+static std::vector<unsigned int> gen_rand2(unsigned int N = 3000, unsigned range = 1000, unsigned zero_len=4) {
+	std::vector<unsigned int> ret;
+	unsigned p = 0;
+	for (unsigned i = 0; i < N; ++i) {
+		ret.push_back(rand() % range);
+		unsigned cc = rand() % zero_len;
+		for (unsigned j = 0; j < cc; ++j)
+			ret.push_back(0);
+	}
 	return ret;
 }
 
@@ -770,8 +786,12 @@ TEST(sdatest_sml, testrnd2) {
 
 	vec = gen_increasing();
 	check_prefixsum_lookup<SDArraySml>(vec);
-	vec = gen_rand();
-	check_prefixsum_lookup<SDArraySml>(vec);
+	for (unsigned i = 0; i < 10; ++i) {
+		vec = gen_rand();
+		check_prefixsum_lookup<SDArraySml>(vec);
+		vec = gen_rand2();
+		check_prefixsum_lookup<SDArraySml>(vec);
+	}
 }
 
 TEST(sda_compress, test1) {
@@ -787,8 +807,33 @@ TEST(sda_compress, test1) {
 
 	vec = gen_increasing();
 	check_prefixsum_lookup<SDArrayCompress>(vec);
-	vec = gen_rand();
-	check_prefixsum_lookup<SDArrayCompress>(vec);
+	for (unsigned i = 0; i < 10; ++i) {
+		vec = gen_rand();
+		check_prefixsum_lookup<SDArrayCompress>(vec);
+		vec = gen_rand2();
+		check_prefixsum_lookup<SDArrayCompress>(vec);
+	}
+}
+
+TEST(sda_rl, test1) {
+	std::vector<unsigned> vec;
+	vec = gen_zeros();
+	check_prefixsum_lookup<SDArrayRunLen>(vec);
+	vec = gen_ones();
+	check_prefixsum_lookup<SDArrayRunLen>(vec);
+	vec = gen_same(2);
+	check_prefixsum_lookup<SDArrayRunLen>(vec);
+	vec = gen_same(3);
+	check_prefixsum_lookup<SDArrayRunLen>(vec);
+
+	vec = gen_increasing();
+	check_prefixsum_lookup<SDArrayRunLen>(vec);
+	for (unsigned i = 0; i < 10; ++i) {
+		vec = gen_rand();
+		check_prefixsum_lookup<SDArrayRunLen>(vec);
+		vec = gen_rand2();
+		check_prefixsum_lookup<SDArrayRunLen>(vec);
+	}
 }
 
 

@@ -50,7 +50,7 @@ public:
 	  * \param annotation   sets to true if you want to add text annotations (default is false)
 	  *
 	  * The BED graph file format contains multiple lines. Each line has four tokens
-	  * <chromsome_name>  <start_position>  <end_position>  <optional_annotation>
+	  * chromsome_name  start_position  end_position  optional_annotation
 	  * 
 	  */
 	void build_bedgraph(const std::string& input, const std::string& output,

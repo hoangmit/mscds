@@ -3,11 +3,11 @@
 ## Concepts ##
 Rank Select data structures are a set of data structures that support at least two operations <tt>rank</tt> and <tt>select</tt> on a bit vector.
 
-Given an array <math>A[0..(m - 1)]</math>, the rank and select is defined as follows:
-* <math>rank(c, p)</math> is the number of times value <math>c</math> occurs in the sub-array <math>A[0..(p-1)]</math>
-* <math>select(c, i)</math> returns index <math>p</math> such that <math>A[p] = c</math> and <math>rank(c, p) = i</math>. Note that <math>i</math> starts from <math>0</math>.
+Given an array $A[0..(m - 1)]$, the rank and select is defined as follows:
+* $rank(c, p)$ is the number of times value $c$ occurs in the sub-array $A[0..(p-1)]$
+* $select(c, i)$ returns index $p$ such that $A[p] = c$ and $rank(c, p) = i$. Note that $i$ starts from $0$.
 
-== Classes ==
+## Classes ##
 
 We have a few rank/select data structures. They are:
 * `Rank25p`: uses additional 25% space of the original bit vector for indexing.
@@ -15,7 +15,7 @@ We have a few rank/select data structures. They are:
 * `Rank3p`: uses additional 6% space.
 * `RRR2`: is compressed rank/select data structure.
 
-The relative speed of the structures are: <tt>to be completed</tt>
+<!-- The relative speed of the structures are: to be completed -->
 
 ## Examples ##
 

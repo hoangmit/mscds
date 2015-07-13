@@ -1,7 +1,7 @@
 Save data strucure to file
 ==========================
 
-Data structures that need to use the file save/load service are required to implement two methods `save`, and `load`.
+MSCDS provides services for data structure to save/load from external memory. To be able to use the service, data structures are required to implement two methods `save`, and `load`. The signature of these methods are:
 
 ```````````cpp
 #include "framework/archive.h"
@@ -13,9 +13,9 @@ public:
 };
 ```````````
 
-## Save and Load methods ##
+## Usage ##
 
-Example:
+The following is an example of using the methods with File archive object:
 ```````````cpp
 #include "mem/file_archive2.h"
 using namespace mscds;
@@ -43,13 +43,23 @@ d.load(fi);
 fi.close();
 ```````````
 
+Shortcuts without explicit declaration of archive objects;
+````cpp
+#include "mem/shortcuts.h"
+
+//...
+mscds::BitArray a;
+mscds::save_to_file(a, "path/to/file");
+mscds::BitArray b;
+mscds::load_from_file(b, "path/to/file");
+````
+
 You can measure the disk size of the data structure that implemented save/load by using
 ```````````cpp
 #include "mem/info_archive.h"
-using namespace mscds;
 //...
 DataStructure ds;
-size_t s = estimate_data_size(ds)
+size_t s = mscds::estimate_data_size(ds)
 ```````````
 
 ## Writing save/load method for your data structure ##
@@ -58,24 +68,29 @@ size_t s = estimate_data_size(ds)
 Example:
 
 ```````````cpp
+using namespace mscds;
+
+//Declarations
 class DataStructreX {
 public:
   void save(mscds::OutArchive& ar) const;
   void load(mscds::InpArchive& ar);
 private:
+  //Using existing data structures
   SDArraySml arr;
   BitArray bits;
   unsigned _size;
 };
 void DataStructreX::save(mscds::OutArchive& ar) const {
-  // declare class name, and class version
-  ar.startclass("class_name_data_structure_x", 1); 
+  // declare class name
+  ar.startclass("class_name_data_structure_x");
   // use ".var()" to declare sub-datastructure name or variable name
   // it is optional, but is recommended for debugging and XML export
   arr.save(ar.var("array"));
   // normal integer variable can be saved directly
   ar.var("size_variable").save(_size);
 
+  //using other data structure save function
   bits.save(ar.var("bit_vector"));
   // close the class declaration
   ar.endclass();
@@ -83,7 +98,7 @@ void DataStructreX::save(mscds::OutArchive& ar) const {
 
 void DataStructreX::load(mscds::InpArchive& ar) {
   // load method needs to match the order of the save method
-  int class_version = ar.loadclass("class_name_data_structure_x");
+  ar.loadclass("class_name_data_structure_x");
   arr.load(ar.var("array"));
   ar.var("size_variable").load(_size);
   bits.load(ar.var("bit_vector"));
@@ -109,9 +124,9 @@ virtual OutArchive& save(uint64_t v) { return save_bin(&v, sizeof(v)); }
 virtual OutArchive& save(int64_t v)  { return save_bin(&v, sizeof(v)); }
 virtual OutArchive& save_bin(const void* ptr, size_t size) = 0;
 
-virtual OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4) = 0;
-virtual OutArchive& add_mem_region(const void* ptr, size_t size) = 0;
-virtual OutArchive& end_mem_region() = 0;
+virtual OutArchive& start_mem_region(size_t size, MemoryAlignmentType = A4);
+virtual OutArchive& add_mem_region(const void* ptr, size_t size);
+virtual OutArchive& end_mem_region();
 ```````````
 
 API of the `InpArchive` interface.
@@ -135,3 +150,6 @@ virtual size_t ipos() const = 0;
 virtual bool eof() const = 0;
 virtual void close() {}
 ```````````
+
+To develop new Archive class, developer often only requires to implements `save_bin`, `load_bin` and `load_mem_region` methods. See existing code for more information.
+

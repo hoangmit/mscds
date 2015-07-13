@@ -6,14 +6,14 @@ There are two variants of SDArray. It is recommended to use SDArraySml.
 
 ## Model ##
 
-SDArray is an array of non-negative integers <math>A[0..(m-1)]</math>. 
+SDArray is an array of non-negative integers $A[0..(m-1)]$. 
 It provides the following operations:
-*  access any element <math>A[i]</math> in constant time 
-*  compute <math>prefix\_sum(i)= \sum_{k=0}^{i-1} A[k]</math> in constant time. (note that <math>prefix\_sum(0)=0</math>)
-*  compute <math>rank(p)</math> returns the minimal index i such that <math>prefix\_sum(i) \geq p</math> in logarithmic time.
+*  access any element $A[i]$ in constant time 
+*  compute $prefix\_sum(i)= \sum_{k=0}^{i-1} A[k]$ in constant time. (note that $prefix\_sum(0)=0$)
+*  compute $rank(p)$ returns the minimal index i such that $prefix\_sum(i) \geq p$ in logarithmic time.
 
 
-Let <math>n=\sum_{k=1}^{m}A[i]</math>. The SDArray should uses about <math>m \log_2 (n/m) + 2m + o(n)</math> bits.
+Let $n=\sum_{k=1}^{m}A[i]$. The SDArray should uses about $m \log_2 (n/m) + 2m + o(n)$ bits.
 
 ## Create SDArray ##
 

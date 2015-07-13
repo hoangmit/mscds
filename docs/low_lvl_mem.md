@@ -194,7 +194,7 @@ MemoryAlignmentType alignment() const
 MemoryAccessType memory_type() const
 //only little-endian is supported at the moment
 EndiannessType endianness_type() const
- 
+
 // FULL_MAPPING and MAP_ON_REQUEST
 const void* get_addr() const
 // MAP_ON_REQUEST

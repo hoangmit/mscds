@@ -55,20 +55,18 @@ Memory models for Query class:
 
 
 ### Organization ###
-MSCDS source code is orgainized into several directories. Each directory contains code for related data structures or functions. The following table list the important directories:
+MSCDS source code is orgainized into several directories. Each directory contains code for related data structures or functions. The following table list some important directories and files. (The full list of directories, classes and functions can be found in the Doxygen generated document.)
 
-|Directory | Description | Example | Remark |
-|----------|-------------|---------| ------ |
-| `utils`    | utility classes and functions | `file_utils.h`, `str_utils.h`, `hash_utils.h`, etc. |  |
-| `codec`    | Basic encoding and decoding | `deltacoder.h`, `huffman_code.h`, `arithmetic_code.hpp`, etc. | |
-| `mem`      | Memory management (on RAM, and disk) | `file_archive2.h`, `fmap_archive2.h` | |
-| `bitarray` | Bitwise operations and BitArray classes | `bitop.h`, `bitarray.h`, `rankselect.h`, `rrr3.h`, etc. | |
-| `intarray` | Integer array classes | `sdarray_sml.h`, `huffarray.h`, etc. | |
-| `wavarray` | Wavelet tree data structure  | `wat_array.h`, `count2d.h` | |
-| `tree`     | Tree related data structures | `RMQ_sct.h`, `CartesianTree.h`, `BP_bits.h`, etc. | |
-| `cwig2`     | CWig data structure          | `cwig.h` | |
-
-
+|Directory | Description | Example |
+|----------|-------------|---------|
+| `utils`    | Utility classes and functions | <ul><li>`file_utils.h`: file and directory utilities</li><li>`str_utils.h`: string parsing utilities</li><li>`hash_utils.h`: hash functions</li><li>etc.</li></ul>  |
+| `codec`    | Basic encoding and decoding | <ul><li>`deltacoder.h`</li> <li>`huffman_code.h`</li> <li>`arithmetic_code.hpp`</li> <li>etc.</li></ul> |
+| `mem`      | Memory management (on RAM, and disk) | <ul><li>`file_archive2.h`</li> <li>`fmap_archive2.h`</li> </ul> |
+| `bitarray` | Bitwise operations and BitArray classes | <ul><li>`bitop.h`: Bitwise functions</li><li>`bitarray.h`: BitArray classes</li><li>`rank6p.h`: One of the Rank/Select classes</li><li>`rrr3.h`: Compressed BitArray</li><li>etc.</li></ul> |
+| `intarray` | Integer array classes | <ul><li>`sdarray_sml.h`: SDArray data structure</li><li>`huffarray.h`: Huffman compressed array</li><li>etc.</li></ul>|
+| `wavarray` | Wavelet tree data structure  | <ul><li>`wat_array.h`: Wavelet tree array</li><li>`count2d.h`: Wavelet tree with count support</li></ul> |
+| `tree`     | Tree related data structures | <ul><li>`RMQ_sct.h`</li><li>`CartesianTree.h`</li><li>`BP_bits.h`</li><li>etc.</li> |
+| `cwig2`     | CWig data structure          | `cwig2.h`: CWig format functions |
 
 
 

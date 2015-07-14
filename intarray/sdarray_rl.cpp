@@ -91,6 +91,27 @@ void SDArrayRunLenBuilder::build(SDArrayRunLen *out) {
     count.build(&out->count);
 }
 
+void SDArrayCRL::load(InpArchive &ar) {
+    ar.loadclass("adaptive_sdarray_runlen");
+    unsigned v;
+    ar.load(v);
+    if (v == 1) rltype = false;
+    else if (v == 2) rltype = true;
+    else throw ioerror("wrong type value");
+    if (rltype) rlen.load(ar.var("runlen_sda"));
+    else norm.load(ar.var("normal_sda"));
+    ar.endclass();
+}
+
+void SDArrayCRL::save(OutArchive &ar) const {
+    ar.startclass("adaptive_sdarray_runlen");
+    unsigned int v = (rltype ? 2 : 1);
+    ar.save(v);
+    if (rltype) rlen.save(ar.var("runlen_sda"));
+    else norm.save(ar.var("normal_sda"));
+    ar.endclass();
+}
+
 }//namespace
 
 

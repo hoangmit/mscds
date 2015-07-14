@@ -134,12 +134,12 @@ class SDArrayCRLBuilder: public BuildChoice<uint64_t> {
 public:
 	SDArrayCRLBuilder(): pval(0), n(0), m(0) { }
 
-	void _add_stat(uint64_t v) {
+	void _add_stat(const uint64_t& v) {
 		n++;
 		if (v != 0) m++;
 	}
 
-	void _add_data(uint64_t v) {
+	void _add_data(const uint64_t& v) {
 		if (rltype) bd1.add(v);
 		else bd2.add(v);
 	}

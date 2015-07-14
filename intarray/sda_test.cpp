@@ -837,4 +837,26 @@ TEST(sda_rl, test1) {
 }
 
 
+TEST(sda_adp_rl, test1) {
+	std::vector<unsigned> vec;
+	vec = gen_zeros();
+	check_prefixsum_lookup<SDArrayCRL>(vec);
+	vec = gen_ones();
+	check_prefixsum_lookup<SDArrayCRL>(vec);
+	vec = gen_same(2);
+	check_prefixsum_lookup<SDArrayCRL>(vec);
+	vec = gen_same(3);
+	check_prefixsum_lookup<SDArrayCRL>(vec);
+
+	vec = gen_increasing();
+	check_prefixsum_lookup<SDArrayCRL>(vec);
+	for (unsigned i = 0; i < 10; ++i) {
+		vec = gen_rand();
+		check_prefixsum_lookup<SDArrayCRL>(vec);
+		vec = gen_rand2();
+		check_prefixsum_lookup<SDArrayCRL>(vec);
+	}
+}
+
+
 }//namespace

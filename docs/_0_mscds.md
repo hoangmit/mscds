@@ -55,17 +55,17 @@ Memory models for Query class:
 
 
 ### Organization ###
-MSCDS source code is orgainized into several directories. Each directory contains code for related data structures or functions. The following table list some important directories and files. (The full list of directories, classes and functions can be found in the Doxygen generated document.)
+MSCDS source code is orgainized into several directories. Each directory contains source code for related data structures or functions. The following table list some important directories and files. (The full list of directories, classes and functions can be found in the Doxygen generated document listed in the README file.)
 
-|Directory | Description | Example |
+|Directory | Description | Some example files |
 |----------|-------------|---------|
 | `utils`    | Utility classes and functions | <ul><li>`file_utils.h`: file and directory utilities</li><li>`str_utils.h`: string parsing utilities</li><li>`hash_utils.h`: hash functions</li><li>etc.</li></ul>  |
-| `codec`    | Basic encoding and decoding | <ul><li>`deltacoder.h`</li> <li>`huffman_code.h`</li> <li>`arithmetic_code.hpp`</li> <li>etc.</li></ul> |
+| `codec`    | Basic entropy encoding and decoding | <ul><li>`deltacoder.h`: Delta encode</li> <li>`huffman_code.h`: Huffman code</li> <li>`arithmetic_code.hpp`: Arithmetic code</li> <li>etc.</li></ul> |
 | `mem`      | Memory management (on RAM, and disk) | <ul><li>`file_archive2.h`</li> <li>`fmap_archive2.h`</li> </ul> |
 | `bitarray` | Bitwise operations and BitArray classes | <ul><li>`bitop.h`: Bitwise functions</li><li>`bitarray.h`: BitArray classes</li><li>`rank6p.h`: One of the Rank/Select classes</li><li>`rrr3.h`: Compressed BitArray</li><li>etc.</li></ul> |
 | `intarray` | Integer array classes | <ul><li>`sdarray_sml.h`: SDArray data structure</li><li>`huffarray.h`: Huffman compressed array</li><li>etc.</li></ul>|
 | `wavarray` | Wavelet tree data structure  | <ul><li>`wat_array.h`: Wavelet tree array</li><li>`count2d.h`: Wavelet tree with count support</li></ul> |
-| `tree`     | Tree related data structures | <ul><li>`RMQ_sct.h`</li><li>`CartesianTree.h`</li><li>`BP_bits.h`</li><li>etc.</li> |
+| `tree`     | Tree related data structures | <ul><li>`RMQ_sct.h`: Range Minimun Query</li><li>`CartesianTree.h`: Cartesian tree</li><li>`BP_bits.h`: Balance parathesis encoding for tree</li><li>etc.</li> |
 | `cwig2`     | CWig data structure          | `cwig2.h`: CWig format functions |
 
 

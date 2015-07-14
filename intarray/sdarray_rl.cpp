@@ -59,6 +59,38 @@ void SDArrayRunLen::save(OutArchive &ar) const {
     ar.endclass();
 }
 
+//---------------
+
+void mscds::SDArrayRunLenBuilder::add(unsigned v) {
+    if (v == 0) zcount++;
+    else {
+        if (zcount > 0) {
+            psum.add(val);
+            count.add(zcount);
+        }
+        zcount = 1;
+        val = v;
+    }
+}
+
+void SDArrayRunLenBuilder::add_inc(unsigned v) {
+    assert(v >= pval);
+    add(v - pval);
+    pval = v;
+}
+
+void SDArrayRunLenBuilder::build(SDArrayRunLen *out) {
+    if (zcount > 0) {
+        psum.add(val);
+        count.add(zcount);
+    }
+    zcount = 0;
+    pval = 0;
+    val = 0;
+    psum.build(&out->psum);
+    count.build(&out->count);
+}
+
 }//namespace
 
 

@@ -53,6 +53,25 @@ Memory models for Query class:
 
 ## Data structure documentations ##
 
+
+### Organization ###
+MSCDS source code is orgainized into several directories. Each directory contains code for related data structures or functions. The following table list the important directories:
+
+|Directory | Description | Example | Remark |
+|----------|-------------|---------| ------ |
+| `utils`    | utility classes and functions | `file_utils.h`, `str_utils.h`, `hash_utils.h`, etc. |  |
+| `codec`    | Basic encoding and decoding | `deltacoder.h`, `huffman_code.h`, `arithmetic_code.hpp`, etc. | |
+| `mem`      | Memory management (on RAM, and disk) | `file_archive2.h`, `fmap_archive2.h` | |
+| `bitarray` | Bitwise operations and BitArray classes | `bitop.h`, `bitarray.h`, `rankselect.h`, `rrr3.h`, etc. | |
+| `intarray` | Integer array classes | `sdarray_sml.h`, `huffarray.h`, etc. | |
+| `wavarray` | Wavelet tree data structure  | `wat_array.h`, `count2d.h` | |
+| `tree`     | Tree related data structures | `RMQ_sct.h`, `CartesianTree.h`, `BP_bits.h`, etc. | |
+| `cwig2`     | CWig data structure          | `cwig.h` | |
+
+
+
+
+
 ### User guide:
 
 Getting started

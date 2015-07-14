@@ -17,41 +17,41 @@ class SDArrayRunLenBuilder;
 /// Run Length SDArray for array with many zero values
 class SDArrayRunLen: public SDArrayInterface {
 public:
-    typedef SDArrayInterface::ValueTp ValueTp;
-    
+	typedef SDArrayInterface::ValueTp ValueTp;
+	
 	ValueTp prefixsum(ValueTp p) const;
-    ValueTp rank(ValueTp val) const;
-    ValueTp lookup(ValueTp p) const;
+	ValueTp rank(ValueTp val) const;
+	ValueTp lookup(ValueTp p) const;
 	ValueTp lookup(ValueTp p, ValueTp& prev_sum) const;
 
-    ValueTp length() const;
-    ValueTp total() const;
-    void clear();
+	ValueTp length() const;
+	ValueTp total() const;
+	void clear();
 
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 	std::pair<unsigned, unsigned> get_count(unsigned p) const;
 	typedef SDArrayRunLenBuilder BuilderTp;
 private:
-    friend class SDArrayRunLenBuilder;
-    SDArraySml psum;
-    SDArraySml count;
+	friend class SDArrayRunLenBuilder;
+	SDArraySml psum;
+	SDArraySml count;
 };
 
 class SDArrayRunLenBuilder {
 public:
-    SDArrayRunLenBuilder(): zcount(0), pval(0), val(0) {}
-    void add(unsigned v);
+	SDArrayRunLenBuilder(): zcount(0), pval(0), val(0) {}
+	void add(unsigned v);
 
-    void add_inc(unsigned v);
+	void add_inc(unsigned v);
 
-    void build(SDArrayRunLen* out);
+	void build(SDArrayRunLen* out);
 
 private:
 	SDArraySml::BuilderTp psum;
 	SDArraySml::BuilderTp count;
-    uint64_t val, pval;
-    unsigned zcount;
+	uint64_t val, pval;
+	unsigned zcount;
 };
 
 class SDArrayCRLBuilder;
@@ -59,7 +59,7 @@ class SDArrayCRLBuilder;
 /// Adaptive method to choose between runlen, or normal SDArray
 class SDArrayCRL: public SDArrayInterface {
 public:
-    typedef SDArrayCRLBuilder BuilderTp;
+	typedef SDArrayCRLBuilder BuilderTp;
 	ValueTp prefixsum(ValueTp p) const {
 		if (rltype) return rlen.prefixsum(p);
 		else return norm.prefixsum(p);
@@ -90,14 +90,14 @@ public:
 		norm.clear();
 	}
 
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
 private:
 	friend class SDArrayCRLBuilder;
-    bool rltype;
-    
-    SDArrayRunLen rlen;
+	bool rltype;
+	
+	SDArrayRunLen rlen;
 	SDArraySml norm;
 };
 
@@ -148,11 +148,11 @@ public:
 		rltype = m * 2 < n;
 	}
 
-    void add_inc(unsigned v) {
-        assert(v >= pval);
-        add(v - pval);
-        pval = v;
-    }
+	void add_inc(unsigned v) {
+		assert(v >= pval);
+		add(v - pval);
+		pval = v;
+	}
 
 	void build(SDArrayCRL* out) {
 		flush();
@@ -165,7 +165,7 @@ public:
 private:
 	bool rltype;
 
-    uint64_t pval;
+	uint64_t pval;
 	size_t n, m;
 
 	SDArrayRunLenBuilder bd1;

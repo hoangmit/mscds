@@ -181,7 +181,7 @@ void MemoryMappedFile::create_rw(const char *fname, uint64_t len) {
 	if (result == -1) {
 		::close(fd);/* free(m); */
 		throw std::runtime_error("Error calling lseek() to 'stretch' the file");
-    }
+	}
 	result = write(fd, "", 1);
 	if (result != 1) {
 		::close(fd);/*free(m); */

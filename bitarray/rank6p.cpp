@@ -41,11 +41,11 @@ void Rank6pBuilder::build_aux(const BitArrayInterface *b, Rank6pAux * o) {
 		o->inv.setword(pos, v);
 		i += 8*4; pos += 2;
 	}
-    o->onecnt = cnt;
+	o->onecnt = cnt;
 }
 
 void Rank6pBuilder::build(const BitArray &b, Rank6p *o) {
-    o->own_bits = b;
+	o->own_bits = b;
 	build_aux(&o->own_bits, o);
 }
 
@@ -53,7 +53,7 @@ void Rank6pBuilder::build(const BitArray &b, Rank6p *o) {
 void Rank6pBuilder::build(const BitArray &b, OutArchive &ar) {
 	ar.startclass("Rank6p", 1);
 	assert(b.length() <= (1ULL << 50));
-    ar.var("bit_len").save(b.length());
+	ar.var("bit_len").save(b.length());
 
 	uint64_t nc = ((b.length() + 2047) / 2048) * 2; // every 2048 bits is a block
 	ar.var("inventory");
@@ -115,7 +115,7 @@ void Rank6p::save(OutArchive &ar) const {
 	ar.var("inventory");              // declare the name of a sub-data-structure
 	inv.save(ar);                     // save the sub-data-structure. The sub-data-structure needs to implement "save"
 	ar.var("onecnt").save(onecnt);    // another way of saving a integer variable
-    bits.save(ar.var("bits"));   // another way of saving a sub-data-structure
+	bits.save(ar.var("bits"));   // another way of saving a sub-data-structure
 	ar.endclass();                    // end data structure class (for error checking)
 	*/
 	ar.startclass("Rank6p");
@@ -125,13 +125,13 @@ void Rank6p::save(OutArchive &ar) const {
 }
 
 void Rank6p::clear() {
-    own_bits.clear();
-    Rank6pAux::clear();
+	own_bits.clear();
+	Rank6pAux::clear();
 }
 
 void Rank6p::load(InpArchive &ar) {
-    /*ar.loadclass("Rank6p");
-    size_t blen;
+	/*ar.loadclass("Rank6p");
+	size_t blen;
 	ar.var("bit_len").load(blen);
 	inv.load(ar);
 	ar.var("onecnt").load(onecnt);
@@ -280,9 +280,9 @@ unsigned int Rank6pAux::word_rank(size_t idx, unsigned int i) const {
 //------------------------------------------------------------------------
 
 struct BlockIntIterator {
-    const Rank6pAux& r;
+	const Rank6pAux& r;
 	uint64_t p;
-    BlockIntIterator(const Rank6pAux& _r): r(_r), p(0) {}
+	BlockIntIterator(const Rank6pAux& _r): r(_r), p(0) {}
 	void operator++() { ++p; }
 	uint64_t operator*() const { return r.blkrank(p); }
 };

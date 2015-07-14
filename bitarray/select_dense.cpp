@@ -148,16 +148,16 @@ unsigned int DenseSelectBlock::get_casex(unsigned int pos, const BitArray &v, un
 template<typename F>
 size_t __SelectDenseBuilder_build(const BitArrayInterface * b, SelectDenseAux *o, F f,
 		OBitStream& header, OBitStream& overflow) {
-    std::vector<unsigned int> v(DenseSelectBlock::BLK_COUNT);
+	std::vector<unsigned int> v(DenseSelectBlock::BLK_COUNT);
 	unsigned p = 0;
 	size_t cnt = 0;
-    DenseSelectBlock bx;
+	DenseSelectBlock bx;
 	for (unsigned int i = 0; i < b->length(); ++i) {
 		if (f(b->bit(i))) {
 			v[p++] = i;
 			cnt++;
 		}
-        if (p == DenseSelectBlock::BLK_COUNT) {
+		if (p == DenseSelectBlock::BLK_COUNT) {
 			bx.build(v, overflow, 0, 0);
 			header.puts(bx.h.v1);
 			header.puts(bx.h.v2);
@@ -210,9 +210,9 @@ void SelectDenseBuilder::build0(const BitArray &b, SelectDense *o) {
 
 std::pair<uint64_t, uint32_t> SelectDenseAux::pre_select(uint64_t r) const {
 	assert(r < this->cnt);
-    uint64_t blk = r / DenseSelectBlock::BLK_COUNT;
-    uint64_t p = r % DenseSelectBlock::BLK_COUNT;
-    DenseSelectBlock bx;
+	uint64_t blk = r / DenseSelectBlock::BLK_COUNT;
+	uint64_t p = r % DenseSelectBlock::BLK_COUNT;
+	DenseSelectBlock bx;
 	bx.h.v1 = ptrs.word(blk*2);
 	bx.h.v2 = ptrs.word(blk*2 + 1);
 	uint64_t sloc = bx.blk_ptr();

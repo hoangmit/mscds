@@ -61,7 +61,7 @@ uint32_t FastHash::hash32(const void *buf, size_t len, uint32_t seed)
 	// the following trick converts the 64-bit hashcode to Fermat
 	// residue, which shall retain information from both the higher
 	// and lower parts of hashcode.
-        uint64_t h = hash64(buf, len, seed);
+		uint64_t h = hash64(buf, len, seed);
 	return h - (h >> 32);
 }
 

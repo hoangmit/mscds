@@ -66,8 +66,8 @@ void VLenArrayBuilder::_add(unsigned blen, unsigned value) {
 }
 
 void VLenArrayBuilder::build(VLenArrayBuilder::QueryTp *out) {
-    std::unordered_map<unsigned, unsigned> cnt;
-    for (unsigned int v : vals) cnt[v]++;
+	std::unordered_map<unsigned, unsigned> cnt;
+	for (unsigned int v : vals) cnt[v]++;
 	typedef std::pair<unsigned, unsigned> puu_t;
 	std::priority_queue<puu_t, std::vector<puu_t>, std::greater<puu_t> > pq;
 	for (auto it = cnt.begin(); it != cnt.end(); ++it)  

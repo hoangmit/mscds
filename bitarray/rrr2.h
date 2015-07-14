@@ -57,9 +57,9 @@ private:
 	static void _init_nCk();
 	void _init_variables();
 private:
-    uint64_t partialsum(uint64_t block) const;
-    uint64_t positionS(uint64_t block) const;
-    uint64_t decode(uint64_t offset, unsigned int k) const;
+	uint64_t partialsum(uint64_t block) const;
+	uint64_t positionS(uint64_t block) const;
+	uint64_t decode(uint64_t offset, unsigned int k) const;
 
 	friend class RRR2Builder;
 	friend class RRR2HintSel;
@@ -69,7 +69,7 @@ private:
 class RRR2Builder {
 public:
 	static void init_table();
-    static uint64_t encode(uint64_t w, unsigned int k);
+	static uint64_t encode(uint64_t w, unsigned int k);
 	static void build(const BitArray& b, RRR2 * o);
 	static void build(const BitArray& b, OutArchive& ar);
 	typedef RRR2 QueryTp;

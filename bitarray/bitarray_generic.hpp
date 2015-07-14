@@ -69,7 +69,7 @@ public:
 	void clear();
 
 	/** returns the length of the array */
-    size_t length() const { return _bitlen; }
+	size_t length() const { return _bitlen; }
 	/** returns the number of words */
 	size_t word_count() const;
 	/** counts how many one inside the array */
@@ -106,14 +106,14 @@ public:
 	int64_t scan_zeros_slow(uint64_t start, uint32_t res) const;
 
 	//--------------------------------------------------
-    BitArrayGeneric();
-    BitArrayGeneric(const BitArrayGeneric& other) = default;
-    BitArrayGeneric& operator=(const BitArrayGeneric& other) = default;
-    BitArrayGeneric(BitArrayGeneric&& mE): _bitlen(mE._bitlen), _data(std::move(mE._data)) {}
-    BitArrayGeneric& operator=(BitArrayGeneric&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
+	BitArrayGeneric();
+	BitArrayGeneric(const BitArrayGeneric& other) = default;
+	BitArrayGeneric& operator=(const BitArrayGeneric& other) = default;
+	BitArrayGeneric(BitArrayGeneric&& mE): _bitlen(mE._bitlen), _data(std::move(mE._data)) {}
+	BitArrayGeneric& operator=(BitArrayGeneric&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
 	BitArrayGeneric(WordAccess wa, size_t _len): _bitlen(_len), _data(wa) {}
 
-    //StaticMemRegionPtr data_ptr() const { return _data; }
+	//StaticMemRegionPtr data_ptr() const { return _data; }
 
 	// freeze BitArray, not allow modifying
 	void freeze() {}
@@ -126,8 +126,8 @@ public:
 		return (a + b - 1) / b;
 	}
 protected:
-    size_t _bitlen;
-    WordAccess _data;
+	size_t _bitlen;
+	WordAccess _data;
 };
 
 //---------------------------------------------------------------------
@@ -147,8 +147,8 @@ inline uint8_t BitArrayGeneric<WordAccess>::popcntw(size_t pos) const { return _
 template<typename WordAccess>
 inline uint32_t BitArrayGeneric<WordAccess>::get_uint32(size_t pos) const {
 	assert((pos+1)*32 <= length());
-    if (pos % 2 == 0) return word(pos / 2) & 0xFFFFFFFFu;
-    else return word(pos / 2) >> 32;
+	if (pos % 2 == 0) return word(pos / 2) & 0xFFFFFFFFu;
+	else return word(pos / 2) >> 32;
 }
 template<typename WordAccess>
 inline size_t BitArrayGeneric<WordAccess>::word_count() const { return ceildiv(_bitlen, WORDLEN); }
@@ -158,7 +158,7 @@ inline size_t BitArrayGeneric<WordAccess>::word_count() const { return ceildiv(_
 
 template<typename WordAccess>
 inline uint64_t BitArrayGeneric<WordAccess>::bits64(size_t bitindex) const {
-    assert(bitindex + WORDLEN <= _bitlen);
+	assert(bitindex + WORDLEN <= _bitlen);
 	uint64_t i = bitindex / WORDLEN;
 	unsigned int j = bitindex % WORDLEN;
 	if (j == 0) return word(i);
@@ -168,7 +168,7 @@ inline uint64_t BitArrayGeneric<WordAccess>::bits64(size_t bitindex) const {
 template<typename WordAccess>
 inline uint64_t BitArrayGeneric<WordAccess>::bits(size_t bitindex, unsigned int len) const {
 	assert(len <= WORDLEN); // len > 0
-    assert(bitindex + len <= _bitlen);
+	assert(bitindex + len <= _bitlen);
 	if (len==0) return 0;
 	uint64_t i = bitindex / WORDLEN;
 	unsigned int j = bitindex % WORDLEN;
@@ -183,7 +183,7 @@ inline uint64_t BitArrayGeneric<WordAccess>::bits(size_t bitindex, unsigned int 
 template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::setbits(size_t bitindex, uint64_t value, unsigned int len) {
 	assert(len <= WORDLEN);
-    assert(bitindex + len <= _bitlen);
+	assert(bitindex + len <= _bitlen);
 	if (len == 0) return ;
 	uint64_t i = bitindex / WORDLEN;
 	unsigned int j = bitindex % WORDLEN;
@@ -191,20 +191,20 @@ inline void BitArrayGeneric<WordAccess>::setbits(size_t bitindex, uint64_t value
 	uint64_t mask = ((~0ull) >> (WORDLEN - len));
 	value = value & mask;
 	uint64_t v = (word(i) & ~(mask << j)) | (value << j);
-    _data.setword(i, v);
+	_data.setword(i, v);
 	if (j + len > WORDLEN)
 		setword(i+1, (word(i+1) & ~(mask >> (WORDLEN - j))) | (value >> (WORDLEN - j)));
 }
 
 template<typename WordAccess>
 inline bool BitArrayGeneric<WordAccess>::bit(size_t bitindex) const {
-    assert(bitindex < _bitlen);
+	assert(bitindex < _bitlen);
 	return (word(bitindex / WORDLEN) & (1ULL << (bitindex % WORDLEN))) != 0;
 }
 
 template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::setbit(size_t bitindex, bool value) {
-    assert(bitindex < _bitlen);
+	assert(bitindex < _bitlen);
 	uint64_t v = word(bitindex / WORDLEN);
 	if (value) v |= (1ULL << (bitindex % WORDLEN));
 	else v &= ~(1ULL << (bitindex % WORDLEN));
@@ -213,7 +213,7 @@ inline void BitArrayGeneric<WordAccess>::setbit(size_t bitindex, bool value) {
 
 template<typename WordAccess>
 inline uint8_t BitArrayGeneric<WordAccess>::byte(size_t pos) const {
-    assert(pos * 8 < length());
+	assert(pos * 8 < length());
 	/*uint64_t _word = this->word(pos / 8);
 	return (uint8_t)((_word >> (8*(pos % 8))) & 0xFF);*/
 	return _data.byte(pos);
@@ -223,24 +223,24 @@ template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::fillzero() {
 	//std::fill(data, data + word_count(), 0ull);
 	size_t wc = word_count();
-    for (size_t i = 0; i < wc; ++i) _data.setword(i, 0ull);
+	for (size_t i = 0; i < wc; ++i) _data.setword(i, 0ull);
 }
 
 template<typename WordAccess>
 inline void BitArrayGeneric<WordAccess>::fillone() {
 	//std::fill(data, data + word_count(), ~0ull);
 	size_t wc = word_count();
-    for (size_t i = 0; i < wc; ++i) _data.setword(i, ~0ull);
+	for (size_t i = 0; i < wc; ++i) _data.setword(i, ~0ull);
 }
 
 template<typename WordAccess>
 inline uint64_t BitArrayGeneric<WordAccess>::count_one() const {
-    if (_bitlen == 0) return 0;
+	if (_bitlen == 0) return 0;
 	uint64_t ret = 0;
-    const uint64_t wc = _bitlen / WORDLEN;
+	const uint64_t wc = _bitlen / WORDLEN;
 	for (size_t i = 0; i < wc; i++)
 		ret += popcntw(i);
-    for (size_t i = (_bitlen / WORDLEN)*WORDLEN; i < _bitlen; i++)
+	for (size_t i = (_bitlen / WORDLEN)*WORDLEN; i < _bitlen; i++)
 		if (bit(i)) ret++;
 	return ret;
 }
@@ -344,7 +344,7 @@ inline int64_t BitArrayGeneric<WordAccess>::scan_zeros_slow(uint64_t start, uint
 inline std::string BitArrayInterface::to_str() const {
 	assert(length() < (1UL << 16));
 	std::string s;
-    for (unsigned int i = 0; i < length(); ++i)
+	for (unsigned int i = 0; i < length(); ++i)
 		if (bit(i)) s += '1';
 		else s += '0';
 		return s;

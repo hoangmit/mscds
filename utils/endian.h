@@ -16,25 +16,25 @@ Macros and functions to swap byte orders
   #define __ORDER_LITTLE_ENDIAN__ 0x1234
   #define __ORDER_BIG_ENDIAN__ 0x4321
   #if defined(ARCH_IA32) || defined(ARCH_IA64) || defined(ARCH_AMD64) || defined(ARCH_ALPHA) || defined(ARCH_ARM) || defined(ARCH_MIPS) || \
-	      defined(_M_IX86) || defined(_X86_) || defined(_M_X64) || defined(_AMD64_) || defined(_M_AMD64) || defined(_M_ARM) || defined(_ARM_) || defined(_IA64_)  \
+		  defined(_M_IX86) || defined(_X86_) || defined(_M_X64) || defined(_AMD64_) || defined(_M_AMD64) || defined(_M_ARM) || defined(_ARM_) || defined(_IA64_)  \
 		  || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(__amd64__) || defined(__LITTLE_ENDIAN__)
-    #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
-    #ifndef __LITTLE_ENDIAN__
-      #define __LITTLE_ENDIAN__
-    #endif
+	#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+	#ifndef __LITTLE_ENDIAN__
+	  #define __LITTLE_ENDIAN__
+	#endif
   #else
-    #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
+	#define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 	#if IS_BIG_ENDIAN || defined(__BIG_ENDIAN__)
-       #define __BYTE_ORDER__ __ORDER_BIG_ENDIAN__
-       #ifndef __BIG_ENDIAN__
-         #define __BIG_ENDIAN__
-       #endif
-    #else
-       #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
-       #ifndef __LITTLE_ENDIAN__
-         #define __LITTLE_ENDIAN__
-       #endif
-    #endif
+	   #define __BYTE_ORDER__ __ORDER_BIG_ENDIAN__
+	   #ifndef __BIG_ENDIAN__
+		 #define __BIG_ENDIAN__
+	   #endif
+	#else
+	   #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+	   #ifndef __LITTLE_ENDIAN__
+		 #define __LITTLE_ENDIAN__
+	   #endif
+	#endif
   #endif
 #elif (!defined(__LITTLE_ENDIAN__)) && (__BYTE_ORDER__== __ORDER_LITTLE_ENDIAN__)
   #define __LITTLE_ENDIAN__

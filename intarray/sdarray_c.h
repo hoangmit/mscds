@@ -23,7 +23,7 @@ public:
 	ValueTp lookup(ValueTp p) const;
 	ValueTp lookup(ValueTp p, ValueTp& prev_sum) const;
 	ValueTp rank(ValueTp val) const;
-    ValueTp rank2(ValueTp p, ValueTp& select) const;
+	ValueTp rank2(ValueTp p, ValueTp& select) const;
 	uint64_t length() const { return len; }
 
 	void clear();
@@ -35,12 +35,12 @@ public:
 	static const unsigned BLKSIZE = 1024;
 private:
 	ValueTp _getBlkSum(unsigned blk) const;
-    ValueTp _getBlkStartPos(unsigned blk) const;
-    void _loadBlk(unsigned blk) const;
+	ValueTp _getBlkStartPos(unsigned blk) const;
+	void _loadBlk(unsigned blk) const;
 private:
 	friend class SDArrayCompressBuilder;
-    mutable SDArrayBlock2 blk;
-    unsigned w1, w2;
+	mutable SDArrayBlock2 blk;
+	unsigned w1, w2;
 	BitArray header;
 	RRR_BitArray bits;
 	size_t sum, len;
@@ -48,16 +48,16 @@ private:
 
 class SDArrayCompressBuilder {
 public:
-    SDArrayCompressBuilder();
-    void init();
+	SDArrayCompressBuilder();
+	void init();
 
-    void add(unsigned int v);
+	void add(unsigned int v);
 
-    void add_inc(unsigned int s);
-    void build(SDArrayCompress* out);
+	void add_inc(unsigned int s);
+	void build(SDArrayCompress* out);
 private:
-    void _build_blk();
-    void _finalize();
+	void _build_blk();
+	void _finalize();
 private:
 	std::deque<uint64_t> csum, blkpos;
 	static const unsigned BLKSIZE = SDArrayCompress::BLKSIZE;

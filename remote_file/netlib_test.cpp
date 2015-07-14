@@ -117,5 +117,5 @@ int main(int argc, char *argv[]) {
 	getinfo("http://genome.ddns.comp.nus.edu.sg/~hoang/bigWig/wgEncodeHaibTfbsGm12878RxlchPcr1xRawRep5.bigWig");
 
 	getinfo("http://requestb.in/1gce6yb1");
-    return 0;
+	return 0;
 }

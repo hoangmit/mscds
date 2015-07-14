@@ -22,7 +22,7 @@ public:
 	unsigned int rank(ValueType val) const;
 
 	void clear() { lastpt = ~0ULL; vals.clear(); bits = nullptr; width = 0; blkptr = 0; }
-    SDArrayBlock2() { clear(); }
+	SDArrayBlock2() { clear(); }
 
 	static const unsigned int BLKSIZE = 1023;
 private:

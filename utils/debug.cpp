@@ -32,7 +32,7 @@ void print_trace()
   printf ("Obtained %zd stack frames.\n", size);
 
   for (i = 0; i < size; i++)
-     printf ("%s\n", strings[i]);
+	 printf ("%s\n", strings[i]);
 
   free (strings);
 }

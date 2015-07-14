@@ -98,13 +98,13 @@ int run_batch(int argc, const char* argv[]) {
 
 void build_one(const string& inp, const string&  out) {
 
-    if (!utils::file_exists(out)) {
-        cout << inp << "  " << out << endl;
-        Timer tm;
-        ConvertBWF cf;
-        cf.process(inp, out);
-        cout << tm.current() << endl;
-    } else cout << "skip" << endl;
+	if (!utils::file_exists(out)) {
+		cout << inp << "  " << out << endl;
+		Timer tm;
+		ConvertBWF cf;
+		cf.process(inp, out);
+		cout << tm.current() << endl;
+	} else cout << "skip" << endl;
 }
 
 
@@ -112,12 +112,12 @@ int main(int argc, const char* argv[]) {
 	if (argc == 2)
 		return run_batch(argc, argv);
 	else
-        if (argc>=3) {
-            Config * c = Config::getInst();
-            c->parse(argc, argv);
-            cout << "params: " << endl;
-            c->dump();
+		if (argc>=3) {
+			Config * c = Config::getInst();
+			c->parse(argc, argv);
+			cout << "params: " << endl;
+			c->dump();
 
-            build_one(argv[1], argv[2]);
+			build_one(argv[1], argv[2]);
 		}
 }

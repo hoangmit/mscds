@@ -29,7 +29,7 @@ class RRRHintSel;
 /// RRR rank select data structure
 class RRR : public RankSelectInterface {
 private:
-    BitArray E, R, S, sumR, posS;
+	BitArray E, R, S, sumR, posS;
 	uint64_t onecnt, len;
 public:
 	uint64_t rank(uint64_t p) const;
@@ -52,8 +52,8 @@ public:
 
 	typedef RRRBuilder BuilderTp;
 private:
-    uint64_t partialsum(uint64_t block) const;
-    uint64_t positionS(uint64_t block) const;
+	uint64_t partialsum(uint64_t block) const;
+	uint64_t positionS(uint64_t block) const;
 
 	friend class RRRBuilder;
 	friend class RRRHintSel;

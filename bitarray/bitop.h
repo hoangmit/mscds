@@ -9,16 +9,16 @@ Implement commmon bit operations within a word
 
 Defines the following functions:
 
-    popcnt, popcnt_comp: count number of 1-bit in a word
+	popcnt, popcnt_comp: count number of 1-bit in a word
 
-    msb_intr, lsb_intr, lsb_table, msb_table: position of "most significant"/"least significant"
-	    bit in a word
+	msb_intr, lsb_intr, lsb_table, msb_table: position of "most significant"/"least significant"
+		bit in a word
 
-    revbits: reverse bit order in a word
+	revbits: reverse bit order in a word
 
-    selectword, selectword_v2: find position of the k-th 1-bit in a word
+	selectword, selectword_v2: find position of the k-th 1-bit in a word
 
-    ceillog2: ceil(log2(x))
+	ceillog2: ceil(log2(x))
 
 Written and collected from various sources by Hoang
 

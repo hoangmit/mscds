@@ -8,7 +8,7 @@
 Implement BitArray and related classes based on memory framework.
 
   BitArray: represents a array of bits. The size is fixed at creation; however, 
-    the values of the bit-element can be changed. This class also provide various
+	the values of the bit-element can be changed. This class also provide various
 	ways to access the bit e.g. by word, by byte.
 
   BitArrayBuilder: set of functions to build BitArray.
@@ -75,19 +75,19 @@ class BitArray: public BitArrayGeneric<MemRegionWordAccess> {
 public:
 	BitArray();
 	BitArray(size_t bitlen);
-    BitArray(const MemRegionWordAccess& mem, size_t bitlen);
-    BitArray(const BitArray& other);
-    BitArray& operator=(const BitArray& other);
+	BitArray(const MemRegionWordAccess& mem, size_t bitlen);
+	BitArray(const BitArray& other);
+	BitArray& operator=(const BitArray& other);
 	BitArray(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); }
 	BitArray& operator=(BitArray&& mE) { _bitlen = mE._bitlen; _data = std::move(mE._data); return *this; }
 
 	/** load the BitArray from InpArchive */
-    void load(InpArchive& ar);
-    void load_nocls(InpArchive& ar);
+	void load(InpArchive& ar);
+	void load_nocls(InpArchive& ar);
 
-    /** save the BitArray to OutArchive */
-    void save(OutArchive& ar) const;
-    void save_nocls(OutArchive& ar) const;
+	/** save the BitArray to OutArchive */
+	void save(OutArchive& ar) const;
+	void save_nocls(OutArchive& ar) const;
 
 	StaticMemRegionPtr data_ptr() const { return _data._data; }
 	friend class BitArrayBuilder;

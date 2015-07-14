@@ -46,7 +46,7 @@ public:
 	void add(unsigned int val) {
 		vals.push_back(val);
 	}
-    void build(QueryTp * out);
+	void build(QueryTp * out);
 private:
 	void _add(unsigned blen, unsigned value);
 

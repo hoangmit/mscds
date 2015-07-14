@@ -108,8 +108,8 @@ void Rank25p::save(OutArchive &ar) const {
 }
 
 void mscds::Rank25p::clear() {
-    _own_bits.clear();
-    Rank25pAux::clear();
+	_own_bits.clear();
+	Rank25pAux::clear();
 }
 
 }//namespace

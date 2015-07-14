@@ -133,7 +133,7 @@ public:
 	unsigned int chromosome_count() const { return nchr; }
 
 	/** \brief gets the id from the chromosome name if it exists,
-	    returns -1 otherwise */
+		returns -1 otherwise */
 	int getChrId(const std::string& chrname) const;
 
 	void save(mscds::OutArchive& ar) const;

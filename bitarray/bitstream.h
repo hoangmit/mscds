@@ -5,7 +5,7 @@
 Implement BitSteam class. 
 
   OBitStream: output bit stream. It provides a bit stream that user can append more bits 
-      at the end.
+	  at the end.
 
   IWBitStream: input bit stream. This class allows user to extract bits from its front.
 
@@ -108,7 +108,7 @@ public:
 	bool getb();
 
 	/** return the number of 0 bits before the next 1 bit or end of stream;
-	    consume all the 0 bits and the last 1 bit */
+		consume all the 0 bits and the last 1 bit */
 	unsigned int scan_next1();
 
 	/** return the number of 0 bits before the next 0 bit */

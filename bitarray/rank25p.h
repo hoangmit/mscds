@@ -36,18 +36,18 @@ private:
 	unsigned int word_rank(size_t idx, unsigned int i) const;
 	friend class Rank25pBuilder;
 protected:
-    BitArray inv;
-    const BitArrayInterface * bits;
-    uint64_t onecnt;
+	BitArray inv;
+	const BitArrayInterface * bits;
+	uint64_t onecnt;
 };
 
 
 /// BitArray and auxiliary data structure
 class Rank25p: public Rank25pAux {
 public:
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
-    void clear();
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+	void clear();
 private:
 	BitArray _own_bits;
 	friend class Rank25pBuilder;
@@ -55,9 +55,9 @@ private:
 
 class Rank25pBuilder {
 public:
-    static void build(const BitArray& b, Rank25p * o);
-    static void build_aux(const BitArrayInterface * b, Rank25pAux* o);
-    typedef Rank25p QueryTP;
+	static void build(const BitArray& b, Rank25p * o);
+	static void build_aux(const BitArrayInterface * b, Rank25pAux* o);
+	typedef Rank25p QueryTP;
 };
 
 

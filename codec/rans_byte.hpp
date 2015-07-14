@@ -36,9 +36,9 @@ struct RansEncOp {
 		return x;
 	}
 
-    static RansState _update(RansState x, uint32_t start, uint32_t freq, uint32_t scale_bits) {
-        return ((x / freq) << scale_bits) + (x % freq) + start;
-    }
+	static RansState _update(RansState x, uint32_t start, uint32_t freq, uint32_t scale_bits) {
+		return ((x / freq) << scale_bits) + (x % freq) + start;
+	}
 	
 	// Encodes a single symbol with range start "start" and frequency "freq".
 	// All frequencies are assumed to sum to "1 << scale_bits", and the
@@ -51,7 +51,7 @@ struct RansEncOp {
 		// renormalize
 		RansState x = _renorm(r, pptr, freq, scale_bits);
 		// x = C(s,x)
-        return _update(x,  start, freq, scale_bits);
+		return _update(x,  start, freq, scale_bits);
 	}
 	
 	// Flushes the rANS encoder.
@@ -81,8 +81,8 @@ struct RansDecOp {
 	
 	// Returns the current cumulative frequency (map it to a symbol yourself!)
 	static SymbolTp get(uint32_t scale_bits, RansState* r) {
-        uint32_t mask = (~0u) >> (32 - scale_bits);
-        return *r & mask;
+		uint32_t mask = (~0u) >> (32 - scale_bits);
+		return *r & mask;
 	}
 	
 	// Advances in the bit stream by "popping" a single symbol with range start

@@ -36,8 +36,8 @@ void SDArrayBlock2::saveBlock(OBitStream *bits) {
 
 	//higher bits' hints
 	uint64_t select_hints = 0;
-    const unsigned int step = SUBB_SIZE;
-    //assert(step == (BLKSIZE + SUBB_PER_BLK) / (SUBB_PER_BLK + 1));
+	const unsigned int step = SUBB_SIZE;
+	//assert(step == (BLKSIZE + SUBB_PER_BLK) / (SUBB_PER_BLK + 1));
 	size_t i = step;
 	for (size_t p = 0; p < SUBB_PER_BLK; ++p) {
 		uint64_t hp = ((vals[i - 1] >> width) + i - 1);
@@ -131,7 +131,7 @@ SDArrayBlock2::ValueType SDArrayBlock2::lookup(unsigned int off, ValueType &prev
 }
 
 unsigned int SDArrayBlock2::rank(ValueType val) const {
-    if (same_value) {
+	if (same_value) {
 		if (val == 0) return 0;
 		else if (val > svalue * BLKSIZE) return BLKSIZE + 1;
 		else {

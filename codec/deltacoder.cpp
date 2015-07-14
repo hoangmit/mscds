@@ -71,18 +71,18 @@ namespace coder {
 		if (n == 0) throw std::runtime_error("cannot encode 0"); 
 		if (n == 1) return 1;
 		LenTp l = msb_intr(n);
-	    return GammaCoder::encodelen(l + 1) + l;
+		return GammaCoder::encodelen(l + 1) + l;
 	}
 
 	CodePr DeltaCoder::encode(NumTp n) {
-	    if (n == 0) throw std::runtime_error("cannot encode 0"); 
-	    if (n == 1) { return CodePr(1,1); }
+		if (n == 0) throw std::runtime_error("cannot encode 0"); 
+		if (n == 1) { return CodePr(1,1); }
 		LenTp bitlen;
 		LenTp l = msb_intr(n);
 		std::pair<CodeTp, LenTp> rs = GammaCoder::encode(l + 1);
-	    bitlen = rs.second + l;
+		bitlen = rs.second + l;
 		return CodePr((rs.first | ((n - (1ull << l)) << rs.second) ), bitlen);
-	    //return concatc(GammaCoder::encode(l + 1), CodePr(n - (1ull << l), l));
+		//return concatc(GammaCoder::encode(l + 1), CodePr(n - (1ull << l), l));
 	}
 
 

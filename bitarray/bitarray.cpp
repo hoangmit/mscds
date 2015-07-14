@@ -44,7 +44,7 @@ return v;
 
 template<typename T>
 struct CppArrDeleter {
-    void operator()(void* p) const { delete[]((T*)p); }
+	void operator()(void* p) const { delete[]((T*)p); }
 };
 
 /*
@@ -66,11 +66,11 @@ void BitArraySeqBuilder::done() {
 
 void FixedWArrayBuilder::build_s(const std::vector<unsigned int> &values, FixedWArray* out) {
 	out->clear();
-    unsigned int max_val = 0;
-    for (unsigned int i = 0; i < values.size(); ++i) {
-       max_val = std::max<unsigned>(max_val, values[i]);
-    }
-    unsigned int width = val_bit_len(max_val);
+	unsigned int max_val = 0;
+	for (unsigned int i = 0; i < values.size(); ++i) {
+	   max_val = std::max<unsigned>(max_val, values[i]);
+	}
+	unsigned int width = val_bit_len(max_val);
 	*out = create(values.size(), width);
 	for (unsigned int i = 0; i < values.size(); ++i)
 		out->set(i, values[i]);
@@ -79,74 +79,74 @@ void FixedWArrayBuilder::build_s(const std::vector<unsigned int> &values, FixedW
 BitArray::BitArray() {}
 
 BitArray::BitArray(size_t bitlen) {
-    this->_bitlen = bitlen;
-    size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
-    LocalMemAllocator alloc;
-    _data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
-    if (arrlen > 0) _data.setword(arrlen - 1, 0);
+	this->_bitlen = bitlen;
+	size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
+	LocalMemAllocator alloc;
+	_data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
+	if (arrlen > 0) _data.setword(arrlen - 1, 0);
 }
 
 BitArray::BitArray(const MemRegionWordAccess &mem, size_t bitlen) {
-    _data = mem;
-    _bitlen = bitlen;
+	_data = mem;
+	_bitlen = bitlen;
 }
 
 BitArray::BitArray(const BitArray &other) { this->_bitlen = other._bitlen; this->_data = other._data; }
 
 BitArray BitArrayBuilder::create(size_t bitlen) {
-    BitArray v;
-    if (bitlen == 0) return v;
-    assert(bitlen > 0);
-    size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
-    LocalMemAllocator alloc;
-    v._data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
-    v._bitlen = bitlen;
-    if (arrlen > 0) v._data.setword(arrlen - 1, 0);
-    return v;
+	BitArray v;
+	if (bitlen == 0) return v;
+	assert(bitlen > 0);
+	size_t arrlen = (size_t)BitArray::ceildiv(bitlen, BitArray::WORDLEN);
+	LocalMemAllocator alloc;
+	v._data = alloc.allocStaticMem(arrlen * sizeof(uint64_t));
+	v._bitlen = bitlen;
+	if (arrlen > 0) v._data.setword(arrlen - 1, 0);
+	return v;
 }
 
 BitArray BitArrayBuilder::create(size_t bitlen, const char *ptr) {
-    BitArray v = create(bitlen);
-    size_t bytelen = (size_t)BitArray::ceildiv(bitlen, 8);
-    v._data._data.write(0, bytelen, (const void*)ptr);
-    return v;
+	BitArray v = create(bitlen);
+	size_t bytelen = (size_t)BitArray::ceildiv(bitlen, 8);
+	v._data._data.write(0, bytelen, (const void*)ptr);
+	return v;
 }
 
 BitArray BitArrayBuilder::adopt(size_t bitlen, StaticMemRegionPtr p) {
-    BitArray v;
-    v._data = p;
-    v._bitlen = bitlen;
-    return v;
+	BitArray v;
+	v._data = p;
+	v._bitlen = bitlen;
+	return v;
 }
 
 void mscds::BitArray::load_nocls(mscds::InpArchive &ar) {
-    ar.var("bit_len").load(_bitlen);
-    if (_bitlen > 0)
-        _data.load(ar.var("bits"));
+	ar.var("bit_len").load(_bitlen);
+	if (_bitlen > 0)
+		_data.load(ar.var("bits"));
 }
 
 void BitArray::load(InpArchive &ar) {
-    ar.loadclass("Bitvector");
-    load_nocls(ar);
-    ar.endclass();
+	ar.loadclass("Bitvector");
+	load_nocls(ar);
+	ar.endclass();
 }
 
 void BitArray::save_nocls(OutArchive &ar) const {
-    ar.var("bit_len").save(_bitlen);
-    if (_bitlen > 0)
-        _data.save(ar.var("bits"));
+	ar.var("bit_len").save(_bitlen);
+	if (_bitlen > 0)
+		_data.save(ar.var("bits"));
 }
 
 void BitArray::save(OutArchive &ar) const {
-    ar.startclass("Bitvector", 1);
-    save_nocls(ar);
-    ar.endclass();
+	ar.startclass("Bitvector", 1);
+	save_nocls(ar);
+	ar.endclass();
 }
 
 mscds::BitArray &mscds::BitArray::operator=(const mscds::BitArray &other) {
-    this->_bitlen = other._bitlen;
-    this->_data = other._data;
-    return *this;
+	this->_bitlen = other._bitlen;
+	this->_data = other._data;
+	return *this;
 }
 
 

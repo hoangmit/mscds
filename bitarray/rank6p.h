@@ -79,7 +79,7 @@ class Rank6p : public Rank6pAux {
 public:
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
-    void clear();
+	void clear();
 private:
 	friend class Rank6pBuilder;
 	BitArray own_bits;
@@ -89,9 +89,9 @@ private:
 /// Builder class for Rank6p
 class Rank6pBuilder {
 public:
-    static void build_aux(const BitArrayInterface* b, Rank6pAux * o);
-    static void build(const BitArray& b, Rank6p * o);
-    typedef Rank6pAux QueryTp;
+	static void build_aux(const BitArrayInterface* b, Rank6pAux * o);
+	static void build(const BitArray& b, Rank6p * o);
+	typedef Rank6pAux QueryTp;
 private:
 	static uint64_t popcntwz(const BitArrayInterface* v, size_t idx);
 };
@@ -99,7 +99,7 @@ private:
 /// Rank6p adds select hints
 class Rank6pHintSel {
 public:
-    void init(Rank6p& r);
+	void init(Rank6p& r);
 	void init(BitArray& b);
 
 	uint64_t select(uint64_t r) const;
@@ -108,7 +108,7 @@ public:
 	}
 	void clear();
 private:
-    Rank6p rankst;
+	Rank6p rankst;
 	FixedWArray hints;
 private:
 	void init();

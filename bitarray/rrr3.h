@@ -18,20 +18,20 @@ class RRR_WordAccessBuilder;
 
 class RRR_WordAccess: public WordAccessInterface {
 public:
-    uint64_t word(size_t i) const;
+	uint64_t word(size_t i) const;
 	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
 	uint8_t getchar(size_t i) const {
 		uint64_t _word = this->word(i / 8);
 		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
 	}
-    uint8_t popcntw(size_t i) const;
+	uint8_t popcntw(size_t i) const;
 	void load(InpArchive& ar);
 	void save(OutArchive& ar) const;
-    size_t word_count() const;
-    void clear();
+	size_t word_count() const;
+	void clear();
 	typedef RRR_WordAccessBuilder BuilderTp;
 private:
-    uint64_t offset_loc(unsigned i) const;
+	uint64_t offset_loc(unsigned i) const;
 	uint8_t offset_len(unsigned i) const;
 
 	friend class RRR_WordAccessBuilder;
@@ -75,13 +75,13 @@ public:
 
 class RRR_WordAccessBuilder {
 public:
-    RRR_WordAccessBuilder();
-    void init();
-    void add(uint64_t word);
-    void build(RRR_WordAccess* out);
-    static void build_array(const BitArray& ba, RRR_WordAccess* out);
+	RRR_WordAccessBuilder();
+	void init();
+	void add(uint64_t word);
+	void build(RRR_WordAccess* out);
+	static void build_array(const BitArray& ba, RRR_WordAccess* out);
 private:
-    void _flush_overflow();
+	void _flush_overflow();
 private:
 	OBitStream offset, bitcnt, pmark, overflow;
 	coder::RRR_Codec codec;
@@ -97,36 +97,36 @@ class AdaptiveWordAccesssBuilder;
 
 class AdaptiveWordAccesss: public WordAccessInterface {
 public:
-    AdaptiveWordAccesss();
-    uint64_t word(size_t i) const;
+	AdaptiveWordAccesss();
+	uint64_t word(size_t i) const;
 	void setword(size_t i, uint64_t v) { throw std::runtime_error("not supported"); }
 	uint8_t getchar(size_t i) const {
 		uint64_t _word = this->word(i / 8);
 		return (uint8_t)((_word >> (8*(i % 8))) & 0xFF);
 	}
 
-    uint8_t popcntw(size_t i) const;
+	uint8_t popcntw(size_t i) const;
 
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
-    void clear();
-    size_t word_count() const;
+	void clear();
+	size_t word_count() const;
 	typedef AdaptiveWordAccesssBuilder BuilderTp;
 private:
 	friend class AdaptiveWordAccesssBuilder;
 	Rank25p mark;
 	BitArray raw;
 	RRR_WordAccess rrr;
-    WordCache<8> cache;
+	WordCache<8> cache;
 };
 
 
 class AdaptiveWordAccesssBuilder {
 public:
-    void add(uint64_t word);
-    void build(AdaptiveWordAccesss* out);
-    static void build_array(const BitArray& ba, AdaptiveWordAccesss* out);
+	void add(uint64_t word);
+	void build(AdaptiveWordAccesss* out);
+	static void build_array(const BitArray& ba, AdaptiveWordAccesss* out);
 private:
 	OBitStream mark, raw;
 	RRR_WordAccessBuilder rrr;
@@ -138,43 +138,43 @@ class AdaptiveExtWordAccesssBuilder;
 
 class AdaptiveExtWordAccesss: public WordAccessInterface {
 public:
-    uint64_t word(size_t i) const;
-    void setword(size_t i, uint64_t v);
-    uint8_t getchar(size_t i) const;
-    uint8_t popcntw(size_t i) const;
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
-    void clear();
-    size_t word_count() const;
+	uint64_t word(size_t i) const;
+	void setword(size_t i, uint64_t v);
+	uint8_t getchar(size_t i) const;
+	uint8_t popcntw(size_t i) const;
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+	void clear();
+	size_t word_count() const;
 	typedef AdaptiveExtWordAccesssBuilder BuilderTp;
 private:
 	friend class AdaptiveExtWordAccesssBuilder;
-    uint8_t rrr_popcntw(size_t i) const;
+	uint8_t rrr_popcntw(size_t i) const;
 	uint8_t offset_len(unsigned i) const; 
-    uint64_t rrr_word(size_t i) const;
-    uint64_t offset_loc(unsigned i) const;
-    static const unsigned OFFSET_BLK = 32;
+	uint64_t rrr_word(size_t i) const;
+	uint64_t offset_loc(unsigned i) const;
+	static const unsigned OFFSET_BLK = 32;
 private:
-    Rank25p mark;
-    BitArray raw;
-    BitArray bitcnt;
-    BitArray offset;
+	Rank25p mark;
+	BitArray raw;
+	BitArray bitcnt;
+	BitArray offset;
 
-    FixedWArray opos;
-    coder::RRR_Codec codec;
-    WordCache<4> cache;
+	FixedWArray opos;
+	coder::RRR_Codec codec;
+	WordCache<4> cache;
 };
 
 class AdaptiveExtWordAccesssBuilder {
 public:
 	AdaptiveExtWordAccesssBuilder(): cc(0) {}
-    void add(uint64_t word);
-    void build(AdaptiveExtWordAccesss* out);
-    static void build_array(const BitArray& ba, AdaptiveExtWordAccesss* out);
+	void add(uint64_t word);
+	void build(AdaptiveExtWordAccesss* out);
+	static void build_array(const BitArray& ba, AdaptiveExtWordAccesss* out);
 private:
-    OBitStream mark, raw, offset, bitcnt;
-    FixedWArrayBuilder opos;
-    coder::RRR_Codec codec;
+	OBitStream mark, raw, offset, bitcnt;
+	FixedWArrayBuilder opos;
+	coder::RRR_Codec codec;
 	size_t cc;
 };
 
@@ -185,33 +185,33 @@ class Word_BitArrayBuilder;
 
 template<typename WordAccess>
 struct Word_BitArray: public BitArrayGeneric<WordAccess> {
-    typedef Word_BitArrayBuilder<WordAccess> BuilderTp;
-    friend class Word_BitArrayBuilder<WordAccess>;
+	typedef Word_BitArrayBuilder<WordAccess> BuilderTp;
+	friend class Word_BitArrayBuilder<WordAccess>;
 	typedef BitArrayGeneric<WordAccess> ParentTp;
-    void clear() {
+	void clear() {
 		ParentTp::_bitlen = 0;
 		ParentTp::_data.clear();
-    }
-    void load(InpArchive& ar) {
-        ar.loadclass("Generic_Word_BitArray");
+	}
+	void load(InpArchive& ar) {
+		ar.loadclass("Generic_Word_BitArray");
 		ar.var("length").load(ParentTp::_bitlen);
 		ParentTp::_data.load(ar.var("bit_data"));
-        ar.endclass();
-    }
-    void save(OutArchive& ar) const {
-        ar.startclass("Generic_Word_BitArray");
+		ar.endclass();
+	}
+	void save(OutArchive& ar) const {
+		ar.startclass("Generic_Word_BitArray");
 		ar.var("length").save(ParentTp::_bitlen);
 		ParentTp::_data.save(ar.var("bit_data"));
-        ar.endclass();
-    }
+		ar.endclass();
+	}
 };
 
 template<typename WordAccess>
 class Word_BitArrayBuilder {
 public:
-    static void build_array(const BitArray& ba, Word_BitArray<WordAccess>* out) {
-        typedef typename WordAccess::BuilderTp BuilderTp;
-        BuilderTp::build_array(ba, &(out->_data));
+	static void build_array(const BitArray& ba, Word_BitArray<WordAccess>* out) {
+		typedef typename WordAccess::BuilderTp BuilderTp;
+		BuilderTp::build_array(ba, &(out->_data));
 		out->_bitlen = ba.length();
 	}
 private:
@@ -225,9 +225,9 @@ class RRR3_RankBuilder;
 /// Rank for RRR3
 class RRR3_Rank: public Rank6pAux {
 public:
-    void clear();
-    void load(InpArchive& ar);
-    void save(OutArchive& ar) const;
+	void clear();
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
 
 	typedef RRR3_RankBuilder BuilderTp;
 protected:

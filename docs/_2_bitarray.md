@@ -1,10 +1,10 @@
 # BitArray
-This tutorial introduces the usage of BitArray library inside MSCDS. For the reference of BitArray see [[BitArray reference]].
-For the installing MSCDS library see [[abc]].
+This tutorial introduces the usage of BitArray library inside MSCDS. For the reference of BitArray see [[Method Reference]].
+
+There are two implementations of BitArray: (normal) BitArray, and compressed BitArray. The classes names are: `BitArray` and `RRR_BitArray`, respectively.
 
 
 ## Create BitArray
-
 
 Create a BitArray
 
@@ -23,6 +23,7 @@ int main() {
   b.setbit(3, true);
   // get the bit values at a position
   cout << b[0] << endl;
+  save_to_file(b, "path/to/file");
 }
 ``````````
 
@@ -71,6 +72,7 @@ uint64_t v = b.bits(1,3);
 ``````````cpp
 #include "mem/file_arhcive2.h" // in older version use "file_archive.h"
 //....
+  using namespace mscds;
   BitArray b = BitArrayBuilder::create(len)
   save_to_file(b, "file_name.bin");
 ``````````

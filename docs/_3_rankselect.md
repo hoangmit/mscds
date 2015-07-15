@@ -10,10 +10,10 @@ Given an array $A[0..(m - 1)]$, the rank and select is defined as follows:
 ## Classes ##
 
 We have a few rank/select data structures. They are:
-* `Rank25p`: uses additional 25% space of the original bit vector for indexing.
+* `Rank25p`: uses an additional space that equals to 25% the original bit vector for indexing.
 * `Rank6p`: uses additional 6% space.
-* `Rank3p`: uses additional 6% space.
-* `RRR2`: is compressed rank/select data structure.
+* `Rank3p`: uses additional 3% space.
+* `RRR3_Rank`: is compressed rank/select data structure.
 
 <!-- The relative speed of the structures are: to be completed -->
 
@@ -33,6 +33,7 @@ We have a few rank/select data structures. They are:
 
 ## References ##
 ````````cpp
+#include "bitarray/rankselect.h"
 /// the interface for ranks/select data structures in "bitarray/rankselect.h"
 
 /** counts the number of 1 in the range from 1 to (p-1) */

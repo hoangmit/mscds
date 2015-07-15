@@ -67,33 +67,45 @@ void SDArrayCompressBuilder::build(SDArrayCompress *out) {
 	header.build(&out->header);
 	BitArray ba;
 	obits.build(&ba);
-	RRR_BitArrayBuilder::build_array(ba, &(out->bits));
+	RRR_BitArrayBuilder::build_array(ba, &(out->cbits));
 	out->w1 = w1;
 	out->w2 = w2;
 	out->sum = sum;
 	out->len = i;
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::_getBlkSum(unsigned blk) const {
+void SDArrayCompressBuilder::build_aux(SDArrayBAux *out) {
+	_finalize();
+	header.build(&out->header);
+	obits.build(&(out->own_bits));
+	out->w1 = w1;
+	out->w2 = w2;
+	out->sum = sum;
+	out->len = i;
+}
+
+SDArrayBAux::ValueTp SDArrayBAux::_getBlkSum(unsigned blk) const {
 	if (blk == 0) return 0;
 	else blk-=1;
 	return header.bits(w2*blk, w1);
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::_getBlkStartPos(unsigned blk) const {
+SDArrayBAux::ValueTp SDArrayBAux::_getBlkStartPos(unsigned blk) const {
 	if (blk == 0) return 0;
 	else blk-=1;
 	return header.bits(w2*blk + w1, w2-w1);
 }
 
-void SDArrayCompress::_loadBlk(unsigned bp) const {
+void SDArrayBAux::_loadBlk(unsigned bp) const {
 	auto p1 = _getBlkStartPos(bp);
 	auto p2 = _getBlkStartPos(bp+1);
-	blk.loadBlock(&bits, p1, p2-p1);
+	blk.loadBlock(bits, p1, p2-p1);
 }
 
 
-SDArrayCompress::ValueTp SDArrayCompress::prefixsum(ValueTp p) const {
+SDArrayBAux::SDArrayBAux(): bits(nullptr), len(0), sum(0) {}
+
+SDArrayBAux::ValueTp SDArrayBAux::prefixsum(ValueTp p) const {
 	if (p == this->len) return this->sum;
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off = p % BLKSIZE;
@@ -105,7 +117,7 @@ SDArrayCompress::ValueTp SDArrayCompress::prefixsum(ValueTp p) const {
 	}
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p) const {
+SDArrayBAux::ValueTp SDArrayBAux::lookup(ValueTp p) const {
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off = p % BLKSIZE;
 	if (off + 1 < BLKSIZE) {
@@ -119,7 +131,7 @@ SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p) const {
 	}
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p, SDArrayCompress::ValueTp &prev_sum) const {
+SDArrayBAux::ValueTp SDArrayBAux::lookup(ValueTp p, SDArrayBAux::ValueTp &prev_sum) const {
 	uint64_t bpos = p / BLKSIZE;
 	uint32_t off = p % BLKSIZE;
 	if (off + 1 < BLKSIZE) {
@@ -138,7 +150,7 @@ SDArrayCompress::ValueTp SDArrayCompress::lookup(ValueTp p, SDArrayCompress::Val
 	}
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::rank(ValueTp val) const {
+SDArrayBAux::ValueTp SDArrayBAux::rank(ValueTp val) const {
 	if (val > total()) return length();
 	size_t maxl = header.length() / w2;
 	uint64_t lo = 0;
@@ -164,46 +176,61 @@ SDArrayCompress::ValueTp SDArrayCompress::rank(ValueTp val) const {
 	}
 }
 
-SDArrayCompress::ValueTp SDArrayCompress::rank2(ValueTp p, ValueTp &select) const {
+SDArrayBAux::ValueTp SDArrayBAux::rank2(ValueTp p, ValueTp &select) const {
 	uint64_t v = rank(p);
 	//TODO: optimize this
 	select = prefixsum(v);
 	return v;
 }
 
-void SDArrayCompress::clear() {
+void SDArrayBAux::clear() {
 	blk.clear();
 	header.clear();
-	bits.clear();
+	bits = nullptr;
 	w1 = w2 = 0;
 	sum = 0;
 	len = 0;
 }
 
-void SDArrayCompress::load(InpArchive &ar) {
-	ar.loadclass("SDArray_compress");
+void SDArrayBAux::load_aux(InpArchive &ar, const BitArrayInterface* ba) {
+	bits = ba;
+	ar.loadclass("SDArray_blk_aux");
 	ar.var("length").load(len);
 	ar.var("sum").load(sum);
 	ar.var("w1").load(w1);
 	ar.var("w2").load(w2);
+	uint64_t bal;
+	ar.var("store_bit_len").load(bal);
 	header.load(ar.var("header"));
-	bits.load(ar.var("bits"));
 	ar.endclass();
+	if (bal != bits->length()) throw ioerror("mismatch length");
 	blk.clear();
 }
 
-void SDArrayCompress::save(OutArchive &ar) const {
-	ar.startclass("SDArray_compress");
+void SDArrayBAux::save_aux(OutArchive &ar) const {
+	ar.startclass("SDArray_blk_aux");
 	ar.var("length").save(len);
 	ar.var("sum").save(sum);
 	ar.var("w1").save(w1);
 	ar.var("w2").save(w2);
+	uint64_t bal = bits->length();
+	ar.var("store_bit_len").save(bal);
 	header.save(ar.var("header"));
-	bits.save(ar.var("bits"));
 	ar.endclass();
-	//blk.clear();
 }
 
+void SDArrayCompress::load(InpArchive &ar) {
+	ar.loadclass("SDArray_Compress");
+	cbits.load(ar.var("compressed_bits"));
+	load_aux(ar.var("aux"), &cbits);
+	ar.endclass();
+}
 
+void SDArrayCompress::save(OutArchive &ar) const {
+	ar.startclass("SDArray_Compress");
+	cbits.save(ar.var("compressed_bits"));
+	save_aux(ar.var("aux"));
+	ar.endclass();
+}
 
 }//namespace 

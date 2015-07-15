@@ -15,8 +15,9 @@ namespace mscds {
 class SDArrayCompressBuilder;
 
 /// Compressed SDArray
-class SDArrayCompress: public SDArrayInterface {
+class SDArrayBAux: public SDArrayInterface {
 public:
+	SDArrayBAux();
 	typedef uint64_t ValueTp;
 	typedef SDArrayCompressBuilder BuilderTp;
 	ValueTp prefixsum(ValueTp p) const;
@@ -29,21 +30,31 @@ public:
 	void clear();
 
 	uint64_t total() const { return sum; }
-	void load(InpArchive& ar);
-	void save(OutArchive& ar) const;
+	void load_aux(InpArchive& ar, const BitArrayInterface* ba);
+	void save_aux(OutArchive& ar) const;
 
 	static const unsigned BLKSIZE = 1024;
-private:
+protected:
 	ValueTp _getBlkSum(unsigned blk) const;
 	ValueTp _getBlkStartPos(unsigned blk) const;
 	void _loadBlk(unsigned blk) const;
-private:
+protected:
 	friend class SDArrayCompressBuilder;
 	mutable SDArrayBlock2 blk;
 	unsigned w1, w2;
 	BitArray header;
-	RRR_BitArray bits;
+	const BitArrayInterface* bits;
+	BitArray own_bits;
 	size_t sum, len;
+};
+
+class SDArrayCompress: public SDArrayBAux {
+public:
+	void load(InpArchive& ar);
+	void save(OutArchive& ar) const;
+private:
+	RRR_BitArray cbits;
+	friend class SDArrayCompressBuilder;
 };
 
 class SDArrayCompressBuilder {
@@ -54,13 +65,14 @@ public:
 	void add(unsigned int v);
 
 	void add_inc(unsigned int s);
+	void build_aux(SDArrayBAux* out);
 	void build(SDArrayCompress* out);
 private:
 	void _build_blk();
 	void _finalize();
 private:
 	std::deque<uint64_t> csum, blkpos;
-	static const unsigned BLKSIZE = SDArrayCompress::BLKSIZE;
+	static const unsigned BLKSIZE = SDArrayBAux::BLKSIZE;
 	unsigned i;
 	unsigned int w1, w2;
 

@@ -3,28 +3,17 @@
 
 ## Introduction ##
 
-This memory manager provides a simple set of APIs to access multiple types of memory namely: local RAM memory, local file, and remote file. 
-The memory manager handles file access, address mapping, data caching and network communication to simplify and unify the process. Different memory types can be read/written through a basic API which handle the detailed operations. The manager also provide advanced API with more type details for user who prefer optimizations. 
+This memory manager provides a simple set of APIs to access multiple types of memory namely: local RAM memory, local file, and remote file. The memory manager handles file access, address mapping, data caching and network communication to simplify and unify the process. Different memory types can be read/written through a basic API which handle the detailed operations. The manager also provide advanced API with more type details for user who prefer optimizations.
 
-There are four main abstract classes: Data structures, Memory region, Allocator and Archive. (Each abstract concepts may have multiple implementations, but shares the same interface.) 
-The interactions between these classes are:
-`Data structure` uses `Memory Region`s for memory access.
-Blank `MemoryRegion`s are created from `Allocator`.
-`Memory region`s can be saved or loaded into `Archive`.
+There are four main abstract classes: Data structures, Memory region, Allocator and Archive. (Each abstract concepts may have multiple implementations, but shares the same interface.) The interactions between these classes are: `Data structure` uses `Memory Region`s for memory access. Blank `MemoryRegion`s are created from `Allocator`. `Memory region`s can be saved or loaded into `Archive`.
 
 <div style="text-align:center;">
 <img src="./mem_images/diagram1.png" alt="Drawing" style="width: 300px;"/>
 </div>
 
-Memory region is an abstract of a physical RAM memory region. It is consecutive memory region in RAM, which is similar to a fixed array of characters.
-Allocator is an abstraction of C language's `malloc()` function.
-Archive is an abstraction of a file on hard disk.
-The abstraction layer deals with:
-file caching schemes,
-file location and access mode,
-e.g. remote or local file.
+Memory region is an abstract of a physical RAM memory region. It is consecutive memory region in RAM, which is similar to a fixed array of characters. Allocator is an abstraction of C language's `malloc()` function. Archive is an abstraction of a file on hard disk. The abstraction layer deals with: file caching schemes, file location and access mode, e.g. remote or local file.
 
-### Examples ###
+### Archive type examples ###
 
 <div style="text-align:center;">
 <img src="./mem_images/Picture1.png" alt="Drawing" style="width: 420px;"/>
@@ -122,7 +111,7 @@ void example() {
 ## Allocator ##
 
 Purposes:
-* Allocate memory and return a Static/DynamicMemRegion
+* Allocate memory and return a `StaticMemRegion` or `DynamicMemRegion`
 * Convert from one type of memory to another type of memory
 
 
@@ -143,11 +132,11 @@ Currently only memory is implemented in `mem/local_mem.h`.
 
 Types:
 
- * StaticMemRegion: cannot change size 
- * DynamicMemRegion: can resize the region
+ * `StaticMemRegion`: cannot change size 
+ * `DynamicMemRegion`: can resize the region
 
 
-Each has 2 sets of functions
+Each has 2 sets of functions:
 
  * Basic functions
  * Advanced functions
@@ -175,19 +164,19 @@ void close()
 ### Advanced functions (Static Memory Region)
 
 3 memory access types:
- * API_ACCESS: The memory is remote, and data is not cached. There is no consistent address of the data.
- * MAP_ON_REQUEST: There is a persistent cache of the remote data in memory. User can read data directly using pointer access in request region.
- * FULL_MAPPING: this is local memory or fully cached data.
+ * `API_ACCESS`: The memory is remote, and data is not cached. There is no consistent address of the data.
+ * `MAP_ON_REQUEST`: There is a persistent cache of the remote data in memory. User can read data directly using pointer access in request region.
+ * `FULL_MAPPING`: this is local memory or fully cached data.
 
 Memory Alignment Types: A1 (byte), A2 (2 bytes), A4 (4 bytes), A8 (1 word)
 
 Endianness Type
- * LITTLE_ENDIAN_ACCESS
- * BIG_ENDIAN_ACCESS
+ * `LITTLE_ENDIAN_ACCESS`
+ * `BIG_ENDIAN_ACCESS`
 
 Modification types:
- * StaticMemRegion: cannot change size 
- * DynamicMemRegion: can resize the region
+ * `StaticMemRegion`: cannot change size
+ * `DynamicMemRegion`: can resize the region
 
 ~~~~~~~~~cpp
 MemoryAlignmentType alignment() const
@@ -230,8 +219,8 @@ Archive stores:
  * Memory regions: Big chunk of memory
 
 Archive is either:
- * Input archive (InpArchive) : write data to disk
- * Output archive (OutArchive): read data from disk/network to memory
+ * Input archive (`InpArchive`) : write data to disk
+ * Output archive (`OutArchive`): read data from disk/network to memory
 
 Many sub-types of archives
  * Sub-types shares the interfaces but stores the data differently
@@ -251,19 +240,24 @@ All files with same layout version are compatible.
 
 |Archive name|	Layout version|	Memory Cache|	Description|
 |------------|:--------------:|:-----------:|--------------|
-|IFileArchive1, OFileArchive1,IFileArchive2, OFileArchive2|	1, 2|	no|	Write to file, but load everything in memory|
-|OFileMapArchive1,OFileMapArchive1|1,2|	full|	file mapping cache, size unlimited, managed by OS|
-|OFileCCacheArchive|  _ |  | partial| (UNDONE)  custom cache with limited size.|
-|OMemArchive, IMemArchive|	1|	full|	In memory stream, no file is written|
-|OSizeEstArchive|	_	|full	|In memory to estimate data structure size|
-|OClassInfoArchive|	_	|full	|In memory, store annotation and meta-data to debug
-|OBindArchive|	_	|no	|duplicate data to two streams
-|RemoteArchive1,RemoteArchive2|	1,2|	full|	Access remote file on HTTP server. This uses a mirror file to cache remote file.|
-|RemoteArchiveNoCache|	2|	no|	Remote file without any cache|
-|RemoteArchiveMemCache|	2|	partial	|(UNDONE) Remote file with a shared memory cache|
+|`IFileArchive1`, `OFileArchive1`,`IFileArchive2`, `OFileArchive2`|	1, 2|	no|	Write to file, but load everything in memory|
+|`OFileMapArchive1`,`OFileMapArchive2`|1,2|	full|	file mapping cache, size unlimited, managed by OS|
+|`OFileCCacheArchive`|  _ |   partial| (UNDONE)  custom cache with limited size.|
+|`OMemArchive`, `IMemArchive`|	1|	full|	In memory stream, no file is written|
+|`OSizeEstArchive`|	_	|full	|In memory to estimate data structure size|
+|`OClassInfoArchive`|	_	|full	|In memory, store annotation and meta-data to debug
+|`OBindArchive`|	_	|no	|duplicate data to two streams
+|`RemoteArchive1`,`RemoteArchive2`|	1,2|	full|	Access remote file on HTTP server. This uses a mirror file to cache remote file.|
+|`RemoteArchiveNoCache`|	2|	no|	Remote file without any cache|
+|`RemoteArchiveMemCache`|	2|	partial	|(UNDONE) Remote file with a shared memory cache|
 
-
+## Example
 ~~~~~~~~~cpp
+#include "framework/archive.h"
+#include "mem/file_archive2.h"
+#include "remote_file/remote_archive2.h"
+#include <cassert>
+
 class SString;
 class SStringBuilder;
 using namespace mscds;

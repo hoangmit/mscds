@@ -13,9 +13,9 @@ public:
 };
 ```````````
 
-## Usage ##
+## Usage examples ##
 
-The following is an example of using the methods with File archive object:
+The following is an example of using the methods with File Archive object:
 ```````````cpp
 #include "mem/file_archive2.h"
 using namespace mscds;
@@ -54,18 +54,49 @@ mscds::BitArray b;
 mscds::load_from_file(b, "path/to/file");
 ````
 
+Example on BitArray:
+```````````cpp
+#include "bitarray/bitarray.h"
+#include "mem/shortcuts.h"
+#include <iostream>
+using namespace std;
+void create_and_save() {
+  using namespace mscds;
+  // create a bit array of length 4 using its Builder class
+  BitArray b = BitArrayBuilder::create(4);
+  // assign the value to some positions
+  b.setbit(0, true);
+  b.setbit(1, false);
+  b.setbit(2, false);
+  b.setbit(3, true);
+  // get the bit values at a position
+  save_to_file(b, "path/to/file");
+}
+
+void load_and_use() {
+  using namespace mscds;
+  BitArray bx;
+  load_from_file(bx, "path/to/file");
+  for (unsigned i = 0; i < bx.length(); ++i)
+    cout << bx[i];
+  cout << endl;
+}
+```````````
+
+
 You can measure the disk size of the data structure that implemented save/load by using
 ```````````cpp
 #include "mem/info_archive.h"
-//...
+
 DataStructure ds;
-size_t s = mscds::estimate_data_size(ds)
+//...
+size_t sz = mscds::estimate_data_size(ds)
 ```````````
 
 ## Writing save/load method for your data structure ##
 
 
-Example:
+Example on how to implement save/load methods:
 
 ```````````cpp
 using namespace mscds;

@@ -8,7 +8,7 @@ GitHub mirror: https://github.com/hoangmit/mscds
 
 Code summary: https://www.openhub.net/p/mscds
 
-## Documentation
+## Documentation ##
 
 [MSCDS library](docs/_0_mscds.md)
 

@@ -248,7 +248,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/cwig2)
 add_subdirectory(${PROJECT_SOURCE_DIR}/cbed)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/mfm)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/gtags)
-add_subdirectory(${PROJECT_SOURCE_DIR}/stdio_stream)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/stdio_stream)
 
 ##========================================================
 export(TARGETS mscdsa FILE "${PROJECT_BINARY_DIR}/mscdsaTargets.cmake")

@@ -80,7 +80,7 @@ inline void StringArrBuilder::load(InpArchive& ar, ContainerTp* out) {
 	StringArr sa;
 	sa.load(ar);
 	for (unsigned i = 0; i < sa.length(); ++i)
-		out->push_back(sa.get(i).c_str());
+		out->push_back(sa.get(i)->c_str());
 }
 
 }//namespace

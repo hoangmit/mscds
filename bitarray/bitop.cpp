@@ -73,7 +73,8 @@ namespace mscds {
 			0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
 			31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
 		};
-		return DeBruijnCtz[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
+		const uint32_t neg_v = static_cast<uint32_t>(-static_cast<int32_t>(v)); // avoid warning for (-v)
+		return DeBruijnCtz[((uint32_t)((v & neg_v) * 0x077CB531U)) >> 27];
 	}
 
 	uint8_t revbits_table8(uint8_t b) {

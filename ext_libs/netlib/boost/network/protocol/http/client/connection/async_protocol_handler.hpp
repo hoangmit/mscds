@@ -289,7 +289,7 @@ namespace boost { namespace network { namespace http { namespace impl {
       // determine if the body parser will need to handle chunked encoding
       typename headers_range<basic_response<Tag> >::type transfer_encoding_range = 
           headers.equal_range("Transfer-Encoding");
-      is_chunk_encoding = !empty(transfer_encoding_range) 
+      is_chunk_encoding = !(transfer_encoding_range.empty()) 
           && boost::iequals(boost::begin(transfer_encoding_range)->second, "chunked");
       headers_promise.set_value(headers);
     }

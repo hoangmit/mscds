@@ -25,7 +25,7 @@ public:
 	void build(OutArchive& ar);
 
 	template<typename ContainerTp = std::vector<std::string> >
-	static void save(const ContainerTp& container, OutArchive& ar);
+	static void save(OutArchive& ar, const ContainerTp& container);
 
 	template<typename ContainerTp = std::vector<std::string> >
 	static void load(InpArchive& ar, ContainerTp* out);
@@ -67,7 +67,7 @@ private:
 };
 
 template<typename ContainerTp >
-inline void StringArrBuilder::save(const ContainerTp& container, OutArchive& ar) {
+inline void StringArrBuilder::save(OutArchive& ar, const ContainerTp& container) {
 	StringArrBuilder bd;
 	for (auto it = container.cbegin(); it != container.cend(); ++it)
 		bd.add(*it);

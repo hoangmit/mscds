@@ -155,7 +155,7 @@ public:
 		vals.clear();
 	}
 	template<typename ContainerTp = std::vector<unsigned> >
-	static void save(const ContainerTp& container, OutArchive& ar);
+	static void save(OutArchive& ar, const ContainerTp& container);
 	template<typename ContainerTp = std::vector<unsigned> >
 	static void load(InpArchive& ar, ContainerTp* container);
 private:
@@ -163,7 +163,7 @@ private:
 };
 
 template<typename ContainerTp >
-inline void FixedWArrayBuilder::save(const ContainerTp& container, OutArchive& ar) {
+inline void FixedWArrayBuilder::save(OutArchive& ar, const ContainerTp& container) {
 	FixedWArray out;
 	FixedWArrayBuilder::build_s(container.cbegin(), container.cend(), &out);
 	out.save(ar);

@@ -154,10 +154,28 @@ public:
 	void clear() {
 		vals.clear();
 	}
+	template<typename ContainerTp = std::vector<unsigned> >
+	static void save(const ContainerTp& container, OutArchive& ar);
+	template<typename ContainerTp = std::vector<unsigned> >
+	static void load(InpArchive& ar, ContainerTp* container);
 private:
 	std::deque<uint64_t> vals;
 };
 
+template<typename ContainerTp >
+inline void FixedWArrayBuilder::save(const ContainerTp& container, OutArchive& ar) {
+	FixedWArray out;
+	FixedWArrayBuilder::build_s(container.cbegin(), container.cend(), &out);
+	out.save(ar);
+}
+template<typename ContainerTp >
+inline void FixedWArrayBuilder::load(InpArchive& ar, ContainerTp* container) {
+	FixedWArray out;
+	out.load(ar);
+	for (size_t i = 0; i < out.length(); ++i) {
+		container.push_back(out[i]);
+	}
+}
 
 template<typename Iterator>
 FixedWArray bsearch_hints(Iterator start, size_t arrlen, size_t rangelen, unsigned int lrate) {

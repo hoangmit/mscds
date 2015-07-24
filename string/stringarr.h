@@ -22,7 +22,13 @@ class StringArrBuilder {
 public:
 	void add(const std::string& s);
 	void build(StringArr* out);
-	void build(mscds::OutArchive& ar);
+	void build(OutArchive& ar);
+
+	template<typename ContainerTp = std::vector<std::string> >
+	static void save(const ContainerTp& container, OutArchive& ar);
+
+	template<typename ContainerTp = std::vector<std::string> >
+	static void load(InpArchive& ar, ContainerTp* out);
 private:
 	std::deque<std::string> store;
 };
@@ -59,5 +65,22 @@ private:
 	mscds::SDArraySml start;
 	friend class StringArrBuilder;
 };
+
+template<typename ContainerTp >
+inline void StringArrBuilder::save(const ContainerTp& container, OutArchive& ar) {
+	StringArrBuilder bd;
+	for (auto it = container.cbegin(); it != container.cend(); ++it)
+		bd.add(*it);
+	bd.build(ar);
+}
+
+template<typename ContainerTp >
+inline void StringArrBuilder::load(InpArchive& ar, ContainerTp* out) {
+	ContainerTp tp;
+	StringArr sa;
+	sa.load(ar);
+	for (unsigned i = 0; i < sa.length(); ++i)
+		out->push_back(sa.get(i).c_str());
+}
 
 }//namespace

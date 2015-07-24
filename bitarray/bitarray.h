@@ -173,7 +173,7 @@ inline void FixedWArrayBuilder::load(InpArchive& ar, ContainerTp* container) {
 	FixedWArray out;
 	out.load(ar);
 	for (size_t i = 0; i < out.length(); ++i) {
-		container.push_back(out[i]);
+        container->push_back(out[i]);
 	}
 }
 

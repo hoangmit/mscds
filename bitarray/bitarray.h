@@ -110,7 +110,7 @@ public:
 	void clear() { b.clear(); width = 0; }
 	InpArchive& load(InpArchive& ar);
 	OutArchive& save(OutArchive& ar) const;
-	size_t length() const { return b.length() / width; }
+    size_t length() const { if (b.length() == 0) return 0; else return b.length() / width; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
 	std::string to_str() const;
@@ -131,6 +131,7 @@ public:
 			++len;
 		}
 		unsigned width = val_bit_len(maxv);
+        if (width == 0) width = 1;
 		out->b = BitArrayBuilder::create(len*width);
 		out->width = width;
 		uint64_t i = 0;

@@ -99,24 +99,25 @@ class FixedWArrayBuilder;
 
 class FixedWArray {
 public:
-	FixedWArray(): width(0) {}
-	FixedWArray(const FixedWArray& other): b(other.b), width(other.width) {}
-	FixedWArray(const BitArray& bits, unsigned int width_): b(bits), width(width_) {}
+	FixedWArray(): width(0), len(0) {}
+	FixedWArray(const FixedWArray& other): b(other.b), width(other.width), len(other.len) {}
+	FixedWArray(const BitArray& bits, size_t _len, unsigned int width_): b(bits), len(_len), width(width_) {}
 
 	uint64_t operator[](size_t i) const { return b.bits(i*width, width); }
 	void set(size_t i, uint64_t v) { b.setbits(i*width, v, width); }
 
 	void fillzero() { b.fillzero(); }
-	void clear() { b.clear(); width = 0; }
+	void clear() { b.clear(); width = 0; len = 0; }
 	InpArchive& load(InpArchive& ar);
 	OutArchive& save(OutArchive& ar) const;
-    size_t length() const { if (b.length() == 0) return 0; else return b.length() / width; }
+    size_t length() const { return len; }
 	unsigned int getWidth() const { return width; }
 	const BitArray getArray() const { return b; }
 	std::string to_str() const;
 private:
 	friend class FixedWArrayBuilder;
 	BitArray b;
+	size_t len;
 	unsigned int width;
 };
 
@@ -124,14 +125,15 @@ class FixedWArrayBuilder {
 public:
 	template<typename Itr>
 	static void build_s(Itr bg, Itr ed, FixedWArray* out) {
-		uint64_t len = 0, maxv = 0;
+		uint64_t maxv = 0;
+		size_t len = 0;
 		for (Itr it = bg; it != ed; ++it) {
 			uint64_t v = *it;
 			if (maxv < v) maxv = v;
 			++len;
 		}
 		unsigned width = val_bit_len(maxv);
-        if (width == 0) width = 1;
+		out->len = len;
 		out->b = BitArrayBuilder::create(len*width);
 		out->width = width;
 		uint64_t i = 0;
@@ -144,7 +146,7 @@ public:
 	static void build_s(const std::vector<unsigned int>& values, FixedWArray* out);
 
 	static FixedWArray create(size_t len, unsigned int width) {
-		return FixedWArray(BitArrayBuilder::create(len*width), width);
+		return FixedWArray(BitArrayBuilder::create(len*width), len, width);
 	}
 
 	void add(uint64_t v) { vals.push_back(v);}

@@ -11,6 +11,7 @@ namespace mscds {
 //------------------------------------------------------------------------------
 InpArchive& FixedWArray::load(InpArchive& ar) {
 	ar.loadclass("FixedWArray");
+	ar.var("len").load(len);
 	ar.var("bitwidth").load(width);
 	b.load_nocls(ar);
 	ar.endclass();
@@ -18,6 +19,7 @@ InpArchive& FixedWArray::load(InpArchive& ar) {
 }
 OutArchive& FixedWArray::save(OutArchive& ar) const {
 	ar.startclass("FixedWArray", 1);
+	ar.var("len").save(len);
 	ar.var("bitwidth").save(width);
 	b.save_nocls(ar);
 	ar.endclass();
